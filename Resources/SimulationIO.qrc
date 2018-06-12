@@ -1,0 +1,7 @@
+ <!DOCTYPE RCC>
+ <RCC version="1.0">
+ <qresource>
+ <file>SimulationIO/SimulationIOLicense.txt</file>
+ <file>SimulationIO/SimulationIODescription.txt</file>
+ </qresource>
+ </RCC>

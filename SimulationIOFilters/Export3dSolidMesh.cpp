@@ -324,8 +324,8 @@ void Export3dSolidMesh::execute()
           for(int32_t i = 0; i < nnode_x; i++)
           {
               index = k*nnode_x*nnode_y+j*nnode_x+i;
-              fprintf(f1,"%d %.3f %.3f %.3f\n", index, m_coord[index*3],m_coord[index*3+1],m_coord[index*3+2]);  
-              fprintf(f3,"%d %.3f %.3f %.3f\n", index, m_coord[index*3],m_coord[index*3+1],m_coord[index*3+2]);  
+              fprintf(f1,"%d %.3f %.3f %.3f\n", index+1, m_coord[index*3],m_coord[index*3+1],m_coord[index*3+2]);  
+              fprintf(f3,"%d %.3f %.3f %.3f\n", index+1, m_coord[index*3],m_coord[index*3+1],m_coord[index*3+2]);  
           }
       }
   }
@@ -362,7 +362,7 @@ void Export3dSolidMesh::execute()
       {
           for(int32_t i = 0; i < ne_x; i++)
           {
-              index = k*nnode_x*nnode_y + j*nnode_x + i;
+              index = k*nnode_x*nnode_y + j*nnode_x + i + 1;
               int32_t eindex =  k*ne_x*ne_y + j*ne_x + i;    
               m_conn[eindex*8] = index;
               m_conn[eindex*8+1] = index + 1;
@@ -383,8 +383,8 @@ void Export3dSolidMesh::execute()
           for(int32_t i = 0; i < ne_x; i++)
           {
               index =  k*ne_x*ne_y + j*ne_x + i;
-              fprintf(f2,"%d %d %d %d %d %d %d %d %d\n", index, m_conn[index*8],m_conn[index*8+1],m_conn[index*8+2],m_conn[index*8+3],m_conn[index*8+4],m_conn[index*3+5],m_conn[index*8+6],m_conn[index*8+7]);  
-              fprintf(f3,"%d %d %d %d %d %d %d %d %d\n", index, m_conn[index*8],m_conn[index*8+1],m_conn[index*8+2],m_conn[index*8+3],m_conn[index*8+4],m_conn[index*3+5],m_conn[index*8+6],m_conn[index*8+7]);  
+              fprintf(f2,"%d %d %d %d %d %d %d %d %d\n", index+1, m_conn[index*8],m_conn[index*8+1],m_conn[index*8+2],m_conn[index*8+3],m_conn[index*8+4],m_conn[index*3+5],m_conn[index*8+6],m_conn[index*8+7]);  
+              fprintf(f3,"%d %d %d %d %d %d %d %d %d\n", index+1, m_conn[index*8],m_conn[index*8+1],m_conn[index*8+2],m_conn[index*8+3],m_conn[index*8+4],m_conn[index*3+5],m_conn[index*8+6],m_conn[index*8+7]);  
           }
       }
   }

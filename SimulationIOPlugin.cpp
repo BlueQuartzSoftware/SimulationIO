@@ -12,31 +12,29 @@
 #include "SIMPLib/Filtering/FilterFactory.hpp"
 
 #include "SimulationIO/SimulationIOConstants.h"
-#include "SimulationIO/SimulationIOVersion.h"
 
-// Include the MOC generated file for this class
-#include "moc_SimulationIOPlugin.cpp"
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-SimulationIOPlugin::SimulationIOPlugin() :
-  m_Version(SimulationIO::Version::Package()),                            
-  m_CompatibilityVersion(SimulationIO::Version::Package()), 
-  m_Vendor("Open-Source"),
-  m_URL("http://www.github.com/dream3d/SimulationIO"),
-  m_Location(""),                                 
-  m_Description("Description"),                   
-  m_Copyright(""),                               
-  //m_Version("0.1.0"),                            // Initialize SimulationIO's Version Number Here
-  //m_CompatibilityVersion("0.1.0"), // Initialize SimulationIO's Compatibility Version Number Here
-  //m_Vendor("Vendor Name"),                                // Initialize SimulationIO's Vendor Name Here
-  //m_URL("URL"),                                           // Initialize Company URL Here
-  //m_Location("Location"),                                 // Initialize SimulationIO library Location Here
-  //m_Description("Description"),                           // Initialize SimulationIO's Description Here
-  //m_Copyright("Copyright"),                               // Initialize SimulationIO's Copyright Here
-m_Filters(QList<QString>()),                        // Initialize SimulationIO's List of Dependencies Here
-m_DidLoad(false)
+SimulationIOPlugin::SimulationIOPlugin()
+: m_Version("0.1.0")
+, // Initialize SimulationIO's Version Number Here
+    m_CompatibilityVersion("0.1.0")
+, // Initialize SimulationIO's Compatibility Version Number Here
+    m_Vendor("Vendor Name")
+, // Initialize SimulationIO's Vendor Name Here
+    m_URL("URL")
+, // Initialize Company URL Here
+    m_Location("Location")
+, // Initialize SimulationIO library Location Here
+    m_Description("Description")
+, // Initialize SimulationIO's Description Here
+    m_Copyright("Copyright")
+, // Initialize SimulationIO's Copyright Here
+    m_Filters(QList<QString>())
+, // Initialize SimulationIO's List of Dependencies Here
+    m_DidLoad(false)
 {
 
 }
@@ -50,12 +48,6 @@ SimulationIOPlugin::~SimulationIOPlugin()
 
 // -----------------------------------------------------------------------------
 //
-// -----------------------------------------------------------------------------
-QString SimulationIOPlugin::getPluginName()
-{
-  return (SimulationIOConstants::SimulationIOPluginDisplayName);
-}
-
 // -----------------------------------------------------------------------------
 QString SimulationIOPlugin::getPluginFileName()
 {
@@ -77,8 +69,6 @@ QString SimulationIOPlugin::getPluginBaseName()
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
-
-
 
 // -----------------------------------------------------------------------------
 //
@@ -242,7 +232,13 @@ void SimulationIOPlugin::readSettings(QSettings& prefs)
 {
 }
 
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void SimulationIOPlugin::registerFilterWidgets(FilterWidgetManager* fwm)
+{
+}
+
 #include "SimulationIOFilters/RegisterKnownFilters.cpp"
 
-#include "FilterParameterWidgets/RegisterKnownFilterParameterWidgets.cpp"
 

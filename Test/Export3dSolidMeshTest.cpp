@@ -1,6 +1,7 @@
 // -----------------------------------------------------------------------------
 // Insert your license & copyright information here
 // -----------------------------------------------------------------------------
+#pragma once
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
@@ -24,15 +25,18 @@ class Export3dSolidMeshTest
 {
 
   public:
-    Export3dSolidMeshTest() {}
-    virtual ~Export3dSolidMeshTest() {}
+    Export3dSolidMeshTest() = default;
+    ~Export3dSolidMeshTest() = default;
+    Export3dSolidMeshTest(const Export3dSolidMeshTest&) = delete;            // Copy Constructor
+    Export3dSolidMeshTest(Export3dSolidMeshTest&&) = delete;                 // Move Constructor
+    Export3dSolidMeshTest& operator=(const Export3dSolidMeshTest&) = delete; // Copy Assignment
+    Export3dSolidMeshTest& operator=(Export3dSolidMeshTest&&) = delete;      // Move Assignment
 
-
-  // -----------------------------------------------------------------------------
-  //
-  // -----------------------------------------------------------------------------
-  void RemoveTestFiles()
-  {
+    // -----------------------------------------------------------------------------
+    //
+    // -----------------------------------------------------------------------------
+    void RemoveTestFiles()
+    {
   #if REMOVE_TEST_FILES
     QFile::remove(UnitTest::Export3dSolidMeshTest::TestFile1);
     QFile::remove(UnitTest::Export3dSolidMeshTest::TestFile2);
@@ -51,7 +55,7 @@ class Export3dSolidMeshTest
     if (nullptr == filterFactory.get())
     {
       std::stringstream ss;
-      ss << "The SimulationIO Requires the use of the " << filtName.toStdString() << " filter which is found in the SimulationIO Plugin";
+      ss << "The Export3dSolidMeshTest Requires the use of the " << filtName.toStdString() << " filter which is found in the SimulationIO Plugin";
       DREAM3D_TEST_THROW_EXCEPTION(ss.str())
     }
     return 0;
@@ -102,8 +106,6 @@ class Export3dSolidMeshTest
   }
 
   private:
-    Export3dSolidMeshTest(const Export3dSolidMeshTest&); // Copy Constructor Not Implemented
-    void operator=(const Export3dSolidMeshTest&); // Operator '=' Not Implemented
 
 
 };

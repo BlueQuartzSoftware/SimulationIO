@@ -2,18 +2,19 @@
  * Your License or Copyright can go here
  */
 
-#ifndef _simulationioplugin_h_
-#define _simulationioplugin_h_
+#pragma once
 
 #include <QtCore/QObject>
 #include <QtCore/QSettings>
 
 #include "SIMPLib/Plugin/ISIMPLibPlugin.h"
 
+#include "SimulationIO/SimulationIODLLExport.h"
+
 /**
  * @brief The SimulationIOPlugin class
  */
-class SimulationIOPlugin : public QObject, public ISIMPLibPlugin
+class SimulationIO_EXPORT SimulationIOPlugin : public QObject, public ISIMPLibPlugin
 {
     Q_OBJECT
     Q_INTERFACES(ISIMPLibPlugin)
@@ -22,31 +23,27 @@ class SimulationIOPlugin : public QObject, public ISIMPLibPlugin
   public:
     SimulationIOPlugin();
     virtual ~SimulationIOPlugin();
-    
+
     /**
-     * @brief getPluginName Returns the name of the plugin
-     */
-    virtual QString getPluginName();
-    /**
-     * @brief Returns the name of the plugin that appears on the file system. 
-     * 
+     * @brief Returns the name of the plugin that appears on the file system.
+     *
      * Note that if the build is a debug build there will be a _Plugin postfix
      * to the filename.
      */
     virtual QString getPluginFileName();
-    
+
     /**
      * @brief getPluginDisplayName The name that should be used for human facing
      * labels and display strings
-     * @return 
+     * @return
      */
     virtual QString getPluginDisplayName();
-    
+
     /**
      * @brief getPluginBaseName The Name of the plugin.
-     * 
+     *
      * This typically will NOT have the Plugin suffix.
-     * @return 
+     * @return
      */
     virtual QString getPluginBaseName();
 
@@ -163,5 +160,3 @@ class SimulationIOPlugin : public QObject, public ISIMPLibPlugin
     SimulationIOPlugin(const SimulationIOPlugin&); // Copy Constructor Not Implemented
     void operator=(const SimulationIOPlugin&); // Operator '=' Not Implemented
 };
-
-#endif /* _SimulationIO_H_ */

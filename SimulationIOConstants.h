@@ -12,8 +12,8 @@
 namespace SimulationIOConstants
 {
   const QString SimulationIOPluginFile("SimulationIOPlugin");
-  const QString SimulationIOPluginDisplayName("SimulationIOPlugin");
-  const QString SimulationIOBaseName("SimulationIOPlugin");
+  const QString SimulationIOPluginDisplayName("SimulationIO");
+  const QString SimulationIOBaseName("SimulationIO");
 
   namespace FilterGroups
   {

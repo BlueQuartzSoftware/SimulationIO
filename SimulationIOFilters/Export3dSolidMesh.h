@@ -2,8 +2,7 @@
  * Your License or Copyright can go here
  */
 
-#ifndef _export3dsolidmesh_h_
-#define _export3dsolidmesh_h_
+#pragma once
 
 #include <QtCore/QString>
 
@@ -170,4 +169,3 @@ class Export3dSolidMesh : public AbstractFilter
     void operator=(const Export3dSolidMesh &); // Operator '=' Not Implemented
 };
 
-#endif /* _Export3dSolidMesh_H_ */

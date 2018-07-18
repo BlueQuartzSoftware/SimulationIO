@@ -36,6 +36,7 @@ Export3dSolidMesh::Export3dSolidMesh() :
   , m_FeatureIds(nullptr)
   , m_CellPhases(nullptr)
   , m_CellEulerAngles(nullptr)
+  , m_JobName("")
 
 {
   initialize();
@@ -74,6 +75,7 @@ void Export3dSolidMesh::initialize()
 void Export3dSolidMesh::setupFilterParameters()
 {
   FilterParameterVector parameters;
+  parameters.push_back(SIMPL_NEW_STRING_FP("Job Name", JobName, FilterParameter::Parameter, Export3dSolidMesh));
   parameters.push_back(SIMPL_NEW_OUTPUT_FILE_FP("Nodes File", NodesFile, FilterParameter::Parameter, Export3dSolidMesh, "*"));
   parameters.push_back(SIMPL_NEW_OUTPUT_FILE_FP("Connectivity File", ConnectivityFile, FilterParameter::Parameter, Export3dSolidMesh, "*"));
   parameters.push_back(SIMPL_NEW_OUTPUT_FILE_FP("Abaqus Input File", AbaqusInputFile, FilterParameter::Parameter, Export3dSolidMesh, "*.inp"));
@@ -112,6 +114,7 @@ void Export3dSolidMesh::readFilterParameters(AbstractFilterParametersReader* rea
   setCellEulerAnglesArrayPath(reader->readDataArrayPath("CellEulerAnglesArrayPath", getCellEulerAnglesArrayPath()));
   setCellPhasesArrayPath(reader->readDataArrayPath("CellPhasesArrayPath", getCellPhasesArrayPath()));
   setFeatureIdsArrayPath(reader->readDataArrayPath("FeatureIdsArrayPath", getFeatureIdsArrayPath()));
+  setJobName(reader->readString("JobName", getJobName()));
   reader->closeFilterGroup();
 }
 
@@ -280,7 +283,11 @@ void Export3dSolidMesh::execute()
     notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
   }
   //
-
+  fprintf(f3, "*Heading\n");
+  fprintf(f3, "%s\n", m_JobName.toLatin1().data());
+  fprintf(f3, "** Job name : %s\n", m_JobName.toLatin1().data());
+  fprintf(f3, "*Preprint, echo = NO, model = NO, history = NO, contact = NO\n");
+  //
   int32_t ne_x,ne_y,ne_z;
   float sx,sy,sz;
   int32_t nnode_x,nnode_y,nnode_z;

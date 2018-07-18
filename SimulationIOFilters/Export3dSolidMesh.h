@@ -34,6 +34,9 @@ class Export3dSolidMesh : public AbstractFilter
 
     virtual ~Export3dSolidMesh ();
 
+    SIMPL_FILTER_PARAMETER(QString, JobName)
+    Q_PROPERTY(QString JobName READ getJobName WRITE setJobName)
+
     SIMPL_FILTER_PARAMETER(QString, NodesFile)
     Q_PROPERTY(QString NodesFile READ getNodesFile WRITE setNodesFile)
 

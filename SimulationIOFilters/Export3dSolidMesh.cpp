@@ -288,6 +288,7 @@ void Export3dSolidMesh::execute()
   fprintf(f3, "** Job name : %s\n", m_JobName.toLatin1().data());
   fprintf(f3, "*Preprint, echo = NO, model = NO, history = NO, contact = NO\n");
   //
+
   int32_t ne_x,ne_y,ne_z;
   float sx,sy,sz;
   int32_t nnode_x,nnode_y,nnode_z;
@@ -305,6 +306,15 @@ void Export3dSolidMesh::execute()
   nnode_y = ne_y + 1;
   nnode_z = ne_z + 1;
 
+  DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getFeatureIdsArrayPath().getDataContainerName());
+
+  size_t dims[3] = {0, 0, 0};
+  std::tie(dims[0], dims[1], dims[2]) = m->getGeometryAs<ImageGeom>()->getDimensions();
+  float res[3] = {0.0f, 0.0f, 0.0f};
+  m->getGeometryAs<ImageGeom>()->getResolution(res);
+  float origin[3] = {0.0f, 0.0f, 0.0f};
+  m->getGeometryAs<ImageGeom>()->getOrigin(origin);
+
   FloatArrayType::Pointer m_coordLengthPtr = FloatArrayType::CreateArray(3*nnode_x*nnode_y*nnode_z , "NODAL_COORDINATES_INTERNAL_USE_ONLY");
   float* m_coord = m_coordLengthPtr->getPointer(0);
 
@@ -317,9 +327,9 @@ void Export3dSolidMesh::execute()
           for(int32_t i = 0; i < nnode_x; i++)
           {
               index = k*nnode_x*nnode_y+j*nnode_x+i;
-              m_coord[index*3] = i*sx;
-              m_coord[index*3+1] = j*sy;
-              m_coord[index*3+2] = (nnode_z-1-k)*sz;
+              m_coord[index*3] = origin[0] + (i * res[0]);
+              m_coord[index*3+1] = origin[1] + (j * res[1]);
+              m_coord[index*3+2] = origin[2] + (k * res[2]);
           }
       }
   }
@@ -373,12 +383,12 @@ void Export3dSolidMesh::execute()
               int32_t eindex =  k*ne_x*ne_y + j*ne_x + i;    
               m_conn[eindex*8] = index;
               m_conn[eindex*8+1] = index + 1;
-              m_conn[eindex*8+2] = (index+1) + nnode_x;
-              m_conn[eindex*8+3] = (index+1) + nnode_x - 1;
+              m_conn[eindex*8+2] = index + nnode_x+1;
+              m_conn[eindex*8+3] = index + nnode_x ;
               m_conn[eindex*8+4] = index + nnode_x*nnode_y;
               m_conn[eindex*8+5] = index + 1 + nnode_x*nnode_y;
-              m_conn[eindex*8+6] = (index+1) + nnode_x + nnode_x*nnode_y;
-              m_conn[eindex*8+7] = (index+1) + nnode_x - 1 + nnode_x*nnode_y;
+              m_conn[eindex*8+6] = index + nnode_x + nnode_x*nnode_y;
+              m_conn[eindex*8+7] = index + nnode_x + nnode_x*nnode_y + 1;
           }
       }
   }
@@ -399,15 +409,6 @@ void Export3dSolidMesh::execute()
   fclose(f2);
   //  
   //
-
-  DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getFeatureIdsArrayPath().getDataContainerName());
-
-  size_t dims[3] = {0, 0, 0};
-  std::tie(dims[0], dims[1], dims[2]) = m->getGeometryAs<ImageGeom>()->getDimensions();
-  float res[3] = {0.0f, 0.0f, 0.0f};
-  m->getGeometryAs<ImageGeom>()->getResolution(res);
-  float origin[3] = {0.0f, 0.0f, 0.0f};
-  m->getGeometryAs<ImageGeom>()->getOrigin(origin);
 
   float phi1 = 0.0f, phi = 0.0f, phi2 = 0.0f;
   int32_t featureId = 0;

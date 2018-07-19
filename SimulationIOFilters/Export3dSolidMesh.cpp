@@ -40,10 +40,6 @@ Export3dSolidMesh::Export3dSolidMesh() :
 
 {
   initialize();
-
-  m_BoxSize.x = 2.0;
-  m_BoxSize.y = 2.0;
-  m_BoxSize.z = 2.0;
   
   m_numElem.x = 20;
   m_numElem.y = 20;
@@ -79,7 +75,6 @@ void Export3dSolidMesh::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_OUTPUT_FILE_FP("Nodes File", NodesFile, FilterParameter::Parameter, Export3dSolidMesh, "*"));
   parameters.push_back(SIMPL_NEW_OUTPUT_FILE_FP("Connectivity File", ConnectivityFile, FilterParameter::Parameter, Export3dSolidMesh, "*"));
   parameters.push_back(SIMPL_NEW_OUTPUT_FILE_FP("Abaqus Input File", AbaqusInputFile, FilterParameter::Parameter, Export3dSolidMesh, "*.inp"));
-  parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Box Size", BoxSize, FilterParameter::Parameter, Export3dSolidMesh));
   parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Elements", numElem, FilterParameter::Parameter, Export3dSolidMesh));
   parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::RequiredArray));
   {
@@ -109,7 +104,6 @@ void Export3dSolidMesh::readFilterParameters(AbstractFilterParametersReader* rea
   setNodesFile(reader->readString("Nodes File", getNodesFile()));
   setConnectivityFile(reader->readString("Connectivity File", getConnectivityFile()));
   setAbaqusInputFile(reader->readString("Abaqus Input File", getAbaqusInputFile()));
-  setBoxSize(reader->readFloatVec3("BoxSize", getBoxSize()));
   setnumElem(reader->readIntVec3("Number of Elements", getnumElem()));
   setCellEulerAnglesArrayPath(reader->readDataArrayPath("CellEulerAnglesArrayPath", getCellEulerAnglesArrayPath()));
   setCellPhasesArrayPath(reader->readDataArrayPath("CellPhasesArrayPath", getCellPhasesArrayPath()));
@@ -290,17 +284,12 @@ void Export3dSolidMesh::execute()
   //
 
   int32_t ne_x,ne_y,ne_z;
-  float sx,sy,sz;
   int32_t nnode_x,nnode_y,nnode_z;
   int32_t index;
   
   ne_x = m_numElem.x;
   ne_y = m_numElem.y;
   ne_z = m_numElem.z;
-  
-  sx = m_BoxSize.x/ne_x;
-  sy = m_BoxSize.y/ne_y;
-  sz = m_BoxSize.z/ne_z;
 
   nnode_x = ne_x + 1;
   nnode_y = ne_y + 1;
@@ -387,8 +376,8 @@ void Export3dSolidMesh::execute()
               m_conn[eindex*8+3] = index + nnode_x ;
               m_conn[eindex*8+4] = index + nnode_x*nnode_y;
               m_conn[eindex*8+5] = index + 1 + nnode_x*nnode_y;
-              m_conn[eindex*8+6] = index + nnode_x + nnode_x*nnode_y;
-              m_conn[eindex*8+7] = index + nnode_x + nnode_x*nnode_y + 1;
+              m_conn[eindex*8+6] = index + nnode_x + nnode_x*nnode_y + 1;
+              m_conn[eindex*8+7] = index + nnode_x + nnode_x*nnode_y;
           }
       }
   }

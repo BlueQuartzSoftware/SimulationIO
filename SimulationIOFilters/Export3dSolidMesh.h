@@ -46,9 +46,6 @@ class Export3dSolidMesh : public AbstractFilter
     SIMPL_FILTER_PARAMETER(QString, AbaqusInputFile)
     Q_PROPERTY(QString AbaqusInputFile READ getAbaqusInputFile WRITE setAbaqusInputFile)
 
-    SIMPL_FILTER_PARAMETER(FloatVec3_t, BoxSize)
-    Q_PROPERTY(FloatVec3_t BoxSize READ getBoxSize WRITE setBoxSize)
-    
     SIMPL_FILTER_PARAMETER(IntVec3_t, numElem)
     Q_PROPERTY(IntVec3_t numElem READ getnumElem WRITE setnumElem)
 

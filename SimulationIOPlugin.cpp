@@ -12,6 +12,7 @@
 #include "SIMPLib/Filtering/IFilterFactory.hpp"
 
 #include "SimulationIO/SimulationIOConstants.h"
+#include "SimulationIO/SimulationIOVersion.h"
 
 // -----------------------------------------------------------------------------
 //
@@ -27,7 +28,7 @@ SimulationIOPlugin::SimulationIOPlugin()
 , // Initialize SimulationIO library Location Here
     m_Description("")
 , // Initialize SimulationIO's Description Here
-    m_Copyright(BlueQuartz::Copyright)
+    m_Copyright("(c) BlueQuartz Software, LLC")
 , // Initialize SimulationIO's Copyright Here
     m_Filters(QList<QString>())
 , // Initialize SimulationIO's List of Dependencies Here

@@ -19,6 +19,7 @@ SIMPL_START_FILTER_GROUP(
 set(_PublicFilters
   Export3dSolidMesh
 
+  ImportFEAData
 )
 
 list(LENGTH _PublicFilters PluginNumFilters)

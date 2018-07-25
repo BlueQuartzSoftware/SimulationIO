@@ -158,8 +158,9 @@ class ImportFEAData : public AbstractFilter
     * @brief Initializes all the private instance variables.
     */
     void initialize();
-  private:
 
+  private:
+    int32_t writeABQpyscr(const QString& file, QString odbName, QString odbFilePath, QString instanceName, QString step, int frameNum, QString outputVar, QString elSet); 
   
   public:
     /* Rule of 5: All special member functions should be defined if any are defined.

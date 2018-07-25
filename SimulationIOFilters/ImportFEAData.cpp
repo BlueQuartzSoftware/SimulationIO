@@ -108,7 +108,11 @@ void ImportFEAData::readFilterParameters(AbstractFilterParametersReader* reader,
   reader->openFilterGroup(this, index);
   setodbName(reader->readString("odbName", getodbName()));
   setodbFilePath(reader->readString("odbFilePath", getodbFilePath()));
+  setInstanceName(reader->readString("InstanceName", getInstanceName()));
+  setStep(reader->readString("Step", getStep()));
   setFrameNumber(reader->readValue("FrameNumber", getFrameNumber()));
+  setOutputVariable(reader->readString("OutputVariable", getOutputVariable()));
+  setElementSet(reader->readString("ElementSet", getElementSet()));
   reader->closeFilterGroup();
 }
 
@@ -142,6 +146,8 @@ void ImportFEAData::preflight()
 void ImportFEAData::execute()
 {
   initialize();
+  int32_t err = 0;
+  setErrorCondition(err);
   dataCheck();
   if(getErrorCondition() < 0) { return; }
 
@@ -149,29 +155,76 @@ void ImportFEAData::execute()
     {
     case 0: // ABAQUS
       {
-	// Checked during preflight()
+	// Check Output Path
+	QDir dir;
+	if(!dir.mkpath(m_odbFilePath))
+	  {
+	    QString ss = QObject::tr("Error creating parent path '%1'").arg(m_odbFilePath);
+	    setErrorCondition(-1);
+	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+	    return;
+	  }
+
+	// Create ABAQUS python script
+	QString abqpyscr = m_odbFilePath + QDir::separator() + m_odbName + ".py";
+
+	err = writeABQpyscr(abqpyscr, m_odbName, m_odbFilePath, m_InstanceName, m_Step, m_FrameNumber, m_OutputVariable, m_ElementSet); 
+	if(err < 0)
+	  {
+	    QString ss = QObject::tr("Error writing ABAQUS python script '%1'").arg(abqpyscr);
+	    setErrorCondition(-1);
+	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+	    return;
+	  }
 	break;
       }
     }
 
   if (getCancel()) { return; }
-
-  if (getWarningCondition() < 0)
-  {
-    QString ss = QObject::tr("Some warning message");
-    setWarningCondition(-88888888);
-    notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
-  }
-
-  if (getErrorCondition() < 0)
-  {
-    QString ss = QObject::tr("Some error message");
-    setErrorCondition(-99999999);
-    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-    return;
-  }
-
   notifyStatusMessage(getHumanLabel(), "Complete");
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+int32_t ImportFEAData::writeABQpyscr(const QString& file, QString odbName, QString odbFilePath, QString instanceName, QString step, int frameNum, QString outputVar, QString elSet) 
+{
+  int32_t err = 0;
+  FILE* f = nullptr;
+  f = fopen(file.toLatin1().data(), "wb");
+  if(nullptr == f)
+    {
+      return -1;
+    }
+  
+  fprintf(f, "from sys import *\n");
+  fprintf(f, "from string import *\n");
+  fprintf(f, "from math import *\n");
+  fprintf(f, "from odbAccess import *\n");
+  fprintf(f, "from abaqusConstants import *\n");
+  fprintf(f, "from odbMaterial import *\n");
+  fprintf(f, "from odbSection import *\n");
+  fprintf(f, "\n");
+  fprintf(f, "import os\n");
+
+  fprintf(f, "odbName = %s\n",odbName.toLatin1().data());
+  fprintf(f, "odbFilePath = %s\n",odbFilePath.toLatin1().data());
+  fprintf(f, "elSet = %s\n",elSet.toLatin1().data());
+  fprintf(f, "outputVar = %s\n",outputVar.toLatin1().data());
+  fprintf(f, "frameNum = %d\n",frameNum);
+  fprintf(f, "step = %s\n",step.toLatin1().data());
+  fprintf(f, "instanceName = %s\n",instanceName.toLatin1().data());
+
+  fprintf(f, "fileName = odbFilePath + odbName + '.odb'\n"); 
+  fprintf(f, "odb = openOdb(path = fileName)\n");   
+  fprintf(f, "I1 = odb.rootAssembly.instances[instanceName].elementSets[elSet]\n"); 
+  fprintf(f, "fieldOut = odb.steps[step].frames[frameNum].fieldOutputs[outputVar].getSubset(region=I1).values\n"); 
+
+  notifyStatusMessage(getHumanLabel(), "Writing ABAQUS python script");
+  fclose(f);
+  return err;
+
 }
 
 // -----------------------------------------------------------------------------

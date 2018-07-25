@@ -9,6 +9,7 @@
 #include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
 #include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
+#include "SIMPLib/Common/Constants.h"
 
 /**
  * @brief The ImportFEAData class. See [Filter documentation](@ref importfeadata) for details.
@@ -18,6 +19,13 @@ class ImportFEAData : public AbstractFilter
   Q_OBJECT
   PYB11_CREATE_BINDINGS(CreateGeometry SUPERCLASS AbstractFilter)
   PYB11_PROPERTY(int FEAPackage READ getFEAPackage WRITE setFEAPackage)
+  PYB11_PROPERTY(QString odbName READ getodbName WRITE setodbName)
+  PYB11_PROPERTY(QString odbFilePath READ getodbFilePath WRITE setodbFilePath)
+  PYB11_PROPERTY(QString InstanceName READ getInstanceName WRITE setInstanceName)
+  PYB11_PROPERTY(QString Step READ getStep WRITE setStep)
+  PYB11_PROPERTY(int FrameNumber READ getFrameNumber WRITE setFrameNumber)
+  PYB11_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable)
+  PYB11_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
   public:
     SIMPL_SHARED_POINTERS(ImportFEAData)
     SIMPL_FILTER_NEW_MACRO(ImportFEAData)
@@ -27,6 +35,27 @@ class ImportFEAData : public AbstractFilter
 
     SIMPL_FILTER_PARAMETER(int, FEAPackage)
     Q_PROPERTY(int FEAPackage READ getFEAPackage WRITE setFEAPackage)
+
+    SIMPL_FILTER_PARAMETER(QString, odbName)
+    Q_PROPERTY(QString odbName READ getodbName WRITE setodbName)
+
+    SIMPL_FILTER_PARAMETER(QString, odbFilePath)
+    Q_PROPERTY(QString odbFilePath READ getodbFilePath WRITE setodbFilePath)
+
+    SIMPL_FILTER_PARAMETER(QString, InstanceName)
+    Q_PROPERTY(QString InstanceName READ getInstanceName WRITE setInstanceName)
+
+    SIMPL_FILTER_PARAMETER(QString, Step)
+    Q_PROPERTY(QString Step READ getStep WRITE setStep)
+
+    SIMPL_FILTER_PARAMETER(int, FrameNumber)
+    Q_PROPERTY(int FrameNumber READ getFrameNumber WRITE setFrameNumber)
+    
+    SIMPL_FILTER_PARAMETER(QString, OutputVariable)
+    Q_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable)
+
+    SIMPL_FILTER_PARAMETER(QString, ElementSet)
+    Q_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
 
     /**
      * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
@@ -77,6 +106,12 @@ class ImportFEAData : public AbstractFilter
      * @brief setupFilterParameters Reimplemented from @see AbstractFilter class
      */
     void setupFilterParameters() override;
+
+    /**
+     * @brief readFilterParameters Reimplemented from @see AbstractFilter class
+     */
+    void readFilterParameters(AbstractFilterParametersReader* reader, int index) override;
+
 
     /**
      * @brief execute Reimplemented from @see AbstractFilter class

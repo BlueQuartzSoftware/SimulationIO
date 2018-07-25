@@ -4,6 +4,9 @@
 
 #include "ImportFEAData.h"
 
+#include <QtCore/QDateTime>
+#include <QtCore/QDir>
+
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
@@ -13,17 +16,28 @@
 #include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
 #include "SIMPLib/FilterParameters/PreflightUpdatedValueFilterParameter.h"
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
-#include "SIMPLib/Geometry/EdgeGeom.h"
+#include "SIMPLib/FilterParameters/IntFilterParameter.h"
+#include "SIMPLib/FilterParameters/OutputPathFilterParameter.h"
+#include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
+#include "SIMPLib/Geometry/ImageGeom.h"
+#include "SIMPLib/Utilities/TimeUtilities.h"
 
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"
-
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 ImportFEAData::ImportFEAData()  
 : m_FEAPackage(0)
+, m_odbName("")
+, m_odbFilePath("")
+, m_InstanceName("Part-1-1")
+, m_Step("Step-1")
+, m_FrameNumber(1)
+, m_OutputVariable("S")
+, m_ElementSet("NALL")
+
 {
   initialize();
 }
@@ -61,28 +75,51 @@ void ImportFEAData::setupFilterParameters()
     choices.push_back("PZFLEX");
     choices.push_back("DEFORM");
     parameter->setChoices(choices);
-    QStringList linkedProps = {"Dimensions",
-                               "Origin",
-                               "Resolution",
-			       "BoxDimensions", 
-			       "TetCellAttributeMatrixName",    //ABAQUS
-                               "TetCellAttributeMatrixName"}; 
+    QStringList linkedProps = {"odbName",
+                               "odbFilePath",
+                               "InstanceName",
+			       "Step", 
+			       "FrameNumber",    
+			       "OutputVariable",    
+                               "ElementSet"}; //ABAQUS
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
     parameters.push_back(parameter);
   }
+  {
+    parameters.push_back(SIMPL_NEW_STRING_FP("odb Name", odbName, FilterParameter::Parameter, ImportFEAData, 0));
+    parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("odb File Path", odbFilePath, FilterParameter::Parameter, ImportFEAData,"*" ,"*" ,0));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Instance Name", InstanceName, FilterParameter::Parameter, ImportFEAData, 0));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Step", Step, FilterParameter::Parameter, ImportFEAData, 0));
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("Frame Number", FrameNumber, FilterParameter::Parameter, ImportFEAData, 0));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Output Variable", OutputVariable, FilterParameter::Parameter, ImportFEAData, 0));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Element Set", ElementSet, FilterParameter::Parameter, ImportFEAData, 0));
+  }
+
   setFilterParameters(parameters);
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void ImportFEAData::readFilterParameters(AbstractFilterParametersReader* reader, int index)
+{
+  reader->openFilterGroup(this, index);
+  setodbName(reader->readString("odbName", getodbName()));
+  setodbFilePath(reader->readString("odbFilePath", getodbFilePath()));
+  setFrameNumber(reader->readValue("FrameNumber", getFrameNumber()));
+  reader->closeFilterGroup();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
 void ImportFEAData::dataCheck()
 {
   setErrorCondition(0);
-  setWarningCondition(0);
-  
+  setWarningCondition(0);  
 }
 
 // -----------------------------------------------------------------------------
@@ -109,13 +146,14 @@ void ImportFEAData::execute()
   if(getErrorCondition() < 0) { return; }
 
   switch(m_FEAPackage)
-  {
-  case 0: // ABAQUS
-  {
-    // Checked during preflight()
-    break;
-  }
-  }
+    {
+    case 0: // ABAQUS
+      {
+	// Checked during preflight()
+	break;
+      }
+    }
+
   if (getCancel()) { return; }
 
   if (getWarningCondition() < 0)

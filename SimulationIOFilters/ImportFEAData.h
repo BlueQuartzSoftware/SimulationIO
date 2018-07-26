@@ -16,16 +16,16 @@
  */
 class ImportFEAData : public AbstractFilter
 {
-  Q_OBJECT
-  PYB11_CREATE_BINDINGS(CreateGeometry SUPERCLASS AbstractFilter)
-  PYB11_PROPERTY(int FEAPackage READ getFEAPackage WRITE setFEAPackage)
-  PYB11_PROPERTY(QString odbName READ getodbName WRITE setodbName)
-  PYB11_PROPERTY(QString odbFilePath READ getodbFilePath WRITE setodbFilePath)
-  PYB11_PROPERTY(QString InstanceName READ getInstanceName WRITE setInstanceName)
-  PYB11_PROPERTY(QString Step READ getStep WRITE setStep)
-  PYB11_PROPERTY(int FrameNumber READ getFrameNumber WRITE setFrameNumber)
-  PYB11_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable)
-  PYB11_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
+    Q_OBJECT
+    PYB11_CREATE_BINDINGS(ImportFEAData SUPERCLASS AbstractFilter)
+    PYB11_PROPERTY(int FEAPackage READ getFEAPackage WRITE setFEAPackage)
+    PYB11_PROPERTY(QString odbName READ getodbName WRITE setodbName)
+    PYB11_PROPERTY(QString odbFilePath READ getodbFilePath WRITE setodbFilePath)
+    PYB11_PROPERTY(QString InstanceName READ getInstanceName WRITE setInstanceName)
+    PYB11_PROPERTY(QString Step READ getStep WRITE setStep)
+    PYB11_PROPERTY(int FrameNumber READ getFrameNumber WRITE setFrameNumber)
+    PYB11_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable)
+    PYB11_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
   public:
     SIMPL_SHARED_POINTERS(ImportFEAData)
     SIMPL_FILTER_NEW_MACRO(ImportFEAData)

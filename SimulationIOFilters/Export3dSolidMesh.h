@@ -7,7 +7,7 @@
 #include <QtCore/QString>
 
 #include "SIMPLib/CoreFilters/FileWriter.h"
-#include "SIMPLib/DataArrays/StringDataArray.hpp"
+#include "SIMPLib/DataArrays/StringDataArray.h"
 
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"

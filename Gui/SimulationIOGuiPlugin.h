@@ -19,7 +19,7 @@ public:
 
 public:
   SimulationIOGuiPlugin(const SimulationIOGuiPlugin&) = delete;            // Copy Constructor Not Implemented
-  SimulationIOGuiPlugin(SimulationIOGuiPlugin&&) = delete;                 // Move Constructor
+  SimulationIOGuiPlugin(SimulationIOGuiPlugin&&) = delete;                 // Move Constructor Not Implemented
   SimulationIOGuiPlugin& operator=(const SimulationIOGuiPlugin&) = delete; // Copy Assignment Not Implemented
   SimulationIOGuiPlugin& operator=(SimulationIOGuiPlugin&&) = delete;      // Move Assignment Not Implemented
 };

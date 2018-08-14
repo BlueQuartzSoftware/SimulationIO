@@ -58,6 +58,12 @@ class Export3dSolidMesh : public AbstractFilter
     SIMPL_FILTER_PARAMETER(DataArrayPath, CellEulerAnglesArrayPath)
     Q_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
 
+    SIMPL_FILTER_PARAMETER(IntVec3_t, numKeypoints)
+    Q_PROPERTY(IntVec3_t numKeypoints READ getnumKeypoints WRITE setnumKeypoints)
+
+    SIMPL_FILTER_PARAMETER(QString, delamMat)
+    Q_PROPERTY(QString delamMat READ getdelamMat WRITE setdelamMat)
+
     /**
      * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
      */

@@ -16,6 +16,7 @@
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/OutputFileFilterParameter.h"
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
+#include "SIMPLib/FilterParameters/OutputPathFilterParameter.h"
 #include "SIMPLib/Math/SIMPLibMath.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Geometry/EdgeGeom.h"
@@ -37,6 +38,8 @@ Export3dSolidMesh::Export3dSolidMesh() :
   , m_CellPhases(nullptr)
   , m_CellEulerAngles(nullptr)
   , m_JobName("")
+  , m_OutputPath("")
+  , m_OutputFilePrefix("")
 
 {
   initialize();
@@ -72,9 +75,8 @@ void Export3dSolidMesh::setupFilterParameters()
 {
   FilterParameterVector parameters;
   parameters.push_back(SIMPL_NEW_STRING_FP("Job Name", JobName, FilterParameter::Parameter, Export3dSolidMesh));
-  parameters.push_back(SIMPL_NEW_OUTPUT_FILE_FP("Nodes File", NodesFile, FilterParameter::Parameter, Export3dSolidMesh, "*"));
-  parameters.push_back(SIMPL_NEW_OUTPUT_FILE_FP("Connectivity File", ConnectivityFile, FilterParameter::Parameter, Export3dSolidMesh, "*"));
-  parameters.push_back(SIMPL_NEW_OUTPUT_FILE_FP("Abaqus Input File", AbaqusInputFile, FilterParameter::Parameter, Export3dSolidMesh, "*.inp"));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Parameter, Export3dSolidMesh,"*" ,"*" ,0));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Output File Prefix", OutputFilePrefix, FilterParameter::Parameter, Export3dSolidMesh, 0));
   parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Elements", numElem, FilterParameter::Parameter, Export3dSolidMesh));
   parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::RequiredArray));
   {
@@ -101,9 +103,8 @@ void Export3dSolidMesh::setupFilterParameters()
 void Export3dSolidMesh::readFilterParameters(AbstractFilterParametersReader* reader, int index)
 {
   reader->openFilterGroup(this, index);
-  setNodesFile(reader->readString("Nodes File", getNodesFile()));
-  setConnectivityFile(reader->readString("Connectivity File", getConnectivityFile()));
-  setAbaqusInputFile(reader->readString("Abaqus Input File", getAbaqusInputFile()));
+  setOutputPath(reader->readString("OutputPath", getOutputPath()));
+  setOutputFilePrefix(reader->readString("OutputFilePrefix", getOutputFilePrefix()));
   setnumElem(reader->readIntVec3("Number of Elements", getnumElem()));
   setCellEulerAnglesArrayPath(reader->readDataArrayPath("CellEulerAnglesArrayPath", getCellEulerAnglesArrayPath()));
   setCellPhasesArrayPath(reader->readDataArrayPath("CellPhasesArrayPath", getCellPhasesArrayPath()));
@@ -121,56 +122,22 @@ void Export3dSolidMesh::dataCheck()
   setWarningCondition(0);
   //
   //
-  if(getNodesFile().isEmpty() == true)
-    {
-      QString ss = QObject::tr("The nodes file must be set");
-      setErrorCondition(-1);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-    }
-  
-  QFileInfo fi1(getNodesFile());
-  QDir parentPath1 = fi1.path();
-  if(parentPath1.exists() == false)
-    {
-      setWarningCondition(-2001);
-      QString ss = QObject::tr("The directory path for the nodes file does not exist. DREAM.3D will attempt to create this path during execution of the filter");
-      notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
-    }
-  //
-  //
-  if(getConnectivityFile().isEmpty() == true)
-    {
-      QString ss = QObject::tr("The connectivity file must be set");
-      setErrorCondition(-1);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-    }
-  
-  QFileInfo fi2(getConnectivityFile());
-  QDir parentPath2 = fi2.path();
-  if(parentPath2.exists() == false)
-    {
-      setWarningCondition(-2001);
-      QString ss = QObject::tr("The directory path for the connectivity file does not exist. DREAM.3D will attempt to create this path during execution of the filter");
-      notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
-    }
-  //
-  //
-  if(getAbaqusInputFile().isEmpty() == true)
-    {
-      QString ss = QObject::tr("The Abaqus input file must be set");
-      setErrorCondition(-1);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-    }
-  
-  QFileInfo fi3(getAbaqusInputFile());
-  QDir parentPath3 = fi3.path();
-  if(parentPath3.exists() == false)
-    {
-      setWarningCondition(-2001);
-      QString ss = QObject::tr("The directory path for the Abaqus input file does not exist. DREAM.3D will attempt to create this path during execution of the filter");
-      notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
-    }
-  //
+  if(m_OutputPath.isEmpty() == true)
+  {
+    setErrorCondition(-12001);
+    QString ss = QObject::tr("The output path must be set");
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+
+  QFileInfo fi(m_OutputPath);
+  QDir parentPath = fi.path();
+  if(parentPath.exists() == false)
+  {
+    setWarningCondition(-10100);
+    QString ss = QObject::tr("The directory path for the output file does not exist. DREAM.3D will attempt to create this path during execution of the filter");
+    notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
+  }
+
   //
   getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom, AbstractFilter>(this, getFeatureIdsArrayPath().getDataContainerName());
 
@@ -241,41 +208,51 @@ void Export3dSolidMesh::execute()
   dataCheck();
   if(getErrorCondition() < 0) { return; }
   //
-  // Make sure any directory path is also available as the user may have just typed
-  // in a path without actually creating the full path
-  QFileInfo fi1(getNodesFile());
-  QDir parentPath1(fi1.path());
-  if(!parentPath1.mkpath("."))
-  {
-    QString ss = QObject::tr("Error creating parent path for nodes file'%1'").arg(parentPath1.absolutePath());
-    setErrorCondition(-1);
-    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-  }
-  FILE* f1 = fopen(getNodesFile().toLatin1().data(), "wb");
+  //
+  // Check Output Path
+  QDir dir;
+  if(!dir.mkpath(m_OutputPath))
+    {
+      QString ss = QObject::tr("Error creating parent path '%1'").arg(m_OutputPath);
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      return;
+    }
+  //
+  // Create file names
+  QString nodesFile = m_OutputPath + QDir::separator() + m_OutputFilePrefix + "_nodes.inp";
+  QString elemsFile = m_OutputPath + QDir::separator() + m_OutputFilePrefix + "_elems.inp";
+  QString sectsFile = m_OutputPath + QDir::separator() + m_OutputFilePrefix + "_sects.inp";
+  QString elsetFile = m_OutputPath + QDir::separator() + m_OutputFilePrefix + "_elset.inp";
+  QString masterFile = m_OutputPath + QDir::separator() + m_OutputFilePrefix + ".inp";
+  QList<QString> fileNames;
+  fileNames << nodesFile << elemsFile << sectsFile << elsetFile << masterFile;
+  //
+  //
+  FILE* f1 = fopen(fileNames.at(0).toLatin1().data(), "wb");
   if(nullptr == f1)
   {
-    QString ss = QObject::tr("Error opening nodes file '%1'").arg(getNodesFile());
+    QString ss = QObject::tr("Error writing nodes file '%1'").arg(nodesFile);
     setErrorCondition(-1);
     notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
   }
-  //
-  // Make sure any directory path is also available as the user may have just typed
-  // in a path without actually creating the full path
-  QFileInfo fi3(getAbaqusInputFile());
-  QDir parentPath3(fi3.path());
-  if(!parentPath3.mkpath("."))
-  {
-    QString ss = QObject::tr("Error creating parent path for Abaqus Input file'%1'").arg(parentPath3.absolutePath());
-    setErrorCondition(-1);
-    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-  }
-  FILE* f3 = fopen(getAbaqusInputFile().toLatin1().data(), "wb");
+
+  FILE* f2 = fopen(fileNames.at(1).toLatin1().data(), "wb");
+  if(nullptr == f2)
+    {
+      QString ss = QObject::tr("Error writing connectivity file '%1'").arg(elemsFile);
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    }
+  
+  FILE* f3 = fopen(fileNames.at(4).toLatin1().data(), "wb");
   if(nullptr == f3)
-  {
-    QString ss = QObject::tr("Error opening Abaqus Input file '%1'").arg(getAbaqusInputFile());
-    setErrorCondition(-1);
-    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-  }
+    {
+      QString ss = QObject::tr("Error writing ABAQUS input file '%1'").arg(masterFile);
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    }
+  
   //
   fprintf(f3, "*Heading\n");
   fprintf(f3, "%s\n", m_JobName.toLatin1().data());
@@ -336,27 +313,7 @@ void Export3dSolidMesh::execute()
       }
   }
   //
-  fclose(f1);
-  //
-  //
-  // Make sure any directory path is also available as the user may have just typed
-  // in a path without actually creating the full path
-  QFileInfo fi2(getConnectivityFile());
-  QDir parentPath2(fi2.path());
-  if(!parentPath2.mkpath("."))
-    {
-      QString ss = QObject::tr("Error creating parent path for connectivity file'%1'").arg(parentPath2.absolutePath());
-      setErrorCondition(-1);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-    }  
-  FILE* f2 = fopen(getConnectivityFile().toLatin1().data(), "wb");
-  if(nullptr == f2)
-    {
-      QString ss = QObject::tr("Error opening connectivity file '%1'").arg(getConnectivityFile());
-      setErrorCondition(-1);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-    }
-  
+
   Int32ArrayType::Pointer m_connLengthPtr = Int32ArrayType::CreateArray(8*ne_x*ne_y*ne_z , "CONNECTIVITY_INTERNAL_USE_ONLY");
   int32_t* m_conn = m_connLengthPtr->getPointer(0);
 
@@ -395,7 +352,6 @@ void Export3dSolidMesh::execute()
       }
   }
 
-  fclose(f2);
   //  
   //
 
@@ -459,6 +415,8 @@ void Export3dSolidMesh::execute()
 
   //
   //
+  fclose(f1);
+  fclose(f2);
   fclose(f3);
   //
   //

@@ -37,14 +37,11 @@ class Export3dSolidMesh : public AbstractFilter
     SIMPL_FILTER_PARAMETER(QString, JobName)
     Q_PROPERTY(QString JobName READ getJobName WRITE setJobName)
 
-    SIMPL_FILTER_PARAMETER(QString, NodesFile)
-    Q_PROPERTY(QString NodesFile READ getNodesFile WRITE setNodesFile)
+    SIMPL_FILTER_PARAMETER(QString, OutputPath)
+    Q_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
 
-    SIMPL_FILTER_PARAMETER(QString, ConnectivityFile)
-    Q_PROPERTY(QString ConnectivityFile READ getConnectivityFile WRITE setConnectivityFile)
-
-    SIMPL_FILTER_PARAMETER(QString, AbaqusInputFile)
-    Q_PROPERTY(QString AbaqusInputFile READ getAbaqusInputFile WRITE setAbaqusInputFile)
+    SIMPL_FILTER_PARAMETER(QString, OutputFilePrefix)
+    Q_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
 
     SIMPL_FILTER_PARAMETER(IntVec3_t, numElem)
     Q_PROPERTY(IntVec3_t numElem READ getnumElem WRITE setnumElem)

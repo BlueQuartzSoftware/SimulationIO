@@ -213,7 +213,7 @@ int32_t ImportFEAData::writeABQpyscr(const QString& file, QString odbName, QStri
   fprintf(f, "elSet = %s\n",elSet.toLatin1().data());
   fprintf(f, "outputVar = %s\n",outputVar.toLatin1().data());
   fprintf(f, "frameNum = %d\n",frameNum);
-  fprintf(f, "step = %s\n",step.toLatin1().data());
+  fprintf(f, "step = '%s'\n",step.toLatin1().data());
   fprintf(f, "instanceName = %s\n",instanceName.toLatin1().data());
 
   fprintf(f, "fileName = odbFilePath + odbName + '.odb'\n"); 

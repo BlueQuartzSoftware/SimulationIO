@@ -34,6 +34,9 @@ class Export3dSolidMesh : public AbstractFilter
 
     virtual ~Export3dSolidMesh ();
 
+    SIMPL_FILTER_PARAMETER(int, FEAPackage)
+    Q_PROPERTY(int FEAPackage READ getFEAPackage WRITE setFEAPackage)
+
     SIMPL_FILTER_PARAMETER(QString, JobName)
     Q_PROPERTY(QString JobName READ getJobName WRITE setJobName)
 

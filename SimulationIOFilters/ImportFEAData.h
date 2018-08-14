@@ -16,7 +16,7 @@
  */
 class ImportFEAData : public AbstractFilter
 {
-    Q_OBJECT
+  Q_OBJECT
     PYB11_CREATE_BINDINGS(ImportFEAData SUPERCLASS AbstractFilter)
     PYB11_PROPERTY(int FEAPackage READ getFEAPackage WRITE setFEAPackage)
     PYB11_PROPERTY(QString odbName READ getodbName WRITE setodbName)

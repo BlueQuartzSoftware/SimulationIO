@@ -96,6 +96,9 @@ void Export3dSolidMesh::setupFilterParameters()
     choices.push_back("BSAM");
     parameter->setChoices(choices);
     QStringList linkedProps = {"JobName",
+			       "numElem",
+			       "CellEulerAnglesArrayPath",
+			       "CellPhasesArrayPath",
 			       "delamMat",
 			       "numKeypoints"}; 
     parameter->setLinkedProperties(linkedProps);
@@ -106,9 +109,9 @@ void Export3dSolidMesh::setupFilterParameters()
 
   parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Parameter, Export3dSolidMesh,"*" ,"*" ));
   parameters.push_back(SIMPL_NEW_STRING_FP("Output File Prefix", OutputFilePrefix, FilterParameter::Parameter, Export3dSolidMesh));
-  parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Elements", numElem, FilterParameter::Parameter, Export3dSolidMesh));
 
   {
+    parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Elements", numElem, FilterParameter::Parameter, Export3dSolidMesh, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Job Name", JobName, FilterParameter::Parameter, Export3dSolidMesh,0));
   }
 
@@ -126,12 +129,12 @@ void Export3dSolidMesh::setupFilterParameters()
   {
     DataArraySelectionFilterParameter::RequirementType req =
       DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", CellEulerAnglesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", CellEulerAnglesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req =
       DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phases", CellPhasesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phases", CellPhasesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
   }
 
   setFilterParameters(parameters);
@@ -196,31 +199,39 @@ void Export3dSolidMesh::dataCheck()
     dataArrayPaths.push_back(getFeatureIdsArrayPath());
   }
 
-  m_CellPhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getCellPhasesArrayPath(),
-                                                                                                        cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_CellPhasesPtr.lock().get())                                                                   /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-  {
-    m_CellPhases = m_CellPhasesPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
-  if(getErrorCondition() >= 0)
-  {
-    dataArrayPaths.push_back(getCellPhasesArrayPath());
-  }
+  switch(m_FEAPackage)
+    {
+    case 0: // ABAQUS
+      {	
 
-  cDims[0] = 3;
-  m_CellEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getCellEulerAnglesArrayPath(),
-                                                                                                           cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_CellEulerAnglesPtr.lock().get())                                                                 /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-  {
-    m_CellEulerAngles = m_CellEulerAnglesPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
-  if(getErrorCondition() >= 0)
-  {
-    dataArrayPaths.push_back(getCellEulerAnglesArrayPath());
-  }
+	m_CellPhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getCellPhasesArrayPath(),
+													      cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+	if(nullptr != m_CellPhasesPtr.lock().get())                                                                   /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+	  {
+	    m_CellPhases = m_CellPhasesPtr.lock()->getPointer(0);
+	  } /* Now assign the raw pointer to data from the DataArray<T> object */
+	if(getErrorCondition() >= 0)
+	  {
+	    dataArrayPaths.push_back(getCellPhasesArrayPath());
+	  }
 
-  getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
+	cDims[0] = 3;
+	m_CellEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getCellEulerAnglesArrayPath(),
+														 cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+	if(nullptr != m_CellEulerAnglesPtr.lock().get())                                                                 /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+	  {
+	    m_CellEulerAngles = m_CellEulerAnglesPtr.lock()->getPointer(0);
+	  } /* Now assign the raw pointer to data from the DataArray<T> object */
+	if(getErrorCondition() >= 0)
+	  {
+	    dataArrayPaths.push_back(getCellEulerAnglesArrayPath());
+	  }
 
+	getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
+
+	break;
+      }
+    }
   //
   //
 }
@@ -260,18 +271,6 @@ void Export3dSolidMesh::execute()
     }
   //
   //
-  int32_t ne_x,ne_y,ne_z;
-  int32_t nnode_x,nnode_y,nnode_z;
-  int32_t index;
-  
-  ne_x = m_numElem.x;
-  ne_y = m_numElem.y;
-  ne_z = m_numElem.z;
-  
-  nnode_x = ne_x + 1;
-  nnode_y = ne_y + 1;
-  nnode_z = ne_z + 1;
-  
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getFeatureIdsArrayPath().getDataContainerName());
   
   size_t dims[3] = {0, 0, 0};
@@ -338,7 +337,20 @@ void Export3dSolidMesh::execute()
 	fprintf(f3, "** Job name : %s\n", m_JobName.toLatin1().data());
 	fprintf(f3, "*Preprint, echo = NO, model = NO, history = NO, contact = NO\n");
 	//
+	int32_t ne_x,ne_y,ne_z;
+	int32_t nnode_x,nnode_y,nnode_z;
+	int32_t index;
 	
+	ne_x = m_numElem.x;
+	ne_y = m_numElem.y;
+	ne_z = m_numElem.z;
+	
+	nnode_x = ne_x + 1;
+	nnode_y = ne_y + 1;
+	nnode_z = ne_z + 1;	
+
+	//
+
 	FloatArrayType::Pointer m_coordLengthPtr = FloatArrayType::CreateArray(3*nnode_x*nnode_y*nnode_z , "NODAL_COORDINATES_INTERNAL_USE_ONLY");
 	float* m_coord = m_coordLengthPtr->getPointer(0);
 	
@@ -473,9 +485,20 @@ void Export3dSolidMesh::execute()
 	fprintf(f, "hedr 0\n");
 	fprintf(f, "info 1\n");
 	//
-	fprintf(f, "xcrd %d\n",nnode_x);
-	//`
 	float tempCoord = 0.0f;
+	int32_t ne_x,ne_y,ne_z;
+	int32_t nnode_x,nnode_y,nnode_z;
+	
+	ne_x = dims[0];
+	ne_y = dims[1];
+	ne_z = dims[2];
+	
+	nnode_x = ne_x + 1;
+	nnode_y = ne_y + 1;
+	nnode_z = ne_z + 1;
+
+	//
+	fprintf(f, "xcrd %d\n",nnode_x);
 	size_t entriesPerLine = 0;
 	for(int32_t i = 0; i < nnode_x; i++)
 	  {
@@ -545,7 +568,7 @@ void Export3dSolidMesh::execute()
 	fprintf(f, "%d %d %d\n",m_numKeypoints.x,m_numKeypoints.y,m_numKeypoints.z);
 	//
 	fprintf(f, "divisions\n");
-	fprintf(f, "%d %d %d\n",m_numElem.x,m_numElem.y,m_numElem.z);
+	fprintf(f, "%d %d %d\n",ne_x,ne_y,ne_z);
 	//
 	fprintf(f, "name %d\n", maxGrainId);
 	//

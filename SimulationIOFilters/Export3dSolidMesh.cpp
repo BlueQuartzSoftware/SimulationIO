@@ -47,6 +47,9 @@ Export3dSolidMesh::Export3dSolidMesh() :
   , m_OutputPath("")
   , m_OutputFilePrefix("")
   , m_delamMat("")
+  , m_numDepvar(1)
+  , m_numMatConst(6)
+  , m_numUserOutVar(1)
 {
   initialize();
   
@@ -97,6 +100,9 @@ void Export3dSolidMesh::setupFilterParameters()
     parameter->setChoices(choices);
     QStringList linkedProps = {"JobName",
 			       "numElem",
+			       "numDepvar",
+			       "numMatConst",
+			       "numUserOutVar",
 			       "CellEulerAnglesArrayPath",
 			       "CellPhasesArrayPath",
 			       "delamMat",
@@ -113,6 +119,9 @@ void Export3dSolidMesh::setupFilterParameters()
   {
     parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Elements", numElem, FilterParameter::Parameter, Export3dSolidMesh, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Job Name", JobName, FilterParameter::Parameter, Export3dSolidMesh,0));
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Solution Dependent State Variables", numDepvar, FilterParameter::Parameter, Export3dSolidMesh, 0));
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Material Constants", numMatConst, FilterParameter::Parameter, Export3dSolidMesh, 0));
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of User Output Variables", numUserOutVar, FilterParameter::Parameter, Export3dSolidMesh, 0));
   }
 
   {
@@ -323,8 +332,24 @@ void Export3dSolidMesh::execute()
 	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
 	  }
 	
-	FILE* f3 = fopen(fileNames.at(4).toLatin1().data(), "wb");
+	FILE* f3 = fopen(fileNames.at(2).toLatin1().data(), "wb");
 	if(nullptr == f3)
+	  {
+	    QString ss = QObject::tr("Error writing ABAQUS input file '%1'").arg(sectsFile);
+	    setErrorCondition(-1);
+	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+	  }
+
+	FILE* f4 = fopen(fileNames.at(3).toLatin1().data(), "wb");
+	if(nullptr == f4)
+	  {
+	    QString ss = QObject::tr("Error writing ABAQUS input file '%1'").arg(elsetFile);
+	    setErrorCondition(-1);
+	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+	  }
+
+	FILE* f5 = fopen(fileNames.at(4).toLatin1().data(), "wb");
+	if(nullptr == f5)
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS input file '%1'").arg(masterFile);
 	    setErrorCondition(-1);
@@ -332,10 +357,10 @@ void Export3dSolidMesh::execute()
 	  }
 	
 	//
-	fprintf(f3, "*Heading\n");
-	fprintf(f3, "%s\n", m_JobName.toLatin1().data());
-	fprintf(f3, "** Job name : %s\n", m_JobName.toLatin1().data());
-	fprintf(f3, "*Preprint, echo = NO, model = NO, history = NO, contact = NO\n");
+	fprintf(f5, "*Heading\n");
+	fprintf(f5, "%s\n", m_JobName.toLatin1().data());
+	fprintf(f5, "** Job name : %s\n", m_JobName.toLatin1().data());
+	fprintf(f5, "*Preprint, echo = NO, model = NO, history = NO, contact = NO\n");
 	//
 	int32_t ne_x,ne_y,ne_z;
 	int32_t nnode_x,nnode_y,nnode_z;
@@ -348,13 +373,12 @@ void Export3dSolidMesh::execute()
 	nnode_x = ne_x + 1;
 	nnode_y = ne_y + 1;
 	nnode_z = ne_z + 1;	
-
 	//
 
 	FloatArrayType::Pointer m_coordLengthPtr = FloatArrayType::CreateArray(3*nnode_x*nnode_y*nnode_z , "NODAL_COORDINATES_INTERNAL_USE_ONLY");
 	float* m_coord = m_coordLengthPtr->getPointer(0);
 	
-	fprintf(f3,"*NODE, NSET=ALLNODES\n");  
+	fprintf(f5,"*NODE, NSET=ALLNODES\n");  
 	
 	for(int32_t k = 0; k < nnode_z; k++)
 	  {
@@ -377,8 +401,8 @@ void Export3dSolidMesh::execute()
 		for(int32_t i = 0; i < nnode_x; i++)
 		  {
 		    index = k*nnode_x*nnode_y+j*nnode_x+i;
-		    fprintf(f1,"%d %.3f %.3f %.3f\n", index+1, m_coord[index*3],m_coord[index*3+1],m_coord[index*3+2]);  
-		    fprintf(f3,"%d %.3f %.3f %.3f\n", index+1, m_coord[index*3],m_coord[index*3+1],m_coord[index*3+2]);  
+		    fprintf(f1,"%d, %.3f, %.3f, %.3f\n", index+1, m_coord[index*3],m_coord[index*3+1],m_coord[index*3+2]);  
+		    fprintf(f5,"%d, %.3f, %.3f, %.3f\n", index+1, m_coord[index*3],m_coord[index*3+1],m_coord[index*3+2]);  
 		  }
 	      }
 	  }
@@ -386,7 +410,7 @@ void Export3dSolidMesh::execute()
 	Int32ArrayType::Pointer m_connLengthPtr = Int32ArrayType::CreateArray(8*ne_x*ne_y*ne_z , "CONNECTIVITY_INTERNAL_USE_ONLY");
 	int32_t* m_conn = m_connLengthPtr->getPointer(0);
 	
-	fprintf(f3,"*ELEMENTS, TYPE=C3D8, ELSET=ALLELEMENTS\n");  
+	fprintf(f5,"*ELEMENTS, TYPE=C3D8R, ELSET=ALLELEMENTS\n");  
 	
 	for(int32_t k = 0; k < ne_z; k++)
 	  {
@@ -415,23 +439,41 @@ void Export3dSolidMesh::execute()
 		for(int32_t i = 0; i < ne_x; i++)
 		  {
 		    index =  k*ne_x*ne_y + j*ne_x + i;
-		    fprintf(f2,"%d %d %d %d %d %d %d %d %d\n", index+1, m_conn[index*8],m_conn[index*8+1],m_conn[index*8+2],m_conn[index*8+3],m_conn[index*8+4],m_conn[index*3+5],m_conn[index*8+6],m_conn[index*8+7]);  
-		    fprintf(f3,"%d %d %d %d %d %d %d %d %d\n", index+1, m_conn[index*8],m_conn[index*8+1],m_conn[index*8+2],m_conn[index*8+3],m_conn[index*8+4],m_conn[index*3+5],m_conn[index*8+6],m_conn[index*8+7]);  
+		    fprintf(f2,"%d, %d, %d, %d, %d, %d, %d, %d, %d\n", index+1, m_conn[index*8],m_conn[index*8+1],m_conn[index*8+2],m_conn[index*8+3],m_conn[index*8+4],m_conn[index*3+5],m_conn[index*8+6],m_conn[index*8+7]);  
+		    fprintf(f5,"%d, %d, %d, %d, %d, %d, %d, %d, %d\n", index+1, m_conn[index*8],m_conn[index*8+1],m_conn[index*8+2],m_conn[index*8+3],m_conn[index*8+4],m_conn[index*3+5],m_conn[index*8+6],m_conn[index*8+7]);  
 		  }
 	      }
 	  }
 	//  
+	Int32ArrayType::Pointer m_phaseIdLengthPtr = Int32ArrayType::CreateArray(maxGrainId , "PHASEID_INTERNAL_USE_ONLY");
+	int32_t* m_phaseId = m_phaseIdLengthPtr->getPointer(0);
+	
+	FloatArrayType::Pointer m_orientLengthPtr = FloatArrayType::CreateArray(maxGrainId*3, "ORIENTATION_INTERNAL_USE_ONLY");
+	float* m_orient = m_orientLengthPtr->getPointer(0);
+
+	int32_t grainId = 1;
+	while(grainId <= maxGrainId)
+	  {
+	    for(int32_t i = 0; i < totalPoints + 1; i++)
+	      {
+		if(m_FeatureIds[i] == grainId)
+		  {
+		    m_phaseId[grainId-1] = m_CellPhases[i];
+		    m_orient[(grainId - 1)*3] = m_CellEulerAngles[i * 3] * 180.0 * SIMPLib::Constants::k_1OverPi;
+		    m_orient[(grainId - 1)*3 + 1] = m_CellEulerAngles[i * 3 + 1] * 180.0 * SIMPLib::Constants::k_1OverPi;
+		    m_orient[(grainId - 1)*3 + 2] = m_CellEulerAngles[i * 3 + 2] * 180.0 * SIMPLib::Constants::k_1OverPi;
+		  }
+	      }
+	    grainId++;
+	  }
+	
 	//
-	//	float phi1 = 0.0f, phi = 0.0f, phi2 = 0.0f;
-	//int32_t featureId = 0;
-	//	int32_t phaseId = 0;
-	//size_t index1 = 0;
-	//
+
 	int32_t voxelId = 1;
 	while(voxelId <= maxGrainId)
 	  {
 	    size_t elementPerLine = 0;
-	    fprintf(f3, "\n*Elset, elset=Grain%d_set\n", voxelId);
+	    fprintf(f5, "*Elset, elset=Grain%d_Phase%d_set\n", voxelId, m_phaseId[voxelId-1] );
 
 	    for(int32_t i = 0; i < totalPoints + 1; i++)
 	      {
@@ -441,32 +483,65 @@ void Export3dSolidMesh::execute()
 		      {
 			if(elementPerLine % 16) // 16 per line
 			  {
-			    fprintf(f3, ", ");
+			    fprintf(f5, ", ");
 			  }
 			else
 			  {
-			    fprintf(f3, ",\n");
+			    fprintf(f5, ",\n");
 			  }
 		      }
-		    fprintf(f3, "%llu", static_cast<unsigned long long int>(i + 1));
+		    fprintf(f5, "%llu", static_cast<unsigned long long int>(i + 1));
 		    elementPerLine++;
 		  }
 	      }
+	    fprintf(f5, "\n");
 	    voxelId++;
+	  }
+	//
+
+	for(int32_t i = 1; i <= maxGrainId; i++)
+	  {
+	    fprintf(f5, "*Material, name = Grain%d_Phase%d_set\n", i, m_phaseId[i-1] );
+	    fprintf(f5, "*Depvar\n");
+	    fprintf(f5, "%d\n",m_numDepvar);
+	    fprintf(f5, "*User Material, constants = %d\n", m_numMatConst);
+	    fprintf(f5, "%d, %d, %.3f, %.3f, %.3f", i, m_phaseId[i-1], m_orient[(i-1)*3], m_orient[(i-1)*3+1], m_orient[(i-1)*3+2]);
+	    size_t entriesPerLine = 5;
+	    for(int32_t j = 0; j < m_numMatConst-5; j++)
+	      {
+		if(entriesPerLine != 0) // no comma at start
+		  {
+		    if(entriesPerLine % 8) // 8 per line
+		      {
+			fprintf(f5, ",  ");
+		      }
+		    else
+		      {
+			fprintf(f5, "\n");
+			entriesPerLine = 0;
+		      }
+		  }
+		//	fprintf(f,"%.3f",matConst);
+		entriesPerLine++;
+	      }
+	    fprintf(f5, "\n");
+	    fprintf(f5, "*User Output Variables\n");
+	    fprintf(f5, "%d\n", m_numUserOutVar);
 	  }
 	//
 	// We are now defining the sections, which is for each grain
 	int32_t grain = 1;
 	while(grain <= maxGrainId)
 	  {
-	    fprintf(f3, "** Section: Grain%d\n", grain);
-	    fprintf(f3, "*Solid Section, elset=Grain%d_set, material=Grain_Mat%d\n", grain, grain);
+	    fprintf(f5, "*Solid Section, elset=Grain%d_Phase%d_set, material=Grain%d_Phase%d_mat\n", grain, m_phaseId[grain-1], grain, m_phaseId[grain-1]);
 	    grain++;
 	  }
 
 	fclose(f1);
 	fclose(f2);
 	fclose(f3);
+	fclose(f4);
+	fclose(f5);
 	break;
       }
     case 1: // PZFLEX

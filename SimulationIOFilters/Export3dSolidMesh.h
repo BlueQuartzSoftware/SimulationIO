@@ -49,6 +49,15 @@ class Export3dSolidMesh : public AbstractFilter
     SIMPL_FILTER_PARAMETER(IntVec3_t, numElem)
     Q_PROPERTY(IntVec3_t numElem READ getnumElem WRITE setnumElem)
 
+    SIMPL_FILTER_PARAMETER(int, numDepvar)
+    Q_PROPERTY(int numDepvar READ getnumDepvar WRITE setnumDepvar)
+
+    SIMPL_FILTER_PARAMETER(int, numMatConst)
+    Q_PROPERTY(int numMatConst READ getnumMatConst WRITE setnumMatConst)
+
+    SIMPL_FILTER_PARAMETER(int, numUserOutVar)
+    Q_PROPERTY(int numUserOutVar READ getnumUserOutVar WRITE setnumUserOutVar)
+
     SIMPL_FILTER_PARAMETER(DataArrayPath, FeatureIdsArrayPath)
     Q_PROPERTY(DataArrayPath FeatureIdsArrayPath READ getFeatureIdsArrayPath WRITE setFeatureIdsArrayPath)
 

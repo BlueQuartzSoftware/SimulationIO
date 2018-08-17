@@ -34,33 +34,30 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-Export3dSolidMesh::Export3dSolidMesh() :
-  AbstractFilter()
-  , m_FEAPackage(0)
-  , m_FeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
-  , m_CellPhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Phases)
-  , m_CellEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles)
-  , m_FeatureIds(nullptr)
-  , m_CellPhases(nullptr)
-  , m_CellEulerAngles(nullptr)
-  , m_JobName("")
-  , m_OutputPath("")
-  , m_OutputFilePrefix("")
-  , m_delamMat("")
-  , m_numDepvar(1)
-  , m_numMatConst(6)
-  , m_numUserOutVar(1)
+Export3dSolidMesh::Export3dSolidMesh()
+: AbstractFilter()
+, m_FEAPackage(0)
+, m_JobName("")
+, m_OutputPath("")
+, m_OutputFilePrefix("")
+, m_NumDepvar(1)
+, m_NumMatConst(6)
+, m_NumUserOutVar(1)
+, m_FeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
+, m_CellPhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Phases)
+, m_CellEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles)
+, m_DelamMat("")
 {
   initialize();
-  
-  m_numElem.x = 20;
-  m_numElem.y = 20;
-  m_numElem.z = 20;
 
-  m_numKeypoints.x = 2;
-  m_numKeypoints.y = 2;
-  m_numKeypoints.z = 2;
-  
+  m_NumElem.x = 20;
+  m_NumElem.y = 20;
+  m_NumElem.z = 20;
+
+  m_NumKeypoints.x = 2;
+  m_NumKeypoints.y = 2;
+  m_NumKeypoints.z = 2;
+
   setupFilterParameters();
 }
 
@@ -98,15 +95,7 @@ void Export3dSolidMesh::setupFilterParameters()
     choices.push_back("PZFLEX");
     choices.push_back("BSAM");
     parameter->setChoices(choices);
-    QStringList linkedProps = {"JobName",
-			       "numElem",
-			       "numDepvar",
-			       "numMatConst",
-			       "numUserOutVar",
-			       "CellEulerAnglesArrayPath",
-			       "CellPhasesArrayPath",
-			       "delamMat",
-			       "numKeypoints"}; 
+    QStringList linkedProps = {"JobName", "NumElem", "NumDepvar", "NumMatConst", "NumUserOutVar", "CellEulerAnglesArrayPath", "CellPhasesArrayPath", "delamMat", "numKeypoints"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -117,16 +106,16 @@ void Export3dSolidMesh::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_STRING_FP("Output File Prefix", OutputFilePrefix, FilterParameter::Parameter, Export3dSolidMesh));
 
   {
-    parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Elements", numElem, FilterParameter::Parameter, Export3dSolidMesh, 0));
+    parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Elements", NumElem, FilterParameter::Parameter, Export3dSolidMesh, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Job Name", JobName, FilterParameter::Parameter, Export3dSolidMesh,0));
-    parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Solution Dependent State Variables", numDepvar, FilterParameter::Parameter, Export3dSolidMesh, 0));
-    parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Material Constants", numMatConst, FilterParameter::Parameter, Export3dSolidMesh, 0));
-    parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of User Output Variables", numUserOutVar, FilterParameter::Parameter, Export3dSolidMesh, 0));
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Solution Dependent State Variables", NumDepvar, FilterParameter::Parameter, Export3dSolidMesh, 0));
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Material Constants", NumMatConst, FilterParameter::Parameter, Export3dSolidMesh, 0));
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of User Output Variables", NumUserOutVar, FilterParameter::Parameter, Export3dSolidMesh, 0));
   }
 
   {
-    parameters.push_back(SIMPL_NEW_STRING_FP("Delamination material", delamMat, FilterParameter::Parameter, Export3dSolidMesh, 1));    
-    parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Keypoints", numKeypoints, FilterParameter::Parameter, Export3dSolidMesh, 1));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Delamination material", DelamMat, FilterParameter::Parameter, Export3dSolidMesh, 1));
+    parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Keypoints", NumKeypoints, FilterParameter::Parameter, Export3dSolidMesh, 1));
   }
 
   parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::RequiredArray));
@@ -157,7 +146,7 @@ void Export3dSolidMesh::readFilterParameters(AbstractFilterParametersReader* rea
   reader->openFilterGroup(this, index);
   setOutputPath(reader->readString("OutputPath", getOutputPath()));
   setOutputFilePrefix(reader->readString("OutputFilePrefix", getOutputFilePrefix()));
-  setnumElem(reader->readIntVec3("Number of Elements", getnumElem()));
+  setNumElem(reader->readIntVec3("Number of Elements", getNumElem()));
   setCellEulerAnglesArrayPath(reader->readDataArrayPath("CellEulerAnglesArrayPath", getCellEulerAnglesArrayPath()));
   setCellPhasesArrayPath(reader->readDataArrayPath("CellPhasesArrayPath", getCellPhasesArrayPath()));
   setFeatureIdsArrayPath(reader->readDataArrayPath("FeatureIdsArrayPath", getFeatureIdsArrayPath()));
@@ -365,13 +354,13 @@ void Export3dSolidMesh::execute()
 	int32_t ne_x,ne_y,ne_z;
 	int32_t nnode_x,nnode_y,nnode_z;
 	int32_t index;
-	
-	ne_x = m_numElem.x;
-	ne_y = m_numElem.y;
-	ne_z = m_numElem.z;
-	
-	nnode_x = ne_x + 1;
-	nnode_y = ne_y + 1;
+
+  ne_x = m_NumElem.x;
+  ne_y = m_NumElem.y;
+  ne_z = m_NumElem.z;
+
+  nnode_x = ne_x + 1;
+  nnode_y = ne_y + 1;
 	nnode_z = ne_z + 1;	
 	//
 
@@ -503,16 +492,16 @@ void Export3dSolidMesh::execute()
 	  {
 	    fprintf(f5, "*Material, name = Grain%d_Phase%d_set\n", i, m_phaseId[i-1] );
 	    fprintf(f5, "*Depvar\n");
-	    fprintf(f5, "%d\n",m_numDepvar);
-	    fprintf(f5, "*User Material, constants = %d\n", m_numMatConst);
-	    fprintf(f5, "%d, %d, %.3f, %.3f, %.3f", i, m_phaseId[i-1], m_orient[(i-1)*3], m_orient[(i-1)*3+1], m_orient[(i-1)*3+2]);
-	    size_t entriesPerLine = 5;
-	    for(int32_t j = 0; j < m_numMatConst-5; j++)
-	      {
-		if(entriesPerLine != 0) // no comma at start
-		  {
-		    if(entriesPerLine % 8) // 8 per line
-		      {
+      fprintf(f5, "%d\n", m_NumDepvar);
+      fprintf(f5, "*User Material, constants = %d\n", m_NumMatConst);
+      fprintf(f5, "%d, %d, %.3f, %.3f, %.3f", i, m_phaseId[i - 1], m_orient[(i - 1) * 3], m_orient[(i - 1) * 3 + 1], m_orient[(i - 1) * 3 + 2]);
+      size_t entriesPerLine = 5;
+      for(int32_t j = 0; j < m_NumMatConst - 5; j++)
+      {
+        if(entriesPerLine != 0) // no comma at start
+        {
+          if(entriesPerLine % 8) // 8 per line
+          {
 			fprintf(f5, ",  ");
 		      }
 		    else
@@ -526,12 +515,12 @@ void Export3dSolidMesh::execute()
 	      }
 	    fprintf(f5, "\n");
 	    fprintf(f5, "*User Output Variables\n");
-	    fprintf(f5, "%d\n", m_numUserOutVar);
-	  }
-	//
-	// We are now defining the sections, which is for each grain
-	int32_t grain = 1;
-	while(grain <= maxGrainId)
+      fprintf(f5, "%d\n", m_NumUserOutVar);
+    }
+    //
+    // We are now defining the sections, which is for each grain
+    int32_t grain = 1;
+    while(grain <= maxGrainId)
 	  {
 	    fprintf(f5, "*Solid Section, elset=Grain%d_Phase%d_set, material=Grain%d_Phase%d_mat\n", grain, m_phaseId[grain-1], grain, m_phaseId[grain-1]);
 	    grain++;
@@ -640,17 +629,17 @@ void Export3dSolidMesh::execute()
 	fprintf(f, "\n");
 	//
 	fprintf(f, "keypoints\n");
-	fprintf(f, "%d %d %d\n",m_numKeypoints.x,m_numKeypoints.y,m_numKeypoints.z);
-	//
-	fprintf(f, "divisions\n");
-	fprintf(f, "%d %d %d\n",ne_x,ne_y,ne_z);
+  fprintf(f, "%d %d %d\n", m_NumKeypoints.x, m_NumKeypoints.y, m_NumKeypoints.z);
+  //
+  fprintf(f, "divisions\n");
+  fprintf(f, "%d %d %d\n",ne_x,ne_y,ne_z);
 	//
 	fprintf(f, "name %d\n", maxGrainId);
 	//
-	fprintf(f, "void %s\n", m_delamMat.toLatin1().data());
-	//
-	fprintf(f, "matr %d\n", ne_x*ne_y*ne_z);
-	//
+  fprintf(f, "void %s\n", m_DelamMat.toLatin1().data());
+  //
+  fprintf(f, "matr %d\n", ne_x * ne_y * ne_z);
+  //
 	entriesPerLine = 0;
 	for(int32_t i = 0; i < totalPoints; i++)
 	  {
@@ -715,7 +704,7 @@ const QString Export3dSolidMesh::getCompiledLibraryName() const
 // -----------------------------------------------------------------------------
 const QString Export3dSolidMesh::getBrandingString() const
 {
-  return "SimulationIO";
+  return SimulationIOConstants::SimulationIOBaseName;
 }
 
 // -----------------------------------------------------------------------------

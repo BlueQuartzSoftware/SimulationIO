@@ -19,168 +19,187 @@
 #include "SIMPLib/Geometry/MeshStructs.h"
 #include "SIMPLib/SIMPLib.h"
 
+#include "SimulationIO/SimulationIODLLExport.h"
 
 /**
  * @brief The Export3dSolidMesh class. See [Filter documentation](@ref export3dsolidmesh) for details.
  */
-class Export3dSolidMesh : public AbstractFilter
+class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
 {
   Q_OBJECT
+  PYB11_CREATE_BINDINGS(Export3dSolidMesh SUPERCLASS AbstractFilter)
+  PYB11_PROPERTY(int FEAPackage READ getFEAPackage WRITE setFEAPackage)
+  PYB11_PROPERTY(QString JobName READ getJobName WRITE setJobName)
+  PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
+  PYB11_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
+  PYB11_PROPERTY(IntVec3_t NumElem READ getNumElem WRITE setNumElem)
+  PYB11_PROPERTY(IntVec3_t NumDepvar READ getNumDepvar WRITE setNumDepvar)
+  PYB11_PROPERTY(IntVec3_t NumMatConst READ getNumMatConst WRITE setNumMatConst)
+  PYB11_PROPERTY(IntVec3_t NumUserOutVar READ getNumUserOutVar WRITE setNumUserOutVar)
+  PYB11_PROPERTY(DataArrayPath FeatureIdsArrayPath READ getFeatureIdsArrayPath WRITE setFeatureIdsArrayPath)
+  PYB11_PROPERTY(DataArrayPath CellPhasesArrayPath READ getCellPhasesArrayPath WRITE setCellPhasesArrayPath)
+  PYB11_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
+  PYB11_PROPERTY(IntVec3_t NumKeypoints READ getNumKeypoints WRITE setNumKeypoints)
+  PYB11_PROPERTY(QString DelamMat READ getDelamMat WRITE setDelamMat)
 
-  public:
-    SIMPL_SHARED_POINTERS(Export3dSolidMesh )
-    SIMPL_STATIC_NEW_MACRO(Export3dSolidMesh )
-    SIMPL_TYPE_MACRO_SUPER(Export3dSolidMesh , AbstractFilter)
+public:
+  SIMPL_SHARED_POINTERS(Export3dSolidMesh)
+  SIMPL_STATIC_NEW_MACRO(Export3dSolidMesh)
+  SIMPL_TYPE_MACRO_SUPER(Export3dSolidMesh, AbstractFilter)
 
-    virtual ~Export3dSolidMesh ();
+  virtual ~Export3dSolidMesh();
 
-    SIMPL_FILTER_PARAMETER(int, FEAPackage)
-    Q_PROPERTY(int FEAPackage READ getFEAPackage WRITE setFEAPackage)
+  SIMPL_FILTER_PARAMETER(int, FEAPackage)
+  Q_PROPERTY(int FEAPackage READ getFEAPackage WRITE setFEAPackage)
 
-    SIMPL_FILTER_PARAMETER(QString, JobName)
-    Q_PROPERTY(QString JobName READ getJobName WRITE setJobName)
+  SIMPL_FILTER_PARAMETER(QString, JobName)
+  Q_PROPERTY(QString JobName READ getJobName WRITE setJobName)
 
-    SIMPL_FILTER_PARAMETER(QString, OutputPath)
-    Q_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
+  SIMPL_FILTER_PARAMETER(QString, OutputPath)
+  Q_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
 
-    SIMPL_FILTER_PARAMETER(QString, OutputFilePrefix)
-    Q_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
+  SIMPL_FILTER_PARAMETER(QString, OutputFilePrefix)
+  Q_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
 
-    SIMPL_FILTER_PARAMETER(IntVec3_t, numElem)
-    Q_PROPERTY(IntVec3_t numElem READ getnumElem WRITE setnumElem)
+  SIMPL_FILTER_PARAMETER(IntVec3_t, NumElem)
+  Q_PROPERTY(IntVec3_t NumElem READ getNumElem WRITE setNumElem)
 
-    SIMPL_FILTER_PARAMETER(int, numDepvar)
-    Q_PROPERTY(int numDepvar READ getnumDepvar WRITE setnumDepvar)
+  SIMPL_FILTER_PARAMETER(int, NumDepvar)
+  Q_PROPERTY(int NumDepvar READ getNumDepvar WRITE setNumDepvar)
 
-    SIMPL_FILTER_PARAMETER(int, numMatConst)
-    Q_PROPERTY(int numMatConst READ getnumMatConst WRITE setnumMatConst)
+  SIMPL_FILTER_PARAMETER(int, NumMatConst)
+  Q_PROPERTY(int NumMatConst READ getNumMatConst WRITE setNumMatConst)
 
-    SIMPL_FILTER_PARAMETER(int, numUserOutVar)
-    Q_PROPERTY(int numUserOutVar READ getnumUserOutVar WRITE setnumUserOutVar)
+  SIMPL_FILTER_PARAMETER(int, NumUserOutVar)
+  Q_PROPERTY(int NumUserOutVar READ getNumUserOutVar WRITE setNumUserOutVar)
 
-    SIMPL_FILTER_PARAMETER(DataArrayPath, FeatureIdsArrayPath)
-    Q_PROPERTY(DataArrayPath FeatureIdsArrayPath READ getFeatureIdsArrayPath WRITE setFeatureIdsArrayPath)
+  SIMPL_FILTER_PARAMETER(DataArrayPath, FeatureIdsArrayPath)
+  Q_PROPERTY(DataArrayPath FeatureIdsArrayPath READ getFeatureIdsArrayPath WRITE setFeatureIdsArrayPath)
 
-    SIMPL_FILTER_PARAMETER(DataArrayPath, CellPhasesArrayPath)
-    Q_PROPERTY(DataArrayPath CellPhasesArrayPath READ getCellPhasesArrayPath WRITE setCellPhasesArrayPath)
+  SIMPL_FILTER_PARAMETER(DataArrayPath, CellPhasesArrayPath)
+  Q_PROPERTY(DataArrayPath CellPhasesArrayPath READ getCellPhasesArrayPath WRITE setCellPhasesArrayPath)
 
-    SIMPL_FILTER_PARAMETER(DataArrayPath, CellEulerAnglesArrayPath)
-    Q_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
+  SIMPL_FILTER_PARAMETER(DataArrayPath, CellEulerAnglesArrayPath)
+  Q_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
 
-    SIMPL_FILTER_PARAMETER(IntVec3_t, numKeypoints)
-    Q_PROPERTY(IntVec3_t numKeypoints READ getnumKeypoints WRITE setnumKeypoints)
+  SIMPL_FILTER_PARAMETER(IntVec3_t, NumKeypoints)
+  Q_PROPERTY(IntVec3_t NumKeypoints READ getNumKeypoints WRITE setNumKeypoints)
 
-    SIMPL_FILTER_PARAMETER(QString, delamMat)
-    Q_PROPERTY(QString delamMat READ getdelamMat WRITE setdelamMat)
+  SIMPL_FILTER_PARAMETER(QString, DelamMat)
+  Q_PROPERTY(QString DelamMat READ getDelamMat WRITE setDelamMat)
 
-    /**
-     * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
-     */
-    virtual const QString getCompiledLibraryName() const override;
+  /**
+   * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
+   */
+  const QString getCompiledLibraryName() const override;
 
-    /**
-     * @brief getBrandingString Returns the branding string for the filter, which is a tag
-     * used to denote the filter's association with specific plugins
-     * @return Branding string
-    */
-    virtual const QString getBrandingString() const override;
+  /**
+   * @brief getBrandingString Returns the branding string for the filter, which is a tag
+   * used to denote the filter's association with specific plugins
+   * @return Branding string
+   */
+  const QString getBrandingString() const override;
 
-    /**
-     * @brief getFilterVersion Returns a version string for this filter. Default
-     * value is an empty string.
-     * @return
-     */
-    virtual const QString getFilterVersion() const override;
+  /**
+   * @brief getFilterVersion Returns a version string for this filter. Default
+   * value is an empty string.
+   * @return
+   */
+  const QString getFilterVersion() const override;
 
-    /**
-     * @brief newFilterInstance Reimplemented from @see AbstractFilter class
-     */
-    virtual AbstractFilter::Pointer newFilterInstance(bool copyFilterParameters) const override;
+  /**
+   * @brief newFilterInstance Reimplemented from @see AbstractFilter class
+   */
+  AbstractFilter::Pointer newFilterInstance(bool copyFilterParameters) const override;
 
-    /**
-     * @brief getGroupName Reimplemented from @see AbstractFilter class
-     */
-    virtual const QString getGroupName() const override;
+  /**
+   * @brief getGroupName Reimplemented from @see AbstractFilter class
+   */
+  const QString getGroupName() const override;
 
-    /**
-     * @brief getSubGroupName Reimplemented from @see AbstractFilter class
-     */
-    virtual const QString getSubGroupName() const override;
+  /**
+   * @brief getSubGroupName Reimplemented from @see AbstractFilter class
+   */
+  const QString getSubGroupName() const override;
 
-    /**
-     * @brief getUuid Return the unique identifier for this filter.
-     * @return A QUuid object.
-     */
-    virtual const QUuid getUuid() override;
-  
-    /**
-     * @brief getHumanLabel Reimplemented from @see AbstractFilter class
-     */
-    virtual const QString getHumanLabel() const override;
+  /**
+   * @brief getUuid Return the unique identifier for this filter.
+   * @return A QUuid object.
+   */
+  const QUuid getUuid() override;
 
-    /**
-     * @brief setupFilterParameters Reimplemented from @see AbstractFilter class
-     */
-    virtual void setupFilterParameters() override;
+  /**
+   * @brief getHumanLabel Reimplemented from @see AbstractFilter class
+   */
+  const QString getHumanLabel() const override;
+  /**
+   * @brief This method will instantiate all the end user settable options/parameters
+   * for this filter
+   */
+  void setupFilterParameters() override;
 
-    /**
-      * @brief readFilterParameters Reimplemented from @see AbstractFilter class
-      */
-     virtual void readFilterParameters(AbstractFilterParametersReader* reader, int index) override;
+  /**
+   * @brief This method will read the options from a file
+   * @param reader The reader that is used to read the options from a file
+   */
+  void readFilterParameters(AbstractFilterParametersReader* reader, int index) override;
 
+  /**
+   * @brief Reimplemented from @see AbstractFilter class
+   */
+  void execute() override;
 
-    /**
-     * @brief execute Reimplemented from @see AbstractFilter class
-     */
-    virtual void execute() override;
+  /**
+   * @brief This function runs some sanity checks on the DataContainer and inputs
+   * in an attempt to ensure the filter can process the inputs.
+   */
+  void preflight() override;
 
-    /**
-    * @brief preflight Reimplemented from @see AbstractFilter class
-    */
-    virtual void preflight() override;
+signals:
+  /**
+   * @brief updateFilterParameters Emitted when the Filter requests all the latest Filter parameters
+   * be pushed from a user-facing control (such as a widget)
+   * @param filter Filter instance pointer
+   */
+  void updateFilterParameters(AbstractFilter* filter);
 
-  signals:
-    /**
-     * @brief updateFilterParameters Emitted when the Filter requests all the latest Filter parameters
-     * be pushed from a user-facing control (such as a widget)
-     * @param filter Filter instance pointer 
-     */
-    void updateFilterParameters(AbstractFilter* filter);
+  /**
+   * @brief parametersChanged Emitted when any Filter parameter is changed internally
+   */
+  void parametersChanged();
 
-    /**
-     * @brief parametersChanged Emitted when any Filter parameter is changed internally
-     */
-    void parametersChanged();
+  /**
+   * @brief preflightAboutToExecute Emitted just before calling dataCheck()
+   */
+  void preflightAboutToExecute();
 
-    /**
-     * @brief preflightAboutToExecute Emitted just before calling dataCheck()
-     */
-    void preflightAboutToExecute();
+  /**
+   * @brief preflightExecuted Emitted just after calling dataCheck()
+   */
+  void preflightExecuted();
 
-    /**
-     * @brief preflightExecuted Emitted just after calling dataCheck()
-     */
-    void preflightExecuted();
+protected:
+  Export3dSolidMesh();
 
-  protected:
-    Export3dSolidMesh ();
+  /**
+   * @brief dataCheck Checks for the appropriate parameter values and availability of arrays
+   */
+  void dataCheck();
 
-    /**
-    * @brief dataCheck Checks for the appropriate parameter values and availability of arrays
-    */
-    void dataCheck();
+  /**
+   * @brief Initializes all the private instance variables.
+   */
+  void initialize();
 
-    /**
-    * @brief Initializes all the private instance variables.
-    */
-    void initialize();
+private:
+  DEFINE_DATAARRAY_VARIABLE(int32_t, FeatureIds)
+  DEFINE_DATAARRAY_VARIABLE(int32_t, CellPhases)
+  DEFINE_DATAARRAY_VARIABLE(float, CellEulerAngles)
 
- private:
-    DEFINE_DATAARRAY_VARIABLE(int32_t, FeatureIds)
-    DEFINE_DATAARRAY_VARIABLE(int32_t, CellPhases)
-    DEFINE_DATAARRAY_VARIABLE(float, CellEulerAngles)
-      
-    Export3dSolidMesh (const Export3dSolidMesh &) = delete; // Copy Constructor Not Implemented
-    void operator=(const Export3dSolidMesh &); // Operator '=' Not Implemented
+public:
+  Export3dSolidMesh(const Export3dSolidMesh&) = delete;            // Copy Constructor Not Implemented
+  Export3dSolidMesh(Export3dSolidMesh&&) = delete;                 // Move Constructor Not Implemented
+  Export3dSolidMesh& operator=(const Export3dSolidMesh&) = delete; // Copy Assignment Not Implemented
+  Export3dSolidMesh& operator=(Export3dSolidMesh&&) = delete;      // Move Assignment Not Implemented
 };
 

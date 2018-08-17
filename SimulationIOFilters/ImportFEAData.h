@@ -11,10 +11,12 @@
 #include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
 #include "SIMPLib/Common/Constants.h"
 
+#include "SimulationIO/SimulationIODLLExport.h"
+
 /**
  * @brief The ImportFEAData class. See [Filter documentation](@ref importfeadata) for details.
  */
-class ImportFEAData : public AbstractFilter
+class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
 {
   Q_OBJECT
     PYB11_CREATE_BINDINGS(ImportFEAData SUPERCLASS AbstractFilter)
@@ -26,6 +28,7 @@ class ImportFEAData : public AbstractFilter
     PYB11_PROPERTY(int FrameNumber READ getFrameNumber WRITE setFrameNumber)
     PYB11_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable)
     PYB11_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
+
   public:
     SIMPL_SHARED_POINTERS(ImportFEAData)
     SIMPL_FILTER_NEW_MACRO(ImportFEAData)

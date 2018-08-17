@@ -253,7 +253,7 @@ const QString ImportFEAData::getCompiledLibraryName() const
 // -----------------------------------------------------------------------------
 const QString ImportFEAData::getBrandingString() const
 {
-  return "SimulationIO";
+  return SimulationIOConstants::SimulationIOBaseName;
 }
 
 // -----------------------------------------------------------------------------

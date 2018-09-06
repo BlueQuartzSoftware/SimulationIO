@@ -95,7 +95,7 @@ void Export3dSolidMesh::setupFilterParameters()
     choices.push_back("PZFLEX");
     choices.push_back("BSAM");
     parameter->setChoices(choices);
-    QStringList linkedProps = {"JobName", "NumElem", "NumDepvar", "NumMatConst", "NumUserOutVar", "CellEulerAnglesArrayPath", "CellPhasesArrayPath", "delamMat", "numKeypoints"};
+    QStringList linkedProps = {"JobName", "NumElem", "NumDepvar", "NumMatConst", "NumUserOutVar", "CellEulerAnglesArrayPath", "CellPhasesArrayPath", "DelamMat", "NumKeypoints"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -355,12 +355,12 @@ void Export3dSolidMesh::execute()
 	int32_t nnode_x,nnode_y,nnode_z;
 	int32_t index;
 
-  ne_x = m_NumElem.x;
-  ne_y = m_NumElem.y;
-  ne_z = m_NumElem.z;
-
-  nnode_x = ne_x + 1;
-  nnode_y = ne_y + 1;
+	ne_x = m_NumElem.x;
+	ne_y = m_NumElem.y;
+	ne_z = m_NumElem.z;
+	
+	nnode_x = ne_x + 1;
+	nnode_y = ne_y + 1;
 	nnode_z = ne_z + 1;	
 	//
 
@@ -377,12 +377,13 @@ void Export3dSolidMesh::execute()
 		  {
 		    index = k*nnode_x*nnode_y+j*nnode_x+i;
 		    m_coord[index*3] = origin[0] + (i * res[0]);
-		    m_coord[index*3+1] = origin[1] + (j * res[1]);
-		    m_coord[index*3+2] = origin[2] + (k * res[2]);
+		    m_coord[index*3+1] = - ( origin[2] + (k * res[2]) );
+		    m_coord[index*3+2] = origin[1] + (j * res[1]);
 		  }
 	      }
 	  }
-	
+	//	
+	//
 	for(int32_t k = 0; k < nnode_z; k++)
 	  {
 	    for(int32_t j = 0; j < nnode_y; j++)
@@ -677,7 +678,7 @@ void Export3dSolidMesh::execute()
 
   notifyStatusMessage(getHumanLabel(), "Complete");
 }
-
+//
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------

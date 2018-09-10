@@ -176,6 +176,10 @@ void ImportFEAData::execute()
 	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
 	    return;
 	  }
+
+
+
+
 	break;
       }
     }
@@ -206,7 +210,7 @@ int32_t ImportFEAData::writeABQpyscr(const QString& file, QString odbName, QStri
   fprintf(f, "from odbMaterial import *\n");
   fprintf(f, "from odbSection import *\n");
   fprintf(f, "\n");
-  fprintf(f, "import os\n");
+  fprintf(f, "import os\n");    
 
   fprintf(f, "odbName = %s\n",odbName.toLatin1().data());
   fprintf(f, "odbFilePath = %s\n",odbFilePath.toLatin1().data());
@@ -216,12 +220,19 @@ int32_t ImportFEAData::writeABQpyscr(const QString& file, QString odbName, QStri
   fprintf(f, "step = '%s'\n",step.toLatin1().data());
   fprintf(f, "instanceName = %s\n",instanceName.toLatin1().data());
 
-  fprintf(f, "fileName = odbFilePath + odbName + '.odb'\n"); 
-  fprintf(f, "odb = openOdb(path = fileName)\n");   
+  fprintf(f, "odbfileName = odbFilePath + odbName + '.odb'\n"); 
+  fprintf(f, "odb = openOdb(path = odbfileName)\n");   
   fprintf(f, "I1 = odb.rootAssembly.instances[instanceName].elementSets[elSet]\n"); 
   fprintf(f, "fieldOut = odb.steps[step].frames[frameNum].fieldOutputs[outputVar].getSubset(region=I1).values\n"); 
 
-  notifyStatusMessage(getHumanLabel(), "Writing ABAQUS python script");
+  fprintf(f, "outTxtFile = odbFilePath + outputVar.toLatin1().data() + '.dat'\n");
+  fprintf(f, "fid = open(outTxtFile, ""a)");
+  fprintf(f, "fid.write('%s\n)",outputVar.toLatin1().data());
+  fprintf(f, "for j in range(len(fieldOut)):");
+  fprintf(f, "        nelem = I1.elements[j].label");
+  fprintf(f, "        fid.write(str(nelem) + '  ' + str(fieldOut.data[0]) + '  ' + str(fieldOut.data[1]) + '  ' + str(fieldOut.data[2]) + '  ' + str(fieldOut.data[3]) + '  ' + str(fieldOut.data[4]) + '  ' + str(fieldOut.data[5]))");
+  fprintf(f,"fid.close()");
+  notifyStatusMessage(getHumanLabel(), "ABAQUS python script");
   fclose(f);
   return err;
 

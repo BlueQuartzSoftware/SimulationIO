@@ -18,6 +18,7 @@
 #include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/Geometry/MeshStructs.h"
 #include "SIMPLib/SIMPLib.h"
+#include "SIMPLib/FilterParameters/DynamicTableData.h"
 
 #include "SimulationIO/SimulationIODLLExport.h"
 
@@ -33,14 +34,16 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
   PYB11_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
   PYB11_PROPERTY(IntVec3_t NumElem READ getNumElem WRITE setNumElem)
-  PYB11_PROPERTY(IntVec3_t NumDepvar READ getNumDepvar WRITE setNumDepvar)
-  PYB11_PROPERTY(IntVec3_t NumMatConst READ getNumMatConst WRITE setNumMatConst)
-  PYB11_PROPERTY(IntVec3_t NumUserOutVar READ getNumUserOutVar WRITE setNumUserOutVar)
+  PYB11_PROPERTY(int NumDepvar READ getNumDepvar WRITE setNumDepvar)
+  PYB11_PROPERTY(int NumMatConst READ getNumMatConst WRITE setNumMatConst)
+  PYB11_PROPERTY(int NumUserOutVar READ getNumUserOutVar WRITE setNumUserOutVar)
   PYB11_PROPERTY(DataArrayPath FeatureIdsArrayPath READ getFeatureIdsArrayPath WRITE setFeatureIdsArrayPath)
   PYB11_PROPERTY(DataArrayPath CellPhasesArrayPath READ getCellPhasesArrayPath WRITE setCellPhasesArrayPath)
   PYB11_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
   PYB11_PROPERTY(IntVec3_t NumKeypoints READ getNumKeypoints WRITE setNumKeypoints)
   PYB11_PROPERTY(QString DelamMat READ getDelamMat WRITE setDelamMat)
+  PYB11_PROPERTY(int NumClusters READ getNumClusters WRITE setNumClusters)
+  PYB11_PROPERTY(DynamicTableData ClusterData READ getClusterData WRITE setClusterData)
 
 public:
   SIMPL_SHARED_POINTERS(Export3dSolidMesh)
@@ -87,6 +90,12 @@ public:
 
   SIMPL_FILTER_PARAMETER(QString, DelamMat)
   Q_PROPERTY(QString DelamMat READ getDelamMat WRITE setDelamMat)
+
+  SIMPL_FILTER_PARAMETER(int, NumClusters)
+  Q_PROPERTY(int NumClusters READ getNumClusters WRITE setNumClusters)
+
+  SIMPL_FILTER_PARAMETER(DynamicTableData, ClusterData)
+  Q_PROPERTY(DynamicTableData ClusterData READ getClusterData WRITE setClusterData)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class

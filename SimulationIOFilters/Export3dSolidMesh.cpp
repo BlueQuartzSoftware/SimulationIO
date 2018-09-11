@@ -22,6 +22,8 @@
 #include "SIMPLib/FilterParameters/OutputFileFilterParameter.h"
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/FilterParameters/OutputPathFilterParameter.h"
+#include "SIMPLib/FilterParameters/DynamicTableFilterParameter.h"
+#include "SIMPLib/FilterParameters/DynamicTableData.h"
 #include "SIMPLib/Math/SIMPLibMath.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Geometry/EdgeGeom.h"
@@ -47,6 +49,7 @@ Export3dSolidMesh::Export3dSolidMesh()
 , m_CellPhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Phases)
 , m_CellEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles)
 , m_DelamMat("")
+, m_NumClusters(1)
 {
   initialize();
 
@@ -95,7 +98,7 @@ void Export3dSolidMesh::setupFilterParameters()
     choices.push_back("PZFLEX");
     choices.push_back("BSAM");
     parameter->setChoices(choices);
-    QStringList linkedProps = {"JobName", "NumElem", "NumDepvar", "NumMatConst", "NumUserOutVar", "CellEulerAnglesArrayPath", "CellPhasesArrayPath", "DelamMat", "NumKeypoints"};
+    QStringList linkedProps = {"JobName", "NumElem", "NumDepvar", "NumMatConst", "NumUserOutVar", "CellEulerAnglesArrayPath", "CellPhasesArrayPath", "DelamMat", "NumKeypoints", "NumClusters", "ClusterData"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -133,6 +136,24 @@ void Export3dSolidMesh::setupFilterParameters()
     DataArraySelectionFilterParameter::RequirementType req =
       DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phases", CellPhasesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
+  }
+
+  {
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Clusters", NumClusters, FilterParameter::Parameter, Export3dSolidMesh, 2));
+
+    // Table - Dynamic rows and fixed columns
+    {
+      QStringList cHeaders;
+      cHeaders << "Elements"
+	       << "Nodes"
+	       << "Sets";
+      std::vector<std::vector<double>> defaultTable(1, std::vector<double>(3, 0.0));
+      m_ClusterData.setColHeaders(cHeaders);
+      m_ClusterData.setTableData(defaultTable);
+      m_ClusterData.setDynamicRows(true);
+      parameters.push_back(SIMPL_NEW_DYN_TABLE_FP("Cluster Data", ClusterData, FilterParameter::Parameter, Export3dSolidMesh, 2));
+    }
+    
   }
 
   setFilterParameters(parameters);
@@ -630,17 +651,17 @@ void Export3dSolidMesh::execute()
 	fprintf(f, "\n");
 	//
 	fprintf(f, "keypoints\n");
-  fprintf(f, "%d %d %d\n", m_NumKeypoints.x, m_NumKeypoints.y, m_NumKeypoints.z);
-  //
-  fprintf(f, "divisions\n");
-  fprintf(f, "%d %d %d\n",ne_x,ne_y,ne_z);
+	fprintf(f, "%d %d %d\n", m_NumKeypoints.x, m_NumKeypoints.y, m_NumKeypoints.z);
+	//
+	fprintf(f, "divisions\n");
+	fprintf(f, "%d %d %d\n",ne_x,ne_y,ne_z);
 	//
 	fprintf(f, "name %d\n", maxGrainId);
 	//
-  fprintf(f, "void %s\n", m_DelamMat.toLatin1().data());
-  //
-  fprintf(f, "matr %d\n", ne_x * ne_y * ne_z);
-  //
+	fprintf(f, "void %s\n", m_DelamMat.toLatin1().data());
+	//
+	fprintf(f, "matr %d\n", ne_x * ne_y * ne_z);
+	//
 	entriesPerLine = 0;
 	for(int32_t i = 0; i < totalPoints; i++)
 	  {
@@ -665,7 +686,20 @@ void Export3dSolidMesh::execute()
       }
     case 2: // BSAM
       {
-	
+	//
+	QString masterFile = m_OutputPath + QDir::separator() + m_OutputFilePrefix + ".flxtbl";
+	//
+	FILE* f = fopen(masterFile.toLatin1().data(), "wb");
+	if(nullptr == f)
+	  {
+	    QString ss = QObject::tr("Error writing PZFLEX input file '%1'").arg(masterFile);
+	    setErrorCondition(-1);
+	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+	  }	
+	//
+	fprintf(f, "hedr 0\n");
+	fprintf(f, "info 1\n");
+	//
 	break;
       }
     }

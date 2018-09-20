@@ -21,6 +21,8 @@
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Utilities/TimeUtilities.h"
+#include "SIMPLib/Geometry/QuadGeom.h"
+#include "SIMPLib/FilterParameters/InputFileFilterParameter.h"
 
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"
@@ -37,7 +39,9 @@ ImportFEAData::ImportFEAData()
 , m_FrameNumber(1)
 , m_OutputVariable("S")
 , m_ElementSet("NALL")
-
+, m_DataContainerName(SIMPL::Defaults::DataContainerName)
+, m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
+, m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
 {
   initialize();
 }
@@ -81,7 +85,10 @@ void ImportFEAData::setupFilterParameters()
 			       "Step", 
 			       "FrameNumber",    
 			       "OutputVariable",    
-                               "ElementSet"}; //ABAQUS
+                               "ElementSet",
+                               "DataContainerName",
+                               "VertexAttributeMatrixName",
+                               "CellAttributeMatrixName"}; 
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -95,6 +102,9 @@ void ImportFEAData::setupFilterParameters()
     parameters.push_back(SIMPL_NEW_INTEGER_FP("Frame Number", FrameNumber, FilterParameter::Parameter, ImportFEAData, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Output Variable", OutputVariable, FilterParameter::Parameter, ImportFEAData, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Element Set", ElementSet, FilterParameter::Parameter, ImportFEAData, 0));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Name", DataContainerName, FilterParameter::CreatedArray, ImportFEAData, 0));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Vertex Attribute Matrix Name", VertexAttributeMatrixName, FilterParameter::CreatedArray, ImportFEAData, 0));    
+    parameters.push_back(SIMPL_NEW_STRING_FP("Cell Attribute Matrix Name", CellAttributeMatrixName, FilterParameter::CreatedArray, ImportFEAData, 0));
   }
 
   setFilterParameters(parameters);
@@ -113,6 +123,9 @@ void ImportFEAData::readFilterParameters(AbstractFilterParametersReader* reader,
   setFrameNumber(reader->readValue("FrameNumber", getFrameNumber()));
   setOutputVariable(reader->readString("OutputVariable", getOutputVariable()));
   setElementSet(reader->readString("ElementSet", getElementSet()));
+  setDataContainerName(reader->readString("DataContainerName", getDataContainerName()));
+  setVertexAttributeMatrixName(reader->readString("VertexAttributeMatrixName", getVertexAttributeMatrixName()));
+  setCellAttributeMatrixName(reader->readString("CellAttributeMatrixName", getCellAttributeMatrixName()));
   reader->closeFilterGroup();
 }
 
@@ -177,9 +190,29 @@ void ImportFEAData::execute()
 	    return;
 	  }
 
-
-
-
+	// Create the output Data Container
+	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }
+	
+	// Create our output Vertex and Cell Matrix objects
+	QVector<size_t> tDims(1, 0);
+	AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }
+	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Face);
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }
+	
+	QString outTxtFile = m_odbFilePath + QDir::separator() + m_odbName + ".dat";
+	scanABQFile(outTxtFile, m.get(), vertexAttrMat.get(), cellAttrMat.get());
+		
 	break;
       }
     }
@@ -225,7 +258,7 @@ int32_t ImportFEAData::writeABQpyscr(const QString& file, QString odbName, QStri
   fprintf(f, "I1 = odb.rootAssembly.instances[instanceName].elementSets[elSet]\n"); 
   fprintf(f, "fieldOut = odb.steps[step].frames[frameNum].fieldOutputs[outputVar].getSubset(region=I1).values\n"); 
 
-  fprintf(f, "outTxtFile = odbFilePath + outputVar.toLatin1().data() + '.dat'\n");
+  fprintf(f, "outTxtFile = odbFilePath + odbName + '.dat'\n");
   fprintf(f, "fid = open(outTxtFile, ""a)");
   fprintf(f, "fid.write('%s\n)",outputVar.toLatin1().data());
   fprintf(f, "for j in range(len(fieldOut)):");
@@ -241,6 +274,137 @@ int32_t ImportFEAData::writeABQpyscr(const QString& file, QString odbName, QStri
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContainer, AttributeMatrix* vertexAttrMat, AttributeMatrix* cellAttrMat)
+{
+  bool allocate = true;
+  
+  QFile inStream;
+  inStream.setFileName(file);
+
+  QByteArray buf;
+  QList<QByteArray> tokens; /* vector to store the split data */
+
+  bool ok = false;
+  QString word("");
+
+  // Read until you get to the vertex block
+  while(word.compare("NODE") != 0)
+  {
+    buf = inStream.readLine();
+    buf = buf.trimmed();
+    buf = buf.simplified();
+    tokens = buf.split(' ');
+    word = tokens.at(0);
+  }
+
+  // Set the number of vertices and then create vertices array and resize vertex attr mat.
+  size_t numVerts = tokens.at(1).toULongLong(&ok);
+  QVector<size_t> tDims(1, numVerts);
+  vertexAttrMat->resizeAttributeArrays(tDims);
+
+  SharedVertexList::Pointer vertexPtr = QuadGeom::CreateSharedVertexList(static_cast<int64_t>(numVerts), allocate);
+  float* vertex = vertexPtr->getPointer(0);
+
+  // Read or Skip past all the vertex data
+  for(size_t i = 0; i < numVerts; i++)
+  {
+    buf = inStream.readLine();
+    if(allocate)
+    {
+      buf = buf.trimmed();
+      buf = buf.simplified();
+      tokens = buf.split(' ');
+      vertex[3 * i] = tokens[1].toFloat(&ok);
+      vertex[3 * i + 1] = tokens[2].toFloat(&ok);
+      vertex[3 * i + 2] = 0.0;
+    }
+  }
+  // We should now be at the Cell Connectivity section
+  // Read until you get to the element block
+  while(word.compare("ELEMENT") != 0)
+  {
+    buf = inStream.readLine();
+    buf = buf.trimmed();
+    buf = buf.simplified();
+    tokens = buf.split(' ');
+    word = tokens.at(0);
+  }
+  // Set the number of cells and then create cells array and resize cell attr mat.
+  size_t numCells = tokens.at(1).toULongLong(&ok);
+  tDims[0] = numCells;
+  cellAttrMat->resizeAttributeArrays(tDims);
+
+  QuadGeom::Pointer quadGeomPtr = QuadGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::QuadGeometry, allocate);
+  quadGeomPtr->setSpatialDimensionality(2);
+  dataContainer->setGeometry(quadGeomPtr);
+  int64_t* quads = quadGeomPtr->getQuadPointer(0);
+
+  for(size_t i = 0; i < numCells; i++)
+  {
+    buf = inStream.readLine();
+    if(allocate)
+    {
+      buf = buf.trimmed();
+      buf = buf.simplified();
+      tokens = buf.split(' ');
+      // Subtract one from the node number because ABAQUS starts at node 1 and we start at node 0
+      quads[4 * i] = tokens[1].toInt(&ok) - 1;
+      quads[4 * i + 1] = tokens[2].toInt(&ok) - 1;
+      quads[4 * i + 2] = tokens[3].toInt(&ok) - 1;
+      quads[4 * i + 3] = tokens[4].toInt(&ok) - 1;
+    }
+  }
+  // End reading of the connectivity
+  // Start reading any additional vertex or cell data arrays
+
+  while(inStream.atEnd() == false)
+  {
+    // Now we are reading either cell or vertex data based on the number of items
+    // being read. First Gobble up blank lines that might possibly be at the end of the file
+    buf.clear();
+    while(buf.size() == 0 && !inStream.atEnd())
+    {
+      buf = inStream.readLine();
+      buf = buf.trimmed();
+      buf = buf.simplified();
+      tokens = buf.split(' ');
+    }
+    if(inStream.atEnd())
+    {
+      return;
+    }
+    QString dataArrayName = tokens.at(0);
+    size_t count = numCells;
+
+    // Read a Data set
+    FloatArrayType::Pointer data = FloatArrayType::NullPointer();
+
+    if (dataArrayName == "STRESS")
+      {
+	int32_t numComp = 4;
+	QVector<size_t> cDims(1, static_cast<size_t>(numComp));
+	data = FloatArrayType::CreateArray(count, cDims, dataArrayName, allocate);
+	cellAttrMat->addAttributeArray(data->getName(), data);
+	
+	for(size_t i = 0; i < count; i++)
+	  {
+	    if(allocate)
+	      {
+		for(int32_t c = 0; c < numComp; c++)
+		  {
+		    float value = tokens[c + 1].toFloat(&ok);
+		    data->setComponent(i, c, value);
+		  }
+	      } 
+	  }
+      }
+    //
+    //
+  }  
+}
+//
+//
+//
 AbstractFilter::Pointer ImportFEAData::newFilterInstance(bool copyFilterParameters) const
 {
   ImportFEAData::Pointer filter = ImportFEAData::New();

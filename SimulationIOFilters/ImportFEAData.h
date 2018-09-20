@@ -11,6 +11,9 @@
 #include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
 #include "SIMPLib/Common/Constants.h"
 
+class AttributeMatrix;
+class DataContainer;
+
 #include "SimulationIO/SimulationIODLLExport.h"
 
 /**
@@ -28,6 +31,9 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
     PYB11_PROPERTY(int FrameNumber READ getFrameNumber WRITE setFrameNumber)
     PYB11_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable)
     PYB11_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
+    PYB11_PROPERTY(QString DataContainerName READ getDataContainerName WRITE setDataContainerName)
+    PYB11_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
+    PYB11_PROPERTY(QString CellAttributeMatrixName READ getCellAttributeMatrixName WRITE setCellAttributeMatrixName)
 
   public:
     SIMPL_SHARED_POINTERS(ImportFEAData)
@@ -59,6 +65,15 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
 
     SIMPL_FILTER_PARAMETER(QString, ElementSet)
     Q_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
+
+    SIMPL_FILTER_PARAMETER(QString, DataContainerName)
+    Q_PROPERTY(QString DataContainerName READ getDataContainerName WRITE setDataContainerName)
+
+    SIMPL_FILTER_PARAMETER(QString, VertexAttributeMatrixName)
+    Q_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
+
+    SIMPL_FILTER_PARAMETER(QString, CellAttributeMatrixName)
+    Q_PROPERTY(QString CellAttributeMatrixName READ getCellAttributeMatrixName WRITE setCellAttributeMatrixName)
 
     /**
      * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
@@ -164,6 +179,8 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
 
   private:
     int32_t writeABQpyscr(const QString& file, QString odbName, QString odbFilePath, QString instanceName, QString step, int frameNum, QString outputVar, QString elSet); 
+
+    void scanABQFile(const QString& file, DataContainer* dataContainer, AttributeMatrix* vertexAttributeMatrix, AttributeMatrix* cellAttributeMatrix);
   
   public:
     /* Rule of 5: All special member functions should be defined if any are defined.

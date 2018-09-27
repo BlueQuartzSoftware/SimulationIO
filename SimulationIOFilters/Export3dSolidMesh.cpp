@@ -114,6 +114,16 @@ void Export3dSolidMesh::setupFilterParameters()
     parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Solution Dependent State Variables", NumDepvar, FilterParameter::Parameter, Export3dSolidMesh, 0));
     parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Material Constants", NumMatConst, FilterParameter::Parameter, Export3dSolidMesh, 0));
     parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of User Output Variables", NumUserOutVar, FilterParameter::Parameter, Export3dSolidMesh, 0));
+    // Table - Dynamic rows and fixed columns
+    {
+      QStringList cHeaders;
+      cHeaders << "Values";
+      std::vector<std::vector<double>> defaultTable(1, std::vector<double>(1, 0.0));
+      m_MatConst.setColHeaders(cHeaders);
+      m_MatConst.setTableData(defaultTable);
+      m_MatConst.setDynamicRows(true);
+      parameters.push_back(SIMPL_NEW_DYN_TABLE_FP("Material Constants", MatConst, FilterParameter::Parameter, Export3dSolidMesh, 0));
+    }
   }
 
   {
@@ -510,20 +520,23 @@ void Export3dSolidMesh::execute()
 	  }
 	//
 
+
+	std::vector<std::vector<double>> MatConst = m_MatConst.getTableData();
+
 	for(int32_t i = 1; i <= maxGrainId; i++)
 	  {
 	    fprintf(f5, "*Material, name = Grain%d_Phase%d_set\n", i, m_phaseId[i-1] );
 	    fprintf(f5, "*Depvar\n");
-      fprintf(f5, "%d\n", m_NumDepvar);
-      fprintf(f5, "*User Material, constants = %d\n", m_NumMatConst);
-      fprintf(f5, "%d, %d, %.3f, %.3f, %.3f", i, m_phaseId[i - 1], m_orient[(i - 1) * 3], m_orient[(i - 1) * 3 + 1], m_orient[(i - 1) * 3 + 2]);
-      size_t entriesPerLine = 5;
-      for(int32_t j = 0; j < m_NumMatConst - 5; j++)
-      {
-        if(entriesPerLine != 0) // no comma at start
-        {
-          if(entriesPerLine % 8) // 8 per line
-          {
+	    fprintf(f5, "%d\n", m_NumDepvar);
+	    fprintf(f5, "*User Material, constants = %d\n", m_NumMatConst);
+	    fprintf(f5, "%d, %d, %.3f, %.3f, %.3f", i, m_phaseId[i - 1], m_orient[(i - 1) * 3], m_orient[(i - 1) * 3 + 1], m_orient[(i - 1) * 3 + 2]);
+	    size_t entriesPerLine = 5;
+	    for(int32_t j = 0; j < m_NumMatConst - 5; j++)
+	      {
+		if(entriesPerLine != 0) // no comma at start
+		  {
+		    if(entriesPerLine % 8) // 8 per line
+		      {
 			fprintf(f5, ",  ");
 		      }
 		    else
@@ -532,22 +545,22 @@ void Export3dSolidMesh::execute()
 			entriesPerLine = 0;
 		      }
 		  }
-		//	fprintf(f,"%.3f",matConst);
+		fprintf(f5,"%.3f",MatConst[j][0]);
 		entriesPerLine++;
 	      }
 	    fprintf(f5, "\n");
 	    fprintf(f5, "*User Output Variables\n");
-      fprintf(f5, "%d\n", m_NumUserOutVar);
-    }
+	    fprintf(f5, "%d\n", m_NumUserOutVar);
+	  }
     //
     // We are now defining the sections, which is for each grain
-    int32_t grain = 1;
-    while(grain <= maxGrainId)
+	int32_t grain = 1;
+	while(grain <= maxGrainId)
 	  {
 	    fprintf(f5, "*Solid Section, elset=Grain%d_Phase%d_set, material=Grain%d_Phase%d_mat\n", grain, m_phaseId[grain-1], grain, m_phaseId[grain-1]);
 	    grain++;
 	  }
-
+	
 	fclose(f1);
 	fclose(f2);
 	fclose(f3);

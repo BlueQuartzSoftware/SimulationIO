@@ -44,6 +44,7 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
   PYB11_PROPERTY(QString DelamMat READ getDelamMat WRITE setDelamMat)
   PYB11_PROPERTY(int NumClusters READ getNumClusters WRITE setNumClusters)
   PYB11_PROPERTY(DynamicTableData ClusterData READ getClusterData WRITE setClusterData)
+  PYB11_PROPERTY(DynamicTableData MatConst READ getMatConst WRITE setMatConst)
 
 public:
   SIMPL_SHARED_POINTERS(Export3dSolidMesh)
@@ -96,6 +97,9 @@ public:
 
   SIMPL_FILTER_PARAMETER(DynamicTableData, ClusterData)
   Q_PROPERTY(DynamicTableData ClusterData READ getClusterData WRITE setClusterData)
+
+  SIMPL_FILTER_PARAMETER(DynamicTableData, MatConst)
+  Q_PROPERTY(DynamicTableData MatConst READ getMatConst WRITE setMatConst)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class

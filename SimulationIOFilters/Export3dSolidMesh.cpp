@@ -98,7 +98,7 @@ void Export3dSolidMesh::setupFilterParameters()
     choices.push_back("PZFLEX");
     choices.push_back("BSAM");
     parameter->setChoices(choices);
-    QStringList linkedProps = {"JobName", "NumElem", "NumDepvar", "NumMatConst", "NumUserOutVar", "CellEulerAnglesArrayPath", "CellPhasesArrayPath", "DelamMat", "NumKeypoints", "NumClusters", "ClusterData"};
+    QStringList linkedProps = {"JobName", "NumElem", "NumDepvar", "NumMatConst", "NumUserOutVar", "MatConst", "CellEulerAnglesArrayPath", "CellPhasesArrayPath", "DelamMat", "NumKeypoints", "NumClusters", "ClusterData"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -398,6 +398,7 @@ void Export3dSolidMesh::execute()
 	FloatArrayType::Pointer m_coordLengthPtr = FloatArrayType::CreateArray(3*nnode_x*nnode_y*nnode_z , "NODAL_COORDINATES_INTERNAL_USE_ONLY");
 	float* m_coord = m_coordLengthPtr->getPointer(0);
 	
+	fprintf(f1,"*NODE, NSET=ALLNODES\n");  
 	fprintf(f5,"*NODE, NSET=ALLNODES\n");  
 	
 	for(int32_t k = 0; k < nnode_z; k++)
@@ -408,8 +409,8 @@ void Export3dSolidMesh::execute()
 		  {
 		    index = k*nnode_x*nnode_y+j*nnode_x+i;
 		    m_coord[index*3] = origin[0] + (i * res[0]);
-		    m_coord[index*3+1] = - ( origin[2] + (k * res[2]) );
-		    m_coord[index*3+2] = origin[1] + (j * res[1]);
+		    m_coord[index*3+1] = origin[1] + (j * res[1]);
+		    m_coord[index*3+2] = origin[2] + (k * res[2]);
 		  }
 	      }
 	  }
@@ -431,6 +432,7 @@ void Export3dSolidMesh::execute()
 	Int32ArrayType::Pointer m_connLengthPtr = Int32ArrayType::CreateArray(8*ne_x*ne_y*ne_z , "CONNECTIVITY_INTERNAL_USE_ONLY");
 	int32_t* m_conn = m_connLengthPtr->getPointer(0);
 	
+	fprintf(f2,"*ELEMENTS, TYPE=C3D8R, ELSET=ALLELEMENTS\n");  
 	fprintf(f5,"*ELEMENTS, TYPE=C3D8R, ELSET=ALLELEMENTS\n");  
 	
 	for(int32_t k = 0; k < ne_z; k++)
@@ -494,6 +496,7 @@ void Export3dSolidMesh::execute()
 	while(voxelId <= maxGrainId)
 	  {
 	    size_t elementPerLine = 0;
+	    fprintf(f4, "*Elset, elset=Grain%d_Phase%d_set\n", voxelId, m_phaseId[voxelId-1] );
 	    fprintf(f5, "*Elset, elset=Grain%d_Phase%d_set\n", voxelId, m_phaseId[voxelId-1] );
 
 	    for(int32_t i = 0; i < totalPoints + 1; i++)
@@ -504,17 +507,21 @@ void Export3dSolidMesh::execute()
 		      {
 			if(elementPerLine % 16) // 16 per line
 			  {
+			    fprintf(f4, ", ");
 			    fprintf(f5, ", ");
 			  }
 			else
 			  {
+			    fprintf(f4, ",\n");
 			    fprintf(f5, ",\n");
 			  }
 		      }
+		    fprintf(f4, "%llu", static_cast<unsigned long long int>(i + 1));
 		    fprintf(f5, "%llu", static_cast<unsigned long long int>(i + 1));
 		    elementPerLine++;
 		  }
 	      }
+	    fprintf(f4, "\n");
 	    fprintf(f5, "\n");
 	    voxelId++;
 	  }
@@ -557,6 +564,7 @@ void Export3dSolidMesh::execute()
 	int32_t grain = 1;
 	while(grain <= maxGrainId)
 	  {
+	    fprintf(f3, "*Solid Section, elset=Grain%d_Phase%d_set, material=Grain%d_Phase%d_mat\n", grain, m_phaseId[grain-1], grain, m_phaseId[grain-1]);
 	    fprintf(f5, "*Solid Section, elset=Grain%d_Phase%d_set, material=Grain%d_Phase%d_mat\n", grain, m_phaseId[grain-1], grain, m_phaseId[grain-1]);
 	    grain++;
 	  }

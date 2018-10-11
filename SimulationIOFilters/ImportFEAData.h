@@ -4,6 +4,11 @@
 
 #pragma once
 
+#include <QtCore/QProcess>
+#include <QtCore/QWaitCondition>
+#include <QtCore/QMutex>
+#include <QtCore/QSharedPointer>
+
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -13,6 +18,7 @@
 
 class AttributeMatrix;
 class DataContainer;
+class QProcess;
 
 #include "SimulationIO/SimulationIODLLExport.h"
 
@@ -177,10 +183,24 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
     */
     void initialize();
 
-  private:
-    int32_t writeABQpyscr(const QString& file, QString odbName, QString odbFilePath, QString instanceName, QString step, int frameNum, QString outputVar, QString elSet); 
+  protected slots:
+      void processHasFinished(int exitCode, QProcess::ExitStatus exitStatus);
+      void processHasErroredOut(QProcess::ProcessError error);
+      void sendErrorOutput();
+      void sendStandardOutput();
 
-    void scanABQFile(const QString& file, DataContainer* dataContainer, AttributeMatrix* vertexAttributeMatrix, AttributeMatrix* cellAttributeMatrix);
+  private:
+      int32_t writeABQpyscr(const QString& file, QString odbName, QString odbFilePath, QString instanceName, QString step, int frameNum, QString outputVar, QString elSet); 
+      
+      void runABQpyscr(const QString& file) ; 
+      
+      void scanABQFile(const QString& file, DataContainer* dataContainer, AttributeMatrix* vertexAttributeMatrix, AttributeMatrix* cellAttributeMatrix);
+      
+      QWaitCondition m_WaitCondition;
+      QMutex m_Mutex;                                              
+      bool m_Pause;                                               
+      QSharedPointer<QProcess> m_ProcessPtr;                           
+      QStringList arguments;
   
   public:
     /* Rule of 5: All special member functions should be defined if any are defined.

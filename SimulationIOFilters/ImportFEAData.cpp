@@ -6,6 +6,8 @@
 
 #include <QtCore/QDateTime>
 #include <QtCore/QDir>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QFileInfo>
 
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
@@ -23,6 +25,7 @@
 #include "SIMPLib/Utilities/TimeUtilities.h"
 #include "SIMPLib/Geometry/QuadGeom.h"
 #include "SIMPLib/FilterParameters/InputFileFilterParameter.h"
+#include "SIMPLib/SIMPLibVersion.h"
 
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"
@@ -59,6 +62,10 @@ void ImportFEAData::initialize()
   setErrorCondition(0);
   setWarningCondition(0);
   setCancel(false);
+
+  m_Pause = false;
+  m_ProcessPtr.reset();
+
 }
 
 // -----------------------------------------------------------------------------
@@ -172,7 +179,7 @@ void ImportFEAData::execute()
 	QDir dir;
 	if(!dir.mkpath(m_odbFilePath))
 	  {
-	    QString ss = QObject::tr("Error creating parent path '%1'").arg(m_odbFilePath);
+	    QString ss = QObject::tr("Error in accessing odb file '%1'").arg(m_odbFilePath);
 	    setErrorCondition(-1);
 	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
 	    return;
@@ -189,6 +196,9 @@ void ImportFEAData::execute()
 	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
 	    return;
 	  }
+
+	// Running ABAQUS python script
+	runABQpyscr(abqpyscr); 
 
 	// Create the output Data Container
 	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
@@ -215,6 +225,20 @@ void ImportFEAData::execute()
 		
 	break;
       }
+
+    case 1: // BSAM
+      {
+	
+      }
+    case 2: // PZFLEX
+      {
+	
+      }
+    case 3: // DEFORM"
+      {
+	
+      }
+
     }
 
   if (getCancel()) { return; }
@@ -256,24 +280,174 @@ int32_t ImportFEAData::writeABQpyscr(const QString& file, QString odbName, QStri
   fprintf(f, "odbfileName = odbFilePath + odbName + '.odb'\n"); 
   fprintf(f, "odb = openOdb(path = odbfileName)\n");   
   fprintf(f, "I1 = odb.rootAssembly.instances[instanceName].elementSets[elSet]\n"); 
-  fprintf(f, "fieldOut = odb.steps[step].frames[frameNum].fieldOutputs[outputVar].getSubset(region=I1).values\n"); 
+  fprintf(f, "fieldOut = odb.steps[step].frames[frameNum].fieldOutputs[outputVar].getSubset(region=I1).values\n\n"); 
 
   fprintf(f, "outTxtFile = odbFilePath + odbName + '.dat'\n");
-  fprintf(f, "fid = open(outTxtFile, ""a)");
-  fprintf(f, "fid.write('%s\n)",outputVar.toLatin1().data());
-  fprintf(f, "for j in range(len(fieldOut)):");
-  fprintf(f, "        nelem = I1.elements[j].label");
-  fprintf(f, "        fid.write(str(nelem) + '  ' + str(fieldOut.data[0]) + '  ' + str(fieldOut.data[1]) + '  ' + str(fieldOut.data[2]) + '  ' + str(fieldOut.data[3]) + '  ' + str(fieldOut.data[4]) + '  ' + str(fieldOut.data[5]))");
+  fprintf(f, "fid = open(outTxtFile, ""a"")\n");
+  fprintf(f, "fid.write('%s)\n",outputVar.toLatin1().data());
+  fprintf(f, "for j in range(len(fieldOut)):\n");
+  fprintf(f, "        nelem = I1.elements[j].label\n");
+  fprintf(f, "        fid.write(str(nelem) + '  ' + str(fieldOut.data[0]) + '  ' + str(fieldOut.data[1]) + '  ' + str(fieldOut.data[2]) + '  ' + str(fieldOut.data[3]) + '  ' + str(fieldOut.data[4]) + '  ' + str(fieldOut.data[5]))\n");
   fprintf(f,"fid.close()");
-  notifyStatusMessage(getHumanLabel(), "ABAQUS python script");
+  notifyStatusMessage(getHumanLabel(), "Finished writing ABAQUS python script");
   fclose(f);
+
   return err;
 
+}
+
+//
+//
+//
+
+void ImportFEAData::runABQpyscr(const QString& file) 
+{
+  //cmd to run: "abaqus python filename.py
+
+  QString program = "abaqus";
+  QStringList arguments;
+  arguments << "python" << file;
+
+  m_ProcessPtr = QSharedPointer<QProcess>(new QProcess(nullptr));
+  qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
+  qRegisterMetaType<QProcess::ProcessError>("QProcess::ProcessError");
+  connect(m_ProcessPtr.data(), SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(processHasFinished(int, QProcess::ExitStatus)), Qt::QueuedConnection);
+  connect(m_ProcessPtr.data(), SIGNAL(error(QProcess::ProcessError)), this, SLOT(processHasErroredOut(QProcess::ProcessError)), Qt::QueuedConnection);
+  connect(m_ProcessPtr.data(), SIGNAL(readyReadStandardError()), this, SLOT(sendErrorOutput()), Qt::QueuedConnection);
+  connect(m_ProcessPtr.data(), SIGNAL(readyReadStandardOutput()), this, SLOT(sendStandardOutput()), Qt::QueuedConnection);
+
+  m_ProcessPtr->setWorkingDirectory(m_odbFilePath);
+  m_ProcessPtr->start(program, arguments);
+  m_ProcessPtr->waitForStarted(2000);
+  m_ProcessPtr->waitForFinished();
+
+  notifyStatusMessage(getHumanLabel(), "Finished running ABAQUS python script");
+
+}
+
+//
+//
+//
+
+void ImportFEAData::processHasFinished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+  if(getCancel())
+  {
+  }
+  else if(exitStatus == QProcess::CrashExit)
+  {
+    QString ss = QObject::tr("The process crashed during its exit.");
+    setErrorCondition(-4003);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+  else if(exitCode < 0)
+  {
+    QString ss = QObject::tr("The process finished with exit code %1.").arg(QString::number(exitCode));
+    setErrorCondition(-4004);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+  else if(getErrorCondition() >= 0)
+  {
+    notifyStatusMessage(getHumanLabel(), "Complete");
+  }
+
+  m_Pause = false;
+  m_WaitCondition.wakeAll();
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+
+void ImportFEAData::processHasErroredOut(QProcess::ProcessError error)
+{
+  if(getCancel())
+  {
+    QString ss = QObject::tr("The process was killed by the user.");
+    setWarningCondition(-4004);
+    notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
+  }
+  else if(error == QProcess::FailedToStart)
+  {
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    QString pathEnv = env.value("PATH");
+
+    QString ss = QObject::tr("The process failed to start. Either the invoked program is missing, or you may have insufficient permissions to invoke the program \
+or the path containing the executble is not in the system's environment path. PATH=%1.\n Try using the absolute path to the executable.")
+                     .arg(pathEnv);
+    setErrorCondition(-4005);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+  else if(error == QProcess::Crashed)
+  {
+    QString ss = QObject::tr("The process crashed some time after starting successfully.");
+    setErrorCondition(-4006);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+  else if(error == QProcess::Timedout)
+  {
+    QString ss = QObject::tr("The process timed out.");
+    setErrorCondition(-4007);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+  else if(error == QProcess::WriteError)
+  {
+    QString ss = QObject::tr("An error occurred when attempting to write to the process.");
+    setErrorCondition(-4008);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+  else if(error == QProcess::ReadError)
+  {
+    QString ss = QObject::tr("An error occurred when attempting to read from the process.");
+    setErrorCondition(-4009);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+  else
+  {
+    QString ss = QObject::tr("An unknown error occurred.");
+    setErrorCondition(-4010);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+
+  m_Pause = false;
+  m_WaitCondition.wakeAll();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+void ImportFEAData::sendErrorOutput()
+{
+  if(m_ProcessPtr.data() != nullptr)
+  {
+    QString error = m_ProcessPtr->readAllStandardError();
+    if(error[error.size() - 1] == '\n')
+    {
+      error.chop(1);
+    }
+    notifyStandardOutputMessage(getHumanLabel(), getPipelineIndex() + 1, error);
+    m_WaitCondition.wakeAll();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+void ImportFEAData::sendStandardOutput()
+{
+  if(m_ProcessPtr.data() != nullptr)
+  {
+    notifyStandardOutputMessage(getHumanLabel(), getPipelineIndex() + 1, m_ProcessPtr->readAllStandardOutput());
+    m_WaitCondition.wakeAll();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
 void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContainer, AttributeMatrix* vertexAttrMat, AttributeMatrix* cellAttrMat)
 {
   bool allocate = true;

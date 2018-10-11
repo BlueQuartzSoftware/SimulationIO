@@ -37,6 +37,9 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
     PYB11_PROPERTY(int FrameNumber READ getFrameNumber WRITE setFrameNumber)
     PYB11_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable)
     PYB11_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
+
+    PYB11_PROPERTY(QString InputFile READ getInputFile WRITE setInputFile)
+
     PYB11_PROPERTY(QString DataContainerName READ getDataContainerName WRITE setDataContainerName)
     PYB11_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
     PYB11_PROPERTY(QString CellAttributeMatrixName READ getCellAttributeMatrixName WRITE setCellAttributeMatrixName)
@@ -71,6 +74,9 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
 
     SIMPL_FILTER_PARAMETER(QString, ElementSet)
     Q_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
+
+    SIMPL_FILTER_PARAMETER(QString, InputFile)
+    Q_PROPERTY(QString InputFile READ getInputFile WRITE setInputFile)
 
     SIMPL_FILTER_PARAMETER(QString, DataContainerName)
     Q_PROPERTY(QString DataContainerName READ getDataContainerName WRITE setDataContainerName)
@@ -195,6 +201,8 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
       void runABQpyscr(const QString& file) ; 
       
       void scanABQFile(const QString& file, DataContainer* dataContainer, AttributeMatrix* vertexAttributeMatrix, AttributeMatrix* cellAttributeMatrix);
+
+      void scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix* vertexAttributeMatrix, AttributeMatrix* cellAttributeMatrix);
       
       QWaitCondition m_WaitCondition;
       QMutex m_Mutex;                                              

@@ -34,6 +34,7 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+
 ImportFEAData::ImportFEAData()  
 : m_FEAPackage(0)
 , m_odbName("")
@@ -926,6 +927,32 @@ void ImportFEAData::scanBSAMFile(DataContainer* dataContainer, AttributeMatrix* 
   dispdata = FloatArrayType::CreateArray(numVerts, cDims, dataArrayName, allocate);
   vertexAttrMat->addAttributeArray(dispdata->getName(), dispdata);
 
+  dataArrayName = "STRESS";
+  FloatArrayType::Pointer stressdata = FloatArrayType::NullPointer();
+  int32_t numStrComp = 6;
+  cDims[0] = static_cast<size_t>(numStrComp);
+  stressdata = FloatArrayType::CreateArray(numVerts, cDims, dataArrayName, allocate);
+  vertexAttrMat->addAttributeArray(stressdata->getName(), stressdata);
+
+  dataArrayName = "STRAIN";
+  FloatArrayType::Pointer straindata = FloatArrayType::NullPointer();
+  straindata = FloatArrayType::CreateArray(numVerts, cDims, dataArrayName, allocate);
+  vertexAttrMat->addAttributeArray(straindata->getName(), straindata);
+
+  dataArrayName = "CLUSTER";
+  Int32ArrayType::Pointer clusterdata = Int32ArrayType::NullPointer();
+  int32_t numClusterComp = 1;
+  cDims[0] = static_cast<size_t>(numClusterComp);
+  clusterdata = Int32ArrayType::CreateArray(numVerts, cDims, dataArrayName, allocate);
+  vertexAttrMat->addAttributeArray(clusterdata->getName(), clusterdata);
+
+  dataArrayName = "VA";
+  FloatArrayType::Pointer vadata = FloatArrayType::NullPointer();
+  int32_t numVaComp = 4;
+  cDims[0] = static_cast<size_t>(numVaComp);
+  vadata = FloatArrayType::CreateArray(numVerts, cDims, dataArrayName, allocate);
+  vertexAttrMat->addAttributeArray(vadata->getName(), vadata);
+
   // Read or Skip past all the vertex data
   for(size_t i = 0; i < numVerts; i++)
   {
@@ -945,6 +972,30 @@ void ImportFEAData::scanBSAMFile(DataContainer* dataContainer, AttributeMatrix* 
           dispdata->setComponent(i, c, value);
         }
 	
+      for(int32_t c = 0; c < numStrComp; c++)
+        {
+          float value = tokens[c + 6].toFloat(&ok);
+          stressdata->setComponent(i, c, value);
+        }
+
+      for(int32_t c = 0; c < numStrComp; c++)
+        {
+          float value = tokens[c + 12].toFloat(&ok);
+          straindata->setComponent(i, c, value);
+        }
+
+      for(int32_t c = 0; c < numClusterComp; c++)
+        {
+          int32_t cvalue = tokens[c + 18].toInt(&ok);
+          clusterdata->setComponent(i, c, cvalue);
+        }
+
+      for(int32_t c = 0; c < numVaComp; c++)
+        {
+          float value = tokens[c + 20].toFloat(&ok);
+          vadata->setComponent(i, c, value);
+        }
+
     }
   }
 

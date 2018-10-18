@@ -38,7 +38,9 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
     PYB11_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable)
     PYB11_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
 
-    PYB11_PROPERTY(QString InputFile READ getInputFile WRITE setInputFile)
+    PYB11_PROPERTY(QString DEFORMInputFile READ getDEFORMInputFile WRITE setDEFORMInputFile)
+
+    PYB11_PROPERTY(QString BSAMInputFile READ getBSAMInputFile WRITE setBSAMInputFile)
 
     PYB11_PROPERTY(QString DataContainerName READ getDataContainerName WRITE setDataContainerName)
     PYB11_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
@@ -75,8 +77,11 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
     SIMPL_FILTER_PARAMETER(QString, ElementSet)
     Q_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
 
-    SIMPL_FILTER_PARAMETER(QString, InputFile)
-    Q_PROPERTY(QString InputFile READ getInputFile WRITE setInputFile)
+    SIMPL_FILTER_PARAMETER(QString, DEFORMInputFile)
+    Q_PROPERTY(QString DEFORMInputFile READ getDEFORMInputFile WRITE setDEFORMInputFile)
+
+    SIMPL_FILTER_PARAMETER(QString, BSAMInputFile)
+    Q_PROPERTY(QString BSAMInputFile READ getBSAMInputFile WRITE setBSAMInputFile)
 
     SIMPL_FILTER_PARAMETER(QString, DataContainerName)
     Q_PROPERTY(QString DataContainerName READ getDataContainerName WRITE setDataContainerName)
@@ -203,6 +208,8 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
       void scanABQFile(const QString& file, DataContainer* dataContainer, AttributeMatrix* vertexAttributeMatrix, AttributeMatrix* cellAttributeMatrix);
 
       void scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix* vertexAttributeMatrix, AttributeMatrix* cellAttributeMatrix);
+
+      void scanBSAMFile(DataContainer* dataContainer, AttributeMatrix* vertexAttributeMatrix, AttributeMatrix* cellAttributeMatrix);
       
       QWaitCondition m_WaitCondition;
       QMutex m_Mutex;                                              

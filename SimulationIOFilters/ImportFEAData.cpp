@@ -24,6 +24,7 @@
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Utilities/TimeUtilities.h"
 #include "SIMPLib/Geometry/QuadGeom.h"
+#include "SIMPLib/Geometry/HexahedralGeom.h"
 #include "SIMPLib/FilterParameters/InputFileFilterParameter.h"
 #include "SIMPLib/SIMPLibVersion.h"
 
@@ -42,7 +43,8 @@ ImportFEAData::ImportFEAData()
 , m_FrameNumber(1)
 , m_OutputVariable("S")
 , m_ElementSet("NALL")
-, m_InputFile("")
+, m_DEFORMInputFile("")
+, m_BSAMInputFile("")
 , m_DataContainerName(SIMPL::Defaults::DataContainerName)
 , m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
 , m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
@@ -94,7 +96,8 @@ void ImportFEAData::setupFilterParameters()
 			       "FrameNumber",    
 			       "OutputVariable",    
                                "ElementSet",
-                               "InputFile"}; 
+                               "DEFORMInputFile",
+                               "BSAMInputFile"}; 
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -110,9 +113,12 @@ void ImportFEAData::setupFilterParameters()
     parameters.push_back(SIMPL_NEW_STRING_FP("Element Set", ElementSet, FilterParameter::Parameter, ImportFEAData, 0));
   }
 
+  {
+    parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", BSAMInputFile, FilterParameter::Parameter, ImportFEAData, "", "*.DAT",1));
+  }
 
   {
-    parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", InputFile, FilterParameter::Parameter, ImportFEAData, "", "*.DAT",3));
+    parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", DEFORMInputFile, FilterParameter::Parameter, ImportFEAData, "", "*.DAT",3));
   }
 
   parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Name", DataContainerName, FilterParameter::CreatedArray, ImportFEAData));
@@ -135,7 +141,8 @@ void ImportFEAData::readFilterParameters(AbstractFilterParametersReader* reader,
   setFrameNumber(reader->readValue("FrameNumber", getFrameNumber()));
   setOutputVariable(reader->readString("OutputVariable", getOutputVariable()));
   setElementSet(reader->readString("ElementSet", getElementSet()));
-  setInputFile(reader->readString("InputFile", getInputFile()));
+  setDEFORMInputFile(reader->readString("InputFile", getDEFORMInputFile()));
+  setBSAMInputFile(reader->readString("InputFile", getBSAMInputFile()));
   setDataContainerName(reader->readString("DataContainerName", getDataContainerName()));
   setVertexAttributeMatrixName(reader->readString("VertexAttributeMatrixName", getVertexAttributeMatrixName()));
   setCellAttributeMatrixName(reader->readString("CellAttributeMatrixName", getCellAttributeMatrixName()));
@@ -153,17 +160,37 @@ void ImportFEAData::dataCheck()
 
   switch(m_FEAPackage)
     {
-    case 3: // BSAM
+    case 1: // BSAM
       {
-	QFileInfo fi(m_InputFile);
+	QFileInfo fi(m_BSAMInputFile);
 	if(fi.exists() == false)
 	  {
-	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getInputFile());
+	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getBSAMInputFile());
 	    setErrorCondition(-388);
 	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
 	  }
 	
-	if(m_InputFile.isEmpty() == true)
+	if(m_BSAMInputFile.isEmpty() == true)
+	  {
+	    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
+	    setErrorCondition(-1);
+	    notifyErrorMessage(getHumanLabel(), ss, -1);
+	  }
+	
+	break;
+      }
+
+    case 3: // DEFORM
+      {
+	QFileInfo fi(m_DEFORMInputFile);
+	if(fi.exists() == false)
+	  {
+	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMInputFile());
+	    setErrorCondition(-388);
+	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+	  }
+	
+	if(m_DEFORMInputFile.isEmpty() == true)
 	  {
 	    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
 	    setErrorCondition(-1);
@@ -258,13 +285,37 @@ void ImportFEAData::execute()
 
     case 1: // BSAM
       {
+	// Create the output Data Container
+	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }
 	
+	// Create our output Vertex Matrix objects
+	QVector<size_t> tDims(1, 0);
+	AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }
+	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Face);
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }
+
+	scanBSAMFile(m.get(), vertexAttrMat.get(), cellAttrMat.get());
+
+	notifyStatusMessage(getHumanLabel(), "Import Complete");
+	
+	break;	
       }
     case 2: // PZFLEX
       {
-	
+	break;	
       }
-    case 3: // DEFORM"
+    case 3: // DEFORM
       {
 	
 	// Create the output Data Container
@@ -641,10 +692,10 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
   bool allocate = true;
 
   QFile inStream;
-  inStream.setFileName(getInputFile());
+  inStream.setFileName(getDEFORMInputFile());
   if(!inStream.open(QIODevice::ReadOnly | QIODevice::Text))
   {
-    QString ss = QObject::tr("Input file could not be opened: %1").arg(getInputFile());
+    QString ss = QObject::tr("Input file could not be opened: %1").arg(getDEFORMInputFile());
     setErrorCondition(-100);
     notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
     return;
@@ -783,7 +834,7 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
       if(i == 0)
       {
         QVector<size_t> cDims(1, static_cast<size_t>(numComp));
-        data = FloatArrayType::CreateArray(count, cDims, dataArrayName, !getInPreflight());
+        data = FloatArrayType::CreateArray(count, cDims, dataArrayName, allocate);
         if(count == numVerts)
         {
           vertexAttrMat->addAttributeArray(data->getName(), data);
@@ -811,6 +862,117 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
   }
 }
 
+//
+//
+//
+
+void ImportFEAData::scanBSAMFile(DataContainer* dataContainer, AttributeMatrix* vertexAttrMat, AttributeMatrix* cellAttrMat)
+{
+  bool allocate = true;
+
+  QFile inStream;
+  inStream.setFileName(getBSAMInputFile());
+  if(!inStream.open(QIODevice::ReadOnly | QIODevice::Text))
+  {
+    QString ss = QObject::tr("Input file could not be opened: %1").arg(getBSAMInputFile());
+    setErrorCondition(-100);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    return;
+  }
+
+  QByteArray buf;
+  QList<QByteArray> tokens; /* vector to store the split data */
+
+  bool ok = false;
+  QString word("");
+
+  // Read until you get to the vertex block
+  while(word.compare("n=") != 0)
+  {
+    buf = inStream.readLine();
+    buf = buf.trimmed();
+    buf = buf.simplified();
+    tokens = buf.split(' ');
+    word = tokens.at(0);
+  }
+
+  // Set the number of vertices and then create vertices array and resize vertex attr mat.
+  size_t numVerts = tokens.at(1).toULongLong(&ok);
+  QVector<size_t> tDims(1, numVerts);
+  vertexAttrMat->resizeAttributeArrays(tDims);
+  QString status;
+  QTextStream ss(&status);
+  ss << "BSAM Data File: Number of Vetex Points=" << numVerts;
+  notifyStatusMessage(getHumanLabel(), status);
+  SharedVertexList::Pointer vertexPtr = HexahedralGeom::CreateSharedVertexList(static_cast<int64_t>(numVerts), allocate);
+  float* vertex = vertexPtr->getPointer(0);
+
+  // Set the number of cells and then create cells array and resize cell attr mat.
+  size_t numCells = tokens.at(4).toULongLong(&ok);
+  tDims[0] = numCells;
+  status = "";
+  ss << "BSAM Data File: Number of Quad Cells=" << numCells;
+  notifyStatusMessage(getHumanLabel(), status);
+  cellAttrMat->resizeAttributeArrays(tDims);
+  HexahedralGeom::Pointer hexGeomPtr = HexahedralGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::HexahedralGeometry, allocate);
+  hexGeomPtr->setSpatialDimensionality(3);
+  dataContainer->setGeometry(hexGeomPtr);
+  int64_t* hexs = hexGeomPtr->getHexPointer(0);
+
+  QString dataArrayName = "DISPLACEMENT";
+  FloatArrayType::Pointer dispdata = FloatArrayType::NullPointer();
+  int32_t numDispComp = 3;
+  QVector<size_t> cDims(1, static_cast<size_t>(numDispComp));
+  dispdata = FloatArrayType::CreateArray(numVerts, cDims, dataArrayName, allocate);
+  vertexAttrMat->addAttributeArray(dispdata->getName(), dispdata);
+
+  // Read or Skip past all the vertex data
+  for(size_t i = 0; i < numVerts; i++)
+  {
+    buf = inStream.readLine();
+    if(allocate)
+    {
+      buf = buf.trimmed();
+      buf = buf.simplified();
+      tokens = buf.split(' ');
+      vertex[3 * i] = tokens[0].toFloat(&ok);
+      vertex[3 * i + 1] = tokens[1].toFloat(&ok);
+      vertex[3 * i + 2] = tokens[2].toFloat(&ok);
+
+      for(int32_t c = 0; c < numDispComp; c++)
+        {
+          float value = tokens[c + 3].toFloat(&ok);
+          dispdata->setComponent(i, c, value);
+        }
+	
+    }
+  }
+
+  for(size_t i = 0; i < numCells; i++)
+    {
+      buf = inStream.readLine();
+      if(allocate)
+	{
+	  buf = buf.trimmed();
+	  buf = buf.simplified();
+	  tokens = buf.split(' ');
+	  // Subtract one from the node number because BSAM starts at node 1 and we start at node 0
+	  hexs[8 * i] = tokens[0].toInt(&ok) - 1;
+	  hexs[8 * i + 1] = tokens[1].toInt(&ok) - 1;
+	  hexs[8 * i + 2] = tokens[2].toInt(&ok) - 1;
+	  hexs[8 * i + 3] = tokens[3].toInt(&ok) - 1;
+	  hexs[8 * i + 4] = tokens[4].toInt(&ok) - 1;
+	  hexs[8 * i + 5] = tokens[5].toInt(&ok) - 1;
+	  hexs[8 * i + 6] = tokens[6].toInt(&ok) - 1;
+	  hexs[8 * i + 7] = tokens[7].toInt(&ok) - 1;
+	}
+    }
+
+}
+
+//
+//
+//
 
 AbstractFilter::Pointer ImportFEAData::newFilterInstance(bool copyFilterParameters) const
 {

@@ -8,28 +8,35 @@
 #include <QtCore/QDir>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFileInfo>
+#include <QtCore/QString>
 
 #include "SIMPLib/Common/Constants.h"
+#include "SIMPLib/Common/TemplateHelpers.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/ChoiceFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
+#include "SIMPLib/DataContainers/DataContainerBundle.h"
 #include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
-#include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
-#include "SIMPLib/FilterParameters/PreflightUpdatedValueFilterParameter.h"
-#include "SIMPLib/FilterParameters/StringFilterParameter.h"
-#include "SIMPLib/FilterParameters/IntFilterParameter.h"
-#include "SIMPLib/FilterParameters/OutputPathFilterParameter.h"
-#include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
-#include "SIMPLib/Geometry/ImageGeom.h"
-#include "SIMPLib/Utilities/TimeUtilities.h"
-#include "SIMPLib/Geometry/QuadGeom.h"
-#include "SIMPLib/Geometry/HexahedralGeom.h"
+#include "SIMPLib/FilterParameters/DynamicChoiceFilterParameter.h"
 #include "SIMPLib/FilterParameters/InputFileFilterParameter.h"
+#include "SIMPLib/FilterParameters/IntFilterParameter.h"
+#include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
+#include "SIMPLib/FilterParameters/OutputPathFilterParameter.h"
+#include "SIMPLib/FilterParameters/PreflightUpdatedValueFilterParameter.h"
+#include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
+#include "SIMPLib/FilterParameters/StringFilterParameter.h"
+#include "SIMPLib/Geometry/HexahedralGeom.h"
+#include "SIMPLib/Geometry/ImageGeom.h"
+#include "SIMPLib/Geometry/QuadGeom.h"
+#include "SIMPLib/Geometry/VertexGeom.h"
 #include "SIMPLib/SIMPLibVersion.h"
+#include "SIMPLib/Utilities/TimeUtilities.h"
 
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"
+
+#define READ_DEF_PT_TRACKING_TIME_INDEX "Time Index"
 
 // -----------------------------------------------------------------------------
 //
@@ -49,8 +56,52 @@ ImportFEAData::ImportFEAData()
 , m_DataContainerName(SIMPL::Defaults::DataContainerName)
 , m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
 , m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
+, m_DEFORMPointTrackInputFile("")
+, m_TimeSeriesBundleName(SIMPL::Defaults::TimeSeriesBundleName)
+, m_SelectedTimeArrayName(SimulationIOConstants::DEFORMData::Time)
+, m_SelectedTimeStepArrayName(SimulationIOConstants::DEFORMData::Step)
+, m_SelectedPointNumArrayName(SimulationIOConstants::DEFORMData::PointNum)
+, m_SelectedXCoordArrayName(SimulationIOConstants::DEFORMData::RXCoord)
+, m_SelectedYCoordArrayName(SimulationIOConstants::DEFORMData::ZYCoord)
+, m_CachedFileName("")
 {
-  initialize();
+  m_BundleMetaDataAMName = DataContainerBundle::GetMetaDataName();
+
+  m_DataTypes[SimulationIOConstants::DEFORMData::DamageFactor] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::EffStrain] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::EffStrainRate] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::EffStress] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::MaxPrincStrain] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::MaxPrincStrainRate] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::MaxPrincStress] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::MeanStress] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::RelativeDensity] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::StrokeX] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::StrokeY] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::Temperature] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::XRStrain] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::XRStrainRate] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::XRStress] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::XYRZStrain] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::XYRZStrainRate] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::XYRZStress] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::YZStrain] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::YZStrainRate] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::YZStress] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::ZThetaStrain] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::ZThetaStrainRate] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::ZThetaStress] = SIMPL::TypeNames::Float;
+
+  m_DataTypes[SimulationIOConstants::DEFORMData::PointNum] = SIMPL::TypeNames::Int32;
+
+  // Vertex Coords
+  m_DataTypes[SimulationIOConstants::DEFORMData::RXCoord] = SIMPL::TypeNames::Float;
+  m_DataTypes[SimulationIOConstants::DEFORMData::ZYCoord] = SIMPL::TypeNames::Float;
+
+  // Meta Data
+  m_DataTypes[SimulationIOConstants::DEFORMData::Step] = SIMPL::TypeNames::Int32;
+  m_DataTypes[SimulationIOConstants::DEFORMData::Time] = SIMPL::TypeNames::Float;
+
 }
 
 // -----------------------------------------------------------------------------
@@ -63,13 +114,17 @@ ImportFEAData::~ImportFEAData() = default;
 // -----------------------------------------------------------------------------
 void ImportFEAData::initialize()
 {
-  setErrorCondition(0);
-  setWarningCondition(0);
-  setCancel(false);
-
-  m_Pause = false;
-  m_ProcessPtr.reset();
-
+  m_CachedFileName = QString("");
+  if(m_InStream.isOpen())
+    m_InStream.close();
+  m_DataTypes.clear();
+  m_NamePointerMap.clear();
+  m_NumBlocks = 0;
+  m_NumPoints = 0;
+  m_NumTimeSteps = 0;
+  m_LinesPerBlock = 0;
+  m_HeaderIsComplete = false;
+  m_BundleMetaDataAMName = QString("");
 }
 
 // -----------------------------------------------------------------------------
@@ -89,6 +144,7 @@ void ImportFEAData::setupFilterParameters()
     choices.push_back("BSAM");
     choices.push_back("PZFLEX");
     choices.push_back("DEFORM");
+    choices.push_back("DEFORM_POINT_TRACK");
     parameter->setChoices(choices);
     QStringList linkedProps = {"odbName",
                                "odbFilePath",
@@ -122,6 +178,25 @@ void ImportFEAData::setupFilterParameters()
     parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", DEFORMInputFile, FilterParameter::Parameter, ImportFEAData, "", "*.DAT",3));
   }
 
+
+  {
+    parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", DEFORMPointTrackInputFile, FilterParameter::Parameter, ImportFEAData, "", "*.RST", 4));
+
+    parameters.push_back(SeparatorFilterParameter::New("Meta Data Arrays (Used to group Data Containers by Time)", FilterParameter::CreatedArray));
+    parameters.push_back(SIMPL_NEW_DYN_CHOICE_FP("Simulation Time Values", SelectedTimeArrayName, FilterParameter::CreatedArray, ImportFEAData, "DataArrayList",4));
+    parameters.push_back(SIMPL_NEW_DYN_CHOICE_FP("Simulation Step Values", SelectedTimeStepArrayName, FilterParameter::CreatedArray, ImportFEAData, "DataArrayList",4));
+
+    parameters.push_back(SeparatorFilterParameter::New("Point Num. Array (Will be deleted after reading)", FilterParameter::CreatedArray));
+    parameters.push_back(SIMPL_NEW_DYN_CHOICE_FP("Point Num Values", SelectedPointNumArrayName, FilterParameter::CreatedArray, ImportFEAData, "DataArrayList",4));
+
+    parameters.push_back(SeparatorFilterParameter::New("Coordinate Arrays (used to generate the XYZ coordinates of each vertex)", FilterParameter::CreatedArray));
+    parameters.push_back(SIMPL_NEW_DYN_CHOICE_FP("X Coordinate Array", SelectedXCoordArrayName, FilterParameter::CreatedArray, ImportFEAData, "DataArrayList",4));
+    parameters.push_back(SIMPL_NEW_DYN_CHOICE_FP("Y Coordinate Array", SelectedYCoordArrayName, FilterParameter::CreatedArray, ImportFEAData, "DataArrayList",4));
+
+    parameters.push_back(SeparatorFilterParameter::New("", FilterParameter::CreatedArray));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Time Series Bundle Name", TimeSeriesBundleName, FilterParameter::CreatedArray, ImportFEAData,4));
+  }
+
   parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Name", DataContainerName, FilterParameter::CreatedArray, ImportFEAData));
   parameters.push_back(SIMPL_NEW_STRING_FP("Vertex Attribute Matrix Name", VertexAttributeMatrixName, FilterParameter::CreatedArray, ImportFEAData));    
   parameters.push_back(SIMPL_NEW_STRING_FP("Cell Attribute Matrix Name", CellAttributeMatrixName, FilterParameter::CreatedArray, ImportFEAData));
@@ -147,6 +222,16 @@ void ImportFEAData::readFilterParameters(AbstractFilterParametersReader* reader,
   setDataContainerName(reader->readString("DataContainerName", getDataContainerName()));
   setVertexAttributeMatrixName(reader->readString("VertexAttributeMatrixName", getVertexAttributeMatrixName()));
   setCellAttributeMatrixName(reader->readString("CellAttributeMatrixName", getCellAttributeMatrixName()));
+
+  setDEFORMPointTrackInputFile(reader->readString("InputFile", getDEFORMPointTrackInputFile()));
+  setDataContainerName(reader->readString("DataContainerName", getDataContainerName()));
+  setTimeSeriesBundleName(reader->readString("TimeSeriesBundleName", getTimeSeriesBundleName()));
+  setSelectedTimeArrayName(reader->readString("SelectedTimeArrayName", getSelectedTimeArrayName()));
+  setSelectedTimeStepArrayName(reader->readString("SelectedTimeStepArrayName", getSelectedTimeStepArrayName()));
+  setSelectedPointNumArrayName(reader->readString("SelectedPointNumArrayName", getSelectedPointNumArrayName()));
+  setSelectedXCoordArrayName(reader->readString("SelectedXCoordArrayName", getSelectedXCoordArrayName()));
+  setSelectedYCoordArrayName(reader->readString("SelectedYCoordArrayName", getSelectedYCoordArrayName()));
+
   reader->closeFilterGroup();
 }
 
@@ -157,7 +242,11 @@ void ImportFEAData::readFilterParameters(AbstractFilterParametersReader* reader,
 void ImportFEAData::dataCheck()
 {
   setErrorCondition(0);
-  setWarningCondition(0); 
+  setWarningCondition(0);
+  setCancel(false);
+
+  m_Pause = false;
+  m_ProcessPtr.reset();
 
   switch(m_FEAPackage)
     {
@@ -200,6 +289,124 @@ void ImportFEAData::dataCheck()
 	
 	break;
       }
+    case 4: // DEFORM POINT TRACK
+      {
+	QFileInfo fi(m_DEFORMPointTrackInputFile);
+	if(fi.exists() == false)
+	  {
+	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMPointTrackInputFile());
+	    setErrorCondition(-388);
+	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+	  }
+
+	if(m_DEFORMPointTrackInputFile.isEmpty() == true)
+	  {
+	    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
+	    setErrorCondition(-1);
+	    notifyErrorMessage(getHumanLabel(), ss, -1);
+	  }
+
+	// If any of the checks above threw errors then we can not go any further so bail out now.
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }
+
+	// Create the time series bundle
+	DataContainerBundle::Pointer dcb = DataContainerBundle::New(getTimeSeriesBundleName());
+	getDataContainerArray()->addDataContainerBundle(dcb);
+
+	// Add the names of the arrays within the MetaData AttributeMatrix of each data container stored in the bundle
+	// that define how/why the bundle was created.
+	QStringList metaArrayList;
+	metaArrayList << getSelectedTimeArrayName() << getSelectedTimeStepArrayName() << READ_DEF_PT_TRACKING_TIME_INDEX;
+	dcb->setMetaDataArrays(metaArrayList);
+
+	m_InStream.setFileName(getDEFORMPointTrackInputFile());
+
+	// Read the Header of the file to figure out what arrays we have
+	readHeader(m_InStream);
+
+	// Close the file if we are preflighting
+	if(getInPreflight() == true)
+	  {
+	    m_InStream.close();
+	  }
+
+	// Make sure we did not have any errors
+	if(getErrorCondition() < 0)
+	  {
+	    QString ss = QObject::tr("Error reading header information from file: '%1'").arg(getDEFORMPointTrackInputFile());
+	    setErrorCondition(-389);
+	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+	    return;
+	  }
+
+	// Now generate the complete set of Data Containers for our Time Steps, Each Data Container has an AttributeMatrix with the set of data arrays
+	for(int t = 0; t < m_NumTimeSteps; ++t)
+	  {
+	    // Create the output Data Container for the first time step
+	    QString dcName = getDataContainerName() + "_" + QString::number(t);
+	    DataContainer::Pointer v = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, dcName);
+	    if(getErrorCondition() < 0)
+	      {
+		QString ss = QObject::tr("Error Creating Vertex Data Container with name '%1' for Time Step %2").arg(dcName).arg(t);
+		setErrorCondition(-390);
+		notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+		return;
+	      }
+
+	    VertexGeom::Pointer vertices = VertexGeom::CreateGeometry(m_NumPoints, SIMPL::Geometry::VertexGeometry, !getInPreflight());
+	    v->setGeometry(vertices);
+
+	    QVector<size_t> tDims(1, m_NumPoints);
+	    AttributeMatrix::Pointer vertexAttrMat = v->createNonPrereqAttributeMatrix(this, SIMPL::Defaults::VertexAttributeMatrixName, tDims, AttributeMatrix::Type::Vertex);
+	    if(getErrorCondition() < 0)
+	      {
+		QString ss = QObject::tr("Error Creating AttributeMatrix with name '%1' for Time Step %2").arg(SIMPL::Defaults::VertexAttributeMatrixName).arg(t);
+		setErrorCondition(-390);
+		notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+		return;
+	      }
+
+	    QMapIterator<QString, SimulationIO::DeformDataParser::Pointer> parserIter(m_NamePointerMap);
+	    while(parserIter.hasNext())
+	      {
+		parserIter.next();
+		QString name = parserIter.key();
+		SimulationIO::DeformDataParser::Pointer parser = parserIter.value();
+		IDataArray::Pointer dataPtr = parser->initializeNewDataArray(m_NumPoints, name, !getInPreflight()); // Get a copy of the DataArray
+
+		if((getInPreflight() == true))
+		  {
+		    if((name.compare(getSelectedTimeArrayName()) != 0) && (name.compare(getSelectedTimeStepArrayName()) != 0) && (name.compare(getSelectedPointNumArrayName()) != 0) &&
+		       (name.compare(getSelectedXCoordArrayName()) != 0) && (name.compare(getSelectedYCoordArrayName()) != 0))
+		      {
+			vertexAttrMat->addAttributeArray(dataPtr->getName(), dataPtr);
+		      }
+		  }
+		else
+		  {
+		    vertexAttrMat->addAttributeArray(dataPtr->getName(), dataPtr);
+		  }
+	      }
+
+	    // Generate the AttributeMatrix that will serve as the Meta-Data information for the DataContainerBundle
+	    QVector<size_t> bundleAttrDims(1, 1);
+	    AttributeMatrix::Pointer metaData = v->createNonPrereqAttributeMatrix(this, m_BundleMetaDataAMName, bundleAttrDims, AttributeMatrix::Type::MetaData);
+	    if(getErrorCondition() < 0)
+	      {
+	      }
+
+	    QVector<size_t> cDims(1, 1);
+	    metaData->createNonPrereqArray<FloatArrayType, AbstractFilter, float>(this, getSelectedTimeArrayName(), 0.0f, cDims);
+	    metaData->createNonPrereqArray<Int32ArrayType, AbstractFilter, int32_t>(this, getSelectedTimeStepArrayName(), 0, cDims);
+	    metaData->createNonPrereqArray<Int32ArrayType, AbstractFilter, int32_t>(this, READ_DEF_PT_TRACKING_TIME_INDEX, 0, cDims);
+	  }
+
+	break;
+      }
+
     }
  
 }
@@ -223,7 +430,7 @@ void ImportFEAData::preflight()
 // -----------------------------------------------------------------------------
 void ImportFEAData::execute()
 {
-  initialize();
+  //initialize();
   int32_t err = 0;
   setErrorCondition(err);
   dataCheck();
@@ -343,6 +550,19 @@ void ImportFEAData::execute()
 
 	notifyStatusMessage(getHumanLabel(), "Import Complete");
 	
+	break;
+      }
+    case 4:// DEFORM POINT TRACK
+      {
+	for(size_t i = 0; i < m_NumTimeSteps; i++)
+	  {
+	    QString ss = QObject::tr("Reading time step %1 of %2").arg(i).arg(m_NumTimeSteps);
+	    notifyStatusMessage(getMessagePrefix(), getHumanLabel(), ss);
+	    readTimeStep(m_InStream, i);
+	  }
+	
+	/* Let the GUI know we are done with this filter */
+	notifyStatusMessage(getHumanLabel(), "Import Complete");
 	break;
       }
 
@@ -1019,6 +1239,365 @@ void ImportFEAData::scanBSAMFile(DataContainer* dataContainer, AttributeMatrix* 
 	}
     }
 
+}
+
+void ImportFEAData::readHeader(QFile& reader)
+{
+  setErrorCondition(0);
+  setWarningCondition(0);
+
+  if(!reader.open(QIODevice::ReadOnly | QIODevice::Text))
+  {
+    QString ss = QObject::tr("The Input Point Tracking file could not be opened.").arg(getDEFORMPointTrackInputFile());
+    setErrorCondition(-100);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    return;
+  }
+
+  QByteArray buf;
+  m_HeaderIsComplete = false;
+  qint32 lineNum = 0;
+
+  QString origHeader;
+  m_LinesPerBlock = 0;
+  QList<QByteArray> headerLines;
+  while(!reader.atEnd() && false == m_HeaderIsComplete)
+  {
+    buf = reader.readLine();
+    lineNum++;
+    if(buf[0] != '*')
+    {
+      m_HeaderIsComplete = true;
+      continue;
+    }
+
+    // Append the line to the complete header
+    origHeader.append(QString(buf));
+
+    // remove the newline at the end of the line
+    buf.chop(1);
+    headerLines.push_back(buf);
+    if(buf.contains("Each Record contains") == true)
+    {
+      m_LinesPerBlock = atoi(buf.split(' ').at(4).constData());
+    }
+  }
+
+  // Now start building up our QList of Tokens which are the names
+  QList<QByteArray> blockTokens;
+  // buf still contains the first line of the header section that describes the column names of the data
+  int numLinesToRead = m_LinesPerBlock * 2;
+  bool processLine = true;
+  for(int i = 0; i < numLinesToRead; ++i)
+  {
+    buf = buf.trimmed();
+    // We only want to actually process every OTHER line at this point
+    if(processLine)
+    {
+      // Find the ':' character so we know how many characters from the front of the buffer to remove
+      for(int c = 0; c < buf.size(); ++c)
+      {
+        if(buf[c] == ':')
+        {
+          buf = buf.mid(c + 2);
+          c = buf.size();
+          continue;
+        }
+      }
+      // We do this because if the '/' character is in the Name of a DataContainer, Attribut Matrix
+      // or Data Array, HDF5 will have an issue trying to write a data set with that name
+      buf.replace('/', '_');
+
+      // Check to make sure the last char is NOT a ',' as the Qt API will keep an empty token for us.
+      if(buf[buf.size() - 1] == ',')
+      {
+        buf = buf.remove(buf.size() - 1, 1);
+      }
+
+      blockTokens = blockTokens + buf.split(',');
+    }
+    processLine = !processLine;
+    buf = reader.readLine();
+    lineNum++;
+  }
+  m_LinesPerBlock = m_LinesPerBlock + 1; // This compensates for the extra Line Break at the start of each block
+
+  qint32 currentLineNum = lineNum;
+  // Store the current byte position in the file so that we can come back to it if needed.
+  qint64 dataOffset = reader.pos();
+
+  // Now scan to the end so we can figure out how many lines, blocks, and nodes we have.
+  qint32 p = 0;
+  QVector<QByteArray> lastBlock(m_LinesPerBlock);
+  while(!reader.atEnd())
+  {
+    lastBlock[p] = reader.readLine();
+    lineNum++;
+    p++;
+    if(p == m_LinesPerBlock)
+    {
+      p = 0;
+    }
+  }
+
+  // Now we are at the end of the file and reset back to the data section
+  reader.seek(dataOffset);
+
+  // Now that we have all the tokens, lets parse through them and create our Map of Names<==>Parsers
+  QListIterator<QByteArray> blockIter(blockTokens);
+  int index = 0;
+  while(blockIter.hasNext())
+  {
+    const QByteArray& current = blockIter.next();
+    QString name = QString::fromLatin1(current).trimmed();
+    QString value = m_DataTypes[name];
+
+    if(value.compare(SIMPL::TypeNames::Float) == 0)
+    {
+      FloatArrayType::Pointer data = FloatArrayType::CreateArray(0, name, false);
+      SimulationIO::FloatParser::Pointer dparser = SimulationIO::FloatParser::New(data, name, index);
+      m_NamePointerMap.insert(name, dparser);
+    }
+    else if(value.compare(SIMPL::TypeNames::Int32) == 0)
+    {
+      Int32ArrayType::Pointer data = Int32ArrayType::CreateArray(0, name, false);
+      SimulationIO::Int32Parser::Pointer dparser = SimulationIO::Int32Parser::New(data, name, index);
+      m_NamePointerMap.insert(name, dparser);
+    }
+    else
+    {
+      FloatArrayType::Pointer data = FloatArrayType::CreateArray(0, name, false);
+      SimulationIO::FloatParser::Pointer dparser = SimulationIO::FloatParser::New(data, name, index);
+      m_NamePointerMap.insert(name, dparser);
+      QString ss = QObject::tr("Data Block Column Name '%1' was unknown. We will parse the data as Floating point Data (32 Bit)").arg(name);
+      setWarningCondition(-1);
+      notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
+    }
+    index++;
+  }
+
+  // Look for the Parser for the 'Point #' variable so we can use it to correctly parse the value from the last block
+  SimulationIO::DeformDataParser::Pointer parser = m_NamePointerMap[SimulationIOConstants::DEFORMData::PointNum];
+  if(nullptr == parser.get())
+  {
+    Q_ASSERT_X(nullptr != parser.get(), "Point # data column was not found in the Deform Data File", "");
+  }
+
+  QVector<QByteArray> tokens = splitDataBlock(lastBlock);
+  bool ok = false;
+  m_NumPoints = tokens[parser->getColumnIndex()].toInt(&ok);
+  m_NumBlocks = (lineNum - currentLineNum) / m_LinesPerBlock;
+  m_NumTimeSteps = m_NumBlocks / m_NumPoints;
+
+  qDebug() << "numPoints: " << m_NumPoints;
+  qDebug() << "numBlocks: " << m_NumBlocks;
+  qDebug() << "numTimeSteps: " << m_NumTimeSteps;
+
+  m_DataArrayList.clear();
+
+  // Now just redo the Parser with the correct number of points to allocate
+  blockIter.toFront();
+  index = 0;
+  while(blockIter.hasNext())
+  {
+    const QByteArray& current = blockIter.next();
+    QString name = QString::fromLatin1(current).trimmed();
+    QString value = m_DataTypes[name];
+
+    if(value.compare(SIMPL::TypeNames::Float) == 0)
+    {
+      FloatArrayType::Pointer data = FloatArrayType::CreateArray(m_NumPoints, name, false);
+      SimulationIO::FloatParser::Pointer dparser = SimulationIO::FloatParser::New(data, name, index);
+      m_NamePointerMap.insert(name, dparser);
+    }
+    else if(value.compare(SIMPL::TypeNames::Int32) == 0)
+    {
+      Int32ArrayType::Pointer data = Int32ArrayType::CreateArray(m_NumPoints, name, false);
+      SimulationIO::Int32Parser::Pointer dparser = SimulationIO::Int32Parser::New(data, name, index);
+      m_NamePointerMap.insert(name, dparser);
+    }
+    else
+    {
+      FloatArrayType::Pointer data = FloatArrayType::CreateArray(m_NumPoints, name, false);
+      SimulationIO::FloatParser::Pointer dparser = SimulationIO::FloatParser::New(data, name, index);
+      m_NamePointerMap.insert(name, dparser);
+      QString ss = QObject::tr("Data Block Column Name '%1' was unknown. We will parse the data as Floating point Data (32 Bit)").arg(name);
+      setWarningCondition(-1);
+      notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
+    }
+    m_DataArrayList << name;
+    index++;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+QVector<QByteArray> ImportFEAData::splitDataBlock(QVector<QByteArray>& dataBlock)
+{
+  QVector<QByteArray> tokens;
+  for(int i = 0; i < dataBlock.size(); ++i)
+  {
+    QList<QByteArray> lineTokens = dataBlock[i].trimmed().split(' ');
+    for(int j = 0; j < lineTokens.size(); ++j)
+    {
+      if(lineTokens[j].isEmpty() == false)
+      {
+        tokens.push_back(lineTokens[j]);
+      }
+    }
+  }
+  return tokens;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+void ImportFEAData::readTimeStep(QFile& reader, qint32 t)
+{
+  QString dcName = getDataContainerName() + "_" + QString::number(t);
+
+  DataContainer::Pointer v = getDataContainerArray()->getDataContainer(dcName);
+  VertexGeom::Pointer vertices = v->getGeometryAs<VertexGeom>();
+
+  AttributeMatrix::Pointer attrMat = v->getAttributeMatrix(SIMPL::Defaults::VertexAttributeMatrixName);
+
+  // Vertex Coords for each Vertex
+  FloatArrayType::Pointer xCoordsPtr = FloatArrayType::NullPointer();
+  FloatArrayType::Pointer yCoordsPtr = FloatArrayType::NullPointer();
+
+  // We want this array because we are going to delete it as it has redundant information
+  IDataArray::Pointer pointNumPtr = IDataArray::NullPointer();
+
+  // Meta Data Information arrays
+  Int32ArrayType::Pointer timeStepPtr = Int32ArrayType::NullPointer();
+  FloatArrayType::Pointer timeValuePtr = FloatArrayType::NullPointer();
+
+  QMapIterator<QString, SimulationIO::DeformDataParser::Pointer> parserIter(m_NamePointerMap);
+  while(parserIter.hasNext())
+  {
+    parserIter.next();
+    QString name = parserIter.key();
+    SimulationIO::DeformDataParser::Pointer parser = parserIter.value();
+    IDataArray::Pointer data = attrMat->getAttributeArray(name);
+    if(data->isAllocated() == false)
+    {
+      qDebug() << name << " is NOT allocated";
+    }
+    parser->setDataArray(data);
+
+    if(data->getName().compare(getSelectedTimeArrayName()) == 0)
+    {
+      timeValuePtr = std::dynamic_pointer_cast<FloatArrayType>(data);
+    }
+    else if(data->getName().compare(getSelectedTimeStepArrayName()) == 0)
+    {
+      timeStepPtr = std::dynamic_pointer_cast<Int32ArrayType>(data);
+    }
+    else if(data->getName().compare(getSelectedPointNumArrayName()) == 0)
+    {
+      pointNumPtr = std::dynamic_pointer_cast<Int32ArrayType>(data);
+    }
+    else if(data->getName().compare(getSelectedXCoordArrayName()) == 0)
+    {
+      xCoordsPtr = std::dynamic_pointer_cast<FloatArrayType>(data);
+    }
+    else if(data->getName().compare(getSelectedYCoordArrayName()) == 0)
+    {
+      yCoordsPtr = std::dynamic_pointer_cast<FloatArrayType>(data);
+    }
+  }
+
+  for(int nodeIdx = 0; nodeIdx < m_NumPoints; ++nodeIdx)
+  {
+    QVector<QByteArray> tokens = tokenizeNodeBlock(reader);
+    parseDataTokens(tokens, nodeIdx);
+  }
+
+  // Assign Vertices for this time step
+  vertices->resizeVertexList(m_NumPoints);
+  float* vertex = vertices->getVertexPointer(0);
+
+  for(int v = 0; v < m_NumPoints; ++v)
+  {
+    vertex[3 * v] = xCoordsPtr->getValue(v);
+    vertex[3 * v + 1] = yCoordsPtr->getValue(v);
+    vertex[3 * v + 2] = 0.0f; // The Z Coord is not laid out in the file
+  }
+
+  // Remove the Coordinates arrays from the AttributeMatrix
+  attrMat->removeAttributeArray(xCoordsPtr->getName());
+  attrMat->removeAttributeArray(yCoordsPtr->getName());
+
+  // Remove the Point # Array from the AttrMat
+  attrMat->removeAttributeArray(pointNumPtr->getName());
+
+  // Generate the AttributeMatrix that will serve as the Meta-Data information for the DataContainerBundle
+  AttributeMatrix::Pointer tsbAttrMat = v->getAttributeMatrix(m_BundleMetaDataAMName);
+  if(getErrorCondition() < 0)
+  {
+    return;
+  }
+
+  // Remove the Arrays from the Vertex AttributeMatrix. We still have references to the DataArray objects so they will not get deleted.
+  attrMat->removeAttributeArray(timeValuePtr->getName());
+  attrMat->removeAttributeArray(timeStepPtr->getName());
+
+  // Resize the arrays to 1 value. This will KEEP the first value of the array
+  timeValuePtr->resize(1);
+  timeStepPtr->resize(1);
+
+  //
+  tsbAttrMat->addAttributeArray(timeValuePtr->getName(), timeValuePtr);
+  tsbAttrMat->addAttributeArray(timeStepPtr->getName(), timeStepPtr);
+
+  QVector<size_t> cDims(1, 1);
+  Int32ArrayType::Pointer timeIndexArray = Int32ArrayType::CreateArray(1, cDims, READ_DEF_PT_TRACKING_TIME_INDEX, true);
+  timeIndexArray->setValue(0, t);
+  tsbAttrMat->addAttributeArray(timeIndexArray->getName(), timeIndexArray);
+
+  IDataContainerBundle::Pointer bundle = getDataContainerArray()->getDataContainerBundle(getTimeSeriesBundleName());
+  if(nullptr != bundle.get())
+  {
+    bundle->addDataContainer(getDataContainerArray()->getDataContainer(dcName));
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+void ImportFEAData::parseDataTokens(QVector<QByteArray>& tokens, qint32 nodeIdx)
+{
+  QMapIterator<QString, SimulationIO::DeformDataParser::Pointer> parserIter(m_NamePointerMap);
+  while(parserIter.hasNext())
+  {
+    parserIter.next();
+    QString name = parserIter.key();
+    SimulationIO::DeformDataParser::Pointer parser = parserIter.value();
+    parser->parse(tokens.at(parser->getColumnIndex()), nodeIdx);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+QVector<QByteArray> ImportFEAData::tokenizeNodeBlock(QFile& reader)
+{
+  QVector<QByteArray> values;
+
+  reader.readLine(); // Read the first blank line
+  for(int l = 0; l < m_LinesPerBlock - 1; ++l)
+  {
+    QList<QByteArray> tokens = reader.readLine().trimmed().simplified().split(' ');
+    QListIterator<QByteArray> iter(tokens);
+    while(iter.hasNext())
+    {
+      values.push_back(iter.next());
+    }
+  }
+  return values;
 }
 
 //

@@ -8,6 +8,7 @@
 #include <QtCore/QWaitCondition>
 #include <QtCore/QMutex>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QFile>
 
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
@@ -21,6 +22,9 @@ class DataContainer;
 class QProcess;
 
 #include "SimulationIO/SimulationIODLLExport.h"
+
+#include "SimulationIO/SimulationIOConstants.h"
+#include "SimulationIO/SimulationIOFilters/util/DeformDataParser.hpp"
 
 /**
  * @brief The ImportFEAData class. See [Filter documentation](@ref importfeadata) for details.
@@ -38,9 +42,18 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
     PYB11_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable)
     PYB11_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
 
+    PYB11_PROPERTY(QString BSAMInputFile READ getBSAMInputFile WRITE setBSAMInputFile)
+
     PYB11_PROPERTY(QString DEFORMInputFile READ getDEFORMInputFile WRITE setDEFORMInputFile)
 
-    PYB11_PROPERTY(QString BSAMInputFile READ getBSAMInputFile WRITE setBSAMInputFile)
+    PYB11_PROPERTY(QString DEFORMPointTrackInputFile READ getDEFORMPointTrackInputFile WRITE setDEFORMPointTrackInputFile)
+    PYB11_PROPERTY(QString TimeSeriesBundleName READ getTimeSeriesBundleName WRITE setTimeSeriesBundleName)
+    PYB11_PROPERTY(QString SelectedTimeArrayName READ getSelectedTimeArrayName WRITE setSelectedTimeArrayName)
+    PYB11_PROPERTY(QString SelectedTimeStepArrayName READ getSelectedTimeStepArrayName WRITE setSelectedTimeStepArrayName)
+    PYB11_PROPERTY(QString SelectedPointNumArrayName READ getSelectedPointNumArrayName WRITE setSelectedPointNumArrayName)
+    PYB11_PROPERTY(QString SelectedXCoordArrayName READ getSelectedXCoordArrayName WRITE setSelectedXCoordArrayName)
+    PYB11_PROPERTY(QString SelectedYCoordArrayName READ getSelectedYCoordArrayName WRITE setSelectedYCoordArrayName)
+    PYB11_PROPERTY(QStringList DataArrayList READ getDataArrayList WRITE setDataArrayList)
 
     PYB11_PROPERTY(QString DataContainerName READ getDataContainerName WRITE setDataContainerName)
     PYB11_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
@@ -82,6 +95,30 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
 
     SIMPL_FILTER_PARAMETER(QString, BSAMInputFile)
     Q_PROPERTY(QString BSAMInputFile READ getBSAMInputFile WRITE setBSAMInputFile)
+
+    SIMPL_FILTER_PARAMETER(QString, DEFORMPointTrackInputFile)
+    Q_PROPERTY(QString DEFORMPointTrackInputFile READ getDEFORMPointTrackInputFile WRITE setDEFORMPointTrackInputFile)
+
+    SIMPL_FILTER_PARAMETER(QString, TimeSeriesBundleName)
+    Q_PROPERTY(QString TimeSeriesBundleName READ getTimeSeriesBundleName WRITE setTimeSeriesBundleName)
+
+    SIMPL_FILTER_PARAMETER(QString, SelectedTimeArrayName)
+    Q_PROPERTY(QString SelectedTimeArrayName READ getSelectedTimeArrayName WRITE setSelectedTimeArrayName)
+
+    SIMPL_FILTER_PARAMETER(QString, SelectedTimeStepArrayName)
+    Q_PROPERTY(QString SelectedTimeStepArrayName READ getSelectedTimeStepArrayName WRITE setSelectedTimeStepArrayName)
+
+    SIMPL_FILTER_PARAMETER(QString, SelectedPointNumArrayName)
+    Q_PROPERTY(QString SelectedPointNumArrayName READ getSelectedPointNumArrayName WRITE setSelectedPointNumArrayName)
+
+    SIMPL_FILTER_PARAMETER(QString, SelectedXCoordArrayName)
+    Q_PROPERTY(QString SelectedXCoordArrayName READ getSelectedXCoordArrayName WRITE setSelectedXCoordArrayName)
+
+    SIMPL_FILTER_PARAMETER(QString, SelectedYCoordArrayName)
+    Q_PROPERTY(QString SelectedYCoordArrayName READ getSelectedYCoordArrayName WRITE setSelectedYCoordArrayName)
+
+    SIMPL_FILTER_PARAMETER(QStringList, DataArrayList)
+    Q_PROPERTY(QStringList DataArrayList READ getDataArrayList WRITE setDataArrayList)
 
     SIMPL_FILTER_PARAMETER(QString, DataContainerName)
     Q_PROPERTY(QString DataContainerName READ getDataContainerName WRITE setDataContainerName)
@@ -194,6 +231,13 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
     */
     void initialize();
 
+    void readHeader(QFile& reader);
+    void parseDataBlock(QVector<QByteArray>& block);
+    QVector<QByteArray> splitDataBlock(QVector<QByteArray>& dataBlock);
+    void readTimeStep(QFile& reader, qint32 t);
+    QVector<QByteArray> tokenizeNodeBlock(QFile& reader);
+    void parseDataTokens(QVector<QByteArray>& tokens, qint32 nodeIdx);
+
   protected slots:
       void processHasFinished(int exitCode, QProcess::ExitStatus exitStatus);
       void processHasErroredOut(QProcess::ProcessError error);
@@ -217,6 +261,19 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
       QSharedPointer<QProcess> m_ProcessPtr;                           
       QStringList arguments;
   
+      QString m_CachedFileName;
+      QFile m_InStream;
+      QMap<QString, QString> m_DataTypes;
+      
+      QMap<QString, SimulationIO::DeformDataParser::Pointer> m_NamePointerMap;
+      qint32 m_NumBlocks;
+      qint32 m_NumPoints;
+      qint32 m_NumTimeSteps;
+      qint32 m_LinesPerBlock;
+      bool m_HeaderIsComplete;
+      
+      QString m_BundleMetaDataAMName;
+
   public:
     /* Rule of 5: All special member functions should be defined if any are defined.
     * https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#c21-if-you-define-or-delete-any-default-operation-define-or-delete-them-all

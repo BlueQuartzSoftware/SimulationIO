@@ -48,6 +48,8 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
 
     PYB11_PROPERTY(QString DEFORMPointTrackInputFile READ getDEFORMPointTrackInputFile WRITE setDEFORMPointTrackInputFile)
     PYB11_PROPERTY(QString TimeSeriesBundleName READ getTimeSeriesBundleName WRITE setTimeSeriesBundleName)
+    PYB11_PROPERTY(bool ImportSingleTimeStep READ getImportSingleTimeStep WRITE setImportSingleTimeStep)
+    PYB11_PROPERTY(int SingleTimeStepValue READ getSingleTimeStepValue WRITE setSingleTimeStepValue)
     PYB11_PROPERTY(QString SelectedTimeArrayName READ getSelectedTimeArrayName WRITE setSelectedTimeArrayName)
     PYB11_PROPERTY(QString SelectedTimeStepArrayName READ getSelectedTimeStepArrayName WRITE setSelectedTimeStepArrayName)
     PYB11_PROPERTY(QString SelectedPointNumArrayName READ getSelectedPointNumArrayName WRITE setSelectedPointNumArrayName)
@@ -102,20 +104,26 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
     SIMPL_FILTER_PARAMETER(QString, TimeSeriesBundleName)
     Q_PROPERTY(QString TimeSeriesBundleName READ getTimeSeriesBundleName WRITE setTimeSeriesBundleName)
 
+    SIMPL_FILTER_PARAMETER(bool, ImportSingleTimeStep)
+    Q_PROPERTY(bool ImportSingleTimeStep READ getImportSingleTimeStep WRITE setImportSingleTimeStep)
+
+    SIMPL_FILTER_PARAMETER(int, SingleTimeStepValue)
+    Q_PROPERTY(int SingleTimeStepValue READ getSingleTimeStepValue WRITE setSingleTimeStepValue)
+
     SIMPL_FILTER_PARAMETER(QString, SelectedTimeArrayName)
-    Q_PROPERTY(QString SelectedTimeArrayName READ getSelectedTimeArrayName WRITE setSelectedTimeArrayName)
+      //Q_PROPERTY(QString SelectedTimeArrayName READ getSelectedTimeArrayName WRITE setSelectedTimeArrayName)
 
     SIMPL_FILTER_PARAMETER(QString, SelectedTimeStepArrayName)
-    Q_PROPERTY(QString SelectedTimeStepArrayName READ getSelectedTimeStepArrayName WRITE setSelectedTimeStepArrayName)
+      //Q_PROPERTY(QString SelectedTimeStepArrayName READ getSelectedTimeStepArrayName WRITE setSelectedTimeStepArrayName)
 
     SIMPL_FILTER_PARAMETER(QString, SelectedPointNumArrayName)
-    Q_PROPERTY(QString SelectedPointNumArrayName READ getSelectedPointNumArrayName WRITE setSelectedPointNumArrayName)
+      //Q_PROPERTY(QString SelectedPointNumArrayName READ getSelectedPointNumArrayName WRITE setSelectedPointNumArrayName)
 
     SIMPL_FILTER_PARAMETER(QString, SelectedXCoordArrayName)
-    Q_PROPERTY(QString SelectedXCoordArrayName READ getSelectedXCoordArrayName WRITE setSelectedXCoordArrayName)
+      //Q_PROPERTY(QString SelectedXCoordArrayName READ getSelectedXCoordArrayName WRITE setSelectedXCoordArrayName)
 
     SIMPL_FILTER_PARAMETER(QString, SelectedYCoordArrayName)
-    Q_PROPERTY(QString SelectedYCoordArrayName READ getSelectedYCoordArrayName WRITE setSelectedYCoordArrayName)
+      //Q_PROPERTY(QString SelectedYCoordArrayName READ getSelectedYCoordArrayName WRITE setSelectedYCoordArrayName)
 
     SIMPL_FILTER_PARAMETER(QStringList, DataArrayList)
     Q_PROPERTY(QStringList DataArrayList READ getDataArrayList WRITE setDataArrayList)

@@ -130,6 +130,9 @@ void ImportFEAData::initialize()
   m_NumTimeSteps = 0;
   m_LinesPerBlock = 0;
   m_HeaderIsComplete = false;
+  m_selectedTimeStepValue = 0;
+  m_selectedTimeStep = false;
+
   m_BundleMetaDataAMName = QString("");
 }
 
@@ -353,9 +356,28 @@ void ImportFEAData::dataCheck()
 	    return;
 	  }
 
+	if(getImportSingleTimeStep() != m_selectedTimeStep || getSingleTimeStepValue() != m_selectedTimeStepValue)
+	  {
+	    if(getImportSingleTimeStep() && getSingleTimeStepValue() >= m_NumTimeSteps)
+	      {
+		QString ss = QObject::tr("Please select a timestep in the range");
+		setErrorCondition(-91010);
+		notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+		return;
+	      }
+	    m_selectedTimeStep = getImportSingleTimeStep();
+	    m_selectedTimeStepValue = getSingleTimeStepValue();
+	  }	
+
 	// Now generate the complete set of Data Containers for our Time Steps, Each Data Container has an AttributeMatrix with the set of data arrays
 	for(int t = 0; t < m_NumTimeSteps; ++t)
 	  {
+
+	    if(m_selectedTimeStep && t != m_selectedTimeStepValue)
+	      {
+		continue;
+	      }
+
 	    // Create the output Data Container for the first time step
 	    QString dcName = getDataContainerName() + "_" + QString::number(t);
 	    DataContainer::Pointer v = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, dcName);
@@ -567,7 +589,7 @@ void ImportFEAData::execute()
       {
 	for(size_t i = 0; i < m_NumTimeSteps; i++)
 	  {
-	    QString ss = QObject::tr("Reading time step %1 of %2").arg(i).arg(m_NumTimeSteps);
+	    QString ss = QObject::tr("Starting to read time step %1 of %2").arg(i).arg(m_NumTimeSteps);
 	    notifyStatusMessage(getMessagePrefix(), getHumanLabel(), ss);
 	    readTimeStep(m_InStream, i);
 	  }
@@ -1467,6 +1489,19 @@ QVector<QByteArray> ImportFEAData::splitDataBlock(QVector<QByteArray>& dataBlock
 // -----------------------------------------------------------------------------
 void ImportFEAData::readTimeStep(QFile& reader, qint32 t)
 {
+
+  // Skip past the data if we are not reading this time step.
+  if(m_selectedTimeStep && t != m_selectedTimeStepValue)
+  {
+    QString ss = QObject::tr("Skipping time step %1 of %2").arg(t).arg(m_NumTimeSteps);
+    notifyStatusMessage(getMessagePrefix(), getHumanLabel(), ss);
+    for(size_t nodeIdx = 0; nodeIdx < m_NumPoints*m_LinesPerBlock; ++nodeIdx)
+    {
+      QByteArray line = reader.readLine();
+    }
+    return;
+  }
+
   QString dcName = getDataContainerName() + "_" + QString::number(t);
 
   DataContainer::Pointer v = getDataContainerArray()->getDataContainer(dcName);

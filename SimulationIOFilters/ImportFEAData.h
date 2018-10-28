@@ -279,6 +279,8 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
       qint32 m_NumTimeSteps;
       qint32 m_LinesPerBlock;
       bool m_HeaderIsComplete;
+      int m_selectedTimeStepValue;
+      bool m_selectedTimeStep;
       
       QString m_BundleMetaDataAMName;
 

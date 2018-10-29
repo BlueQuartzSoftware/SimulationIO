@@ -35,6 +35,7 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
     PYB11_CREATE_BINDINGS(ImportFEAData SUPERCLASS AbstractFilter)
     PYB11_PROPERTY(int FEAPackage READ getFEAPackage WRITE setFEAPackage)
     PYB11_PROPERTY(QString odbName READ getodbName WRITE setodbName)
+      //PYB11_PROPERTY(QString ABQInputFile READ getABQInputFile WRITE setABQInputFile)
     PYB11_PROPERTY(QString odbFilePath READ getodbFilePath WRITE setodbFilePath)
     PYB11_PROPERTY(QString InstanceName READ getInstanceName WRITE setInstanceName)
     PYB11_PROPERTY(QString Step READ getStep WRITE setStep)

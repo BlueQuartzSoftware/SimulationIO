@@ -507,7 +507,7 @@ void ImportFEAData::execute()
 	  }
 	
 	QString outTxtFile = m_odbFilePath + QDir::separator() + m_odbName + ".dat";
-	scanABQFile(outTxtFile, m.get(), vertexAttrMat.get(), cellAttrMat.get());
+	//scanABQFile(outTxtFile, m.get(), vertexAttrMat.get(), cellAttrMat.get());
 		
 	break;
       }
@@ -626,15 +626,29 @@ int32_t ImportFEAData::writeABQpyscr(const QString& file, QString odbName, QStri
   fprintf(f, "instanceName = %s\n",instanceName.toLatin1().data());
 
   fprintf(f, "odbfileName = odbFilePath + odbName + '.odb'\n"); 
-  fprintf(f, "odb = openOdb(path = odbfileName)\n");   
-  fprintf(f, "I1 = odb.rootAssembly.instances[instanceName].elementSets[elSet]\n"); 
-  fprintf(f, "fieldOut = odb.steps[step].frames[frameNum].fieldOutputs[outputVar].getSubset(region=I1).values\n\n"); 
+  fprintf(f, "odb = openOdb(path = odbfileName)\n");  
+  fprintf(f, "E1 = odb.rootAssembly.instances[instanceName].elementSets[elSet]\n"); 
+  fprintf(f, "n1 = len(E1.nodes)\n"); 
+  fprintf(f, "print 'NODES %cd', n1 \n",'%'); 
+  fprintf(f, "for node in E1.nodes  \n");
+  fprintf(f, "    print '%c5d', node.label",'%');  
+  fprintf(f, "    print node.coordinates  \n");  
+ 
+  fprintf(f, "n2 = len(E1.elements)\n"); 
+  fprintf(f, "print 'ELEMENTS %cd', n2 \n",'%'); 
+  fprintf(f, "for element in E1.elements  \n");
+  fprintf(f, "    print '%c5d %c8s' %c (element.label,element.type)\n",'%','%','%'); 
+  fprintf(f, "    for nodeNum in element.connectivity:\n"); 
+  fprintf(f, "        print '%c4d', nodeNum\n",'%'); 
+  fprintf(f, "    print\n"); 
+
+  fprintf(f, "fieldOut = odb.steps[step].frames[frameNum].fieldOutputs[outputVar].getSubset(region=E1).values\n\n"); 
 
   fprintf(f, "outTxtFile = odbFilePath + odbName + '.dat'\n");
   fprintf(f, "fid = open(outTxtFile, ""a"")\n");
-  fprintf(f, "fid.write('%s)\n",outputVar.toLatin1().data());
+  fprintf(f, "fid.write(%s)\n",outputVar.toLatin1().data());
   fprintf(f, "for j in range(len(fieldOut)):\n");
-  fprintf(f, "        nelem = I1.elements[j].label\n");
+  fprintf(f, "        nelem = E1.elements[j].label\n");
   fprintf(f, "        fid.write(str(nelem) + '  ' + str(fieldOut.data[0]) + '  ' + str(fieldOut.data[1]) + '  ' + str(fieldOut.data[2]) + '  ' + str(fieldOut.data[3]) + '  ' + str(fieldOut.data[4]) + '  ' + str(fieldOut.data[5]))\n");
   fprintf(f,"fid.close()");
   notifyStatusMessage(getHumanLabel(), "Finished writing ABAQUS python script");

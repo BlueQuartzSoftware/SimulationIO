@@ -163,7 +163,11 @@ void ImportFEAData::setupFilterParameters()
 			       "OutputVariable",    
                                "ElementSet",
                                "DEFORMInputFile",
-                               "BSAMInputFile"}; 
+                               "BSAMInputFile",
+                               "DEFORMPointTrackInputFile",
+                               "ImportSingleTimeStep",
+                               "SingleTimeStepValue",
+                               "TimeSeriesBundleName"}; 
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -190,17 +194,6 @@ void ImportFEAData::setupFilterParameters()
 
   {
     parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", DEFORMPointTrackInputFile, FilterParameter::Parameter, ImportFEAData, "", "*.RST", 4));
-
-    //parameters.push_back(SeparatorFilterParameter::New("Meta Data Arrays (Used to group Data Containers by Time)", FilterParameter::CreatedArray));
-    //parameters.push_back(SIMPL_NEW_DYN_CHOICE_FP("Simulation Time Values", SelectedTimeArrayName, FilterParameter::CreatedArray, ImportFEAData, "DataArrayList",4));
-    //parameters.push_back(SIMPL_NEW_DYN_CHOICE_FP("Simulation Step Values", SelectedTimeStepArrayName, FilterParameter::CreatedArray, ImportFEAData, "DataArrayList",4));
-
-    //parameters.push_back(SeparatorFilterParameter::New("Point Num. Array (Will be deleted after reading)", FilterParameter::CreatedArray));
-    //parameters.push_back(SIMPL_NEW_DYN_CHOICE_FP("Point Num Values", SelectedPointNumArrayName, FilterParameter::CreatedArray, ImportFEAData, "DataArrayList",4));
-
-    //parameters.push_back(SeparatorFilterParameter::New("Coordinate Arrays (used to generate the XYZ coordinates of each vertex)", FilterParameter::CreatedArray));
-    //parameters.push_back(SIMPL_NEW_DYN_CHOICE_FP("X Coordinate Array", SelectedXCoordArrayName, FilterParameter::CreatedArray, ImportFEAData, "DataArrayList",4));
-    //parameters.push_back(SIMPL_NEW_DYN_CHOICE_FP("Y Coordinate Array", SelectedYCoordArrayName, FilterParameter::CreatedArray, ImportFEAData, "DataArrayList",4));
 
     QStringList linkedProps("SingleTimeStepValue");
     parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Read Single Time Step", ImportSingleTimeStep, FilterParameter::Parameter, ImportFEAData, linkedProps, 4));
@@ -240,11 +233,6 @@ void ImportFEAData::readFilterParameters(AbstractFilterParametersReader* reader,
   setDEFORMPointTrackInputFile(reader->readString("InputFile", getDEFORMPointTrackInputFile()));
   setDataContainerName(reader->readString("DataContainerName", getDataContainerName()));
   setTimeSeriesBundleName(reader->readString("TimeSeriesBundleName", getTimeSeriesBundleName()));
-  //setSelectedTimeArrayName(reader->readString("SelectedTimeArrayName", getSelectedTimeArrayName()));
-  //setSelectedTimeStepArrayName(reader->readString("SelectedTimeStepArrayName", getSelectedTimeStepArrayName()));
-  //setSelectedPointNumArrayName(reader->readString("SelectedPointNumArrayName", getSelectedPointNumArrayName()));
-  //setSelectedXCoordArrayName(reader->readString("SelectedXCoordArrayName", getSelectedXCoordArrayName()));
-  //setSelectedYCoordArrayName(reader->readString("SelectedYCoordArrayName", getSelectedYCoordArrayName()));
 
   reader->closeFilterGroup();
 }

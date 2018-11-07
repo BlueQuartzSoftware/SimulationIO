@@ -157,6 +157,6 @@ class SimulationIO_EXPORT SimulationIOPlugin : public QObject, public ISIMPLibPl
     QList<QString>      m_Filters;
     bool                m_DidLoad;
 
-    SimulationIOPlugin(const SimulationIOPlugin&); // Copy Constructor Not Implemented
+    SimulationIOPlugin(const SimulationIOPlugin&) = delete; // Copy Constructor Not Implemented
     void operator=(const SimulationIOPlugin&); // Operator '=' Not Implemented
 };

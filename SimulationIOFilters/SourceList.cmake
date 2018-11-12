@@ -20,6 +20,7 @@ set(_PublicFilters
   Export3dSolidMesh
 
   ImportFEAData
+  CreateFEAInputFiles
 )
 
 list(LENGTH _PublicFilters PluginNumFilters)

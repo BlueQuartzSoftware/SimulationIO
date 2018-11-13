@@ -4,19 +4,47 @@
 
 #include "Export3dSolidMesh.h"
 
+#include <QtCore/QDir>
+
 #include "SIMPLib/Common/Constants.h"
-
-
+#include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
+#include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
+#include "SIMPLib/FilterParameters/ChoiceFilterParameter.h"
+#include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
+#include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
+#include "SIMPLib/FilterParameters/DynamicTableData.h"
+#include "SIMPLib/FilterParameters/DynamicTableFilterParameter.h"
+#include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
+#include "SIMPLib/FilterParameters/IntFilterParameter.h"
+#include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
+#include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
+#include "SIMPLib/FilterParameters/OutputFileFilterParameter.h"
+#include "SIMPLib/FilterParameters/OutputPathFilterParameter.h"
+#include "SIMPLib/FilterParameters/PreflightUpdatedValueFilterParameter.h"
+#include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
+#include "SIMPLib/FilterParameters/StringFilterParameter.h"
+#include "SIMPLib/Geometry/EdgeGeom.h"
+#include "SIMPLib/Geometry/ImageGeom.h"
+#include "SIMPLib/Geometry/TriangleGeom.h"
+#include "SIMPLib/Math/GeometryMath.h"
+#include "SIMPLib/Math/SIMPLibMath.h"
+#include "SIMPLib/SIMPLib.h"
+#include "SIMPLib/Utilities/FileSystemPathHelper.h"
 
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"
-
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 Export3dSolidMesh::Export3dSolidMesh()  
 : AbstractFilter()
+, m_MeshingPackage(0)
+, m_FaceFeatureIdsArrayPath(SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::FaceAttributeMatrixName, SIMPL::CellData::FeatureIds)
+, m_GrainPhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Phases)
+, m_GrainEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::EulerAngles)
+, m_GrainCentroidArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Centroids)
+
 {
   initialize();
 }
@@ -42,8 +70,61 @@ void Export3dSolidMesh::initialize()
 void Export3dSolidMesh::setupFilterParameters()
 {
   FilterParameterVector parameters;
+  {
+    LinkedChoicesFilterParameter::Pointer parameter = LinkedChoicesFilterParameter::New();
+    parameter->setHumanLabel("Meshing package");
+    parameter->setPropertyName("MeshingPackage");
+    parameter->setSetterCallback(SIMPL_BIND_SETTER(Export3dSolidMesh, this, MeshingPackage));
+    parameter->setGetterCallback(SIMPL_BIND_GETTER(Export3dSolidMesh, this, MeshingPackage));
+    QVector<QString> choices;
+    choices.push_back("TetGen");
+    parameter->setChoices(choices);
+    QStringList linkedProps = {"FaceFeatureIdsArrayPath"};
+    parameter->setLinkedProperties(linkedProps);
+    parameter->setEditable(false);
+    parameter->setCategory(FilterParameter::Parameter);
+    parameters.push_back(parameter);
+  }
+
+  parameters.push_back(SeparatorFilterParameter::New("Face Data", FilterParameter::RequiredArray));
+  {
+    DataArraySelectionFilterParameter::RequirementType req =
+      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 2, AttributeMatrix::Type::Face, IGeometry::Type::Triangle);
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", FaceFeatureIdsArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
+  }
+
+  parameters.push_back(SeparatorFilterParameter::New("Grain Data", FilterParameter::RequiredArray));
+  {
+    DataArraySelectionFilterParameter::RequirementType req =
+      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", GrainEulerAnglesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
+  }
+  {
+    DataArraySelectionFilterParameter::RequirementType req =
+      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phases", GrainPhasesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
+  }
+  {
+    DataArraySelectionFilterParameter::RequirementType req =
+      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Centroids", GrainCentroidArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
+  }
 
   setFilterParameters(parameters);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+void Export3dSolidMesh::readFilterParameters(AbstractFilterParametersReader* reader, int index)
+{
+  reader->openFilterGroup(this, index);
+  setFaceFeatureIdsArrayPath(reader->readDataArrayPath("FaceFeatureIdsArrayPath", getFaceFeatureIdsArrayPath()));
+  setGrainEulerAnglesArrayPath(reader->readDataArrayPath("GrainEulerAnglesArrayPath", getGrainEulerAnglesArrayPath()));
+  setGrainPhasesArrayPath(reader->readDataArrayPath("GrainPhasesArrayPath", getGrainPhasesArrayPath()));
+  setGrainCentroidArrayPath(reader->readDataArrayPath("GrainCentroidArrayPath", getGrainCentroidArrayPath()));
+  reader->closeFilterGroup();
 }
 
 // -----------------------------------------------------------------------------

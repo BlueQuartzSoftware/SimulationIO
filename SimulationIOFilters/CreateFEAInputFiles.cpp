@@ -193,6 +193,7 @@ void CreateFEAInputFiles::dataCheck()
 {
   setErrorCondition(0);
   setWarningCondition(0);
+
   FileSystemPathHelper::CheckOutputFile(this, "Output File Path", getOutputPath(), true);
 
   getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom, AbstractFilter>(this, getFeatureIdsArrayPath().getDataContainerName());

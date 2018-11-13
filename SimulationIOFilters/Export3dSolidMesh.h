@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <QtCore/QString>
+
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
@@ -17,6 +19,12 @@
 class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
 {
   Q_OBJECT
+  PYB11_CREATE_BINDINGS(Export3dSolidMesh SUPERCLASS AbstractFilter)
+  PYB11_PROPERTY(int MeshingPackage READ getMeshingPackage WRITE setMeshingPackage)
+  PYB11_PROPERTY(DataArrayPath FaceFeatureIdsArrayPath READ getFaceFeatureIdsArrayPath WRITE setFaceFeatureIdsArrayPath)
+  PYB11_PROPERTY(DataArrayPath GrainPhasesArrayPath READ getGrainPhasesArrayPath WRITE setGrainPhasesArrayPath)
+  PYB11_PROPERTY(DataArrayPath GrainEulerAnglesArrayPath READ getGrainEulerAnglesArrayPath WRITE setGrainEulerAnglesArrayPath)
+  PYB11_PROPERTY(DataArrayPath GrainCentroidArrayPath READ getGrainCentroidArrayPath WRITE setGrainCentroidArrayPath)
 
   public:
     SIMPL_SHARED_POINTERS(Export3dSolidMesh)
@@ -25,7 +33,20 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
 
     ~Export3dSolidMesh() override;
 
+    SIMPL_FILTER_PARAMETER(int, MeshingPackage)
+    Q_PROPERTY(int MeshingPackage READ getMeshingPackage WRITE setMeshingPackage)
 
+    SIMPL_FILTER_PARAMETER(DataArrayPath, FaceFeatureIdsArrayPath)
+    Q_PROPERTY(DataArrayPath FaceFeatureIdsArrayPath READ getFaceFeatureIdsArrayPath WRITE setFaceFeatureIdsArrayPath)
+    
+    SIMPL_FILTER_PARAMETER(DataArrayPath, GrainPhasesArrayPath)
+    Q_PROPERTY(DataArrayPath GrainPhasesArrayPath READ getGrainPhasesArrayPath WRITE setGrainPhasesArrayPath)
+    
+    SIMPL_FILTER_PARAMETER(DataArrayPath, GrainEulerAnglesArrayPath)
+    Q_PROPERTY(DataArrayPath GrainEulerAnglesArrayPath READ getGrainEulerAnglesArrayPath WRITE setGrainEulerAnglesArrayPath)
+
+    SIMPL_FILTER_PARAMETER(DataArrayPath, GrainCentroidArrayPath)
+    Q_PROPERTY(DataArrayPath GrainCentroidArrayPath READ getGrainCentroidArrayPath WRITE setGrainCentroidArrayPath)
 
     /**
      * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
@@ -76,6 +97,12 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
      * @brief setupFilterParameters Reimplemented from @see AbstractFilter class
      */
     void setupFilterParameters() override;
+
+    /**
+     * @brief This method will read the options from a file
+     * @param reader The reader that is used to read the options from a file
+     */
+    void readFilterParameters(AbstractFilterParametersReader* reader, int index) override;
 
     /**
      * @brief execute Reimplemented from @see AbstractFilter class

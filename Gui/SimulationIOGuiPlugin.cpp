@@ -6,7 +6,7 @@
 //
 // -----------------------------------------------------------------------------
 SimulationIOGuiPlugin::SimulationIOGuiPlugin()
-: SimulationIOPlugin()
+:
 {
 }
 

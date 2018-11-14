@@ -46,8 +46,7 @@
 //
 // -----------------------------------------------------------------------------
 Export3dSolidMesh::Export3dSolidMesh()  
-: AbstractFilter()
-, m_MeshingPackage(0)
+: m_MeshingPackage(0)
 , m_outputPath("")
 , m_SurfaceMeshFaceLabelsArrayPath(SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::FaceAttributeMatrixName, SIMPL::FaceData::SurfaceMeshFaceLabels)
 , m_FeaturePhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Phases)

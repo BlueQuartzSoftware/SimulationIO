@@ -122,7 +122,9 @@ void ImportFEAData::initialize()
 {
   m_CachedFileName = QString("");
   if(m_InStream.isOpen())
+  {
     m_InStream.close();
+  }
   m_DataTypes.clear();
   m_NamePointerMap.clear();
   m_NumBlocks = 0;
@@ -255,60 +257,60 @@ void ImportFEAData::dataCheck()
     case 1: // BSAM
       {
 	QFileInfo fi(m_BSAMInputFile);
-	if(fi.exists() == false)
-	  {
-	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getBSAMInputFile());
-	    setErrorCondition(-388);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
-	
-	if(m_BSAMInputFile.isEmpty() == true)
-	  {
-	    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, -1);
-	  }
-	
-	break;
+  if(!fi.exists())
+  {
+    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getBSAMInputFile());
+    setErrorCondition(-388);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+
+  if(m_BSAMInputFile.isEmpty())
+  {
+    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
+    setErrorCondition(-1);
+    notifyErrorMessage(getHumanLabel(), ss, -1);
+  }
+
+  break;
       }
 
     case 3: // DEFORM
       {
 	QFileInfo fi(m_DEFORMInputFile);
-	if(fi.exists() == false)
-	  {
-	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMInputFile());
-	    setErrorCondition(-388);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
-	
-	if(m_DEFORMInputFile.isEmpty() == true)
-	  {
-	    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, -1);
-	  }
-	
-	break;
+  if(!fi.exists())
+  {
+    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMInputFile());
+    setErrorCondition(-388);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+
+  if(m_DEFORMInputFile.isEmpty())
+  {
+    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
+    setErrorCondition(-1);
+    notifyErrorMessage(getHumanLabel(), ss, -1);
+  }
+
+  break;
       }
     case 4: // DEFORM POINT TRACK
       {
 	QFileInfo fi(m_DEFORMPointTrackInputFile);
-	if(fi.exists() == false)
-	  {
-	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMPointTrackInputFile());
-	    setErrorCondition(-388);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
+  if(!fi.exists())
+  {
+    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMPointTrackInputFile());
+    setErrorCondition(-388);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
 
-	if(m_DEFORMPointTrackInputFile.isEmpty() == true)
-	  {
-	    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, -1);
-	  }
+  if(m_DEFORMPointTrackInputFile.isEmpty())
+  {
+    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
+    setErrorCondition(-1);
+    notifyErrorMessage(getHumanLabel(), ss, -1);
+  }
 
-	// If any of the checks above threw errors then we can not go any further so bail out now.
+  // If any of the checks above threw errors then we can not go any further so bail out now.
 	if(getErrorCondition() < 0)
 	  {
 	    return;
@@ -330,12 +332,12 @@ void ImportFEAData::dataCheck()
 	readHeader(m_InStream);
 
 	// Close the file if we are preflighting
-	if(getInPreflight() == true)
-	  {
-	    m_InStream.close();
-	  }
+  if(getInPreflight())
+  {
+    m_InStream.close();
+  }
 
-	// Make sure we did not have any errors
+  // Make sure we did not have any errors
 	if(getErrorCondition() < 0)
 	  {
 	    QString ss = QObject::tr("Error reading header information from file: '%1'").arg(getDEFORMPointTrackInputFile());
@@ -398,15 +400,15 @@ void ImportFEAData::dataCheck()
 		SimulationIO::DeformDataParser::Pointer parser = parserIter.value();
 		IDataArray::Pointer dataPtr = parser->initializeNewDataArray(m_NumPoints, name, !getInPreflight()); // Get a copy of the DataArray
 
-		if((getInPreflight() == true))
-		  {
-		    if((name.compare(getSelectedTimeArrayName()) != 0) && (name.compare(getSelectedTimeStepArrayName()) != 0) && (name.compare(getSelectedPointNumArrayName()) != 0) &&
-		       (name.compare(getSelectedXCoordArrayName()) != 0) && (name.compare(getSelectedYCoordArrayName()) != 0))
-		      {
-			vertexAttrMat->addAttributeArray(dataPtr->getName(), dataPtr);
-		      }
-		  }
-		else
+    if((getInPreflight()))
+    {
+      if((name.compare(getSelectedTimeArrayName()) != 0) && (name.compare(getSelectedTimeStepArrayName()) != 0) && (name.compare(getSelectedPointNumArrayName()) != 0) &&
+         (name.compare(getSelectedXCoordArrayName()) != 0) && (name.compare(getSelectedYCoordArrayName()) != 0))
+      {
+        vertexAttrMat->addAttributeArray(dataPtr->getName(), dataPtr);
+      }
+    }
+    else
 		  {
 		    vertexAttrMat->addAttributeArray(dataPtr->getName(), dataPtr);
 		  }
@@ -914,10 +916,10 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
       // End reading of the connectivity
 
       // Start reading any additional vertex or cell data arrays
-      
-      while(inStream.atEnd() == false)
-	{
-	  // Now we are reading either cell or vertex data based on the number of items
+
+  while(!inStream.atEnd())
+  {
+    // Now we are reading either cell or vertex data based on the number of items
 	  // being read. First Gobble up blank lines that might possibly be at the end of the file
 	  buf.clear();
 	  while(buf.size() == 0 && !inStream.atEnd())
@@ -958,7 +960,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
 	    }
 	  //
 	  //
-	}  
+  }
     }
 
   if ( eleType == 'C3D8' )
@@ -1034,10 +1036,10 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
       // End reading of the connectivity
 
       // Start reading any additional vertex or cell data arrays
-      
-      while(inStream.atEnd() == false)
-	{
-	  // Now we are reading either cell or vertex data based on the number of items
+
+  while(!inStream.atEnd())
+  {
+    // Now we are reading either cell or vertex data based on the number of items
 	  // being read. First Gobble up blank lines that might possibly be at the end of the file
 	  buf.clear();
 	  while(buf.size() == 0 && !inStream.atEnd())
@@ -1078,7 +1080,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
 	    }
 	  //
 	  //
-	}  
+  }
     }
 }
 
@@ -1185,7 +1187,7 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
   status = "";
   ss << "Scanning for Vertex & Cell data....";
   notifyStatusMessage(getHumanLabel(), status);
-  while(inStream.atEnd() == false)
+  while(!inStream.atEnd())
   {
     // Now we are reading either cell or vertex data based on the number of items
     // being read. First Gobble up blank lines that might possibly be at the end of the file
@@ -1439,7 +1441,7 @@ void ImportFEAData::readHeader(QFile& reader)
   QString origHeader;
   m_LinesPerBlock = 0;
   QList<QByteArray> headerLines;
-  while(!reader.atEnd() && false == m_HeaderIsComplete)
+  while(!reader.atEnd() && !m_HeaderIsComplete)
   {
     buf = reader.readLine();
     lineNum++;
@@ -1455,7 +1457,7 @@ void ImportFEAData::readHeader(QFile& reader)
     // remove the newline at the end of the line
     buf.chop(1);
     headerLines.push_back(buf);
-    if(buf.contains("Each Record contains") == true)
+    if(buf.contains("Each Record contains"))
     {
       m_LinesPerBlock = atoi(buf.split(' ').at(4).constData());
     }
@@ -1619,7 +1621,7 @@ QVector<QByteArray> ImportFEAData::splitDataBlock(QVector<QByteArray>& dataBlock
     QList<QByteArray> lineTokens = dataBlock[i].trimmed().split(' ');
     for(int j = 0; j < lineTokens.size(); ++j)
     {
-      if(lineTokens[j].isEmpty() == false)
+      if(!lineTokens[j].isEmpty())
       {
         tokens.push_back(lineTokens[j]);
       }
@@ -1671,7 +1673,7 @@ void ImportFEAData::readTimeStep(QFile& reader, qint32 t)
     QString name = parserIter.key();
     SimulationIO::DeformDataParser::Pointer parser = parserIter.value();
     IDataArray::Pointer data = attrMat->getAttributeArray(name);
-    if(data->isAllocated() == false)
+    if(!data->isAllocated())
     {
       qDebug() << name << " is NOT allocated";
     }

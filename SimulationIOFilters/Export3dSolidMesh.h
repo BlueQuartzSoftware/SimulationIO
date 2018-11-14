@@ -21,10 +21,10 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
   Q_OBJECT
   PYB11_CREATE_BINDINGS(Export3dSolidMesh SUPERCLASS AbstractFilter)
   PYB11_PROPERTY(int MeshingPackage READ getMeshingPackage WRITE setMeshingPackage)
-  PYB11_PROPERTY(DataArrayPath FaceFeatureIdsArrayPath READ getFaceFeatureIdsArrayPath WRITE setFaceFeatureIdsArrayPath)
-  PYB11_PROPERTY(DataArrayPath GrainPhasesArrayPath READ getGrainPhasesArrayPath WRITE setGrainPhasesArrayPath)
-  PYB11_PROPERTY(DataArrayPath GrainEulerAnglesArrayPath READ getGrainEulerAnglesArrayPath WRITE setGrainEulerAnglesArrayPath)
-  PYB11_PROPERTY(DataArrayPath GrainCentroidArrayPath READ getGrainCentroidArrayPath WRITE setGrainCentroidArrayPath)
+  PYB11_PROPERTY(DataArrayPath SurfaceMeshFaceLabelsArrayPath READ getSurfaceMeshFaceLabelsArrayPath WRITE setSurfaceMeshFaceLabelsArrayPath)
+  PYB11_PROPERTY(DataArrayPath FeaturePhasesArrayPath READ getFeaturePhasesArrayPath WRITE setFeaturePhasesArrayPath)
+  PYB11_PROPERTY(DataArrayPath FeatureEulerAnglesArrayPath READ getFeatureEulerAnglesArrayPath WRITE setFeatureEulerAnglesArrayPath)
+  PYB11_PROPERTY(DataArrayPath FeatureCentroidArrayPath READ getFeatureCentroidArrayPath WRITE setFeatureCentroidArrayPath)
 
   public:
     SIMPL_SHARED_POINTERS(Export3dSolidMesh)
@@ -36,17 +36,17 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
     SIMPL_FILTER_PARAMETER(int, MeshingPackage)
     Q_PROPERTY(int MeshingPackage READ getMeshingPackage WRITE setMeshingPackage)
 
-    SIMPL_FILTER_PARAMETER(DataArrayPath, FaceFeatureIdsArrayPath)
-    Q_PROPERTY(DataArrayPath FaceFeatureIdsArrayPath READ getFaceFeatureIdsArrayPath WRITE setFaceFeatureIdsArrayPath)
+    SIMPL_FILTER_PARAMETER(DataArrayPath, SurfaceMeshFaceLabelsArrayPath)
+    Q_PROPERTY(DataArrayPath SurfaceMeshFaceLabelsArrayPath READ getSurfaceMeshFaceLabelsArrayPath WRITE setSurfaceMeshFaceLabelsArrayPath)
     
-    SIMPL_FILTER_PARAMETER(DataArrayPath, GrainPhasesArrayPath)
-    Q_PROPERTY(DataArrayPath GrainPhasesArrayPath READ getGrainPhasesArrayPath WRITE setGrainPhasesArrayPath)
+    SIMPL_FILTER_PARAMETER(DataArrayPath, FeaturePhasesArrayPath)
+    Q_PROPERTY(DataArrayPath FeaturePhasesArrayPath READ getFeaturePhasesArrayPath WRITE setFeaturePhasesArrayPath)
     
-    SIMPL_FILTER_PARAMETER(DataArrayPath, GrainEulerAnglesArrayPath)
-    Q_PROPERTY(DataArrayPath GrainEulerAnglesArrayPath READ getGrainEulerAnglesArrayPath WRITE setGrainEulerAnglesArrayPath)
+    SIMPL_FILTER_PARAMETER(DataArrayPath, FeatureEulerAnglesArrayPath)
+    Q_PROPERTY(DataArrayPath FeatureEulerAnglesArrayPath READ getFeatureEulerAnglesArrayPath WRITE setFeatureEulerAnglesArrayPath)
 
-    SIMPL_FILTER_PARAMETER(DataArrayPath, GrainCentroidArrayPath)
-    Q_PROPERTY(DataArrayPath GrainCentroidArrayPath READ getGrainCentroidArrayPath WRITE setGrainCentroidArrayPath)
+    SIMPL_FILTER_PARAMETER(DataArrayPath, FeatureCentroidArrayPath)
+    Q_PROPERTY(DataArrayPath FeatureCentroidArrayPath READ getFeatureCentroidArrayPath WRITE setFeatureCentroidArrayPath)
 
     /**
      * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
@@ -150,7 +150,9 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
     */
     void initialize();
   private:
-
+    DEFINE_DATAARRAY_VARIABLE(float, FeatureEulerAngles)
+    DEFINE_DATAARRAY_VARIABLE(float, FeatureCentroid)
+    DEFINE_DATAARRAY_VARIABLE(int32_t, FeaturePhases)
   
   public:
     /* Rule of 5: All special member functions should be defined if any are defined.

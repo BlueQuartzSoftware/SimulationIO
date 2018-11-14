@@ -40,10 +40,13 @@
 Export3dSolidMesh::Export3dSolidMesh()  
 : AbstractFilter()
 , m_MeshingPackage(0)
-, m_FaceFeatureIdsArrayPath(SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::FaceAttributeMatrixName, SIMPL::CellData::FeatureIds)
-, m_GrainPhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Phases)
-, m_GrainEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::EulerAngles)
-, m_GrainCentroidArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Centroids)
+, m_SurfaceMeshFaceLabelsArrayPath(SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::FaceAttributeMatrixName, SIMPL::FaceData::SurfaceMeshFaceLabels)
+, m_FeaturePhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Phases)
+, m_FeatureEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::EulerAngles)
+, m_FeatureCentroidArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Centroids)
+, m_FeatureEulerAngles(nullptr)
+, m_FeaturePhases(nullptr)
+, m_FeatureCentroid(nullptr)
 
 {
   initialize();
@@ -89,25 +92,25 @@ void Export3dSolidMesh::setupFilterParameters()
   parameters.push_back(SeparatorFilterParameter::New("Face Data", FilterParameter::RequiredArray));
   {
     DataArraySelectionFilterParameter::RequirementType req =
-      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 2, AttributeMatrix::Type::Face, IGeometry::Type::Triangle);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", FaceFeatureIdsArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
+        DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 2, AttributeMatrix::Type::Face, IGeometry::Type::Triangle);
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Face Labels", SurfaceMeshFaceLabelsArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
   }
 
-  parameters.push_back(SeparatorFilterParameter::New("Grain Data", FilterParameter::RequiredArray));
+  parameters.push_back(SeparatorFilterParameter::New("Feature Data", FilterParameter::RequiredArray));
   {
     DataArraySelectionFilterParameter::RequirementType req =
       DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", GrainEulerAnglesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", FeatureEulerAnglesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req =
       DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phases", GrainPhasesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phases", FeaturePhasesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req =
       DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Centroids", GrainCentroidArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Centroids", FeatureCentroidArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
   }
 
   setFilterParameters(parameters);
@@ -120,10 +123,10 @@ void Export3dSolidMesh::setupFilterParameters()
 void Export3dSolidMesh::readFilterParameters(AbstractFilterParametersReader* reader, int index)
 {
   reader->openFilterGroup(this, index);
-  setFaceFeatureIdsArrayPath(reader->readDataArrayPath("FaceFeatureIdsArrayPath", getFaceFeatureIdsArrayPath()));
-  setGrainEulerAnglesArrayPath(reader->readDataArrayPath("GrainEulerAnglesArrayPath", getGrainEulerAnglesArrayPath()));
-  setGrainPhasesArrayPath(reader->readDataArrayPath("GrainPhasesArrayPath", getGrainPhasesArrayPath()));
-  setGrainCentroidArrayPath(reader->readDataArrayPath("GrainCentroidArrayPath", getGrainCentroidArrayPath()));
+  setSurfaceMeshFaceLabelsArrayPath(reader->readDataArrayPath("SurfaceMeshFaceLabelsArrayPath", getSurfaceMeshFaceLabelsArrayPath()));
+  setFeatureEulerAnglesArrayPath(reader->readDataArrayPath("FeatureEulerAnglesArrayPath", getFeatureEulerAnglesArrayPath()));
+  setFeaturePhasesArrayPath(reader->readDataArrayPath("FeaturePhasesArrayPath", getFeaturePhasesArrayPath()));
+  setFeatureCentroidArrayPath(reader->readDataArrayPath("FeatureCentroidArrayPath", getFeatureCentroidArrayPath()));
   reader->closeFilterGroup();
 }
 
@@ -133,8 +136,48 @@ void Export3dSolidMesh::readFilterParameters(AbstractFilterParametersReader* rea
 void Export3dSolidMesh::dataCheck()
 {
   setErrorCondition(0);
-  setWarningCondition(0);
+  setWarningCondition(0); 
+
+  QVector<DataArrayPath> dataArrayPaths;
+  QVector<size_t> cDims(1, 1);
+
+  m_FeaturePhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getFeaturePhasesArrayPath(),
+                                                                                                           cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+  if(nullptr != m_FeaturePhasesPtr.lock())                                                                         /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  {
+    m_FeaturePhases = m_FeaturePhasesPtr.lock()->getPointer(0);
+  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  if(getErrorCondition() >= 0)
+  {
+    dataArrayPaths.push_back(getFeaturePhasesArrayPath());
+  }
   
+  cDims[0] = 3;
+  m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureEulerAnglesArrayPath(),
+													      cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+  if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+    {
+      m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
+    } /* Now assign the raw pointer to data from the DataArray<T> object */
+  if(getErrorCondition() >= 0)
+    {
+      dataArrayPaths.push_back(getFeatureEulerAnglesArrayPath());
+    }
+
+  cDims[0] = 3;
+  m_FeatureCentroidPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureCentroidArrayPath(),
+													      cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+  if(nullptr != m_FeatureCentroidPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+    {
+      m_FeatureCentroid = m_FeatureCentroidPtr.lock()->getPointer(0);
+    } /* Now assign the raw pointer to data from the DataArray<T> object */
+  if(getErrorCondition() >= 0)
+    {
+      dataArrayPaths.push_back(getFeatureCentroidArrayPath());
+    }
+
+  getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
+ 
 }
 
 // -----------------------------------------------------------------------------
@@ -154,29 +197,26 @@ void Export3dSolidMesh::preflight()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+
 void Export3dSolidMesh::execute()
 {
   initialize();
   dataCheck();
   if(getErrorCondition() < 0) { return; }
 
+  DataContainer::Pointer sm = getDataContainerArray()->getDataContainer(getSurfaceMeshFaceLabelsArrayPath().getDataContainerName());
+  TriangleGeom::Pointer triangleGeom = sm->getGeometryAs<TriangleGeom>();  
+
+  int64_t numNodes = triangleGeom->getNumberOfVertices();
+  float* nodes = triangleGeom->getVertexPointer(0);
+
+  int64_t numTri = triangleGeom->getNumberOfTris();
+  int64_t* triangles = triangleGeom->getTriPointer(0);
+
+  size_t numfeatures = m_FeatureEulerAnglesPtr.lock()->getNumberOfTuples();
+
+
   if (getCancel()) { return; }
-
-  if (getWarningCondition() < 0)
-  {
-    QString ss = QObject::tr("Some warning message");
-    setWarningCondition(-88888888);
-    notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
-  }
-
-  if (getErrorCondition() < 0)
-  {
-    QString ss = QObject::tr("Some error message");
-    setErrorCondition(-99999999);
-    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-    return;
-  }
-
   notifyStatusMessage(getHumanLabel(), "Complete");
 }
 

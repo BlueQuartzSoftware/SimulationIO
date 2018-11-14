@@ -25,6 +25,10 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
   PYB11_PROPERTY(DataArrayPath FeaturePhasesArrayPath READ getFeaturePhasesArrayPath WRITE setFeaturePhasesArrayPath)
   PYB11_PROPERTY(DataArrayPath FeatureEulerAnglesArrayPath READ getFeatureEulerAnglesArrayPath WRITE setFeatureEulerAnglesArrayPath)
   PYB11_PROPERTY(DataArrayPath FeatureCentroidArrayPath READ getFeatureCentroidArrayPath WRITE setFeatureCentroidArrayPath)
+    
+  PYB11_PROPERTY(QString TetDataContainerName READ getTetDataContainerName WRITE setTetDataContainerName)
+  PYB11_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
+  PYB11_PROPERTY(QString CellAttributeMatrixName READ getCellAttributeMatrixName WRITE setCellAttributeMatrixName)
 
   public:
     SIMPL_SHARED_POINTERS(Export3dSolidMesh)
@@ -47,6 +51,15 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
 
     SIMPL_FILTER_PARAMETER(DataArrayPath, FeatureCentroidArrayPath)
     Q_PROPERTY(DataArrayPath FeatureCentroidArrayPath READ getFeatureCentroidArrayPath WRITE setFeatureCentroidArrayPath)
+
+    SIMPL_FILTER_PARAMETER(QString, TetDataContainerName)
+    Q_PROPERTY(QString TetDataContainerName READ getTetDataContainerName WRITE setTetDataContainerName)
+
+    SIMPL_FILTER_PARAMETER(QString, VertexAttributeMatrixName)
+    Q_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
+
+    SIMPL_FILTER_PARAMETER(QString, CellAttributeMatrixName)
+    Q_PROPERTY(QString CellAttributeMatrixName READ getCellAttributeMatrixName WRITE setCellAttributeMatrixName)
 
     /**
      * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class

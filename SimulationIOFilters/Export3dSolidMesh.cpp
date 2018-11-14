@@ -47,7 +47,9 @@ Export3dSolidMesh::Export3dSolidMesh()
 , m_FeatureEulerAngles(nullptr)
 , m_FeaturePhases(nullptr)
 , m_FeatureCentroid(nullptr)
-
+, m_TetDataContainerName(SIMPL::Defaults::DataContainerName)
+, m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
+, m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
 {
   initialize();
 }
@@ -113,6 +115,11 @@ void Export3dSolidMesh::setupFilterParameters()
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Centroids", FeatureCentroidArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
   }
 
+  parameters.push_back(SeparatorFilterParameter::New("", FilterParameter::CreatedArray));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Name", TetDataContainerName, FilterParameter::CreatedArray, Export3dSolidMesh));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Vertex Attribute Matrix Name", VertexAttributeMatrixName, FilterParameter::CreatedArray, Export3dSolidMesh));    
+  parameters.push_back(SIMPL_NEW_STRING_FP("Cell Attribute Matrix Name", CellAttributeMatrixName, FilterParameter::CreatedArray, Export3dSolidMesh));
+
   setFilterParameters(parameters);
 }
 
@@ -127,6 +134,9 @@ void Export3dSolidMesh::readFilterParameters(AbstractFilterParametersReader* rea
   setFeatureEulerAnglesArrayPath(reader->readDataArrayPath("FeatureEulerAnglesArrayPath", getFeatureEulerAnglesArrayPath()));
   setFeaturePhasesArrayPath(reader->readDataArrayPath("FeaturePhasesArrayPath", getFeaturePhasesArrayPath()));
   setFeatureCentroidArrayPath(reader->readDataArrayPath("FeatureCentroidArrayPath", getFeatureCentroidArrayPath()));
+  setTetDataContainerName(reader->readString("DataContainerName", getTetDataContainerName()));
+  setVertexAttributeMatrixName(reader->readString("VertexAttributeMatrixName", getVertexAttributeMatrixName()));
+  setCellAttributeMatrixName(reader->readString("CellAttributeMatrixName", getCellAttributeMatrixName()));
   reader->closeFilterGroup();
 }
 
@@ -215,6 +225,25 @@ void Export3dSolidMesh::execute()
 
   size_t numfeatures = m_FeatureEulerAnglesPtr.lock()->getNumberOfTuples();
 
+  // Create the output Data Container
+  DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getTetDataContainerName());
+  if(getErrorCondition() < 0)
+    {
+      return;
+    }
+  
+  // Create our output Vertex and Cell Matrix objects
+  QVector<size_t> tDims(1, 0);
+  AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
+  if(getErrorCondition() < 0)
+    {
+      return;
+    }
+  AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
+  if(getErrorCondition() < 0)
+    {
+      return;
+    }
 
   if (getCancel()) { return; }
   notifyStatusMessage(getHumanLabel(), "Complete");

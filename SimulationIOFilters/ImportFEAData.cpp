@@ -231,7 +231,7 @@ void ImportFEAData::readFilterParameters(AbstractFilterParametersReader* reader,
   setCellAttributeMatrixName(reader->readString("CellAttributeMatrixName", getCellAttributeMatrixName()));
 
   setDEFORMPointTrackInputFile(reader->readString("InputFile", getDEFORMPointTrackInputFile()));
-  setDataContainerName(reader->readString("DataContainerName", getDataContainerName()));
+  //setDataContainerName(reader->readString("DataContainerName", getDataContainerName()));
   setTimeSeriesBundleName(reader->readString("TimeSeriesBundleName", getTimeSeriesBundleName()));
 
   reader->closeFilterGroup();
@@ -500,7 +500,7 @@ void ImportFEAData::execute()
 	  {
 	    return;
 	  }
-	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Face);
+	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
 	if(getErrorCondition() < 0)
 	  {
 	    return;
@@ -528,7 +528,7 @@ void ImportFEAData::execute()
 	  {
 	    return;
 	  }
-	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Face);
+	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
 	if(getErrorCondition() < 0)
 	  {
 	    return;
@@ -561,7 +561,7 @@ void ImportFEAData::execute()
 	  {
 	    return;
 	  }
-	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Face);
+	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
 	if(getErrorCondition() < 0)
 	  {
 	    return;

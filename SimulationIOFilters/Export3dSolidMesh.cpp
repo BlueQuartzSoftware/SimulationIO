@@ -4,9 +4,14 @@
 
 #include "Export3dSolidMesh.h"
 
+#include <QtCore/QDateTime>
 #include <QtCore/QDir>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QFileInfo>
+#include <QtCore/QString>
 
 #include "SIMPLib/Common/Constants.h"
+#include "SIMPLib/Common/TemplateHelpers.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/ChoiceFilterParameter.h"
@@ -14,7 +19,9 @@
 #include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DynamicTableData.h"
 #include "SIMPLib/FilterParameters/DynamicTableFilterParameter.h"
+#include "SIMPLib/FilterParameters/FloatFilterParameter.h"
 #include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
+#include "SIMPLib/FilterParameters/InputFileFilterParameter.h"
 #include "SIMPLib/FilterParameters/IntFilterParameter.h"
 #include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
@@ -25,6 +32,7 @@
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
 #include "SIMPLib/Geometry/EdgeGeom.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
+#include "SIMPLib/Geometry/TetrahedralGeom.h"
 #include "SIMPLib/Geometry/TriangleGeom.h"
 #include "SIMPLib/Math/GeometryMath.h"
 #include "SIMPLib/Math/SIMPLibMath.h"
@@ -40,14 +48,15 @@
 Export3dSolidMesh::Export3dSolidMesh()  
 : AbstractFilter()
 , m_MeshingPackage(0)
+, m_outputPath("")
 , m_SurfaceMeshFaceLabelsArrayPath(SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::FaceAttributeMatrixName, SIMPL::FaceData::SurfaceMeshFaceLabels)
 , m_FeaturePhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Phases)
 , m_FeatureEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::EulerAngles)
 , m_FeatureCentroidArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Centroids)
 , m_FeatureEulerAngles(nullptr)
-, m_FeaturePhases(nullptr)
 , m_FeatureCentroid(nullptr)
-, m_TetDataContainerName(SIMPL::Defaults::DataContainerName)
+, m_FeaturePhases(nullptr)
+, m_TetDataContainerName(SIMPL::Defaults::TetrahedralDataContainerName)
 , m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
 , m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
 {
@@ -91,6 +100,8 @@ void Export3dSolidMesh::setupFilterParameters()
     parameters.push_back(parameter);
   }
 
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path", outputPath, FilterParameter::Parameter, Export3dSolidMesh,"*" ,"*"));
+
   parameters.push_back(SeparatorFilterParameter::New("Face Data", FilterParameter::RequiredArray));
   {
     DataArraySelectionFilterParameter::RequirementType req =
@@ -130,6 +141,7 @@ void Export3dSolidMesh::setupFilterParameters()
 void Export3dSolidMesh::readFilterParameters(AbstractFilterParametersReader* reader, int index)
 {
   reader->openFilterGroup(this, index);
+  setoutputPath(reader->readString("outputPath", getoutputPath()));
   setSurfaceMeshFaceLabelsArrayPath(reader->readDataArrayPath("SurfaceMeshFaceLabelsArrayPath", getSurfaceMeshFaceLabelsArrayPath()));
   setFeatureEulerAnglesArrayPath(reader->readDataArrayPath("FeatureEulerAnglesArrayPath", getFeatureEulerAnglesArrayPath()));
   setFeaturePhasesArrayPath(reader->readDataArrayPath("FeaturePhasesArrayPath", getFeaturePhasesArrayPath()));
@@ -147,6 +159,9 @@ void Export3dSolidMesh::dataCheck()
 {
   setErrorCondition(0);
   setWarningCondition(0); 
+
+  m_Pause = false;
+  m_ProcessPtr.reset();
 
   QVector<DataArrayPath> dataArrayPaths;
   QVector<size_t> cDims(1, 1);
@@ -214,6 +229,15 @@ void Export3dSolidMesh::execute()
   dataCheck();
   if(getErrorCondition() < 0) { return; }
 
+  QDir dir;
+  if(!dir.mkpath(m_outputPath))
+    {
+      QString ss = QObject::tr("Output directory does not exist '%1'").arg(m_outputPath);
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      return;
+    }
+
   DataContainer::Pointer sm = getDataContainerArray()->getDataContainer(getSurfaceMeshFaceLabelsArrayPath().getDataContainerName());
   TriangleGeom::Pointer triangleGeom = sm->getGeometryAs<TriangleGeom>();  
 
@@ -225,6 +249,12 @@ void Export3dSolidMesh::execute()
 
   size_t numfeatures = m_FeatureEulerAnglesPtr.lock()->getNumberOfTuples();
 
+  //creating TetGen input file
+  QString tetgenInpFile = m_outputPath + QDir::separator() + "tetgenInp.poly";
+
+  //running TetGen
+  runTetgen(tetgenInpFile); 
+
   // Create the output Data Container
   DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getTetDataContainerName());
   if(getErrorCondition() < 0)
@@ -232,6 +262,10 @@ void Export3dSolidMesh::execute()
       return;
     }
   
+  SharedVertexList::Pointer tetvertices = TetrahedralGeom::CreateSharedVertexList(0, !getInPreflight());
+  TetrahedralGeom::Pointer tet = TetrahedralGeom::CreateGeometry(0, tetvertices, SIMPL::Geometry::TetrahedralGeometry, !getInPreflight());
+  m->setGeometry(tet);
+
   // Create our output Vertex and Cell Matrix objects
   QVector<size_t> tDims(1, 0);
   AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
@@ -252,6 +286,155 @@ void Export3dSolidMesh::execute()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+
+void Export3dSolidMesh::runTetgen(const QString& file) 
+{
+  //cmd to run: "tetgen -pYVA file
+
+  QString program = "tetgen";
+  QStringList arguments;
+  arguments << "-pYVA" << file;
+
+  m_ProcessPtr = QSharedPointer<QProcess>(new QProcess(nullptr));
+  qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
+  qRegisterMetaType<QProcess::ProcessError>("QProcess::ProcessError");
+  connect(m_ProcessPtr.data(), SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(processHasFinished(int, QProcess::ExitStatus)), Qt::QueuedConnection);
+  connect(m_ProcessPtr.data(), SIGNAL(error(QProcess::ProcessError)), this, SLOT(processHasErroredOut(QProcess::ProcessError)), Qt::QueuedConnection);
+  connect(m_ProcessPtr.data(), SIGNAL(readyReadStandardError()), this, SLOT(sendErrorOutput()), Qt::QueuedConnection);
+  connect(m_ProcessPtr.data(), SIGNAL(readyReadStandardOutput()), this, SLOT(sendStandardOutput()), Qt::QueuedConnection);
+
+  m_ProcessPtr->setWorkingDirectory(m_outputPath);
+  m_ProcessPtr->start(program, arguments);
+  m_ProcessPtr->waitForStarted(2000);
+  m_ProcessPtr->waitForFinished();
+
+  notifyStatusMessage(getHumanLabel(), "Finished running TetGen");
+
+}
+
+//
+//
+//
+
+void Export3dSolidMesh::processHasFinished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+  if(getCancel())
+  {
+  }
+  else if(exitStatus == QProcess::CrashExit)
+  {
+    QString ss = QObject::tr("The process crashed during its exit.");
+    setErrorCondition(-4003);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+  else if(exitCode < 0)
+  {
+    QString ss = QObject::tr("The process finished with exit code %1.").arg(QString::number(exitCode));
+    setErrorCondition(-4004);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+  else if(getErrorCondition() >= 0)
+  {
+    notifyStatusMessage(getHumanLabel(), "Complete");
+  }
+
+  m_Pause = false;
+  m_WaitCondition.wakeAll();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+void Export3dSolidMesh::processHasErroredOut(QProcess::ProcessError error)
+{
+  if(getCancel())
+  {
+    QString ss = QObject::tr("The process was killed by the user.");
+    setWarningCondition(-4004);
+    notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
+  }
+  else if(error == QProcess::FailedToStart)
+  {
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    QString pathEnv = env.value("PATH");
+
+    QString ss = QObject::tr("The process failed to start. Either the invoked program is missing, or you may have insufficient permissions to invoke the program \
+or the path containing the executble is not in the system's environment path. PATH=%1.\n Try using the absolute path to the executable.")
+                     .arg(pathEnv);
+    setErrorCondition(-4005);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+  else if(error == QProcess::Crashed)
+  {
+    QString ss = QObject::tr("The process crashed some time after starting successfully.");
+    setErrorCondition(-4006);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+  else if(error == QProcess::Timedout)
+  {
+    QString ss = QObject::tr("The process timed out.");
+    setErrorCondition(-4007);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+  else if(error == QProcess::WriteError)
+  {
+    QString ss = QObject::tr("An error occurred when attempting to write to the process.");
+    setErrorCondition(-4008);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+  else if(error == QProcess::ReadError)
+  {
+    QString ss = QObject::tr("An error occurred when attempting to read from the process.");
+    setErrorCondition(-4009);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+  else
+  {
+    QString ss = QObject::tr("An unknown error occurred.");
+    setErrorCondition(-4010);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+
+  m_Pause = false;
+  m_WaitCondition.wakeAll();
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+void Export3dSolidMesh::sendErrorOutput()
+{
+  if(m_ProcessPtr.data() != nullptr)
+  {
+    QString error = m_ProcessPtr->readAllStandardError();
+    if(error[error.size() - 1] == '\n')
+    {
+      error.chop(1);
+    }
+    notifyStandardOutputMessage(getHumanLabel(), getPipelineIndex() + 1, error);
+    m_WaitCondition.wakeAll();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+void Export3dSolidMesh::sendStandardOutput()
+{
+  if(m_ProcessPtr.data() != nullptr)
+  {
+    notifyStandardOutputMessage(getHumanLabel(), getPipelineIndex() + 1, m_ProcessPtr->readAllStandardOutput());
+    m_WaitCondition.wakeAll();
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
 AbstractFilter::Pointer Export3dSolidMesh::newFilterInstance(bool copyFilterParameters) const
 {
   Export3dSolidMesh::Pointer filter = Export3dSolidMesh::New();

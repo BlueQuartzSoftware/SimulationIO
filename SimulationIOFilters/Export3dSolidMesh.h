@@ -4,6 +4,11 @@
 
 #pragma once
 
+#include <QtCore/QProcess>
+#include <QtCore/QWaitCondition>
+#include <QtCore/QMutex>
+#include <QtCore/QSharedPointer>
+#include <QtCore/QFile>
 #include <QtCore/QString>
 
 #include "SIMPLib/SIMPLib.h"
@@ -21,6 +26,7 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
   Q_OBJECT
   PYB11_CREATE_BINDINGS(Export3dSolidMesh SUPERCLASS AbstractFilter)
   PYB11_PROPERTY(int MeshingPackage READ getMeshingPackage WRITE setMeshingPackage)
+  PYB11_PROPERTY(QString outputPath READ getoutputPath WRITE setoutputPath)
   PYB11_PROPERTY(DataArrayPath SurfaceMeshFaceLabelsArrayPath READ getSurfaceMeshFaceLabelsArrayPath WRITE setSurfaceMeshFaceLabelsArrayPath)
   PYB11_PROPERTY(DataArrayPath FeaturePhasesArrayPath READ getFeaturePhasesArrayPath WRITE setFeaturePhasesArrayPath)
   PYB11_PROPERTY(DataArrayPath FeatureEulerAnglesArrayPath READ getFeatureEulerAnglesArrayPath WRITE setFeatureEulerAnglesArrayPath)
@@ -39,6 +45,9 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
 
     SIMPL_FILTER_PARAMETER(int, MeshingPackage)
     Q_PROPERTY(int MeshingPackage READ getMeshingPackage WRITE setMeshingPackage)
+
+    SIMPL_FILTER_PARAMETER(QString, outputPath)
+    Q_PROPERTY(QString outputPath READ getoutputPath WRITE setoutputPath)
 
     SIMPL_FILTER_PARAMETER(DataArrayPath, SurfaceMeshFaceLabelsArrayPath)
     Q_PROPERTY(DataArrayPath SurfaceMeshFaceLabelsArrayPath READ getSurfaceMeshFaceLabelsArrayPath WRITE setSurfaceMeshFaceLabelsArrayPath)
@@ -162,10 +171,25 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
     * @brief Initializes all the private instance variables.
     */
     void initialize();
+
+  protected slots:
+      void processHasFinished(int exitCode, QProcess::ExitStatus exitStatus);
+      void processHasErroredOut(QProcess::ProcessError error);
+      void sendErrorOutput();
+      void sendStandardOutput();
+
   private:
     DEFINE_DATAARRAY_VARIABLE(float, FeatureEulerAngles)
     DEFINE_DATAARRAY_VARIABLE(float, FeatureCentroid)
     DEFINE_DATAARRAY_VARIABLE(int32_t, FeaturePhases)
+
+    void runTetgen(const QString& file); 
+
+    QWaitCondition m_WaitCondition;
+    QMutex m_Mutex;                                              
+    bool m_Pause;                                               
+    QSharedPointer<QProcess> m_ProcessPtr;                           
+    QStringList arguments;
   
   public:
     /* Rule of 5: All special member functions should be defined if any are defined.

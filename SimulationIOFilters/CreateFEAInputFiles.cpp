@@ -38,8 +38,7 @@
 //
 // -----------------------------------------------------------------------------
 CreateFEAInputFiles::CreateFEAInputFiles()
-: AbstractFilter()
-, m_FEAPackage(0)
+: m_FEAPackage(0)
 , m_JobName("")
 , m_OutputPath("")
 , m_OutputFilePrefix("")
@@ -68,9 +67,7 @@ CreateFEAInputFiles::CreateFEAInputFiles()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-CreateFEAInputFiles::~CreateFEAInputFiles()
-{
-}
+CreateFEAInputFiles::~CreateFEAInputFiles() = default;
 
 // -----------------------------------------------------------------------------
 //
@@ -204,7 +201,7 @@ void CreateFEAInputFiles::dataCheck()
 
   m_FeatureIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getFeatureIdsArrayPath(),
                                                                                                         cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_FeatureIdsPtr.lock().get())                                                                   /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  if(nullptr != m_FeatureIdsPtr.lock())                                                                         /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
     m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -220,11 +217,11 @@ void CreateFEAInputFiles::dataCheck()
 
 	m_CellPhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getCellPhasesArrayPath(),
 													      cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-	if(nullptr != m_CellPhasesPtr.lock().get())                                                                   /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-	  {
-	    m_CellPhases = m_CellPhasesPtr.lock()->getPointer(0);
-	  } /* Now assign the raw pointer to data from the DataArray<T> object */
-	if(getErrorCondition() >= 0)
+  if(nullptr != m_CellPhasesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  {
+    m_CellPhases = m_CellPhasesPtr.lock()->getPointer(0);
+  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  if(getErrorCondition() >= 0)
 	  {
 	    dataArrayPaths.push_back(getCellPhasesArrayPath());
 	  }
@@ -232,11 +229,11 @@ void CreateFEAInputFiles::dataCheck()
 	cDims[0] = 3;
 	m_CellEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getCellEulerAnglesArrayPath(),
 														 cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-	if(nullptr != m_CellEulerAnglesPtr.lock().get())                                                                 /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-	  {
-	    m_CellEulerAngles = m_CellEulerAnglesPtr.lock()->getPointer(0);
-	  } /* Now assign the raw pointer to data from the DataArray<T> object */
-	if(getErrorCondition() >= 0)
+  if(nullptr != m_CellEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  {
+    m_CellEulerAngles = m_CellEulerAnglesPtr.lock()->getPointer(0);
+  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  if(getErrorCondition() >= 0)
 	  {
 	    dataArrayPaths.push_back(getCellEulerAnglesArrayPath());
 	  }
@@ -490,12 +487,12 @@ void CreateFEAInputFiles::execute()
 		  {
 		    if(elementPerLine != 0) // no comma at start
 		      {
-			if(elementPerLine % 16) // 16 per line
-			  {
-			    fprintf(f4, ", ");
-			    fprintf(f5, ", ");
-			  }
-			else
+            if((elementPerLine % 16) != 0u) // 16 per line
+            {
+              fprintf(f4, ", ");
+              fprintf(f5, ", ");
+            }
+      else
 			  {
 			    fprintf(f4, ",\n");
 			    fprintf(f5, ",\n");
@@ -527,11 +524,11 @@ void CreateFEAInputFiles::execute()
 	      {
 		if(entriesPerLine != 0) // no comma at start
 		  {
-		    if(entriesPerLine % 8) // 8 per line
-		      {
-			fprintf(f5, ",  ");
-		      }
-		    else
+        if((entriesPerLine % 8) != 0u) // 8 per line
+        {
+          fprintf(f5, ",  ");
+        }
+        else
 		      {
 			fprintf(f5, "\n");
 			entriesPerLine = 0;
@@ -596,11 +593,11 @@ void CreateFEAInputFiles::execute()
 	  {
 	    if(entriesPerLine != 0) // no space at start
 	      {
-		if(entriesPerLine % 6) // 6 per line
-		  {
-		    fprintf(f, " ");
-		  }
-		else
+          if((entriesPerLine % 6) != 0u) // 6 per line
+          {
+            fprintf(f, " ");
+          }
+    else
 		  {
 		    fprintf(f, "\n");
 		    entriesPerLine = 0;
@@ -618,11 +615,11 @@ void CreateFEAInputFiles::execute()
 	  {
 	    if(entriesPerLine != 0) // no space at start
 	      {
-		if(entriesPerLine % 6) // 6 per line
-		  {
-		    fprintf(f, " ");
-		  }
-		else
+          if((entriesPerLine % 6) != 0u) // 6 per line
+          {
+            fprintf(f, " ");
+          }
+    else
 		  {
 		    fprintf(f, "\n");
 		    entriesPerLine = 0;
@@ -640,11 +637,11 @@ void CreateFEAInputFiles::execute()
 	  {
 	    if(entriesPerLine != 0) // no space at start
 	      {
-		if(entriesPerLine % 6) // 6 per line
-		  {
-		    fprintf(f, " ");
-		  }
-		else
+          if((entriesPerLine % 6) != 0u) // 6 per line
+          {
+            fprintf(f, " ");
+          }
+    else
 		  {
 		    fprintf(f, "\n");
 		    entriesPerLine = 0;
@@ -673,11 +670,11 @@ void CreateFEAInputFiles::execute()
 	  {
 	    if(entriesPerLine != 0) // no space at start
 	      {
-		if(entriesPerLine % 40) // 6 per line
-		  {
-		    fprintf(f, " ");
-		  }
-		else
+          if((entriesPerLine % 40) != 0u) // 6 per line
+          {
+            fprintf(f, " ");
+          }
+    else
 		  {
 		    fprintf(f, "\n");
 		    entriesPerLine = 0;
@@ -712,7 +709,10 @@ void CreateFEAInputFiles::execute()
  
   //
   //
-  if (getCancel() == true) { return; }
+    if(getCancel())
+    {
+      return;
+    }
   //
   //
 
@@ -725,7 +725,7 @@ void CreateFEAInputFiles::execute()
 AbstractFilter::Pointer CreateFEAInputFiles::newFilterInstance(bool copyFilterParameters) const
 {
   CreateFEAInputFiles::Pointer filter = CreateFEAInputFiles::New();
-  if(true == copyFilterParameters)
+  if(copyFilterParameters)
   {
     copyFilterParameterInstanceVariables(filter.get());
   }

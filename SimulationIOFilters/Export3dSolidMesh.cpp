@@ -37,9 +37,8 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-Export3dSolidMesh::Export3dSolidMesh()  
-: AbstractFilter()
-, m_MeshingPackage(0)
+Export3dSolidMesh::Export3dSolidMesh()
+: m_MeshingPackage(0)
 , m_SurfaceMeshFaceLabelsArrayPath(SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::FaceAttributeMatrixName, SIMPL::FaceData::SurfaceMeshFaceLabels)
 , m_FeaturePhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Phases)
 , m_FeatureEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::EulerAngles)

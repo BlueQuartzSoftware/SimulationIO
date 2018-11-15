@@ -14,7 +14,11 @@
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
+#include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
+#include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
+#include "SIMPLib/Common/Constants.h"
 
+class QProcess;
 
 #include "SimulationIO/SimulationIOPlugin.h"
 
@@ -184,6 +188,8 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
     DEFINE_DATAARRAY_VARIABLE(int32_t, FeaturePhases)
 
     void runTetgen(const QString& file); 
+
+    void createTetgenInpFile(const QString& file, int64_t numNodes, float* nodes, int64_t numTri, int64_t* triangles, size_t numfeatures, float* centroid); 
 
     QWaitCondition m_WaitCondition;
     QMutex m_Mutex;                                              

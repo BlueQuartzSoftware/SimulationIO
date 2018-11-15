@@ -217,23 +217,23 @@ void CreateFEAInputFiles::dataCheck()
 
 	m_CellPhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getCellPhasesArrayPath(),
 													      cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_CellPhasesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-  {
-    m_CellPhases = m_CellPhasesPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
-  if(getErrorCondition() >= 0)
+	if(nullptr != m_CellPhasesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+	  {
+	    m_CellPhases = m_CellPhasesPtr.lock()->getPointer(0);
+	  } /* Now assign the raw pointer to data from the DataArray<T> object */
+	if(getErrorCondition() >= 0)
 	  {
 	    dataArrayPaths.push_back(getCellPhasesArrayPath());
 	  }
-
+	
 	cDims[0] = 3;
 	m_CellEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getCellEulerAnglesArrayPath(),
 														 cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_CellEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-  {
-    m_CellEulerAngles = m_CellEulerAnglesPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
-  if(getErrorCondition() >= 0)
+	if(nullptr != m_CellEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+	  {
+	    m_CellEulerAngles = m_CellEulerAnglesPtr.lock()->getPointer(0);
+	  } /* Now assign the raw pointer to data from the DataArray<T> object */
+	if(getErrorCondition() >= 0)
 	  {
 	    dataArrayPaths.push_back(getCellEulerAnglesArrayPath());
 	  }

@@ -249,7 +249,9 @@ void Export3dSolidMesh::execute()
   size_t numfeatures = m_FeatureEulerAnglesPtr.lock()->getNumberOfTuples();
 
   //creating TetGen input file
-  QString tetgenInpFile = m_outputPath + QDir::separator() + "tetgenInp.poly";
+  QString tetgenInpFile = m_outputPath + QDir::separator() + "tetgenInp.smesh";
+
+  createTetgenInpFile(tetgenInpFile, numNodes, nodes, numTri, triangles, numfeatures, m_FeatureCentroid); 
 
   //running TetGen
   runTetgen(tetgenInpFile); 
@@ -280,6 +282,42 @@ void Export3dSolidMesh::execute()
 
   if (getCancel()) { return; }
   notifyStatusMessage(getHumanLabel(), "Complete");
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+void Export3dSolidMesh::createTetgenInpFile(const QString& file, int64_t numNodes, float* nodes, int64_t numTri, int64_t* triangles, size_t numfeatures, float* centroid)
+{
+  FILE* f1 = fopen(file.toLatin1().data(), "wb");
+  if(nullptr == f1)
+    {
+      QString ss = QObject::tr("Error writing tetGen input file '%1'").arg(file);
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    }
+
+  fprintf(f1,"# Part 1 - node list\n");
+  fprintf(f1,"# node count, 3 dim, attribute, boundary marker\n");
+  fprintf(f1,"%lld 3 0 0\n",numNodes);
+  fprintf(f1,"# Node index, node coordinates\n");
+
+  for(int64_t k = 0; k < numNodes; k++)
+    {
+      fprintf(f1,"%lld %.3f %.3f %.3f\n",(k+1), nodes[k*3], nodes[k*3+1], nodes[k*3+2]);
+    }
+
+  fprintf(f1,"%lld 0\n",numTri);
+  
+  for(int64_t k = 0; k < numTri; k++)
+    {
+      fprintf(f1,"3 %lld %lld %lld\n",triangles[k*3]+1, triangles[k*3+1]+1, triangles[k*3+2]+1);
+    }
+
+  fprintf(f1,"0\n");
+
+  fclose(f1);
 }
 
 // -----------------------------------------------------------------------------

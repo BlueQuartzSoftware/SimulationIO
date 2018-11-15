@@ -266,7 +266,7 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
       
       QWaitCondition m_WaitCondition;
       QMutex m_Mutex;                                              
-      bool m_Pause;                                               
+      bool m_Pause = false;
       QSharedPointer<QProcess> m_ProcessPtr;                           
       QStringList arguments;
   
@@ -275,13 +275,13 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
       QMap<QString, QString> m_DataTypes;
       
       QMap<QString, SimulationIO::DeformDataParser::Pointer> m_NamePointerMap;
-      qint32 m_NumBlocks;
-      qint32 m_NumPoints;
-      qint32 m_NumTimeSteps;
-      qint32 m_LinesPerBlock;
-      bool m_HeaderIsComplete;
-      int m_selectedTimeStepValue;
-      bool m_selectedTimeStep;
+      qint32 m_NumBlocks = 0;
+      qint32 m_NumPoints = 0;
+      qint32 m_NumTimeSteps = 0;
+      qint32 m_LinesPerBlock = 0;
+      bool m_HeaderIsComplete = false;
+      int m_selectedTimeStepValue = 0;
+      bool m_selectedTimeStep = false;
       
       QString m_BundleMetaDataAMName;
 

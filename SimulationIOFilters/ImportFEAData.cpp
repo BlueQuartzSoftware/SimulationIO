@@ -67,7 +67,6 @@ ImportFEAData::ImportFEAData()
 , m_SelectedPointNumArrayName(SimulationIOConstants::DEFORMData::PointNum)
 , m_SelectedXCoordArrayName(SimulationIOConstants::DEFORMData::RXCoord)
 , m_SelectedYCoordArrayName(SimulationIOConstants::DEFORMData::ZYCoord)
-, m_CachedFileName("")
 {
   m_BundleMetaDataAMName = DataContainerBundle::GetMetaDataName();
 

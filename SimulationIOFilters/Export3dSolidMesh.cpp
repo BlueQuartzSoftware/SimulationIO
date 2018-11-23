@@ -105,20 +105,20 @@ void Export3dSolidMesh::setupFilterParameters()
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Face Labels", SurfaceMeshFaceLabelsArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
   }
 
-  parameters.push_back(SeparatorFilterParameter::New("Feature Data", FilterParameter::RequiredArray));
+  parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::RequiredArray));
   {
     DataArraySelectionFilterParameter::RequirementType req =
-      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
+      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", FeatureEulerAnglesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req =
-      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
+      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phases", FeaturePhasesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req =
-      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
+      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Centroids", FeatureCentroidArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
   }
 
@@ -330,7 +330,7 @@ void Export3dSolidMesh::runTetgen(const QString& file)
 {
   //cmd to run: "tetgen -pYVA file
 
-  QString program = "tetgen";
+  QString program = "/Users/saurabhpuri/Documents/Work/computation/tetgen/tetgen1.5.1-beta1/build/tetgen";
   QStringList arguments;
   arguments << "-pYVA" << file;
 
@@ -398,7 +398,7 @@ void Export3dSolidMesh::processHasErroredOut(QProcess::ProcessError error)
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     QString pathEnv = env.value("PATH");
 
-    QString ss = QObject::tr("The process failed to start. Either the invoked program is missing, or you may have insufficient permissions to invoke the program \
+    QString ss = QObject::tr("TETGEN failed to start. Either TETGEN is missing, or you may have insufficient permissions \
 or the path containing the executble is not in the system's environment path. PATH=%1.\n Try using the absolute path to the executable.")
                      .arg(pathEnv);
     setErrorCondition(-4005);

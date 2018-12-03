@@ -105,20 +105,20 @@ void Export3dSolidMesh::setupFilterParameters()
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Face Labels", SurfaceMeshFaceLabelsArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
   }
 
-  parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::RequiredArray));
+  parameters.push_back(SeparatorFilterParameter::New("Feature Data", FilterParameter::RequiredArray));
   {
     DataArraySelectionFilterParameter::RequirementType req =
-      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
+      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", FeatureEulerAnglesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req =
-      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
+      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phases", FeaturePhasesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req =
-      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
+      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Centroids", FeatureCentroidArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
   }
 
@@ -313,10 +313,10 @@ void Export3dSolidMesh::createTetgenInpFile(const QString& file, int64_t numNode
   fprintf(f1,"0\n");
 
   fprintf(f1,"# Part 4 - region list\n");
-  fprintf(f1,"%zu 0\n",numfeatures);
-  for(size_t i = 0; i < numfeatures; i++)
+  fprintf(f1,"%zu 0\n",numfeatures-1);
+  for(size_t i = 1; i < numfeatures; i++)
     {
-      fprintf(f1,"%zu %.3f %.3f %.3f %zu\n",i+1, centroid[i*3], centroid[i*3+1], centroid[i*3+2] , i+1);
+      fprintf(f1,"%zu %.3f %.3f %.3f %zu\n",i, centroid[i*3], centroid[i*3+1], centroid[i*3+2] , i);
     }
 
   fclose(f1);
@@ -332,7 +332,7 @@ void Export3dSolidMesh::runTetgen(const QString& file)
 
   QString program = "/Users/saurabhpuri/Documents/Work/computation/tetgen/tetgen1.5.1-beta1/build/tetgen";
   QStringList arguments;
-  arguments << "-pYVA" << file;
+  arguments << "-pYVAO5/7q1.2/10a1.4" << file;
 
   m_ProcessPtr = QSharedPointer<QProcess>(new QProcess(nullptr));
   qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");

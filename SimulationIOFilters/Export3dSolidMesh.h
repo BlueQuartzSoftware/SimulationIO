@@ -35,6 +35,13 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
   PYB11_PROPERTY(DataArrayPath FeaturePhasesArrayPath READ getFeaturePhasesArrayPath WRITE setFeaturePhasesArrayPath)
   PYB11_PROPERTY(DataArrayPath FeatureEulerAnglesArrayPath READ getFeatureEulerAnglesArrayPath WRITE setFeatureEulerAnglesArrayPath)
   PYB11_PROPERTY(DataArrayPath FeatureCentroidArrayPath READ getFeatureCentroidArrayPath WRITE setFeatureCentroidArrayPath)
+
+  PYB11_PROPERTY(bool RefineMesh READ getRefineMesh WRITE setRefineMesh)
+  PYB11_PROPERTY(float MaxRadiusEdgeRatio READ getMaxRadiusEdgeRatio WRITE setMaxRadiusEdgeRatio)
+  PYB11_PROPERTY(float MinDihedralAngle READ getMinDihedralAngle WRITE setMinDihedralAngle)
+  PYB11_PROPERTY(bool LimitTetrahedraVolume READ getLimitTetrahedraVolume WRITE setLimitTetrahedraVolume)
+  PYB11_PROPERTY(float MaxTetrahedraVolume READ getMaxTetrahedraVolume WRITE setMaxTetrahedraVolume)
+  PYB11_PROPERTY(int OptimizationLevel READ getOptimizationLevel WRITE setOptimizationLevel)
     
   PYB11_PROPERTY(QString TetDataContainerName READ getTetDataContainerName WRITE setTetDataContainerName)
   PYB11_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
@@ -64,6 +71,24 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
 
     SIMPL_FILTER_PARAMETER(DataArrayPath, FeatureCentroidArrayPath)
     Q_PROPERTY(DataArrayPath FeatureCentroidArrayPath READ getFeatureCentroidArrayPath WRITE setFeatureCentroidArrayPath)
+
+    SIMPL_FILTER_PARAMETER(bool, RefineMesh)
+    Q_PROPERTY(bool RefineMesh READ getRefineMesh WRITE setRefineMesh)
+
+    SIMPL_FILTER_PARAMETER(float, MaxRadiusEdgeRatio)
+    Q_PROPERTY(float MaxRadiusEdgeRatio READ getMaxRadiusEdgeRatio WRITE setMaxRadiusEdgeRatio)
+
+    SIMPL_FILTER_PARAMETER(float, MinDihedralAngle)
+    Q_PROPERTY(float MinDihedralAngle READ getMinDihedralAngle WRITE setMinDihedralAngle)
+
+    SIMPL_FILTER_PARAMETER(bool, LimitTetrahedraVolume)
+    Q_PROPERTY(bool LimitTetrahedraVolume READ getLimitTetrahedraVolume WRITE setLimitTetrahedraVolume)
+
+    SIMPL_FILTER_PARAMETER(float, MaxTetrahedraVolume)
+    Q_PROPERTY(float MaxTetrahedraVolume READ getMaxTetrahedraVolume WRITE setMaxTetrahedraVolume)
+
+    SIMPL_FILTER_PARAMETER(int, OptimizationLevel)
+    Q_PROPERTY(int OptimizationLevel READ getOptimizationLevel WRITE setOptimizationLevel)
 
     SIMPL_FILTER_PARAMETER(QString, TetDataContainerName)
     Q_PROPERTY(QString TetDataContainerName READ getTetDataContainerName WRITE setTetDataContainerName)

@@ -24,6 +24,7 @@
 #include "SIMPLib/FilterParameters/InputFileFilterParameter.h"
 #include "SIMPLib/FilterParameters/IntFilterParameter.h"
 #include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
+#include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
 #include "SIMPLib/FilterParameters/OutputFileFilterParameter.h"
 #include "SIMPLib/FilterParameters/OutputPathFilterParameter.h"
@@ -55,6 +56,12 @@ Export3dSolidMesh::Export3dSolidMesh()
 , m_TetDataContainerName(SIMPL::Defaults::TetrahedralDataContainerName)
 , m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
 , m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
+, m_RefineMesh(true)
+, m_MaxRadiusEdgeRatio(2.0f)
+, m_MinDihedralAngle(0.0f)
+, m_LimitTetrahedraVolume(false)
+, m_MaxTetrahedraVolume(0.1f)
+, m_OptimizationLevel(2)
 {
   initialize();
 }
@@ -88,12 +95,14 @@ void Export3dSolidMesh::setupFilterParameters()
     parameter->setGetterCallback(SIMPL_BIND_GETTER(Export3dSolidMesh, this, MeshingPackage));
     QVector<QString> choices;
     choices.push_back("TetGen");
+    choices.push_back("Netgen");
     parameter->setChoices(choices);
     QStringList linkedProps = {"FaceFeatureIdsArrayPath"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
     parameters.push_back(parameter);
+    linkedProps.clear();
   }
 
   parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path", outputPath, FilterParameter::Parameter, Export3dSolidMesh,"*" ,"*"));
@@ -120,6 +129,23 @@ void Export3dSolidMesh::setupFilterParameters()
     DataArraySelectionFilterParameter::RequirementType req =
       DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Centroids", FeatureCentroidArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
+  }
+
+  {
+    parameters.push_back(SeparatorFilterParameter::New("Mesh Quality Options", FilterParameter::Parameter));
+    QStringList linkedProps = {"MaxRadiusEdgeRatio", "MinDihedralAngle"};
+    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Refine Mesh", RefineMesh, FilterParameter::Parameter, Export3dSolidMesh, linkedProps));
+    linkedProps.clear();
+    parameters.push_back(SIMPL_NEW_FLOAT_FP("Maximum Radius-Edge Ratio", MaxRadiusEdgeRatio, FilterParameter::Parameter, Export3dSolidMesh));
+    parameters.push_back(SIMPL_NEW_FLOAT_FP("Minimum Dihedral Angle", MinDihedralAngle, FilterParameter::Parameter, Export3dSolidMesh));
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("Optimization Level", OptimizationLevel, FilterParameter::Parameter, Export3dSolidMesh));
+  }
+  {
+    parameters.push_back(SeparatorFilterParameter::New("Topology Options", FilterParameter::Parameter));
+    QStringList linkedProps = {"MaxTetrahedraVolume"};
+    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Limit Tetrahedra Volume", LimitTetrahedraVolume, FilterParameter::Parameter, Export3dSolidMesh, linkedProps));
+    linkedProps.clear();
+    parameters.push_back(SIMPL_NEW_FLOAT_FP("Maximum Tetrahedron Volume", MaxTetrahedraVolume, FilterParameter::Parameter, Export3dSolidMesh));
   }
 
   parameters.push_back(SeparatorFilterParameter::New("", FilterParameter::CreatedArray));
@@ -158,6 +184,35 @@ void Export3dSolidMesh::dataCheck()
 
   m_Pause = false;
   m_ProcessPtr.reset();
+
+  if(getRefineMesh())
+  {
+    if(getMaxRadiusEdgeRatio() <= 0)
+    {
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), "Maximum radius-edge ratio must be greater than 0", getErrorCondition());
+    }
+    if(getMinDihedralAngle() < 0)
+    {
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), "Minimum dihedral angle must be 0 or greater", getErrorCondition());
+    }
+  }
+
+  if(getLimitTetrahedraVolume())
+  {
+    if(getMaxTetrahedraVolume() <= 0)
+    {
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), "Maximum tetrahedron volume must be greater than 0", getErrorCondition());
+    }
+  }
+
+  if(getOptimizationLevel() < 0 || getOptimizationLevel() > 10)
+  {
+    setErrorCondition(-1);
+    notifyErrorMessage(getHumanLabel(), "Optimization level must be on the interval [0, 10]", getErrorCondition());
+  }
 
   QVector<DataArrayPath> dataArrayPaths;
   QVector<size_t> cDims(1, 1);
@@ -328,11 +383,25 @@ void Export3dSolidMesh::createTetgenInpFile(const QString& file, int64_t numNode
 
 void Export3dSolidMesh::runTetgen(const QString& file) 
 {
-  //cmd to run: "tetgen -pYVA file
+  //cmd to run: "tetgen -pYAqOa file
+
+  QString switches = "-pYAO" + QString::number(m_OptimizationLevel);
+
+  if(m_RefineMesh)
+  {
+    QString tmp = "q" + QString::number(m_MaxRadiusEdgeRatio) + "/" + QString::number(m_MinDihedralAngle);
+    switches += tmp;
+  }
+
+  if(m_LimitTetrahedraVolume)
+  {
+    QString tmp = "a" + QString::number(m_MaxTetrahedraVolume);
+    switches += tmp;
+  }
 
   QString program = "/Users/saurabhpuri/Documents/Work/computation/tetgen/tetgen1.5.1-beta1/build/tetgen";
   QStringList arguments;
-  arguments << "-pYVAO5/7q1.2/10a1.4" << file;
+  arguments << switches << file;
 
   m_ProcessPtr = QSharedPointer<QProcess>(new QProcess(nullptr));
   qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");

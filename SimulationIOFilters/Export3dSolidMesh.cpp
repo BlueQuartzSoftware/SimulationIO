@@ -613,6 +613,20 @@ void Export3dSolidMesh::scanTetGenFile(const QString& fileEle, const QString& fi
   featureIDsdata = Int32ArrayType::CreateArray(numCells, cDims, dataArrayName, allocate);
   cellAttrMat->addAttributeArray(featureIDsdata->getName(), featureIDsdata);
 
+  dataArrayName = "Euler Angles";
+  FloatArrayType::Pointer eulerangles = FloatArrayType::NullPointer();
+  numComp = 3;
+  cDims[0] = static_cast<size_t>(numComp);
+  eulerangles = FloatArrayType::CreateArray(numCells, cDims, dataArrayName, allocate);
+  cellAttrMat->addAttributeArray(eulerangles->getName(), eulerangles);
+
+  dataArrayName = "Phases";
+  Int32ArrayType::Pointer phasesdata = Int32ArrayType::NullPointer();
+  numComp = 1;
+  cDims[0] = static_cast<size_t>(numComp);
+  phasesdata = Int32ArrayType::CreateArray(numCells, cDims, dataArrayName, allocate);
+  cellAttrMat->addAttributeArray(phasesdata->getName(), phasesdata);
+
   for(size_t i = 0; i < numCells; i++)
     {
       bufEle = inStreamEle.readLine();
@@ -626,6 +640,15 @@ void Export3dSolidMesh::scanTetGenFile(const QString& fileEle, const QString& fi
 
       int32_t value = tokensEle[5].toInt(&ok);
       featureIDsdata->setComponent(i, 0, value);
+
+      int32_t pvalue = m_FeaturePhases[value];
+      phasesdata->setComponent(i, 0, pvalue);
+
+      for(size_t j = 0; j < 3; j++)
+	{
+	  float evalue = m_FeatureEulerAngles[3*value+j];
+          eulerangles->setComponent(i, j, evalue);
+	}
     }
 }
 

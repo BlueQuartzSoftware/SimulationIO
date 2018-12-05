@@ -331,12 +331,12 @@ void ImportFEAData::dataCheck()
 	readHeader(m_InStream);
 
 	// Close the file if we are preflighting
-  if(getInPreflight())
-  {
-    m_InStream.close();
-  }
+	if(getInPreflight())
+	  {
+	    m_InStream.close();
+	  }
 
-  // Make sure we did not have any errors
+	// Make sure we did not have any errors
 	if(getErrorCondition() < 0)
 	  {
 	    QString ss = QObject::tr("Error reading header information from file: '%1'").arg(getDEFORMPointTrackInputFile());
@@ -816,8 +816,15 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
 {
   bool allocate = true;
   
-  QFile inStream;
-  inStream.setFileName(file);
+  QFile inStream(file);
+
+  if(!inStream.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+      QString ss = QObject::tr("Input file could not be opened: %1").arg(file);
+      setErrorCondition(-100);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      return;
+    }
 
   QByteArray buf;
   QList<QByteArray> tokens; /* vector to store the split data */

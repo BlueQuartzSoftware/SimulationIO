@@ -221,6 +221,8 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
     bool m_Pause = false;
     QSharedPointer<QProcess> m_ProcessPtr;                           
     QStringList arguments;
+
+    void scanTetGenFile(const QString& fileEle, const QString& fileNode, DataContainer* dataContainer, AttributeMatrix* vertexAttributeMatrix, AttributeMatrix* cellAttributeMatrix);
   
   public:
     /* Rule of 5: All special member functions should be defined if any are defined.

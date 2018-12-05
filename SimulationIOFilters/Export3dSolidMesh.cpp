@@ -97,7 +97,7 @@ void Export3dSolidMesh::setupFilterParameters()
     choices.push_back("TetGen");
     choices.push_back("Netgen");
     parameter->setChoices(choices);
-    QStringList linkedProps = {"FaceFeatureIdsArrayPath"};
+    QStringList linkedProps = {"SurfaceMeshFaceLabelsArrayPath"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -111,7 +111,7 @@ void Export3dSolidMesh::setupFilterParameters()
   {
     DataArraySelectionFilterParameter::RequirementType req =
         DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 2, AttributeMatrix::Type::Face, IGeometry::Type::Triangle);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Face Labels", SurfaceMeshFaceLabelsArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Face Labels", SurfaceMeshFaceLabelsArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
   }
 
   parameters.push_back(SeparatorFilterParameter::New("Feature Data", FilterParameter::RequiredArray));
@@ -134,16 +134,16 @@ void Export3dSolidMesh::setupFilterParameters()
   {
     parameters.push_back(SeparatorFilterParameter::New("Mesh Quality Options", FilterParameter::Parameter));
     QStringList linkedProps = {"MaxRadiusEdgeRatio", "MinDihedralAngle"};
-    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Refine Mesh", RefineMesh, FilterParameter::Parameter, Export3dSolidMesh, linkedProps));
+    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Refine Mesh (q)", RefineMesh, FilterParameter::Parameter, Export3dSolidMesh, linkedProps));
     linkedProps.clear();
     parameters.push_back(SIMPL_NEW_FLOAT_FP("Maximum Radius-Edge Ratio", MaxRadiusEdgeRatio, FilterParameter::Parameter, Export3dSolidMesh));
     parameters.push_back(SIMPL_NEW_FLOAT_FP("Minimum Dihedral Angle", MinDihedralAngle, FilterParameter::Parameter, Export3dSolidMesh));
-    parameters.push_back(SIMPL_NEW_INTEGER_FP("Optimization Level", OptimizationLevel, FilterParameter::Parameter, Export3dSolidMesh));
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("Optimization Level (O)", OptimizationLevel, FilterParameter::Parameter, Export3dSolidMesh));
   }
   {
     parameters.push_back(SeparatorFilterParameter::New("Topology Options", FilterParameter::Parameter));
     QStringList linkedProps = {"MaxTetrahedraVolume"};
-    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Limit Tetrahedra Volume", LimitTetrahedraVolume, FilterParameter::Parameter, Export3dSolidMesh, linkedProps));
+    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Limit Tetrahedra Volume (a)", LimitTetrahedraVolume, FilterParameter::Parameter, Export3dSolidMesh, linkedProps));
     linkedProps.clear();
     parameters.push_back(SIMPL_NEW_FLOAT_FP("Maximum Tetrahedron Volume", MaxTetrahedraVolume, FilterParameter::Parameter, Export3dSolidMesh));
   }
@@ -315,10 +315,6 @@ void Export3dSolidMesh::execute()
       return;
     }
   
-  SharedVertexList::Pointer tetvertices = TetrahedralGeom::CreateSharedVertexList(0, !getInPreflight());
-  TetrahedralGeom::Pointer tet = TetrahedralGeom::CreateGeometry(0, tetvertices, SIMPL::Geometry::TetrahedralGeometry, !getInPreflight());
-  m->setGeometry(tet);
-
   // Create our output Vertex and Cell Matrix objects
   QVector<size_t> tDims(1, 0);
   AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
@@ -331,6 +327,10 @@ void Export3dSolidMesh::execute()
     {
       return;
     }
+ 
+  QString tetgenEleFile = m_outputPath + QDir::separator() + "tetgenInp.1.ele";
+  QString tetgenNodeFile = m_outputPath + QDir::separator() + "tetgenInp.1.node";
+  scanTetGenFile(tetgenEleFile, tetgenNodeFile, m.get(), vertexAttrMat.get(), cellAttrMat.get());
 
   if (getCancel()) { return; }
   notifyStatusMessage(getHumanLabel(), "Complete");
@@ -537,6 +537,96 @@ void Export3dSolidMesh::sendStandardOutput()
     notifyStandardOutputMessage(getHumanLabel(), getPipelineIndex() + 1, m_ProcessPtr->readAllStandardOutput());
     m_WaitCondition.wakeAll();
   }
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+void Export3dSolidMesh::scanTetGenFile(const QString& fileEle, const QString& fileNode, DataContainer* dataContainer, AttributeMatrix* vertexAttrMat, AttributeMatrix* cellAttrMat)
+{
+
+  bool allocate = true;  
+  bool ok = false;  
+  QFile inStreamNode(fileNode);
+  QFile inStreamEle(fileEle);
+
+  if(!inStreamEle.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+      QString ss = QObject::tr("Input file could not be opened: %1").arg(fileEle);
+      setErrorCondition(-100);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      return;
+    }
+  
+  if(!inStreamNode.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+      QString ss = QObject::tr("Input file could not be opened: %1").arg(fileNode);
+      setErrorCondition(-100);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      return;
+    }
+
+  QByteArray bufNode;
+  QByteArray bufEle;
+  QList<QByteArray> tokensNode; 
+  QList<QByteArray> tokensEle; 
+
+  bufEle = inStreamEle.readLine();
+  bufEle = bufEle.trimmed();
+  bufEle = bufEle.simplified();
+  tokensEle = bufEle.split(' ');
+  size_t numCells = tokensEle.at(0).toULongLong(&ok);
+  QVector<size_t> tDims(1, numCells);
+  cellAttrMat->resizeAttributeArrays(tDims);
+
+  bufNode = inStreamNode.readLine();
+  bufNode = bufNode.trimmed();
+  bufNode = bufNode.simplified();
+  tokensNode = bufNode.split(' ');
+  size_t numVerts = tokensNode.at(0).toULongLong(&ok);
+  tDims[0] = numVerts;
+  vertexAttrMat->resizeAttributeArrays(tDims);
+
+  SharedVertexList::Pointer tetvertexPtr = TetrahedralGeom::CreateSharedVertexList(static_cast<int64_t>(numVerts), allocate);
+  float* tetvertex = tetvertexPtr->getPointer(0);
+  for(size_t i = 0; i < numVerts; i++)
+    {
+      bufNode = inStreamNode.readLine();
+      bufNode = bufNode.trimmed();
+      bufNode = bufNode.simplified();
+      tokensNode = bufNode.split(' ');
+      tetvertex[3 * i] = tokensNode[1].toFloat(&ok);
+      tetvertex[3 * i + 1] = tokensNode[2].toFloat(&ok);
+      tetvertex[3 * i + 2] = tokensNode[3].toFloat(&ok);
+    }
+
+  TetrahedralGeom::Pointer tetGeomPtr = TetrahedralGeom::CreateGeometry(static_cast<int64_t>(numCells), tetvertexPtr, SIMPL::Geometry::TetrahedralGeometry, allocate);
+  tetGeomPtr->setSpatialDimensionality(3);
+  dataContainer->setGeometry(tetGeomPtr);
+  int64_t* tets = tetGeomPtr->getTetPointer(0);
+
+  QString dataArrayName = "FeatureIDs";
+  Int32ArrayType::Pointer featureIDsdata = Int32ArrayType::NullPointer();
+  int32_t numComp = 1;
+  QVector<size_t> cDims(1, static_cast<size_t>(numComp));
+  featureIDsdata = Int32ArrayType::CreateArray(numCells, cDims, dataArrayName, allocate);
+  cellAttrMat->addAttributeArray(featureIDsdata->getName(), featureIDsdata);
+
+  for(size_t i = 0; i < numCells; i++)
+    {
+      bufEle = inStreamEle.readLine();
+      bufEle = bufEle.trimmed();
+      bufEle = bufEle.simplified();
+      tokensEle = bufEle.split(' ');
+      tets[4 * i] = tokensEle[1].toInt(&ok) - 1;
+      tets[4 * i + 1] = tokensEle[2].toInt(&ok) - 1;
+      tets[4 * i + 2] = tokensEle[3].toInt(&ok) - 1;
+      tets[4 * i + 3] = tokensEle[4].toInt(&ok) - 1;
+
+      int32_t value = tokensEle[5].toInt(&ok);
+      featureIDsdata->setComponent(i, 0, value);
+    }
 }
 
 // -----------------------------------------------------------------------------

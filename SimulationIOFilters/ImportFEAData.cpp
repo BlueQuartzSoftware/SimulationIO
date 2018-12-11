@@ -55,9 +55,6 @@ ImportFEAData::ImportFEAData()
 , m_ElementSet("NALL")
 , m_DEFORMInputFile("")
 , m_BSAMInputFile("")
-, m_DataContainerName(SIMPL::Defaults::DataContainerName)
-, m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
-, m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
 , m_DEFORMPointTrackInputFile("")
 , m_TimeSeriesBundleName(SIMPL::Defaults::TimeSeriesBundleName)
 , m_ImportSingleTimeStep(false)
@@ -67,6 +64,9 @@ ImportFEAData::ImportFEAData()
 , m_SelectedPointNumArrayName(SimulationIOConstants::DEFORMData::PointNum)
 , m_SelectedXCoordArrayName(SimulationIOConstants::DEFORMData::RXCoord)
 , m_SelectedYCoordArrayName(SimulationIOConstants::DEFORMData::ZYCoord)
+, m_DataContainerName(SIMPL::Defaults::DataContainerName)
+, m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
+, m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
 {
   m_BundleMetaDataAMName = DataContainerBundle::GetMetaDataName();
 
@@ -598,7 +598,14 @@ void ImportFEAData::execute()
 //
 // -----------------------------------------------------------------------------
 
-int32_t ImportFEAData::writeABQpyscr(const QString& file, QString odbName, QString odbFilePath, QString instanceName, QString step, int frameNum, QString outputVar, QString elSet) 
+int32_t ImportFEAData::writeABQpyscr(const QString& file,
+                                     const QString& odbName,
+                                     const QString& odbFilePath,
+                                     const QString& instanceName,
+                                     const QString& step,
+                                     int frameNum,
+                                     const QString& outputVar,
+                                     const QString &elSet)
 {
   int32_t err = 0;
   FILE* f = nullptr;
@@ -1622,14 +1629,14 @@ void ImportFEAData::readHeader(QFile& reader)
 QVector<QByteArray> ImportFEAData::splitDataBlock(QVector<QByteArray>& dataBlock)
 {
   QVector<QByteArray> tokens;
-  for(int i = 0; i < dataBlock.size(); ++i)
+  for(const auto& block : dataBlock)
   {
-    QList<QByteArray> lineTokens = dataBlock[i].trimmed().split(' ');
-    for(int j = 0; j < lineTokens.size(); ++j)
+    QList<QByteArray> lineTokens = block.trimmed().split(' ');
+    for(const auto& token : lineTokens)
     {
-      if(!lineTokens[j].isEmpty())
+      if(!token.isEmpty())
       {
-        tokens.push_back(lineTokens[j]);
+        tokens.push_back(token);
       }
     }
   }

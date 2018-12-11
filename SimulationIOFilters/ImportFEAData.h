@@ -254,7 +254,26 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
       void sendStandardOutput();
 
   private:
-      int32_t writeABQpyscr(const QString& file, QString odbName, QString odbFilePath, QString instanceName, QString step, int frameNum, QString outputVar, QString elSet); 
+      /**
+       * @brief writeABQpyscr
+       * @param file
+       * @param odbName
+       * @param odbFilePath
+       * @param instanceName
+       * @param step
+       * @param frameNum
+       * @param outputVar
+       * @param elSet
+       * @return
+       */
+      int32_t writeABQpyscr(const QString& file,
+                            const QString& odbName,
+                            const QString& odbFilePath,
+                            const QString& instanceName,
+                            const QString& step,
+                            int frameNum,
+                            const QString& outputVar,
+                            const QString &elSet);
       
       void runABQpyscr(const QString& file) ; 
       

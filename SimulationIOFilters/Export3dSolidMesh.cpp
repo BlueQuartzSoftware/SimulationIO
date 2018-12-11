@@ -53,15 +53,16 @@ Export3dSolidMesh::Export3dSolidMesh()
 , m_FeaturePhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Phases)
 , m_FeatureEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::EulerAngles)
 , m_FeatureCentroidArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Centroids)
-, m_TetDataContainerName(SIMPL::Defaults::TetrahedralDataContainerName)
-, m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
-, m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
 , m_RefineMesh(true)
 , m_MaxRadiusEdgeRatio(2.0f)
 , m_MinDihedralAngle(0.0f)
 , m_LimitTetrahedraVolume(false)
 , m_MaxTetrahedraVolume(0.1f)
 , m_OptimizationLevel(2)
+, m_TetDataContainerName(SIMPL::Defaults::TetrahedralDataContainerName)
+, m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
+, m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
+
 {
   initialize();
 }

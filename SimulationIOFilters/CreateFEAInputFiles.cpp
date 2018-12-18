@@ -51,7 +51,7 @@ CreateFEAInputFiles::CreateFEAInputFiles()
 , m_CellEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles)
 , m_DelamMat("")
 , m_NumClusters(1)
-, m_UseMeshCreatedByExternalPackage(false)
+, m_UseMeshCreatedByDREAM3D(true)
 {
   initialize();
 
@@ -98,7 +98,7 @@ void CreateFEAInputFiles::setupFilterParameters()
     choices.push_back("PZFLEX");
     choices.push_back("BSAM");
     parameter->setChoices(choices);
-    QStringList linkedProps = {"JobName", "NumElem", "NumDepvar", "NumMatConst", "NumUserOutVar", "MatConst", "CellEulerAnglesArrayPath", "CellPhasesArrayPath", "DelamMat", "NumKeypoints", "NumClusters", "ClusterData", "UseMeshCreatedByExternalPackage"};
+    QStringList linkedProps = {"JobName", "NumElem", "NumDepvar", "NumMatConst", "NumUserOutVar", "MatConst", "CellEulerAnglesArrayPath", "CellPhasesArrayPath", "DelamMat", "NumKeypoints", "NumClusters", "ClusterData", "UseMeshCreatedByDREAM3D"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -110,7 +110,7 @@ void CreateFEAInputFiles::setupFilterParameters()
 
   {
     QStringList linkedProps = {"NumElem"};
-    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Use Mesh Created By DREAM.3D", UseMeshCreatedByExternalPackage, FilterParameter::Parameter, CreateFEAInputFiles, linkedProps, 0));
+    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Use Mesh Created By DREAM.3D", UseMeshCreatedByDREAM3D, FilterParameter::Parameter, CreateFEAInputFiles, linkedProps, 0));
     linkedProps.clear();
 
     parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Elements", NumElem, FilterParameter::Parameter, CreateFEAInputFiles, 0));

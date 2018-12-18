@@ -859,7 +859,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
   cellAttrMat->resizeAttributeArrays(tDims);
   QString eleType = tokens.at(2);
 
-  if ( eleType == 'CPE4' || eleType == 'CPS4' )
+  if ( eleType == "CPE4" || eleType == "CPS4" )
     {
       // Read until you get to the vertex block
       while(word.compare("NODE") != 0)
@@ -976,7 +976,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
   }
     }
 
-  if ( eleType == 'C3D8R' )
+  if ( eleType == "C3D8R" )
     {
       // Read until you get to the vertex block
       while(word.compare("NODE") != 0)

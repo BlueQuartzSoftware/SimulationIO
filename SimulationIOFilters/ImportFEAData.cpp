@@ -844,7 +844,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
   // Cell Connectivity section
   // Read until you get to the element block
 
-  while(word.compare("ELEMENT") != 0)
+  while(word.compare("ELEMENTS") != 0)
   {
     buf = inStream.readLine();
     buf = buf.trimmed();
@@ -897,7 +897,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
       
       inStream.seek(dataOffset);
 
-      while(word.compare("ELEMENT") != 0)
+      while(word.compare("ELEMENTS") != 0)
 	{
 	  buf = inStream.readLine();
 	  buf = buf.trimmed();
@@ -976,7 +976,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
   }
     }
 
-  if ( eleType == 'C3D8' )
+  if ( eleType == 'C3D8R' )
     {
       // Read until you get to the vertex block
       while(word.compare("NODE") != 0)
@@ -1013,7 +1013,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
       
       inStream.seek(dataOffset);
 
-      while(word.compare("ELEMENT") != 0)
+      while(word.compare("ELEMENTS") != 0)
 	{
 	  buf = inStream.readLine();
 	  buf = buf.trimmed();

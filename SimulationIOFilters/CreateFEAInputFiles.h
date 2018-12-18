@@ -46,6 +46,8 @@ class SimulationIO_EXPORT CreateFEAInputFiles : public AbstractFilter
   PYB11_PROPERTY(DynamicTableData ClusterData READ getClusterData WRITE setClusterData)
   PYB11_PROPERTY(DynamicTableData MatConst READ getMatConst WRITE setMatConst)
 
+  PYB11_PROPERTY(bool UseMeshCreatedByExternalPackage READ getUseMeshCreatedByExternalPackage WRITE setUseMeshCreatedByExternalPackage)
+
 public:
   SIMPL_SHARED_POINTERS(CreateFEAInputFiles)
   SIMPL_STATIC_NEW_MACRO(CreateFEAInputFiles)
@@ -100,6 +102,9 @@ public:
 
   SIMPL_FILTER_PARAMETER(DynamicTableData, MatConst)
   Q_PROPERTY(DynamicTableData MatConst READ getMatConst WRITE setMatConst)
+
+  SIMPL_FILTER_PARAMETER(bool, UseMeshCreatedByExternalPackage)
+  Q_PROPERTY(bool UseMeshCreatedByExternalPackage READ getUseMeshCreatedByExternalPackage WRITE setUseMeshCreatedByExternalPackage)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class

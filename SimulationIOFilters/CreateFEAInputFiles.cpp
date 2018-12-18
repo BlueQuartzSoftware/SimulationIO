@@ -17,6 +17,7 @@
 #include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
 #include "SIMPLib/FilterParameters/IntFilterParameter.h"
 #include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
+#include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
 #include "SIMPLib/FilterParameters/OutputFileFilterParameter.h"
 #include "SIMPLib/FilterParameters/OutputPathFilterParameter.h"
@@ -50,6 +51,7 @@ CreateFEAInputFiles::CreateFEAInputFiles()
 , m_CellEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles)
 , m_DelamMat("")
 , m_NumClusters(1)
+, m_UseMeshCreatedByExternalPackage(false)
 {
   initialize();
 
@@ -96,7 +98,7 @@ void CreateFEAInputFiles::setupFilterParameters()
     choices.push_back("PZFLEX");
     choices.push_back("BSAM");
     parameter->setChoices(choices);
-    QStringList linkedProps = {"JobName", "NumElem", "NumDepvar", "NumMatConst", "NumUserOutVar", "MatConst", "CellEulerAnglesArrayPath", "CellPhasesArrayPath", "DelamMat", "NumKeypoints", "NumClusters", "ClusterData"};
+    QStringList linkedProps = {"JobName", "NumElem", "NumDepvar", "NumMatConst", "NumUserOutVar", "MatConst", "CellEulerAnglesArrayPath", "CellPhasesArrayPath", "DelamMat", "NumKeypoints", "NumClusters", "ClusterData", "UseMeshCreatedByExternalPackage"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -107,6 +109,10 @@ void CreateFEAInputFiles::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_STRING_FP("Output File Prefix", OutputFilePrefix, FilterParameter::Parameter, CreateFEAInputFiles));
 
   {
+    QStringList linkedProps = {"NumElem"};
+    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Use Mesh Created By DREAM.3D", UseMeshCreatedByExternalPackage, FilterParameter::Parameter, CreateFEAInputFiles, linkedProps, 0));
+    linkedProps.clear();
+
     parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Elements", NumElem, FilterParameter::Parameter, CreateFEAInputFiles, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Job Name", JobName, FilterParameter::Parameter, CreateFEAInputFiles,0));
     parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Solution Dependent State Variables", NumDepvar, FilterParameter::Parameter, CreateFEAInputFiles, 0));

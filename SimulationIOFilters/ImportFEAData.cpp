@@ -48,7 +48,7 @@ ImportFEAData::ImportFEAData()
 : m_FEAPackage(0)
 , m_odbName("")
 , m_odbFilePath("")
-, m_InstanceName("Part-1-1")
+, m_InstanceName("PART-1-1")
 , m_Step("Step-1")
 , m_FrameNumber(1)
 , m_OutputVariable("S")
@@ -474,8 +474,8 @@ void ImportFEAData::execute()
 
 	// Create ABAQUS python script
 	QString abqpyscr = m_odbFilePath + QDir::separator() + m_odbName + ".py";
-
-	err = writeABQpyscr(abqpyscr, m_odbName, m_odbFilePath, m_InstanceName, m_Step, m_FrameNumber, m_OutputVariable, m_ElementSet); 
+    QString odbNamewExt = m_odbName + ".odb";
+	err = writeABQpyscr(abqpyscr, odbNamewExt, m_odbFilePath, m_InstanceName, m_Step, m_FrameNumber, m_OutputVariable, m_ElementSet); 
 	if(err < 0)
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS python script '%1'").arg(abqpyscr);
@@ -485,7 +485,8 @@ void ImportFEAData::execute()
 	  }
 
 	// Running ABAQUS python script
-	runABQpyscr(abqpyscr); 
+    QString abqpyscrwExt = m_odbName + ".py";
+	runABQpyscr(abqpyscrwExt); 
 
 	// Create the output Data Container
 	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
@@ -507,7 +508,7 @@ void ImportFEAData::execute()
 	    return;
 	  }
 	
-	QString outTxtFile = m_odbFilePath + QDir::separator() + m_odbName + ".dat";
+	QString outTxtFile = m_odbFilePath + QDir::separator() + "odbtotxt.dat";
 	scanABQFile(outTxtFile, m.get(), vertexAttrMat.get(), cellAttrMat.get());
 		
 	break;
@@ -625,40 +626,54 @@ int32_t ImportFEAData::writeABQpyscr(const QString& file,
   fprintf(f, "\n");
   fprintf(f, "import os\n");    
 
-  fprintf(f, "odbName = %s\n",odbName.toLatin1().data());
-  fprintf(f, "odbFilePath = %s\n",odbFilePath.toLatin1().data());
-  fprintf(f, "elSet = %s\n",elSet.toLatin1().data());
-  fprintf(f, "outputVar = %s\n",outputVar.toLatin1().data());
+  fprintf(f, "odbName = '%s'\n",odbName.toLatin1().data());
+  fprintf(f, "odbFilePath = '%s'\n",odbFilePath.toLatin1().data());
+  fprintf(f, "outputVar = '%s'\n",outputVar.toLatin1().data());
   fprintf(f, "frameNum = %d\n",frameNum);
   fprintf(f, "step = '%s'\n",step.toLatin1().data());
-  fprintf(f, "instanceName = %s\n",instanceName.toLatin1().data());
+  fprintf(f, "instanceName = '%s'\n",instanceName.toLatin1().data());
 
-  fprintf(f, "odbfileName = odbFilePath + odbName + '.odb'\n"); 
+  fprintf(f, "odbfileName = os.path.join(odbFilePath,odbName)\n"); 
   fprintf(f, "odb = openOdb(path = odbfileName)\n");  
-  fprintf(f, "E1 = odb.rootAssembly.instances[instanceName].elementSets[elSet]\n"); 
 
-  fprintf(f, "n2 = len(E1.elements)\n"); 
-  fprintf(f, "print 'ELEMENTS %cd', n2 \n",'%'); 
-  fprintf(f, "for element in E1.elements  \n");
-  fprintf(f, "    print '%c5d %c8s' %c (element.label,element.type)\n",'%','%','%'); 
-  fprintf(f, "    for nodeNum in element.connectivity:\n"); 
-  fprintf(f, "        print '%c4d', nodeNum\n",'%'); 
-  fprintf(f, "    print\n"); 
+  fprintf(f, "outTxtFile = 'odbtotxt.dat'\n");
+  fprintf(f, "fid = open(outTxtFile, \"a\")\n");
+
+  fprintf(f, "E1 = odb.rootAssembly.instances[instanceName]\n"); 
+
+  fprintf(f, "n2 = len(E1.elements)\n");  
+  fprintf(f, "fid.write('ELEMENTS ')\n"); 
+  fprintf(f, "fid.write(str(n2))\n"); 
+  fprintf(f, "fid.write(' ')\n");
+  fprintf(f, "fid.write(E1.elements[0].type)\n");
+  fprintf(f, "fid.write('\\n')\n"); 
+  fprintf(f, "for element in E1.elements:  \n");
+  fprintf(f, "    fid.write(str(element.label)),\n"); 
+  fprintf(f, "    fid.write(' ')\n"); 
+  fprintf(f, "    fid.write(str(element.connectivity[0]) + ' ' + str(element.connectivity[1]) + ' ' + str(element.connectivity[2]) + ' ' + str(element.connectivity[3]) + ' ' + str(element.connectivity[4]) + ' ' + str(element.connectivity[5]) + ' ' + str(element.connectivity[6]) + ' ' + str(element.connectivity[7]) ),\n"); 
+  fprintf(f, "    fid.write('\\n')\n"); 
 
   fprintf(f, "n1 = len(E1.nodes)\n"); 
-  fprintf(f, "print 'NODES %cd', n1 \n",'%'); 
-  fprintf(f, "for node in E1.nodes  \n");
-  fprintf(f, "    print '%c5d', node.label",'%');  
-  fprintf(f, "    print node.coordinates  \n");  
- 
-  fprintf(f, "fieldOut = odb.steps[step].frames[frameNum].fieldOutputs[outputVar].getSubset(region=E1).values\n\n"); 
+  fprintf(f, "fid.write('NODES ')\n");
+  fprintf(f, "fid.write(str(n1))\n");
+  fprintf(f, "fid.write('\\n')\n");
 
-  fprintf(f, "outTxtFile = odbFilePath + odbName + '.dat'\n");
-  fprintf(f, "fid = open(outTxtFile, ""a"")\n");
-  fprintf(f, "fid.write(%s)\n",outputVar.toLatin1().data());
-  fprintf(f, "for j in range(len(fieldOut)):\n");
-  fprintf(f, "        nelem = E1.elements[j].label\n");
-  fprintf(f, "        fid.write(str(nelem) + '  ' + str(fieldOut.data[0]) + '  ' + str(fieldOut.data[1]) + '  ' + str(fieldOut.data[2]) + '  ' + str(fieldOut.data[3]) + '  ' + str(fieldOut.data[4]) + '  ' + str(fieldOut.data[5]))\n");
+  fprintf(f, "for node in E1.nodes:  \n");
+  fprintf(f, "    fid.write(str(node.label)),\n");
+  fprintf(f, "    fid.write(' ')\n");  
+  fprintf(f, "    for coords in node.coordinates: \n");
+  fprintf(f, "        fid.write(str(coords)),\n");
+  fprintf(f, "        fid.write(' ')\n");
+  fprintf(f, "    fid.write('\\n')\n"); 	   
+
+  fprintf(f, "fieldOut = odb.steps[step].frames[frameNum].fieldOutputs[outputVar].values\n\n"); 
+
+  fprintf(f, "fid.write(outputVar)\n");
+  fprintf(f, "fid.write('\\n')\n"); 	   
+  fprintf(f, "for j in fieldOut:\n");
+  fprintf(f, "    fid.write(str(j.elementLabel) + '  ' + str(j.data[0]) + '  ' + str(j.data[1]) + '  ' + str(j.data[2]) + '  ' + str(j.data[3]) + '  ' + str(j.data[4]) + '  ' + str(j.data[5]))\n");
+  fprintf(f, "    fid.write('\\n')\n"); 	   
+
   fprintf(f,"fid.close()");
   notifyStatusMessage(getHumanLabel(), "Finished writing ABAQUS python script");
   fclose(f);
@@ -826,12 +841,12 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
   QFile inStream(file);
 
   if(!inStream.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-      QString ss = QObject::tr("Input file could not be opened: %1").arg(file);
-      setErrorCondition(-100);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-      return;
-    }
+  {
+    QString ss = QObject::tr("Input file could not be opened: %1").arg(file);
+    setErrorCondition(-100);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    return;
+  }
 
   QByteArray buf;
   QList<QByteArray> tokens; /* vector to store the split data */
@@ -859,76 +874,76 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
   cellAttrMat->resizeAttributeArrays(tDims);
   QString eleType = tokens.at(2);
 
-  if ( eleType == "CPE4" || eleType == "CPS4" )
+  if(eleType == "CPE4" || eleType == "CPS4")
+  {
+    inStream.seek(dataOffset);
+    // Read until you get to the vertex block
+    while(word.compare("NODES") != 0)
     {
-      // Read until you get to the vertex block
-      while(word.compare("NODE") != 0)
-	{
-	  buf = inStream.readLine();
-	  buf = buf.trimmed();
-	  buf = buf.simplified();
-	  tokens = buf.split(' ');
-	  word = tokens.at(0);
-	}
+      buf = inStream.readLine();
+      buf = buf.trimmed();
+      buf = buf.simplified();
+      tokens = buf.split(' ');
+      word = tokens.at(0);
+    }
 
       // Set the number of vertices and then create vertices array and resize vertex attr mat.
-      size_t numVerts = tokens.at(1).toULongLong(&ok);
-      tDims[0] = numVerts;
-      //      QVector<size_t> tDims(1, numVerts);
-      vertexAttrMat->resizeAttributeArrays(tDims);
-      
-      SharedVertexList::Pointer vertexPtr = QuadGeom::CreateSharedVertexList(static_cast<int64_t>(numVerts), allocate);
-      float* vertex = vertexPtr->getPointer(0);
+    size_t numVerts = tokens.at(1).toULongLong(&ok);
+    tDims[0] = numVerts;
+    //      QVector<size_t> tDims(1, numVerts);
+    vertexAttrMat->resizeAttributeArrays(tDims);
+	
+	SharedVertexList::Pointer vertexPtr = QuadGeom::CreateSharedVertexList(static_cast<int64_t>(numVerts), allocate);
+    float* vertex = vertexPtr->getPointer(0);
       
       // Read or Skip past all the vertex data
-      for(size_t i = 0; i < numVerts; i++)
-	{
-	  buf = inStream.readLine();
-	  if(allocate)
-	    {
-	      buf = buf.trimmed();
-	      buf = buf.simplified();
-	      tokens = buf.split(' ');
-	      vertex[3 * i] = tokens[1].toFloat(&ok);
-	      vertex[3 * i + 1] = tokens[2].toFloat(&ok);
-	      vertex[3 * i + 2] = 0.0;
-	    }
+    for(size_t i = 0; i < numVerts; i++)
+    {
+      buf = inStream.readLine();
+      if(allocate)
+      {
+        buf = buf.trimmed();
+        buf = buf.simplified();
+        tokens = buf.split(' ');
+        vertex[3 * i] = tokens[1].toFloat(&ok);
+        vertex[3 * i + 1] = tokens[2].toFloat(&ok);
+        vertex[3 * i + 2] = 0.0;
+      }
 	}
-      
-      inStream.seek(dataOffset);
-
-      while(word.compare("ELEMENTS") != 0)
+    
+	inStream.seek(dataOffset);
+  
+	while(word.compare("ELEMENTS") != 0)
 	{
-	  buf = inStream.readLine();
-	  buf = buf.trimmed();
-	  buf = buf.simplified();
-	  tokens = buf.split(' ');
-	  word = tokens.at(0);
+    buf = inStream.readLine();
+    buf = buf.trimmed();
+    buf = buf.simplified();
+    tokens = buf.split(' ');
+    word = tokens.at(0);
 	}
-
-      QuadGeom::Pointer quadGeomPtr = QuadGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::QuadGeometry, allocate);
-      quadGeomPtr->setSpatialDimensionality(2);
-      dataContainer->setGeometry(quadGeomPtr);
-      int64_t* quads = quadGeomPtr->getQuadPointer(0);
-
-      for(size_t i = 0; i < numCells; i++)
-	{
-	  buf = inStream.readLine();
-	  if(allocate)
-	    {
-	      buf = buf.trimmed();
-	      buf = buf.simplified();
-	      tokens = buf.split(' ');
-	      // Subtract one from the node number because ABAQUS starts at node 1 and we start at node 0
-	      quads[4 * i] = tokens[1].toInt(&ok) - 1;
-	      quads[4 * i + 1] = tokens[2].toInt(&ok) - 1;
-	      quads[4 * i + 2] = tokens[3].toInt(&ok) - 1;
-	      quads[4 * i + 3] = tokens[4].toInt(&ok) - 1;
-	    }
-	}
-      // End reading of the connectivity
-
-      // Start reading any additional vertex or cell data arrays
+  
+	QuadGeom::Pointer quadGeomPtr = QuadGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::QuadGeometry, allocate);
+  quadGeomPtr->setSpatialDimensionality(2);
+  dataContainer->setGeometry(quadGeomPtr);
+  int64_t* quads = quadGeomPtr->getQuadPointer(0);
+  
+  for(size_t i = 0; i < numCells; i++)
+  {
+    buf = inStream.readLine();
+    if(allocate)
+    {
+      buf = buf.trimmed();
+      buf = buf.simplified();
+      tokens = buf.split(' ');
+      // Subtract one from the node number because ABAQUS starts at node 1 and we start at node 0
+      quads[4 * i] = tokens[1].toInt(&ok) - 1;
+      quads[4 * i + 1] = tokens[2].toInt(&ok) - 1;
+      quads[4 * i + 2] = tokens[3].toInt(&ok) - 1;
+      quads[4 * i + 3] = tokens[4].toInt(&ok) - 1;
+    }
+  }
+  // End reading of the connectivity
+  // Start reading any additional vertex or cell data arrays
 
   while(!inStream.atEnd())
   {
@@ -976,22 +991,23 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
   }
     }
 
-  if ( eleType == "C3D8R" )
+  if(eleType == "C3D8R")
     {
+    inStream.seek(dataOffset);
       // Read until you get to the vertex block
-      while(word.compare("NODE") != 0)
-	{
-	  buf = inStream.readLine();
-	  buf = buf.trimmed();
-	  buf = buf.simplified();
-	  tokens = buf.split(' ');
-	  word = tokens.at(0);
-	}
+    while(word.compare("NODES") != 0)
+    {
+      buf = inStream.readLine();
+      buf = buf.trimmed();
+      buf = buf.simplified();
+      tokens = buf.split(' ');
+      word = tokens.at(0);
+    }
 
       // Set the number of vertices and then create vertices array and resize vertex attr mat.
-      size_t numVerts = tokens.at(1).toULongLong(&ok);
-      tDims[0] = numVerts;
-      vertexAttrMat->resizeAttributeArrays(tDims);
+    size_t numVerts = tokens.at(1).toULongLong(&ok);
+    tDims[0] = numVerts;
+    vertexAttrMat->resizeAttributeArrays(tDims);
       
       SharedVertexList::Pointer vertexPtr = HexahedralGeom::CreateSharedVertexList(static_cast<int64_t>(numVerts), allocate);
       float* vertex = vertexPtr->getPointer(0);
@@ -1036,14 +1052,14 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
 	      buf = buf.simplified();
 	      tokens = buf.split(' ');
 	      // Subtract one from the node number because ABAQUS starts at node 1 and we start at node 0
-	      hexs[8 * i] = tokens[0].toInt(&ok) - 1;
-	      hexs[8 * i + 1] = tokens[1].toInt(&ok) - 1;
-	      hexs[8 * i + 2] = tokens[2].toInt(&ok) - 1;
-	      hexs[8 * i + 3] = tokens[3].toInt(&ok) - 1;
-	      hexs[8 * i + 4] = tokens[4].toInt(&ok) - 1;
-	      hexs[8 * i + 5] = tokens[5].toInt(&ok) - 1;
-	      hexs[8 * i + 6] = tokens[6].toInt(&ok) - 1;
-	      hexs[8 * i + 7] = tokens[7].toInt(&ok) - 1;
+	      hexs[8 * i] = tokens[1].toInt(&ok) - 1;
+	      hexs[8 * i + 1] = tokens[2].toInt(&ok) - 1;
+	      hexs[8 * i + 2] = tokens[3].toInt(&ok) - 1;
+	      hexs[8 * i + 3] = tokens[4].toInt(&ok) - 1;
+	      hexs[8 * i + 4] = tokens[5].toInt(&ok) - 1;
+	      hexs[8 * i + 5] = tokens[6].toInt(&ok) - 1;
+	      hexs[8 * i + 6] = tokens[7].toInt(&ok) - 1;
+	      hexs[8 * i + 7] = tokens[8].toInt(&ok) - 1;
 	    }
 	}
       // End reading of the connectivity

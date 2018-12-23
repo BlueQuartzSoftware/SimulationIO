@@ -400,7 +400,7 @@ void Export3dSolidMesh::runTetgen(const QString& file)
     switches += tmp;
   }
 
-  QString program = "/Users/saurabhpuri/Documents/Work/computation/tetgen/tetgen1.5.1-beta1/build/tetgen";
+  QString program = "tetgen";
   QStringList arguments;
   arguments << switches << file;
 

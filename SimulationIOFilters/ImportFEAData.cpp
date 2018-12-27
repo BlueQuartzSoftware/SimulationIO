@@ -256,65 +256,65 @@ void ImportFEAData::dataCheck()
     case 1: // BSAM
       {
 	QFileInfo fi(m_BSAMInputFile);
-  if(!fi.exists())
-  {
-    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getBSAMInputFile());
-    setErrorCondition(-388);
-    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-  }
+	if(!fi.exists())
+	  {
+	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getBSAMInputFile());
+	    setErrorCondition(-388);
+	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+	  }
 
-  if(m_BSAMInputFile.isEmpty())
-  {
-    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
-    setErrorCondition(-1);
-    notifyErrorMessage(getHumanLabel(), ss, -1);
-  }
+	if(m_BSAMInputFile.isEmpty())
+	  {
+	    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
+	    setErrorCondition(-1);
+	    notifyErrorMessage(getHumanLabel(), ss, -1);
+	  }
 
-  break;
+	break;
       }
-
+      
     case 3: // DEFORM
       {
 	QFileInfo fi(m_DEFORMInputFile);
-  if(!fi.exists())
-  {
-    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMInputFile());
-    setErrorCondition(-388);
-    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-  }
+	if(!fi.exists())
+	  {
+	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMInputFile());
+	    setErrorCondition(-388);
+	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+	  }
 
-  if(m_DEFORMInputFile.isEmpty())
-  {
-    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
-    setErrorCondition(-1);
-    notifyErrorMessage(getHumanLabel(), ss, -1);
-  }
-
-  break;
+	if(m_DEFORMInputFile.isEmpty())
+	  {
+	    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
+	    setErrorCondition(-1);
+	    notifyErrorMessage(getHumanLabel(), ss, -1);
+	  }
+	
+	break;
       }
     case 4: // DEFORM POINT TRACK
       {
 	QFileInfo fi(m_DEFORMPointTrackInputFile);
-  if(!fi.exists())
-  {
-    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMPointTrackInputFile());
-    setErrorCondition(-388);
-    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-  }
+	if(!fi.exists())
+	  {
+	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMPointTrackInputFile());
+	    setErrorCondition(-388);
+	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+	  }
+	
+	if(m_DEFORMPointTrackInputFile.isEmpty())
+	  {
+	    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
+	    setErrorCondition(-1);
+	    notifyErrorMessage(getHumanLabel(), ss, -1);
+	  }
 
-  if(m_DEFORMPointTrackInputFile.isEmpty())
-  {
-    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
-    setErrorCondition(-1);
-    notifyErrorMessage(getHumanLabel(), ss, -1);
-  }
-
-  // If any of the checks above threw errors then we can not go any further so bail out now.
+	// If any of the checks above threw errors then we can not go any further so bail out now.
 	if(getErrorCondition() < 0)
 	  {
 	    return;
 	  }
-
+	
 	// Create the time series bundle
 	DataContainerBundle::Pointer dcb = DataContainerBundle::New(getTimeSeriesBundleName());
 	getDataContainerArray()->addDataContainerBundle(dcb);
@@ -399,20 +399,20 @@ void ImportFEAData::dataCheck()
 		SimulationIO::DeformDataParser::Pointer parser = parserIter.value();
 		IDataArray::Pointer dataPtr = parser->initializeNewDataArray(m_NumPoints, name, !getInPreflight()); // Get a copy of the DataArray
 
-    if((getInPreflight()))
-    {
-      if((name.compare(getSelectedTimeArrayName()) != 0) && (name.compare(getSelectedTimeStepArrayName()) != 0) && (name.compare(getSelectedPointNumArrayName()) != 0) &&
-         (name.compare(getSelectedXCoordArrayName()) != 0) && (name.compare(getSelectedYCoordArrayName()) != 0))
-      {
-        vertexAttrMat->addAttributeArray(dataPtr->getName(), dataPtr);
-      }
-    }
-    else
+		if((getInPreflight()))
+		  {
+		    if((name.compare(getSelectedTimeArrayName()) != 0) && (name.compare(getSelectedTimeStepArrayName()) != 0) && (name.compare(getSelectedPointNumArrayName()) != 0) &&
+		       (name.compare(getSelectedXCoordArrayName()) != 0) && (name.compare(getSelectedYCoordArrayName()) != 0))
+		      {
+			vertexAttrMat->addAttributeArray(dataPtr->getName(), dataPtr);
+		      }
+		  }
+		else
 		  {
 		    vertexAttrMat->addAttributeArray(dataPtr->getName(), dataPtr);
 		  }
 	      }
-
+	    
 	    // Generate the AttributeMatrix that will serve as the Meta-Data information for the DataContainerBundle
 	    QVector<size_t> bundleAttrDims(1, 1);
 	    AttributeMatrix::Pointer metaData = v->createNonPrereqAttributeMatrix(this, m_BundleMetaDataAMName, bundleAttrDims, AttributeMatrix::Type::MetaData);
@@ -486,7 +486,7 @@ void ImportFEAData::execute()
 
 	// Running ABAQUS python script
     QString abqpyscrwExt = m_odbName + ".py";
-	runABQpyscr(abqpyscrwExt); 
+    runABQpyscr(abqpyscrwExt); 
 
 	// Create the output Data Container
 	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
@@ -874,7 +874,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
   cellAttrMat->resizeAttributeArrays(tDims);
   QString eleType = tokens.at(2);
 
-  if(eleType == "CPE4" || eleType == "CPS4")
+  if(eleType == "CPE4R" || eleType == "CPS4R")
   {
     inStream.seek(dataOffset);
     // Read until you get to the vertex block
@@ -892,105 +892,88 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
     tDims[0] = numVerts;
     //      QVector<size_t> tDims(1, numVerts);
     vertexAttrMat->resizeAttributeArrays(tDims);
-	
-	SharedVertexList::Pointer vertexPtr = QuadGeom::CreateSharedVertexList(static_cast<int64_t>(numVerts), allocate);
+    
+    SharedVertexList::Pointer vertexPtr = QuadGeom::CreateSharedVertexList(static_cast<int64_t>(numVerts), allocate);
     float* vertex = vertexPtr->getPointer(0);
       
-      // Read or Skip past all the vertex data
+    // Read or Skip past all the vertex data
     for(size_t i = 0; i < numVerts; i++)
-    {
-      buf = inStream.readLine();
-      if(allocate)
       {
-        buf = buf.trimmed();
-        buf = buf.simplified();
-        tokens = buf.split(' ');
-        vertex[3 * i] = tokens[1].toFloat(&ok);
-        vertex[3 * i + 1] = tokens[2].toFloat(&ok);
-        vertex[3 * i + 2] = 0.0;
+	buf = inStream.readLine();
+	if(allocate)
+	  {
+	    buf = buf.trimmed();
+	    buf = buf.simplified();
+	    tokens = buf.split(' ');
+	    vertex[3 * i] = tokens[1].toFloat(&ok);
+	    vertex[3 * i + 1] = tokens[2].toFloat(&ok);
+	    vertex[3 * i + 2] = 0.0;
+	  }
       }
-	}
     
-	inStream.seek(dataOffset);
+    inStream.seek(dataOffset);
+    
+    while(word.compare("ELEMENTS") != 0)
+      {
+	buf = inStream.readLine();
+	buf = buf.trimmed();
+	buf = buf.simplified();
+	tokens = buf.split(' ');
+	word = tokens.at(0);
+      }
   
-	while(word.compare("ELEMENTS") != 0)
-	{
-    buf = inStream.readLine();
-    buf = buf.trimmed();
-    buf = buf.simplified();
-    tokens = buf.split(' ');
-    word = tokens.at(0);
-	}
-  
-	QuadGeom::Pointer quadGeomPtr = QuadGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::QuadGeometry, allocate);
-  quadGeomPtr->setSpatialDimensionality(2);
-  dataContainer->setGeometry(quadGeomPtr);
-  int64_t* quads = quadGeomPtr->getQuadPointer(0);
-  
-  for(size_t i = 0; i < numCells; i++)
-  {
-    buf = inStream.readLine();
-    if(allocate)
-    {
-      buf = buf.trimmed();
-      buf = buf.simplified();
-      tokens = buf.split(' ');
-      // Subtract one from the node number because ABAQUS starts at node 1 and we start at node 0
-      quads[4 * i] = tokens[1].toInt(&ok) - 1;
-      quads[4 * i + 1] = tokens[2].toInt(&ok) - 1;
-      quads[4 * i + 2] = tokens[3].toInt(&ok) - 1;
-      quads[4 * i + 3] = tokens[4].toInt(&ok) - 1;
-    }
+    QuadGeom::Pointer quadGeomPtr = QuadGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::QuadGeometry, allocate);
+    quadGeomPtr->setSpatialDimensionality(2);
+    dataContainer->setGeometry(quadGeomPtr);
+    int64_t* quads = quadGeomPtr->getQuadPointer(0);
+    
+    for(size_t i = 0; i < numCells; i++)
+      {
+	buf = inStream.readLine();
+	if(allocate)
+	  {
+	    buf = buf.trimmed();
+	    buf = buf.simplified();
+	    tokens = buf.split(' ');
+	    // Subtract one from the node number because ABAQUS starts at node 1 and we start at node 0
+	    quads[4 * i] = tokens[1].toInt(&ok) - 1;
+	    quads[4 * i + 1] = tokens[2].toInt(&ok) - 1;
+	    quads[4 * i + 2] = tokens[3].toInt(&ok) - 1;
+	    quads[4 * i + 3] = tokens[4].toInt(&ok) - 1;
+	  }
+      }
+    // End reading of the connectivity
+    FloatArrayType::Pointer data = FloatArrayType::NullPointer();
+    size_t count = numCells;
+
+    while(word.compare("S") != 0)
+      {
+	buf = inStream.readLine();
+	buf = buf.trimmed();
+	buf = buf.simplified();
+	tokens = buf.split(' ');
+	word = tokens.at(0);
+      }
+
+    int32_t numComp = 4;
+    QVector<size_t> cDims(1, static_cast<size_t>(numComp));
+    data = FloatArrayType::CreateArray(count, cDims, word, allocate);
+    cellAttrMat->addAttributeArray(data->getName(), data);
+      
+    for(size_t i = 0; i < count; i++)
+      {
+	buf = inStream.readLine();
+	buf = buf.trimmed();
+	buf = buf.simplified();
+	tokens = buf.split(' ');
+	for(int32_t c = 0; c < numComp; c++)
+	  {
+	    float value = tokens[c + 1].toFloat(&ok);
+	    data->setComponent(i, c, value);
+	  } 
+      }    
   }
-  // End reading of the connectivity
-  // Start reading any additional vertex or cell data arrays
-
-  while(!inStream.atEnd())
-  {
-    // Now we are reading either cell or vertex data based on the number of items
-	  // being read. First Gobble up blank lines that might possibly be at the end of the file
-	  buf.clear();
-	  while(buf.size() == 0 && !inStream.atEnd())
-	    {
-	      buf = inStream.readLine();
-	      buf = buf.trimmed();
-	      buf = buf.simplified();
-	      tokens = buf.split(' ');
-	    }
-	  if(inStream.atEnd())
-	    {
-	      return;
-	    }
-	  QString dataArrayName = tokens.at(0);
-	  size_t count = numCells;
-
-	  // Read a Data set
-	  FloatArrayType::Pointer data = FloatArrayType::NullPointer();
-
-	  if (dataArrayName == "S")
-	    {
-	      int32_t numComp = 4;
-	      QVector<size_t> cDims(1, static_cast<size_t>(numComp));
-	      data = FloatArrayType::CreateArray(count, cDims, dataArrayName, allocate);
-	      cellAttrMat->addAttributeArray(data->getName(), data);
-	
-	      for(size_t i = 0; i < count; i++)
-		{
-		  if(allocate)
-		    {
-		      for(int32_t c = 0; c < numComp; c++)
-			{
-			  float value = tokens[c + 1].toFloat(&ok);
-			  data->setComponent(i, c, value);
-			}
-		    } 
-		}
-	    }
-	  //
-	  //
-  }
-    }
-
+  
   if(eleType == "C3D8R")
     {
     inStream.seek(dataOffset);
@@ -1063,53 +1046,35 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
 	    }
 	}
       // End reading of the connectivity
+      FloatArrayType::Pointer data = FloatArrayType::NullPointer();
+      size_t count = numCells;
 
-      // Start reading any additional vertex or cell data arrays
+      while(word.compare("S") != 0)
+	{
+	  buf = inStream.readLine();
+	  buf = buf.trimmed();
+	  buf = buf.simplified();
+	  tokens = buf.split(' ');
+	  word = tokens.at(0);
+	}
 
-  while(!inStream.atEnd())
-  {
-    // Now we are reading either cell or vertex data based on the number of items
-	  // being read. First Gobble up blank lines that might possibly be at the end of the file
-	  buf.clear();
-	  while(buf.size() == 0 && !inStream.atEnd())
+      int32_t numComp = 6;
+      QVector<size_t> cDims(1, static_cast<size_t>(numComp));
+      data = FloatArrayType::CreateArray(count, cDims, word, allocate);
+      cellAttrMat->addAttributeArray(data->getName(), data);
+      
+      for(size_t i = 0; i < count; i++)
+	{
+	  buf = inStream.readLine();
+	  buf = buf.trimmed();
+	  buf = buf.simplified();
+	  tokens = buf.split(' ');
+	  for(int32_t c = 0; c < numComp; c++)
 	    {
-	      buf = inStream.readLine();
-	      buf = buf.trimmed();
-	      buf = buf.simplified();
-	      tokens = buf.split(' ');
-	    }
-	  if(inStream.atEnd())
-	    {
-	      return;
-	    }
-	  QString dataArrayName = tokens.at(0);
-	  size_t count = numCells;
-
-	  // Read a Data set
-	  FloatArrayType::Pointer data = FloatArrayType::NullPointer();
-
-	  if (dataArrayName == "S")
-	    {
-	      int32_t numComp = 6;
-	      QVector<size_t> cDims(1, static_cast<size_t>(numComp));
-	      data = FloatArrayType::CreateArray(count, cDims, dataArrayName, allocate);
-	      cellAttrMat->addAttributeArray(data->getName(), data);
-	
-	      for(size_t i = 0; i < count; i++)
-		{
-		  if(allocate)
-		    {
-		      for(int32_t c = 0; c < numComp; c++)
-			{
-			  float value = tokens[c + 1].toFloat(&ok);
-			  data->setComponent(i, c, value);
-			}
-		    } 
-		}
-	    }
-	  //
-	  //
-  }
+	      float value = tokens[c + 1].toFloat(&ok);
+	      data->setComponent(i, c, value);
+	    } 
+	}
     }
 }
 

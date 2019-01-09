@@ -722,7 +722,6 @@ void CreateFEAInputFiles::execute()
   //
   //
 
-  notifyStatusMessage(getHumanLabel(), "Complete");
 }
 //
 // -----------------------------------------------------------------------------

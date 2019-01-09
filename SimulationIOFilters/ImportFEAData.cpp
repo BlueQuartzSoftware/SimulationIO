@@ -592,7 +592,6 @@ void ImportFEAData::execute()
     }
 
   if (getCancel()) { return; }
-  notifyStatusMessage(getHumanLabel(), "Complete");
 }
 
 // -----------------------------------------------------------------------------
@@ -734,7 +733,6 @@ void ImportFEAData::processHasFinished(int exitCode, QProcess::ExitStatus exitSt
   }
   else if(getErrorCondition() >= 0)
   {
-    notifyStatusMessage(getHumanLabel(), "Complete");
   }
 
   m_Pause = false;

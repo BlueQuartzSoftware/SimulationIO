@@ -342,7 +342,6 @@ void Export3dSolidMesh::execute()
   scanTetGenFile(tetgenEleFile, tetgenNodeFile, m.get(), vertexAttrMat.get(), cellAttrMat.get());
 
   if (getCancel()) { return; }
-  notifyStatusMessage(getHumanLabel(), "Complete");
 }
 
 // -----------------------------------------------------------------------------
@@ -453,7 +452,6 @@ void Export3dSolidMesh::processHasFinished(int exitCode, QProcess::ExitStatus ex
     }
   else if(getErrorCondition() >= 0)
     {
-      notifyStatusMessage(getHumanLabel(), "Complete");
     }
 
   m_Pause = false;

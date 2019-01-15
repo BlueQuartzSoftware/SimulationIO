@@ -48,7 +48,7 @@
 // -----------------------------------------------------------------------------
 Export3dSolidMesh::Export3dSolidMesh()  
 : m_MeshingPackage(0)
-  , m_outputPath("")
+, m_outputPath("")
 , m_SurfaceMeshFaceLabelsArrayPath(SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::FaceAttributeMatrixName, SIMPL::FaceData::SurfaceMeshFaceLabels)
   , m_FeaturePhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Phases)
   , m_FeatureEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::EulerAngles)
@@ -62,6 +62,7 @@ Export3dSolidMesh::Export3dSolidMesh()
   , m_TetDataContainerName(SIMPL::Defaults::TetrahedralDataContainerName)
   , m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
   , m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
+  , m_STLFileName("")
 
 {
   initialize();
@@ -97,8 +98,9 @@ void Export3dSolidMesh::setupFilterParameters()
     QVector<QString> choices;
     choices.push_back("TetGen");
     choices.push_back("Netgen");
+    choices.push_back("Gmsh");
     parameter->setChoices(choices);
-    QStringList linkedProps = {"SurfaceMeshFaceLabelsArrayPath"};
+    QStringList linkedProps = {"SurfaceMeshFaceLabelsArrayPath", "FeatureEulerAnglesArrayPath", "FeaturePhasesArrayPath", "FeatureCentroidArrayPath", "RefineMesh", "MaxRadiusEdgeRatio", "MinDihedralAngle", "OptimizationLevel", "LimitTetrahedraVolume", "MaxTetrahedraVolume", "TetDataContainerName", "VertexAttributeMatrixName", "CellAttributeMatrixName", "STLFileName"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -106,7 +108,11 @@ void Export3dSolidMesh::setupFilterParameters()
     linkedProps.clear();
   }
 
-  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path", outputPath, FilterParameter::Parameter, Export3dSolidMesh,"*" ,"*"));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Path", outputPath, FilterParameter::Parameter, Export3dSolidMesh,"*" ,"*"));
+
+  {
+    parameters.push_back(SIMPL_NEW_STRING_FP("STL File Name", STLFileName, FilterParameter::Parameter, Export3dSolidMesh,2));
+  }
 
   parameters.push_back(SeparatorFilterParameter::New("Face Data", FilterParameter::RequiredArray));
   {
@@ -119,40 +125,42 @@ void Export3dSolidMesh::setupFilterParameters()
   {
     DataArraySelectionFilterParameter::RequirementType req =
       DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", FeatureEulerAnglesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", FeatureEulerAnglesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req =
       DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phases", FeaturePhasesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phases", FeaturePhasesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req =
       DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Centroids", FeatureCentroidArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Centroids", FeatureCentroidArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
   }
 
   {
     parameters.push_back(SeparatorFilterParameter::New("Mesh Quality Options", FilterParameter::Parameter));
     QStringList linkedProps = {"MaxRadiusEdgeRatio", "MinDihedralAngle"};
-    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Refine Mesh (q)", RefineMesh, FilterParameter::Parameter, Export3dSolidMesh, linkedProps));
+    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Refine Mesh (q)", RefineMesh, FilterParameter::Parameter, Export3dSolidMesh, linkedProps, 0));
     linkedProps.clear();
-    parameters.push_back(SIMPL_NEW_FLOAT_FP("Maximum Radius-Edge Ratio", MaxRadiusEdgeRatio, FilterParameter::Parameter, Export3dSolidMesh));
-    parameters.push_back(SIMPL_NEW_FLOAT_FP("Minimum Dihedral Angle", MinDihedralAngle, FilterParameter::Parameter, Export3dSolidMesh));
-    parameters.push_back(SIMPL_NEW_INTEGER_FP("Optimization Level (O)", OptimizationLevel, FilterParameter::Parameter, Export3dSolidMesh));
+    parameters.push_back(SIMPL_NEW_FLOAT_FP("Maximum Radius-Edge Ratio", MaxRadiusEdgeRatio, FilterParameter::Parameter, Export3dSolidMesh, 0));
+    parameters.push_back(SIMPL_NEW_FLOAT_FP("Minimum Dihedral Angle", MinDihedralAngle, FilterParameter::Parameter, Export3dSolidMesh, 0));
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("Optimization Level (O)", OptimizationLevel, FilterParameter::Parameter, Export3dSolidMesh, 0));
   }
   {
     parameters.push_back(SeparatorFilterParameter::New("Topology Options", FilterParameter::Parameter));
     QStringList linkedProps = {"MaxTetrahedraVolume"};
-    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Limit Tetrahedra Volume (a)", LimitTetrahedraVolume, FilterParameter::Parameter, Export3dSolidMesh, linkedProps));
+    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Limit Tetrahedra Volume (a)", LimitTetrahedraVolume, FilterParameter::Parameter, Export3dSolidMesh, linkedProps, 0));
     linkedProps.clear();
-    parameters.push_back(SIMPL_NEW_FLOAT_FP("Maximum Tetrahedron Volume", MaxTetrahedraVolume, FilterParameter::Parameter, Export3dSolidMesh));
+    parameters.push_back(SIMPL_NEW_FLOAT_FP("Maximum Tetrahedron Volume", MaxTetrahedraVolume, FilterParameter::Parameter, Export3dSolidMesh, 0));
   }
 
-  parameters.push_back(SeparatorFilterParameter::New("", FilterParameter::CreatedArray));
-  parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Name", TetDataContainerName, FilterParameter::CreatedArray, Export3dSolidMesh));
-  parameters.push_back(SIMPL_NEW_STRING_FP("Vertex Attribute Matrix Name", VertexAttributeMatrixName, FilterParameter::CreatedArray, Export3dSolidMesh));    
-  parameters.push_back(SIMPL_NEW_STRING_FP("Cell Attribute Matrix Name", CellAttributeMatrixName, FilterParameter::CreatedArray, Export3dSolidMesh));
+  {
+    parameters.push_back(SeparatorFilterParameter::New("", FilterParameter::CreatedArray));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Name", TetDataContainerName, FilterParameter::CreatedArray, Export3dSolidMesh, 0));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Vertex Attribute Matrix Name", VertexAttributeMatrixName, FilterParameter::CreatedArray, Export3dSolidMesh, 0));    
+    parameters.push_back(SIMPL_NEW_STRING_FP("Cell Attribute Matrix Name", CellAttributeMatrixName, FilterParameter::CreatedArray, Export3dSolidMesh, 0));
+  }
 
   setFilterParameters(parameters);
 }
@@ -172,6 +180,7 @@ void Export3dSolidMesh::readFilterParameters(AbstractFilterParametersReader* rea
   setTetDataContainerName(reader->readString("DataContainerName", getTetDataContainerName()));
   setVertexAttributeMatrixName(reader->readString("VertexAttributeMatrixName", getVertexAttributeMatrixName()));
   setCellAttributeMatrixName(reader->readString("CellAttributeMatrixName", getCellAttributeMatrixName()));
+  setSTLFileName(reader->readString("STLFileName", getSTLFileName()));
   reader->closeFilterGroup();
 }
 
@@ -186,99 +195,104 @@ void Export3dSolidMesh::dataCheck()
   m_Pause = false;
   m_ProcessPtr.reset();
 
-  if(getRefineMesh())
+  switch(m_MeshingPackage)
     {
-      if(getMaxRadiusEdgeRatio() <= 0)
-	{
-	  setErrorCondition(-1);
-	  notifyErrorMessage(getHumanLabel(), "Maximum radius-edge ratio must be greater than 0", getErrorCondition());
-	}
-      if(getMinDihedralAngle() < 0)
-	{
-	  setErrorCondition(-1);
-	  notifyErrorMessage(getHumanLabel(), "Minimum dihedral angle must be 0 or greater", getErrorCondition());
-	}
-    }
+    case 0: // TetGen
+      {
+	if(getRefineMesh())
+	  {
+	    if(getMaxRadiusEdgeRatio() <= 0)
+	      {
+		setErrorCondition(-1);
+		notifyErrorMessage(getHumanLabel(), "Maximum radius-edge ratio must be greater than 0", getErrorCondition());
+	      }
+	    if(getMinDihedralAngle() < 0)
+	      {
+		setErrorCondition(-1);
+		notifyErrorMessage(getHumanLabel(), "Minimum dihedral angle must be 0 or greater", getErrorCondition());
+	      }
+	  }
   
-  if(getLimitTetrahedraVolume())
-    {
-      if(getMaxTetrahedraVolume() <= 0)
-	{
-	  setErrorCondition(-1);
-	  notifyErrorMessage(getHumanLabel(), "Maximum tetrahedron volume must be greater than 0", getErrorCondition());
-	}
-    }
+	if(getLimitTetrahedraVolume())
+	  {
+	    if(getMaxTetrahedraVolume() <= 0)
+	      {
+		setErrorCondition(-1);
+		notifyErrorMessage(getHumanLabel(), "Maximum tetrahedron volume must be greater than 0", getErrorCondition());
+	      }
+	  }
   
-  if(getOptimizationLevel() < 0 || getOptimizationLevel() > 10)
-    {
-      setErrorCondition(-1);
-      notifyErrorMessage(getHumanLabel(), "Optimization level must be on the interval [0, 10]", getErrorCondition());
-    }
+	if(getOptimizationLevel() < 0 || getOptimizationLevel() > 10)
+	  {
+	    setErrorCondition(-1);
+	    notifyErrorMessage(getHumanLabel(), "Optimization level must be on the interval [0, 10]", getErrorCondition());
+	  }
   
-  QVector<DataArrayPath> dataArrayPaths;
-  QVector<size_t> cDims(1, 1);
-  
-  m_FeaturePhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getFeaturePhasesArrayPath(),
-                                                                                                           cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_FeaturePhasesPtr.lock())                                                                         /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-    {
-      m_FeaturePhases = m_FeaturePhasesPtr.lock()->getPointer(0);
-    } /* Now assign the raw pointer to data from the DataArray<T> object */
-  if(getErrorCondition() >= 0)
-    {
-      dataArrayPaths.push_back(getFeaturePhasesArrayPath());
-    }
-  
-  cDims[0] = 3;
-  m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureEulerAnglesArrayPath(),
-													      cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-    {
-      m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
-    } /* Now assign the raw pointer to data from the DataArray<T> object */
-  if(getErrorCondition() >= 0)
-    {
-      dataArrayPaths.push_back(getFeatureEulerAnglesArrayPath());
-    }
+	QVector<DataArrayPath> dataArrayPaths;
+	QVector<size_t> cDims(1, 1);
+	
+	m_FeaturePhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getFeaturePhasesArrayPath(),
+														 cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+	if(nullptr != m_FeaturePhasesPtr.lock())                                                                         /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+	  {
+	    m_FeaturePhases = m_FeaturePhasesPtr.lock()->getPointer(0);
+	  } /* Now assign the raw pointer to data from the DataArray<T> object */
+	if(getErrorCondition() >= 0)
+	  {
+	    dataArrayPaths.push_back(getFeaturePhasesArrayPath());
+	  }
+	
+	cDims[0] = 3;
+	m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureEulerAnglesArrayPath(),
+														    cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+	if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+	  {
+	    m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
+	  } /* Now assign the raw pointer to data from the DataArray<T> object */
+	if(getErrorCondition() >= 0)
+	  {
+	    dataArrayPaths.push_back(getFeatureEulerAnglesArrayPath());
+	  }
+	
+	cDims[0] = 3;
+	m_FeatureCentroidPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureCentroidArrayPath(),
+														 cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+	if(nullptr != m_FeatureCentroidPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+	  {
+	    m_FeatureCentroid = m_FeatureCentroidPtr.lock()->getPointer(0);
+	  } /* Now assign the raw pointer to data from the DataArray<T> object */
+	if(getErrorCondition() >= 0)
+	  {
+	    dataArrayPaths.push_back(getFeatureCentroidArrayPath());
+	  }
+	
+	getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
+	
+	// Create the output Data Container
+	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getTetDataContainerName());
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }
+	
+	// Create our output Vertex and Cell Matrix objects
+	QVector<size_t> tDims(1, 0);
+	AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }
+	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }
 
-  cDims[0] = 3;
-  m_FeatureCentroidPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureCentroidArrayPath(),
-													   cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_FeatureCentroidPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-    {
-      m_FeatureCentroid = m_FeatureCentroidPtr.lock()->getPointer(0);
-    } /* Now assign the raw pointer to data from the DataArray<T> object */
-  if(getErrorCondition() >= 0)
-    {
-      dataArrayPaths.push_back(getFeatureCentroidArrayPath());
+	SharedVertexList::Pointer tetvertexPtr = TetrahedralGeom::CreateSharedVertexList(0);
+	TetrahedralGeom::Pointer tetGeomPtr = TetrahedralGeom::CreateGeometry(0, tetvertexPtr, SIMPL::Geometry::TetrahedralGeometry, !getInPreflight());
+	m->setGeometry(tetGeomPtr);
+      }
     }
-
-  getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
-
-  // Create the output Data Container
-  DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getTetDataContainerName());
-  if(getErrorCondition() < 0)
-    {
-      return;
-    }
-  
-  // Create our output Vertex and Cell Matrix objects
-  QVector<size_t> tDims(1, 0);
-  AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
-  if(getErrorCondition() < 0)
-    {
-      return;
-    }
-  AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
-  if(getErrorCondition() < 0)
-    {
-      return;
-    }
-
-  SharedVertexList::Pointer tetvertexPtr = TetrahedralGeom::CreateSharedVertexList(0);
-  TetrahedralGeom::Pointer tetGeomPtr = TetrahedralGeom::CreateGeometry(0, tetvertexPtr, SIMPL::Geometry::TetrahedralGeometry, !getInPreflight());
-  m->setGeometry(tetGeomPtr);
-
 }
 
 // -----------------------------------------------------------------------------
@@ -314,32 +328,52 @@ void Export3dSolidMesh::execute()
       return;
     }
 
-  DataContainer::Pointer sm = getDataContainerArray()->getDataContainer(getSurfaceMeshFaceLabelsArrayPath().getDataContainerName());
-  TriangleGeom::Pointer triangleGeom = sm->getGeometryAs<TriangleGeom>();  
+  switch(m_MeshingPackage)
+    {
+    case 0: // TetGen
+      {
+	DataContainer::Pointer sm = getDataContainerArray()->getDataContainer(getSurfaceMeshFaceLabelsArrayPath().getDataContainerName());
+	TriangleGeom::Pointer triangleGeom = sm->getGeometryAs<TriangleGeom>();  
+	
+	int64_t numNodes = triangleGeom->getNumberOfVertices();
+	float* nodes = triangleGeom->getVertexPointer(0);
+	
+	int64_t numTri = triangleGeom->getNumberOfTris();
+	int64_t* triangles = triangleGeom->getTriPointer(0);
+	
+	size_t numfeatures = m_FeatureEulerAnglesPtr.lock()->getNumberOfTuples();
+	
+	//creating TetGen input file
+	QString tetgenInpFile = m_outputPath + QDir::separator() + "tetgenInp.smesh";
+	
+	createTetgenInpFile(tetgenInpFile, numNodes, nodes, numTri, triangles, numfeatures, m_FeatureCentroid); 
+	
+	//running TetGen
+	runPackage(tetgenInpFile); 
+	
+	DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getTetDataContainerName()); 
+	AttributeMatrix::Pointer vertexAttrMat = m->getAttributeMatrix(getVertexAttributeMatrixName());
+	AttributeMatrix::Pointer cellAttrMat = m->getAttributeMatrix(getCellAttributeMatrixName());
+	
+	QString tetgenEleFile = m_outputPath + QDir::separator() + "tetgenInp.1.ele";
+	QString tetgenNodeFile = m_outputPath + QDir::separator() + "tetgenInp.1.node";
+	scanTetGenFile(tetgenEleFile, tetgenNodeFile, m.get(), vertexAttrMat.get(), cellAttrMat.get());
+      }
+    case 1: // Netgen
+      {
 
-  int64_t numNodes = triangleGeom->getNumberOfVertices();
-  float* nodes = triangleGeom->getVertexPointer(0);
-
-  int64_t numTri = triangleGeom->getNumberOfTris();
-  int64_t* triangles = triangleGeom->getTriPointer(0);
-
-  size_t numfeatures = m_FeatureEulerAnglesPtr.lock()->getNumberOfTuples();
-
-  //creating TetGen input file
-  QString tetgenInpFile = m_outputPath + QDir::separator() + "tetgenInp.smesh";
-
-  createTetgenInpFile(tetgenInpFile, numNodes, nodes, numTri, triangles, numfeatures, m_FeatureCentroid); 
-
-  //running TetGen
-  runTetgen(tetgenInpFile); 
-
-  DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getTetDataContainerName()); 
-  AttributeMatrix::Pointer vertexAttrMat = m->getAttributeMatrix(getVertexAttributeMatrixName());
-  AttributeMatrix::Pointer cellAttrMat = m->getAttributeMatrix(getCellAttributeMatrixName());
-
-  QString tetgenEleFile = m_outputPath + QDir::separator() + "tetgenInp.1.ele";
-  QString tetgenNodeFile = m_outputPath + QDir::separator() + "tetgenInp.1.node";
-  scanTetGenFile(tetgenEleFile, tetgenNodeFile, m.get(), vertexAttrMat.get(), cellAttrMat.get());
+      }
+    case 2: //Gmsh
+      {
+	//creating Gmsh .geo file
+	QString gmshGeoFile = m_outputPath + QDir::separator() + "gmsh.geo";
+	
+	createGmshGeoFile(gmshGeoFile);
+	
+	//running Gmsh
+	runPackage(gmshGeoFile); 
+      }
+    }
 
   if (getCancel()) { return; }
 }
@@ -389,29 +423,72 @@ void Export3dSolidMesh::createTetgenInpFile(const QString& file, int64_t numNode
 //
 // -----------------------------------------------------------------------------
 
-void Export3dSolidMesh::runTetgen(const QString& file) 
+void Export3dSolidMesh::createGmshGeoFile(const QString& file)
 {
-  //cmd to run: "tetgen -pYAqOa file
-
-  QString switches = "-pYAO" + QString::number(m_OptimizationLevel);
-
-  if(m_RefineMesh)
+  FILE* f1 = fopen(file.toLatin1().data(), "wb");
+  if(nullptr == f1)
     {
-      QString tmp = "q" + QString::number(m_MaxRadiusEdgeRatio) + "/" + QString::number(m_MinDihedralAngle);
-      switches += tmp;
+      QString ss = QObject::tr("Error creating Gmsh geo file '%1'").arg(file);
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
     }
 
-  if(m_LimitTetrahedraVolume)
-    {
-      QString tmp = "a" + QString::number(m_MaxTetrahedraVolume);
-      switches += tmp;
-    }
+  QString STLFileNamewExt = m_STLFileName + ".stl";
 
-  QString program = "tetgen";
+  fprintf(f1,"Merge \"%s\";\n", STLFileNamewExt.toLatin1().data());
+  fprintf(f1,"Surface Loop(1) = {1};\n");
+  fprintf(f1,"Volume(1) = {1};\n");
 
+  fclose(f1);
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+void Export3dSolidMesh::runPackage(const QString& file) 
+{
+
+  QString program;
+  QString switches;
   QStringList arguments;
-  arguments << switches << file;
 
+  switch(m_MeshingPackage)
+    {
+    case 0: // TetGen
+      {
+	//cmd to run: "tetgen -pYAqOa file
+	
+	switches = "-pYAO" + QString::number(m_OptimizationLevel);
+	
+	if(m_RefineMesh)
+	  {
+	    QString tmp = "q" + QString::number(m_MaxRadiusEdgeRatio) + "/" + QString::number(m_MinDihedralAngle);
+	    switches += tmp;
+	  }
+
+	if(m_LimitTetrahedraVolume)
+	  {
+	    QString tmp = "a" + QString::number(m_MaxTetrahedraVolume);
+	    switches += tmp;
+	  }
+	
+	program = "tetgen";
+	
+	arguments << switches << file;
+      } 
+    case 2:
+      {
+
+	//cmd to run: "gmsh file -3
+	
+	switches = "-3";
+	program = "/Applications/Gmsh.app/Contents/MacOS/gmsh";
+	
+	arguments << file << switches;
+      }
+    }
+  
   m_ProcessPtr = QSharedPointer<QProcess>(new QProcess(nullptr));
   qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
   qRegisterMetaType<QProcess::ProcessError>("QProcess::ProcessError");
@@ -425,7 +502,7 @@ void Export3dSolidMesh::runTetgen(const QString& file)
   m_ProcessPtr->waitForStarted(2000);
   m_ProcessPtr->waitForFinished();
 
-  notifyStatusMessage(getHumanLabel(), "Finished running TetGen");
+  notifyStatusMessage(getHumanLabel(), "Finished running Package");
 
 }
 

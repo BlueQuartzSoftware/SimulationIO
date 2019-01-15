@@ -47,6 +47,8 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
   PYB11_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
   PYB11_PROPERTY(QString CellAttributeMatrixName READ getCellAttributeMatrixName WRITE setCellAttributeMatrixName)
 
+  PYB11_PROPERTY(QString STLFileName READ getSTLFileName WRITE setSTLFileName)
+
   public:
     SIMPL_SHARED_POINTERS(Export3dSolidMesh)
     SIMPL_FILTER_NEW_MACRO(Export3dSolidMesh)
@@ -98,6 +100,9 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
 
     SIMPL_FILTER_PARAMETER(QString, CellAttributeMatrixName)
     Q_PROPERTY(QString CellAttributeMatrixName READ getCellAttributeMatrixName WRITE setCellAttributeMatrixName)
+
+    SIMPL_FILTER_PARAMETER(QString, STLFileName)
+    Q_PROPERTY(QString STLFileName READ getSTLFileName WRITE setSTLFileName)
 
     /**
      * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
@@ -212,7 +217,7 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
     DEFINE_DATAARRAY_VARIABLE(float, FeatureCentroid)
     DEFINE_DATAARRAY_VARIABLE(int32_t, FeaturePhases)
 
-    void runTetgen(const QString& file); 
+    void runPackage(const QString& file); 
 
     void createTetgenInpFile(const QString& file, int64_t numNodes, float* nodes, int64_t numTri, int64_t* triangles, size_t numfeatures, float* centroid); 
 
@@ -223,6 +228,8 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
     QStringList arguments;
 
     void scanTetGenFile(const QString& fileEle, const QString& fileNode, DataContainer* dataContainer, AttributeMatrix* vertexAttributeMatrix, AttributeMatrix* cellAttributeMatrix);
+
+    void createGmshGeoFile(const QString& file); 
   
   public:
     /* Rule of 5: All special member functions should be defined if any are defined.

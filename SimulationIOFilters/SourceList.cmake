@@ -21,6 +21,7 @@ set(_PublicFilters
 
   ImportFEAData
   CreateFEAInputFiles
+  ExportLAMMPSFile
 )
 
 list(LENGTH _PublicFilters PluginNumFilters)

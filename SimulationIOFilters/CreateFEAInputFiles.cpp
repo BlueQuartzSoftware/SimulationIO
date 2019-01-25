@@ -465,7 +465,7 @@ void CreateFEAInputFiles::execute()
 	int32_t grainId = 1;
 	while(grainId <= maxGrainId)
 	  {
-	    for(int32_t i = 0; i < totalPoints + 1; i++)
+	    for(int32_t i = 0; i < totalPoints; i++)
 	      {
 		if(m_FeatureIds[i] == grainId)
 		  {
@@ -487,18 +487,18 @@ void CreateFEAInputFiles::execute()
 	    fprintf(f4, "*Elset, elset=Grain%d_Phase%d_set\n", voxelId, m_phaseId[voxelId-1] );
 	    fprintf(f5, "*Elset, elset=Grain%d_Phase%d_set\n", voxelId, m_phaseId[voxelId-1] );
 
-	    for(int32_t i = 0; i < totalPoints + 1; i++)
+	    for(int32_t i = 0; i < totalPoints; i++)
 	      {
 		if(m_FeatureIds[i] == voxelId)
 		  {
 		    if(elementPerLine != 0) // no comma at start
 		      {
-            if((elementPerLine % 16) != 0u) // 16 per line
-            {
-              fprintf(f4, ", ");
-              fprintf(f5, ", ");
-            }
-      else
+			if((elementPerLine % 16) != 0u) // 16 per line
+			  {
+			    fprintf(f4, ", ");
+			    fprintf(f5, ", ");
+			  }
+			else
 			  {
 			    fprintf(f4, ",\n");
 			    fprintf(f5, ",\n");

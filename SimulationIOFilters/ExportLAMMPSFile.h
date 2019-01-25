@@ -53,8 +53,10 @@ class SimulationIO_EXPORT ExportLAMMPSFile : public AbstractFilter
 {
   Q_OBJECT
   PYB11_CREATE_BINDINGS(ExportLAMMPSFile SUPERCLASS AbstractFilter)
-  PYB11_PROPERTY(QString VertexDataContainerName READ getVertexDataContainerName WRITE setVertexDataContainerName)
   PYB11_PROPERTY(QString LammpsFile READ getLammpsFile WRITE setLammpsFile)
+  PYB11_PROPERTY(DataArrayPath FeatureIdsArrayPath READ getFeatureIdsArrayPath WRITE setFeatureIdsArrayPath)
+  PYB11_PROPERTY(DataArrayPath EulerAnglesArrayPath READ getEulerAnglesArrayPath WRITE setEulerAnglesArrayPath)
+
 public:
   SIMPL_SHARED_POINTERS(ExportLAMMPSFile)
   SIMPL_FILTER_NEW_MACRO(ExportLAMMPSFile)
@@ -62,11 +64,14 @@ public:
 
   ~ExportLAMMPSFile() override;
 
-  SIMPL_FILTER_PARAMETER(QString, VertexDataContainerName)
-  Q_PROPERTY(QString VertexDataContainerName READ getVertexDataContainerName WRITE setVertexDataContainerName)
-
   SIMPL_FILTER_PARAMETER(QString, LammpsFile)
   Q_PROPERTY(QString LammpsFile READ getLammpsFile WRITE setLammpsFile)
+
+  SIMPL_FILTER_PARAMETER(DataArrayPath, FeatureIdsArrayPath)
+  Q_PROPERTY(DataArrayPath FeatureIdsArrayPath READ getFeatureIdsArrayPath WRITE setFeatureIdsArrayPath)
+
+  SIMPL_FILTER_PARAMETER(DataArrayPath, EulerAnglesArrayPath)
+  Q_PROPERTY(DataArrayPath EulerAnglesArrayPath READ getEulerAnglesArrayPath WRITE setEulerAnglesArrayPath)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
@@ -168,6 +173,10 @@ protected:
    * @brief Initializes all the private instance variables.
    */
   void initialize();
+
+private:
+  DEFINE_DATAARRAY_VARIABLE(int32_t, FeatureIds)
+  DEFINE_DATAARRAY_VARIABLE(float, EulerAngles)
 
 public:
   ExportLAMMPSFile(const ExportLAMMPSFile&) = delete;            // Copy Constructor Not Implemented

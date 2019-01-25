@@ -40,8 +40,11 @@
 #include <QtCore/QtEndian>
 
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
+#include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/OutputFileFilterParameter.h"
+#include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
+#include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Geometry/VertexGeom.h"
 #include "SIMPLib/Utilities/FileSystemPathHelper.h"
 #include "SIMPLib/Utilities/SIMPLibEndian.h"
@@ -53,8 +56,10 @@
 //
 // -----------------------------------------------------------------------------
 ExportLAMMPSFile::ExportLAMMPSFile()
-: m_VertexDataContainerName(SIMPL::Defaults::VertexDataContainerName)
-, m_LammpsFile("")
+: m_LammpsFile("")
+, m_FeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
+, m_EulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles)
+
 {
 }
 
@@ -70,11 +75,18 @@ void ExportLAMMPSFile::setupFilterParameters()
 {
   FilterParameterVector parameters;
 
-  parameters.push_back(SIMPL_NEW_OUTPUT_FILE_FP("Lammps File", LammpsFile, FilterParameter::Parameter, ExportLAMMPSFile));
+  parameters.push_back(SIMPL_NEW_OUTPUT_FILE_FP("LAMMPS File", LammpsFile, FilterParameter::Parameter, ExportLAMMPSFile));
 
+  parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::RequiredArray));
   {
-    DataContainerSelectionFilterParameter::RequirementType req;
-    parameters.push_back(SIMPL_NEW_DC_SELECTION_FP("Vertex Data Container", VertexDataContainerName, FilterParameter::RequiredArray, ExportLAMMPSFile, req));
+    DataArraySelectionFilterParameter::RequirementType req =
+      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", FeatureIdsArrayPath, FilterParameter::RequiredArray, ExportLAMMPSFile, req));
+  }
+  {
+    DataArraySelectionFilterParameter::RequirementType req =
+      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", EulerAnglesArrayPath, FilterParameter::RequiredArray, ExportLAMMPSFile, req));
   }
 
   setFilterParameters(parameters);
@@ -87,7 +99,9 @@ void ExportLAMMPSFile::readFilterParameters(AbstractFilterParametersReader* read
 {
   reader->openFilterGroup(this, index);
   setLammpsFile(reader->readString("LammpsFile", getLammpsFile()));
-  setVertexDataContainerName(reader->readString("VertexDataContainerName", getVertexDataContainerName()));
+  setFeatureIdsArrayPath(reader->readDataArrayPath("FeatureIdsArrayPath", getFeatureIdsArrayPath()));
+  setEulerAnglesArrayPath(reader->readDataArrayPath("EulerAnglesArrayPath", getEulerAnglesArrayPath()));
+
   reader->closeFilterGroup();
 }
 
@@ -108,24 +122,37 @@ void ExportLAMMPSFile::dataCheck()
 
   FileSystemPathHelper::CheckOutputFile(this, "Output LAMMPS File", getLammpsFile(), true);
 
-  DataContainer::Pointer v = getDataContainerArray()->getPrereqDataContainer(this, m_VertexDataContainerName);
-  if(getErrorCondition() < 0)
+  getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom, AbstractFilter>(this, getFeatureIdsArrayPath().getDataContainerName());
+
+  QVector<DataArrayPath> dataArrayPaths;
+
+  QVector<size_t> cDims(1, 1);
+
+  m_FeatureIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getFeatureIdsArrayPath(),
+                                                                                                        cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+  if(nullptr != m_FeatureIdsPtr.lock())                                                                         /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
-    return;
+    m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
+  } /* Now assign the raw pointer to data from the DataArray<T> object */
+  if(getErrorCondition() >= 0)
+  {
+    dataArrayPaths.push_back(getFeatureIdsArrayPath());
   }
 
-  VertexGeom::Pointer vertices = v->getPrereqGeometry<VertexGeom, AbstractFilter>(this);
-  if(getErrorCondition() < 0)
-  {
-    return;
-  }
+  cDims[0] = 3;
+  m_EulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getEulerAnglesArrayPath(),
+													   cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+  if(nullptr != m_EulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+    {
+      m_EulerAngles = m_EulerAnglesPtr.lock()->getPointer(0);
+    } /* Now assign the raw pointer to data from the DataArray<T> object */
+  if(getErrorCondition() >= 0)
+    {
+      dataArrayPaths.push_back(getEulerAnglesArrayPath());
+    }
 
-  // We MUST have Nodes
-  if(nullptr == vertices->getVertices().get())
-  {
-    setErrorCondition(-384);
-    notifyErrorMessage(getHumanLabel(), "VertexDataContainer missing Nodes", getErrorCondition());
-  }
+  getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -146,19 +173,26 @@ void ExportLAMMPSFile::preflight()
 // -----------------------------------------------------------------------------
 void ExportLAMMPSFile::execute()
 {
-  // int err = 0;
-
   dataCheck();
   if(getErrorCondition() < 0)
   {
     return;
   }
 
-  DataContainer::Pointer v = getDataContainerArray()->getDataContainer(getVertexDataContainerName());
+  DataContainer::Pointer v = getDataContainerArray()->getDataContainer(getFeatureIdsArrayPath().getDataContainerName());
+  ImageGeom::Pointer imageGeom = v->getGeometryAs<ImageGeom>();
 
-  VertexGeom::Pointer vertices = v->getGeometryAs<VertexGeom>();
+  int64_t numAtoms = imageGeom->getNumberOfElements();
 
-  int64_t numAtoms = vertices->getNumberOfVertices();
+  // find total number of Atom Types
+  int32_t numAtomTypes = 0;
+  for(int32_t i = 0; i < numAtoms; i++) // find number of grainIds
+    {
+      if(m_FeatureIds[i] > numAtomTypes)
+	{
+	  numAtomTypes = m_FeatureIds[i];
+	}
+    }
 
   // Open the output VTK File for writing
   FILE* lammpsFile = nullptr;
@@ -178,12 +212,11 @@ void ExportLAMMPSFile::execute()
   float zMin = 1000000000.0;
   float zMax = 0.0;
   int dummy = 0;
-  int atomType = 1;
   float pos[3] = {0.0f, 0.0f, 0.0f};
 
   for(int64_t i = 0; i < numAtoms; i++)
   {
-    vertices->getCoords(i, pos);
+    imageGeom->getCoords(i, pos);
     if(pos[0] < xMin)
     {
       xMin = pos[0];
@@ -210,19 +243,15 @@ void ExportLAMMPSFile::execute()
     }
   }
 
-  fprintf(lammpsFile, "LAMMPS data file from restart file: timestep = 1, procs = 4\n");
+  fprintf(lammpsFile, "LAMMPS data file\n");
   fprintf(lammpsFile, "\n");
   fprintf(lammpsFile, "%lld atoms\n", (long long int)(numAtoms));
   fprintf(lammpsFile, "\n");
-  fprintf(lammpsFile, "1 atom types\n");
+  fprintf(lammpsFile, "%lld atom types\n", (long long int)(numAtomTypes));
   fprintf(lammpsFile, "\n");
   fprintf(lammpsFile, "%f %f xlo xhi\n", xMin, xMax);
   fprintf(lammpsFile, "%f %f ylo yhi\n", yMin, yMax);
   fprintf(lammpsFile, "%f %f zlo zhi\n", zMin, zMax);
-  fprintf(lammpsFile, "\n");
-  fprintf(lammpsFile, "Masses\n");
-  fprintf(lammpsFile, "\n");
-  fprintf(lammpsFile, "1 63.546\n");
   fprintf(lammpsFile, "\n");
   fprintf(lammpsFile, "Atoms\n");
   fprintf(lammpsFile, "\n");
@@ -230,12 +259,38 @@ void ExportLAMMPSFile::execute()
   // Write the Atom positions (Vertices)
   for(int64_t i = 0; i < numAtoms; i++)
   {
-    vertices->getCoords(i, pos);
-    fprintf(lammpsFile, "%lld %d %f %f %f %d %d %d\n", (long long int)(i), atomType, pos[0], pos[1], pos[2], dummy, dummy, dummy); // Write the positions to the output file
+    imageGeom->getCoords(i, pos);
+    fprintf(lammpsFile, "%lld %d %f %f %f %d %d %d\n", (long long int)(i), m_FeatureIds[i], pos[0], pos[1], pos[2], dummy, dummy, dummy); // Write the positions to the output file
   }
 
   fprintf(lammpsFile, "\n");
-  // Free the memory
+
+  //	
+  //
+  FloatArrayType::Pointer m_orientLengthPtr = FloatArrayType::CreateArray(numAtomTypes*3, "ORIENTATION_INTERNAL_USE_ONLY");
+  float* m_orient = m_orientLengthPtr->getPointer(0);
+  
+  int32_t grainId = 1;
+  while(grainId <= numAtomTypes)
+    {
+      for(int32_t i = 0; i < numAtoms; i++)
+	{
+	  if(m_FeatureIds[i] == grainId)
+	    {
+	      m_orient[(grainId - 1)*3] = m_EulerAngles[i * 3] * 180.0 * SIMPLib::Constants::k_1OverPi;
+	      m_orient[(grainId - 1)*3 + 1] = m_EulerAngles[i * 3 + 1] * 180.0 * SIMPLib::Constants::k_1OverPi;
+	      m_orient[(grainId - 1)*3 + 2] = m_EulerAngles[i * 3 + 2] * 180.0 * SIMPLib::Constants::k_1OverPi;
+	    }
+	}
+      grainId++;
+    }
+
+  for(int32_t i = 1; i < numAtomTypes; i++)
+    {
+      fprintf(lammpsFile, "# %d, %.3f, %.3f, %.3f\n", i, m_orient[(i - 1) * 3], m_orient[(i - 1) * 3 + 1], m_orient[(i - 1) * 3 + 2]);
+    }
+
+    // Free the memory
   // Close the input and output files
   fclose(lammpsFile);
 
@@ -249,13 +304,6 @@ void ExportLAMMPSFile::execute()
 // -----------------------------------------------------------------------------
 AbstractFilter::Pointer ExportLAMMPSFile::newFilterInstance(bool copyFilterParameters) const
 {
-  /*
-   * NodesFile
-   * TrianglesFile
-   * OutputVtkFile
-   * WriteBinaryFile
-   * WriteConformalMesh
-   */
   ExportLAMMPSFile::Pointer filter = ExportLAMMPSFile::New();
   if(copyFilterParameters)
   {
@@ -277,7 +325,8 @@ const QString ExportLAMMPSFile::getCompiledLibraryName() const
 // -----------------------------------------------------------------------------
 const QString ExportLAMMPSFile::getBrandingString() const
 {
-  return "IO";
+  //  return "IO";
+  return SimulationIOConstants::SimulationIOBaseName;
 }
 
 // -----------------------------------------------------------------------------
@@ -320,5 +369,5 @@ const QString ExportLAMMPSFile::getSubGroupName() const
 // -----------------------------------------------------------------------------
 const QString ExportLAMMPSFile::getHumanLabel() const
 {
-  return "Export Lammps File";
+  return "Export LAMMPS Data File";
 }

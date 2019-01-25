@@ -474,7 +474,7 @@ void ImportFEAData::execute()
 
 	// Create ABAQUS python script
 	QString abqpyscr = m_odbFilePath + QDir::separator() + m_odbName + ".py";
-    QString odbNamewExt = m_odbName + ".odb";
+	QString odbNamewExt = m_odbName + ".odb";
 	err = writeABQpyscr(abqpyscr, odbNamewExt, m_odbFilePath, m_InstanceName, m_Step, m_FrameNumber, m_OutputVariable, m_ElementSet); 
 	if(err < 0)
 	  {
@@ -485,8 +485,8 @@ void ImportFEAData::execute()
 	  }
 
 	// Running ABAQUS python script
-    QString abqpyscrwExt = m_odbName + ".py";
-    runABQpyscr(abqpyscrwExt); 
+	QString abqpyscrwExt = m_odbName + ".py";
+	runABQpyscr(abqpyscrwExt); 
 
 	// Create the output Data Container
 	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());

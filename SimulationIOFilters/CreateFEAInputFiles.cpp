@@ -530,11 +530,11 @@ void CreateFEAInputFiles::execute()
 	      {
 		if(entriesPerLine != 0) // no comma at start
 		  {
-        if((entriesPerLine % 8) != 0u) // 8 per line
-        {
-          fprintf(f5, ",  ");
-        }
-        else
+		    if((entriesPerLine % 8) != 0u) // 8 per line
+		      {
+			fprintf(f5, ",  ");
+		      }
+		    else
 		      {
 			fprintf(f5, "\n");
 			entriesPerLine = 0;

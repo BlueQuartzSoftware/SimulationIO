@@ -22,6 +22,7 @@ set(_PublicFilters
   ImportFEAData
   CreateFEAInputFiles
   ExportLAMMPSFile
+  ExportDAMASKFiles
 )
 
 list(LENGTH _PublicFilters PluginNumFilters)

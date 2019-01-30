@@ -39,19 +39,19 @@
 //
 // -----------------------------------------------------------------------------
 CreateFEAInputFiles::CreateFEAInputFiles()
-: m_FEAPackage(0)
-, m_JobName("")
-, m_OutputPath("")
-, m_OutputFilePrefix("")
-, m_NumDepvar(1)
-, m_NumMatConst(6)
-, m_NumUserOutVar(1)
-, m_FeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
-, m_CellPhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Phases)
-, m_CellEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles)
-, m_DelamMat("")
-, m_NumClusters(1)
-, m_UseMeshCreatedByDREAM3D(true)
+  : m_FEAPackage(0)
+  , m_JobName("")
+  , m_OutputPath("")
+  , m_OutputFilePrefix("")
+  , m_NumDepvar(1)
+  , m_NumMatConst(6)
+  , m_NumUserOutVar(1)
+  , m_FeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
+  , m_CellPhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Phases)
+  , m_CellEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles)
+  , m_DelamMat("")
+  , m_NumClusters(1)
+  , m_UseMeshCreatedByDREAM3D(true)
 {
   initialize();
 
@@ -76,9 +76,9 @@ CreateFEAInputFiles::~CreateFEAInputFiles() = default;
 // -----------------------------------------------------------------------------
 void CreateFEAInputFiles::initialize()
 {
-    setErrorCondition(0);
-    setWarningCondition(0);
-    setCancel(false);
+  setErrorCondition(0);
+  setWarningCondition(0);
+  setCancel(false);
 }
 
 // -----------------------------------------------------------------------------
@@ -197,7 +197,7 @@ void CreateFEAInputFiles::dataCheck()
   setErrorCondition(0);
   setWarningCondition(0);
 
-  FileSystemPathHelper::CheckOutputFile(this, "Output File Path", getOutputPath(), true);
+  //  FileSystemPathHelper::CheckOutputFile(this, "Output File Path", getOutputPath(), true);
 
   getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom, AbstractFilter>(this, getFeatureIdsArrayPath().getDataContainerName());
 
@@ -208,13 +208,13 @@ void CreateFEAInputFiles::dataCheck()
   m_FeatureIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getFeatureIdsArrayPath(),
                                                                                                         cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
   if(nullptr != m_FeatureIdsPtr.lock())                                                                         /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-  {
-    m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
+    {
+      m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
+    } /* Now assign the raw pointer to data from the DataArray<T> object */
   if(getErrorCondition() >= 0)
-  {
-    dataArrayPaths.push_back(getFeatureIdsArrayPath());
-  }
+    {
+      dataArrayPaths.push_back(getFeatureIdsArrayPath());
+    }
 
   switch(m_FEAPackage)
     {
@@ -547,8 +547,8 @@ void CreateFEAInputFiles::execute()
 	    fprintf(f5, "*User Output Variables\n");
 	    fprintf(f5, "%d\n", m_NumUserOutVar);
 	  }
-    //
-    // We are now defining the sections, which is for each grain
+	//
+	// We are now defining the sections, which is for each grain
 	int32_t grain = 1;
 	while(grain <= maxGrainId)
 	  {
@@ -599,11 +599,11 @@ void CreateFEAInputFiles::execute()
 	  {
 	    if(entriesPerLine != 0) // no space at start
 	      {
-          if((entriesPerLine % 6) != 0u) // 6 per line
-          {
-            fprintf(f, " ");
-          }
-    else
+		if((entriesPerLine % 6) != 0u) // 6 per line
+		  {
+		    fprintf(f, " ");
+		  }
+		else
 		  {
 		    fprintf(f, "\n");
 		    entriesPerLine = 0;
@@ -621,11 +621,11 @@ void CreateFEAInputFiles::execute()
 	  {
 	    if(entriesPerLine != 0) // no space at start
 	      {
-          if((entriesPerLine % 6) != 0u) // 6 per line
-          {
-            fprintf(f, " ");
-          }
-    else
+		if((entriesPerLine % 6) != 0u) // 6 per line
+		  {
+		    fprintf(f, " ");
+		  }
+		else
 		  {
 		    fprintf(f, "\n");
 		    entriesPerLine = 0;
@@ -643,11 +643,11 @@ void CreateFEAInputFiles::execute()
 	  {
 	    if(entriesPerLine != 0) // no space at start
 	      {
-          if((entriesPerLine % 6) != 0u) // 6 per line
-          {
-            fprintf(f, " ");
-          }
-    else
+		if((entriesPerLine % 6) != 0u) // 6 per line
+		  {
+		    fprintf(f, " ");
+		  }
+		else
 		  {
 		    fprintf(f, "\n");
 		    entriesPerLine = 0;
@@ -676,11 +676,11 @@ void CreateFEAInputFiles::execute()
 	  {
 	    if(entriesPerLine != 0) // no space at start
 	      {
-          if((entriesPerLine % 40) != 0u) // 6 per line
-          {
-            fprintf(f, " ");
-          }
-    else
+		if((entriesPerLine % 40) != 0u) // 6 per line
+		  {
+		    fprintf(f, " ");
+		  }
+		else
 		  {
 		    fprintf(f, "\n");
 		    entriesPerLine = 0;
@@ -690,6 +690,8 @@ void CreateFEAInputFiles::execute()
 	    entriesPerLine++;
 	  }
 	//
+	//
+	fclose(f);
 	//
 	break;
       }
@@ -709,13 +711,14 @@ void CreateFEAInputFiles::execute()
 	fprintf(f, "hedr 0\n");
 	fprintf(f, "info 1\n");
 	//
+	fclose(f);
 	break;
       }
     }
  
   //
   //
-    if(getCancel())
+  if(getCancel())
     {
       return;
     }
@@ -731,9 +734,9 @@ AbstractFilter::Pointer CreateFEAInputFiles::newFilterInstance(bool copyFilterPa
 {
   CreateFEAInputFiles::Pointer filter = CreateFEAInputFiles::New();
   if(copyFilterParameters)
-  {
-    copyFilterParameterInstanceVariables(filter.get());
-  }
+    {
+      copyFilterParameterInstanceVariables(filter.get());
+    }
   return filter;
 }
 

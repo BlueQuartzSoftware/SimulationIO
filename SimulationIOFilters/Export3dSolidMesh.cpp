@@ -62,7 +62,9 @@ Export3dSolidMesh::Export3dSolidMesh()
   , m_TetDataContainerName(SIMPL::Defaults::TetrahedralDataContainerName)
   , m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
   , m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
-  , m_STLFileName("")
+  , m_GmshSTLFileName("")
+  , m_NetgenSTLFileName("")
+  , m_MeshSize("")
 
 {
   initialize();
@@ -99,8 +101,9 @@ void Export3dSolidMesh::setupFilterParameters()
     choices.push_back("TetGen");
     choices.push_back("Netgen");
     choices.push_back("Gmsh");
+    choices.push_back("MOAB");
     parameter->setChoices(choices);
-    QStringList linkedProps = {"SurfaceMeshFaceLabelsArrayPath", "FeatureEulerAnglesArrayPath", "FeaturePhasesArrayPath", "FeatureCentroidArrayPath", "RefineMesh", "MaxRadiusEdgeRatio", "MinDihedralAngle", "OptimizationLevel", "LimitTetrahedraVolume", "MaxTetrahedraVolume", "TetDataContainerName", "VertexAttributeMatrixName", "CellAttributeMatrixName", "STLFileName"};
+    QStringList linkedProps = {"SurfaceMeshFaceLabelsArrayPath", "FeatureEulerAnglesArrayPath", "FeaturePhasesArrayPath", "FeatureCentroidArrayPath", "RefineMesh", "MaxRadiusEdgeRatio", "MinDihedralAngle", "OptimizationLevel", "LimitTetrahedraVolume", "MaxTetrahedraVolume", "TetDataContainerName", "VertexAttributeMatrixName", "CellAttributeMatrixName", "GmshSTLFileName", "NetgenSTLFileName", "MeshSize"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -111,7 +114,12 @@ void Export3dSolidMesh::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Path", outputPath, FilterParameter::Parameter, Export3dSolidMesh,"*" ,"*"));
 
   {
-    parameters.push_back(SIMPL_NEW_STRING_FP("STL File Name", STLFileName, FilterParameter::Parameter, Export3dSolidMesh,2));
+    parameters.push_back(SIMPL_NEW_STRING_FP("STL File Name", NetgenSTLFileName, FilterParameter::Parameter, Export3dSolidMesh,1));
+    //   parameters.push_back(SIMPL_NEW_STRING_FP("Mesh Size", MeshSize, FilterParameter::Parameter, Export3dSolidMesh,1));
+  }
+
+  {
+    parameters.push_back(SIMPL_NEW_STRING_FP("STL File Name", GmshSTLFileName, FilterParameter::Parameter, Export3dSolidMesh,2));
   }
 
   parameters.push_back(SeparatorFilterParameter::New("Face Data", FilterParameter::RequiredArray));
@@ -138,8 +146,8 @@ void Export3dSolidMesh::setupFilterParameters()
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Centroids", FeatureCentroidArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
   }
 
+  parameters.push_back(SeparatorFilterParameter::New("Mesh Quality Options", FilterParameter::Parameter));
   {
-    parameters.push_back(SeparatorFilterParameter::New("Mesh Quality Options", FilterParameter::Parameter));
     QStringList linkedProps = {"MaxRadiusEdgeRatio", "MinDihedralAngle"};
     parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Refine Mesh (q)", RefineMesh, FilterParameter::Parameter, Export3dSolidMesh, linkedProps, 0));
     linkedProps.clear();
@@ -147,6 +155,10 @@ void Export3dSolidMesh::setupFilterParameters()
     parameters.push_back(SIMPL_NEW_FLOAT_FP("Minimum Dihedral Angle", MinDihedralAngle, FilterParameter::Parameter, Export3dSolidMesh, 0));
     parameters.push_back(SIMPL_NEW_INTEGER_FP("Optimization Level (O)", OptimizationLevel, FilterParameter::Parameter, Export3dSolidMesh, 0));
   }
+  {
+    parameters.push_back(SIMPL_NEW_STRING_FP("Mesh Size", MeshSize, FilterParameter::Parameter, Export3dSolidMesh,1));
+  }
+
   {
     parameters.push_back(SeparatorFilterParameter::New("Topology Options", FilterParameter::Parameter));
     QStringList linkedProps = {"MaxTetrahedraVolume"};
@@ -180,7 +192,9 @@ void Export3dSolidMesh::readFilterParameters(AbstractFilterParametersReader* rea
   setTetDataContainerName(reader->readString("DataContainerName", getTetDataContainerName()));
   setVertexAttributeMatrixName(reader->readString("VertexAttributeMatrixName", getVertexAttributeMatrixName()));
   setCellAttributeMatrixName(reader->readString("CellAttributeMatrixName", getCellAttributeMatrixName()));
-  setSTLFileName(reader->readString("STLFileName", getSTLFileName()));
+  setNetgenSTLFileName(reader->readString("NetgenSTLFileName", getNetgenSTLFileName()));
+  setMeshSize(reader->readString("MeshSize", getMeshSize()));
+  setGmshSTLFileName(reader->readString("GmshSTLFileName", getGmshSTLFileName()));
   reader->closeFilterGroup();
 }
 
@@ -362,6 +376,11 @@ void Export3dSolidMesh::execute()
     case 1: // Netgen
       {
 
+	QString netgenBinSTLFile = m_outputPath + QDir::separator() + m_NetgenSTLFileName + ".stlb";
+	//QString netgenBinSTLFile = m_NetgenSTLFileName + ".stlb";
+
+	//running Netgen
+	runPackage(netgenBinSTLFile); 
       }
     case 2: //Gmsh
       {
@@ -433,7 +452,7 @@ void Export3dSolidMesh::createGmshGeoFile(const QString& file)
       notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
     }
 
-  QString STLFileNamewExt = m_STLFileName + ".stl";
+  QString STLFileNamewExt = m_GmshSTLFileName + ".stl";
 
   fprintf(f1,"Merge \"%s\";\n", STLFileNamewExt.toLatin1().data());
   fprintf(f1,"Surface Loop(1) = {1};\n");
@@ -477,14 +496,26 @@ void Export3dSolidMesh::runPackage(const QString& file)
 	
 	arguments << switches << file;
       } 
+    case 1:
+      {
+
+	//cmd to run: "netgen file.stlb -batchmode -verycoarse/coarse/moderate/fine/veryfine
+	
+	switches = "-";
+	switches += m_MeshSize;
+	//	program = "/Applications/Netgen.app/Contents/MacOS/netgen";
+	program = "netgen";
+	
+	arguments << file << "-batchmode" << switches << "-V";
+      }
     case 2:
       {
 
 	//cmd to run: "gmsh file -3
 	
 	switches = "-3";
-	program = "/Applications/Gmsh.app/Contents/MacOS/gmsh";
-	
+	program = "gmsh";
+	//	program = "/Applications/Gmsh.app/Contents/MacOS/gmsh";
 	arguments << file << switches;
       }
     }
@@ -552,7 +583,7 @@ void Export3dSolidMesh::processHasErroredOut(QProcess::ProcessError error)
       QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
       QString pathEnv = env.value("PATH");
 
-      QString ss = QObject::tr("TETGEN failed to start. Either TETGEN is missing, or you may have insufficient permissions \
+      QString ss = QObject::tr("The package failed to start. Either the package is missing, or you may have insufficient permissions \
 or the path containing the executble is not in the system's environment path. PATH=%1.\n Try using the absolute path to the executable.")
 	.arg(pathEnv);
       setErrorCondition(-4005);

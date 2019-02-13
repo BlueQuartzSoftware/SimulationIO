@@ -31,6 +31,7 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
   PYB11_CREATE_BINDINGS(Export3dSolidMesh SUPERCLASS AbstractFilter)
   PYB11_PROPERTY(int MeshingPackage READ getMeshingPackage WRITE setMeshingPackage)
   PYB11_PROPERTY(QString outputPath READ getoutputPath WRITE setoutputPath)
+  PYB11_PROPERTY(QString PackageLocation READ getPackageLocation WRITE setPackageLocation)
   PYB11_PROPERTY(DataArrayPath SurfaceMeshFaceLabelsArrayPath READ getSurfaceMeshFaceLabelsArrayPath WRITE setSurfaceMeshFaceLabelsArrayPath)
   PYB11_PROPERTY(DataArrayPath FeaturePhasesArrayPath READ getFeaturePhasesArrayPath WRITE setFeaturePhasesArrayPath)
   PYB11_PROPERTY(DataArrayPath FeatureEulerAnglesArrayPath READ getFeatureEulerAnglesArrayPath WRITE setFeatureEulerAnglesArrayPath)
@@ -64,6 +65,9 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
 
     SIMPL_FILTER_PARAMETER(QString, outputPath)
     Q_PROPERTY(QString outputPath READ getoutputPath WRITE setoutputPath)
+
+    SIMPL_FILTER_PARAMETER(QString, PackageLocation)
+    Q_PROPERTY(QString PackageLocation READ getPackageLocation WRITE setPackageLocation)
 
     SIMPL_FILTER_PARAMETER(DataArrayPath, SurfaceMeshFaceLabelsArrayPath)
     Q_PROPERTY(DataArrayPath SurfaceMeshFaceLabelsArrayPath READ getSurfaceMeshFaceLabelsArrayPath WRITE setSurfaceMeshFaceLabelsArrayPath)

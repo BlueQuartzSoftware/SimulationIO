@@ -49,6 +49,7 @@
 Export3dSolidMesh::Export3dSolidMesh()  
 : m_MeshingPackage(0)
 , m_outputPath("")
+, m_PackageLocation("")
 , m_SurfaceMeshFaceLabelsArrayPath(SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::FaceAttributeMatrixName, SIMPL::FaceData::SurfaceMeshFaceLabels)
   , m_FeaturePhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Phases)
   , m_FeatureEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::EulerAngles)
@@ -112,10 +113,10 @@ void Export3dSolidMesh::setupFilterParameters()
   }
 
   parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Path", outputPath, FilterParameter::Parameter, Export3dSolidMesh,"*" ,"*"));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Package Location", PackageLocation, FilterParameter::Parameter, Export3dSolidMesh,"*" ,"*"));
 
   {
     parameters.push_back(SIMPL_NEW_STRING_FP("STL File Name", NetgenSTLFileName, FilterParameter::Parameter, Export3dSolidMesh,1));
-    //   parameters.push_back(SIMPL_NEW_STRING_FP("Mesh Size", MeshSize, FilterParameter::Parameter, Export3dSolidMesh,1));
   }
 
   {
@@ -185,6 +186,7 @@ void Export3dSolidMesh::readFilterParameters(AbstractFilterParametersReader* rea
 {
   reader->openFilterGroup(this, index);
   setoutputPath(reader->readString("outputPath", getoutputPath()));
+  setPackageLocation(reader->readString("PackageLocation", getPackageLocation()));
   setSurfaceMeshFaceLabelsArrayPath(reader->readDataArrayPath("SurfaceMeshFaceLabelsArrayPath", getSurfaceMeshFaceLabelsArrayPath()));
   setFeatureEulerAnglesArrayPath(reader->readDataArrayPath("FeatureEulerAnglesArrayPath", getFeatureEulerAnglesArrayPath()));
   setFeaturePhasesArrayPath(reader->readDataArrayPath("FeaturePhasesArrayPath", getFeaturePhasesArrayPath()));
@@ -305,6 +307,8 @@ void Export3dSolidMesh::dataCheck()
 	SharedVertexList::Pointer tetvertexPtr = TetrahedralGeom::CreateSharedVertexList(0);
 	TetrahedralGeom::Pointer tetGeomPtr = TetrahedralGeom::CreateGeometry(0, tetvertexPtr, SIMPL::Geometry::TetrahedralGeometry, !getInPreflight());
 	m->setGeometry(tetGeomPtr);
+
+	break;
       }
     }
 }
@@ -372,6 +376,8 @@ void Export3dSolidMesh::execute()
 	QString tetgenEleFile = m_outputPath + QDir::separator() + "tetgenInp.1.ele";
 	QString tetgenNodeFile = m_outputPath + QDir::separator() + "tetgenInp.1.node";
 	scanTetGenFile(tetgenEleFile, tetgenNodeFile, m.get(), vertexAttrMat.get(), cellAttrMat.get());
+
+	break;
       }
     case 1: // Netgen
       {
@@ -381,6 +387,8 @@ void Export3dSolidMesh::execute()
 
 	//running Netgen
 	runPackage(netgenBinSTLFile); 
+
+	break;
       }
     case 2: //Gmsh
       {
@@ -391,6 +399,7 @@ void Export3dSolidMesh::execute()
 	
 	//running Gmsh
 	runPackage(gmshGeoFile); 
+	break;
       }
     }
 
@@ -472,6 +481,8 @@ void Export3dSolidMesh::runPackage(const QString& file)
   QString switches;
   QStringList arguments;
 
+  program = m_PackageLocation + QDir::separator();
+
   switch(m_MeshingPackage)
     {
     case 0: // TetGen
@@ -492,9 +503,11 @@ void Export3dSolidMesh::runPackage(const QString& file)
 	    switches += tmp;
 	  }
 	
-	program = "tetgen";
+	program += "tetgen";
 	
 	arguments << switches << file;
+
+	break;
       } 
     case 1:
       {
@@ -504,9 +517,11 @@ void Export3dSolidMesh::runPackage(const QString& file)
 	switches = "-";
 	switches += m_MeshSize;
 	//	program = "/Applications/Netgen.app/Contents/MacOS/netgen";
-	program = "netgen";
+	program += "netgen";
 	
 	arguments << file << "-batchmode" << switches << "-V";
+
+	break;
       }
     case 2:
       {
@@ -514,9 +529,11 @@ void Export3dSolidMesh::runPackage(const QString& file)
 	//cmd to run: "gmsh file -3
 	
 	switches = "-3";
-	program = "gmsh";
+	program += "gmsh";
 	//	program = "/Applications/Gmsh.app/Contents/MacOS/gmsh";
 	arguments << file << switches;
+
+	break;
       }
     }
   

@@ -538,6 +538,17 @@ void Export3dSolidMesh::runPackage(const QString& file)
     }
   
   m_ProcessPtr = QSharedPointer<QProcess>(new QProcess(nullptr));
+
+  QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+  if (m_MeshingPackage == 1)
+    {
+      env.insert("PYTHONPATH", "/Applications/Netgen.app/Contents/Resources/lib/python3.7/site-packages:.");
+      env.insert("NETGENDIR", "/Applications/Netgen.app/Contents/MacOS");
+      env.insert("DYLD_LIBRARY_PATH", "/Applications/Netgen.app/Contents/MacOS");
+      env.insert("PATH", "$NETGENDIR:$PATH");
+    }
+  m_ProcessPtr->setProcessEnvironment(env);
+
   qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
   qRegisterMetaType<QProcess::ProcessError>("QProcess::ProcessError");
   connect(m_ProcessPtr.data(), SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(processHasFinished(int, QProcess::ExitStatus)), Qt::QueuedConnection);

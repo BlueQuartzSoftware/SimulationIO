@@ -230,7 +230,8 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
     DEFINE_DATAARRAY_VARIABLE(float, FeatureCentroid)
     DEFINE_DATAARRAY_VARIABLE(int32_t, FeaturePhases)
 
-    void runPackage(const QString& file); 
+      void runPackage(const QString& file, const QString& meshFile); 
+    void mergeMesh(const QString& mergefile, const QString& indivFile); 
 
     void createTetgenInpFile(const QString& file, int64_t numNodes, float* nodes, int64_t numTri, int64_t* triangles, size_t numfeatures, float* centroid); 
 

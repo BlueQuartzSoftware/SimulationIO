@@ -7,6 +7,7 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QDir>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QString>
 
@@ -104,7 +105,7 @@ void Export3dSolidMesh::setupFilterParameters()
     choices.push_back("Gmsh");
     choices.push_back("MOAB");
     parameter->setChoices(choices);
-    QStringList linkedProps = {"SurfaceMeshFaceLabelsArrayPath", "FeatureEulerAnglesArrayPath", "FeaturePhasesArrayPath", "FeatureCentroidArrayPath", "RefineMesh", "MaxRadiusEdgeRatio", "MinDihedralAngle", "OptimizationLevel", "LimitTetrahedraVolume", "MaxTetrahedraVolume", "TetDataContainerName", "VertexAttributeMatrixName", "CellAttributeMatrixName", "GmshSTLFileName", "NetgenSTLFileName", "MeshSize"};
+    QStringList linkedProps = {"SurfaceMeshFaceLabelsArrayPath", "FeaturePhasesArrayPath", "FeatureCentroidArrayPath", "RefineMesh", "MaxRadiusEdgeRatio", "MinDihedralAngle", "OptimizationLevel", "LimitTetrahedraVolume", "MaxTetrahedraVolume", "TetDataContainerName", "VertexAttributeMatrixName", "CellAttributeMatrixName", "GmshSTLFileName", "NetgenSTLFileName", "MeshSize"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -116,11 +117,11 @@ void Export3dSolidMesh::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Package Location", PackageLocation, FilterParameter::Parameter, Export3dSolidMesh,"*" ,"*"));
 
   {
-    parameters.push_back(SIMPL_NEW_STRING_FP("STL File Name", NetgenSTLFileName, FilterParameter::Parameter, Export3dSolidMesh,1));
+    parameters.push_back(SIMPL_NEW_STRING_FP("STL File Prefix", NetgenSTLFileName, FilterParameter::Parameter, Export3dSolidMesh,1));
   }
 
   {
-    parameters.push_back(SIMPL_NEW_STRING_FP("STL File Name", GmshSTLFileName, FilterParameter::Parameter, Export3dSolidMesh,2));
+    parameters.push_back(SIMPL_NEW_STRING_FP("STL File Prefix", GmshSTLFileName, FilterParameter::Parameter, Export3dSolidMesh,2));
   }
 
   parameters.push_back(SeparatorFilterParameter::New("Face Data", FilterParameter::RequiredArray));
@@ -134,7 +135,7 @@ void Export3dSolidMesh::setupFilterParameters()
   {
     DataArraySelectionFilterParameter::RequirementType req =
       DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", FeatureEulerAnglesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", FeatureEulerAnglesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req =
@@ -310,6 +311,43 @@ void Export3dSolidMesh::dataCheck()
 
 	break;
       }
+
+    case 1:
+      {
+	QVector<DataArrayPath> dataArrayPaths;
+	QVector<size_t> cDims(1, 1);
+	cDims[0] = 3;
+	m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureEulerAnglesArrayPath(),
+														    cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+	if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+	  {
+	    m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
+	  } /* Now assign the raw pointer to data from the DataArray<T> object */
+	if(getErrorCondition() >= 0)
+	  {
+	    dataArrayPaths.push_back(getFeatureEulerAnglesArrayPath());
+	  }
+	
+	break;
+      }
+    case 2:
+      {
+	QVector<DataArrayPath> dataArrayPaths;
+	QVector<size_t> cDims(1, 1);
+	cDims[0] = 3;
+	m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureEulerAnglesArrayPath(),
+														    cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+	if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+	  {
+	    m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
+	  } /* Now assign the raw pointer to data from the DataArray<T> object */
+	if(getErrorCondition() >= 0)
+	  {
+	    dataArrayPaths.push_back(getFeatureEulerAnglesArrayPath());
+	  }
+	
+	break;
+      }
     }
 }
 
@@ -367,7 +405,7 @@ void Export3dSolidMesh::execute()
 	createTetgenInpFile(tetgenInpFile, numNodes, nodes, numTri, triangles, numfeatures, m_FeatureCentroid); 
 	
 	//running TetGen
-	runPackage(tetgenInpFile); 
+	runPackage(tetgenInpFile,tetgenInpFile); 
 	
 	DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getTetDataContainerName()); 
 	AttributeMatrix::Pointer vertexAttrMat = m->getAttributeMatrix(getVertexAttributeMatrixName());
@@ -382,23 +420,72 @@ void Export3dSolidMesh::execute()
     case 1: // Netgen
       {
 
-	QString netgenBinSTLFile = m_outputPath + QDir::separator() + m_NetgenSTLFileName + ".stlb";
-	//QString netgenBinSTLFile = m_NetgenSTLFileName + ".stlb";
+	size_t numfeatures = m_FeatureEulerAnglesPtr.lock()->getNumberOfTuples();
+	QString netgenMeshFile;
+	QString mergedMesh = m_NetgenSTLFileName + "MergedMesh.vol";
+	QString workPath = m_outputPath;
+	QString asciiSTLFile;
+	QString binSTLFile;
 
-	//running Netgen
-	runPackage(netgenBinSTLFile); 
+	for(size_t i = 1; i < numfeatures; i++)
+	  {
+	    asciiSTLFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(i) + ".stl";
+	    binSTLFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(i) + ".stlb";
+
+	    QDir::setCurrent(workPath);
+	    QFile::copy(asciiSTLFile,binSTLFile);
+	   
+	  }
+
+	for(size_t i = 1; i < numfeatures; i++)
+	  {
+
+	    binSTLFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(i) + ".stlb";
+	    netgenMeshFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(i) + ".vol";
+  
+	    //running Netgen
+	    runPackage(binSTLFile,netgenMeshFile); 
+	  }
+
+	netgenMeshFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(1) + ".vol";
+	QDir::setCurrent(workPath);
+	QFile::copy(netgenMeshFile,mergedMesh);
+
+	if (numfeatures > 2)
+	  {
+	    for(size_t i = 2; i < numfeatures; i++)
+	      {
+		
+		netgenMeshFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(i) + ".vol";
+		
+		//running Netgen
+		mergeMesh(mergedMesh,netgenMeshFile); 
+	      }
+	  }
+
+
+	for(size_t i = 1; i < numfeatures; i++)
+	  {
+	    binSTLFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(i) + ".stlb";
+
+	    QDir::setCurrent(workPath);
+	    QFile::remove(binSTLFile);
+	   
+	  }
 
 	break;
       }
     case 2: //Gmsh
       {
+
+	size_t numfeatures = m_FeatureEulerAnglesPtr.lock()->getNumberOfTuples();
 	//creating Gmsh .geo file
 	QString gmshGeoFile = m_outputPath + QDir::separator() + "gmsh.geo";
 	
 	createGmshGeoFile(gmshGeoFile);
 	
 	//running Gmsh
-	runPackage(gmshGeoFile); 
+	runPackage(gmshGeoFile,gmshGeoFile); 
 	break;
       }
     }
@@ -474,7 +561,7 @@ void Export3dSolidMesh::createGmshGeoFile(const QString& file)
 //
 // -----------------------------------------------------------------------------
 
-void Export3dSolidMesh::runPackage(const QString& file) 
+void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile) 
 {
 
   QString program;
@@ -512,14 +599,18 @@ void Export3dSolidMesh::runPackage(const QString& file)
     case 1:
       {
 
-	//cmd to run: "netgen file.stlb -batchmode -verycoarse/coarse/moderate/fine/veryfine
+	//cmd to run: "netgen file.stlb -batchmode -verycoarse/coarse/moderate/fine/veryfine -meshfile=output filename
 	
 	switches = "-";
 	switches += m_MeshSize;
-	//	program = "/Applications/Netgen.app/Contents/MacOS/netgen";
 	program += "netgen";
 	
-	arguments << file << "-batchmode" << switches << "-V";
+	QString switchMeshFile;
+
+	switchMeshFile = "-meshfile=";
+	switchMeshFile += meshFile;
+
+	arguments << file <<"-batchmode"<< switchMeshFile << "-V" <<switches;
 
 	break;
       }
@@ -530,7 +621,6 @@ void Export3dSolidMesh::runPackage(const QString& file)
 	
 	switches = "-3";
 	program += "gmsh";
-	//	program = "/Applications/Gmsh.app/Contents/MacOS/gmsh";
 	arguments << file << switches;
 
 	break;
@@ -568,6 +658,57 @@ void Export3dSolidMesh::runPackage(const QString& file)
 //
 //
 //
+
+void Export3dSolidMesh::mergeMesh(const QString& mergeFile, const QString& meshFile) 
+{
+
+  QString program;
+  QStringList arguments;
+
+  QString switch1;
+  switch1 = "-inputmeshfile=";
+  switch1 += mergeFile;
+
+  QString switch2;
+  switch2 = "-mergefile=";
+  switch2 += meshFile;
+
+  QString switch3;
+  switch3 = "-meshfile=";
+  switch3 += mergeFile;
+
+  program = m_PackageLocation + QDir::separator() + "netgen";
+
+  //cmd to run: netgen -inputmeshfile=m.vol -mergefile=c.vol -batchmode -meshfile=m.vol
+  
+  arguments << "-batchmode" << switch1 << switch2 << switch3 << "-V";
+  
+  m_ProcessPtr = QSharedPointer<QProcess>(new QProcess(nullptr));
+
+  QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+  env.insert("PYTHONPATH", "/Applications/Netgen.app/Contents/Resources/lib/python3.7/site-packages:.");
+  env.insert("NETGENDIR", "/Applications/Netgen.app/Contents/MacOS");
+  env.insert("DYLD_LIBRARY_PATH", "/Applications/Netgen.app/Contents/MacOS");
+  env.insert("PATH", "$NETGENDIR:$PATH");
+  m_ProcessPtr->setProcessEnvironment(env);
+
+  qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
+  qRegisterMetaType<QProcess::ProcessError>("QProcess::ProcessError");
+  connect(m_ProcessPtr.data(), SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(processHasFinished(int, QProcess::ExitStatus)), Qt::QueuedConnection);
+  connect(m_ProcessPtr.data(), SIGNAL(error(QProcess::ProcessError)), this, SLOT(processHasErroredOut(QProcess::ProcessError)), Qt::QueuedConnection);
+  connect(m_ProcessPtr.data(), SIGNAL(readyReadStandardError()), this, SLOT(sendErrorOutput()), Qt::QueuedConnection);
+  connect(m_ProcessPtr.data(), SIGNAL(readyReadStandardOutput()), this, SLOT(sendStandardOutput()), Qt::QueuedConnection);
+
+  m_ProcessPtr->setWorkingDirectory(m_outputPath);
+  m_ProcessPtr->start(program, arguments);
+  m_ProcessPtr->waitForStarted(2000);
+  m_ProcessPtr->waitForFinished();
+
+  notifyStatusMessage(getHumanLabel(), "Merging individual volume meshes");
+
+}
+
+
 
 void Export3dSolidMesh::processHasFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {

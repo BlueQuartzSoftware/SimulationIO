@@ -49,9 +49,9 @@
 // -----------------------------------------------------------------------------
 Export3dSolidMesh::Export3dSolidMesh()  
 : m_MeshingPackage(0)
-, m_outputPath("")
-, m_PackageLocation("")
-, m_SurfaceMeshFaceLabelsArrayPath(SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::FaceAttributeMatrixName, SIMPL::FaceData::SurfaceMeshFaceLabels)
+  , m_outputPath("")
+  , m_PackageLocation("")
+  , m_SurfaceMeshFaceLabelsArrayPath(SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::FaceAttributeMatrixName, SIMPL::FaceData::SurfaceMeshFaceLabels)
   , m_FeaturePhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Phases)
   , m_FeatureEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::EulerAngles)
   , m_FeatureCentroidArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Centroids)
@@ -481,11 +481,30 @@ void Export3dSolidMesh::execute()
 	size_t numfeatures = m_FeatureEulerAnglesPtr.lock()->getNumberOfTuples();
 	//creating Gmsh .geo file
 	QString gmshGeoFile = m_outputPath + QDir::separator() + "gmsh.geo";
-	
-	createGmshGeoFile(gmshGeoFile);
-	
+	QString STLFileNamewExt;
+
+	FILE* f1 = fopen(gmshGeoFile.toLatin1().data(), "wb");
+	if(nullptr == f1)
+	  {
+	    QString ss = QObject::tr("Error creating Gmsh geo file '%1'").arg(gmshGeoFile);
+	    setErrorCondition(-1);
+	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+	  }
+
+	for(size_t i = 1; i < numfeatures; i++)
+	  {
+
+	    STLFileNamewExt = m_GmshSTLFileName + QString("Feature_") + QString::number(i) + ".stl";
+	    fprintf(f1,"Merge \"%s\";\n", STLFileNamewExt.toLatin1().data());
+	    fprintf(f1,"Surface Loop(%zu) = {%zu};\n",i,i);
+	    fprintf(f1,"Volume(%zu) = {%zu};\n",i,i);
+	  }
+
+	fclose(f1);
+
 	//running Gmsh
 	runPackage(gmshGeoFile,gmshGeoFile); 
+
 	break;
       }
     }
@@ -530,29 +549,6 @@ void Export3dSolidMesh::createTetgenInpFile(const QString& file, int64_t numNode
     {
       fprintf(f1,"%zu %.3f %.3f %.3f %zu\n",i, centroid[i*3], centroid[i*3+1], centroid[i*3+2] , i);
     }
-
-  fclose(f1);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-
-void Export3dSolidMesh::createGmshGeoFile(const QString& file)
-{
-  FILE* f1 = fopen(file.toLatin1().data(), "wb");
-  if(nullptr == f1)
-    {
-      QString ss = QObject::tr("Error creating Gmsh geo file '%1'").arg(file);
-      setErrorCondition(-1);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-    }
-
-  QString STLFileNamewExt = m_GmshSTLFileName + ".stl";
-
-  fprintf(f1,"Merge \"%s\";\n", STLFileNamewExt.toLatin1().data());
-  fprintf(f1,"Surface Loop(1) = {1};\n");
-  fprintf(f1,"Volume(1) = {1};\n");
 
   fclose(f1);
 }
@@ -649,7 +645,7 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
   m_ProcessPtr->setWorkingDirectory(m_outputPath);
   m_ProcessPtr->start(program, arguments);
   m_ProcessPtr->waitForStarted(2000);
-  m_ProcessPtr->waitForFinished();
+  m_ProcessPtr->waitForFinished(10000000);
 
   notifyStatusMessage(getHumanLabel(), "Finished running Package");
 

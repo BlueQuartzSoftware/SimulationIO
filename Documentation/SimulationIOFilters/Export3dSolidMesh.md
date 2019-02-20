@@ -5,29 +5,48 @@ Export3dSolidMesh {#export3dsolidmesh}
 SimulationIO (SimulationIO)
 
 ## Description ##
-This **Filter** does the following...
+This **Filter** can be used to create a volume mesh of the sample using three different packages: TegGen, Netgen, and Gmsh.
+
+#### Packages ####
+
+##### TetGen #####
+
+##### Netgen #####
+
+
+##### Gmsh #####
+
 
 ## Parameters ##
 | Name | Type | Description |
 |------|------|------|
-| Parameter Name | Parameter Type | Description of parameter... |
+| Meshing package | Enumeration | Package to be used for creating a solid mesh |
+| Path | Path | Path of the directory where the required files exists and new files will be created |
+| Package Location | Path | Location of the executable |
+| Refine Mesh(q) | bool | Option to set parameters for refining the mesh, if _TetGen_ is chosen|
+| Maximum Radius-Edge Ratio | float | maximum radius-edge ratio, if _TetGen_ is chosen|
+| Minimum Dihedral Angle | float | minimum dihedral angle, if _TetGen_ is chosen|
+| Optimization Level | int | optimization level, if _TetGen_ is chosen|
+| Limit Tetrahedra Volume | bool | Option to limit the volume of tetrahedrons, if _TetGen_ is chosen|
+| Maximum Tetrahedron Volume | float | Maximum volume of tetrahedrons, if _TetGen_ is chosen|
 
 ## Required Geometry ##
-Required Geometry Type -or- Not Applicable
+ Not Applicable
 
 ## Required Objects ##
 | Kind | Default Name | Type | Component Dimensions | Description |
 |------|--------------|-------------|---------|-----|
-| **Data Container** | Data Container Name | N/A | N/A | Description of object... |
-| **Attribute Matrix** | Attribute Matrix Name | Element/Feature/Ensemble/etc. | N/A | Description of object... |
-| **Element/Feature/Ensemble/etc. Attribute Array** | AttributeArray Name | int32_t/float/etc. | (1)/(3)/etc. | Description of object... |
+| **Face Attribute Array** | Face Labels | int32_t | (2) | Specifies which **Features** are on either side of each **Face**, if _TetGen_ is chosen |
+| **Feature Attribute Array** | Euler Angles | float | (3) | Three angles defining the orientation of the **Feature** |
+| **Feature Attribute Array** | Phases | int32_t | (1) |  Specifies to which **Ensemble** each **Feature** belongs |
+| **Feature Attribute Array** | Feature Centroids | float | (3) | Centroid of each **Feature** |
 
 ## Created Objects ##
 | Kind | Default Name | Type | Component Dimensions | Description |
 |------|--------------|-------------|---------|-----|
-| **Data Container** | Data Container Name | N/A | N/A | Description of object... |
-| **Attribute Matrix** | Attribute Matrix Name | Element/Feature/Ensemble/etc. | N/A | Description of object... |
-| **Element/Feature/Ensemble/etc. Attribute Array** | AttributeArray Name | int32_t/float/etc. | (1)/(3)/etc. | Description of object... |
+| **Data Container** | TetrahedralDataContainer | N/A | N/A | Created **Data Container** with a **Tetrahedral Geometry** |
+| **Attribute Matrix** | VertexData | Vertex | N/A | Created **Vertex Attribute Matrix** name  |
+| **Attribute Matrix** | CellData | Cell | N/A | Created **Cell Attribute Matrix** name  |
 
 ## License & Copyright ##
 

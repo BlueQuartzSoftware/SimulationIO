@@ -152,7 +152,6 @@ void ImportFEAData::setupFilterParameters()
     QVector<QString> choices;
     choices.push_back("ABAQUS");
     choices.push_back("BSAM");
-    choices.push_back("PZFLEX");
     choices.push_back("DEFORM");
     choices.push_back("DEFORM_POINT_TRACK");
     parameter->setChoices(choices);
@@ -273,7 +272,7 @@ void ImportFEAData::dataCheck()
 	break;
       }
       
-    case 3: // DEFORM
+    case 2: // DEFORM
       {
 	QFileInfo fi(m_DEFORMInputFile);
 	if(!fi.exists())
@@ -292,7 +291,7 @@ void ImportFEAData::dataCheck()
 	
 	break;
       }
-    case 4: // DEFORM POINT TRACK
+    case 3: // DEFORM POINT TRACK
       {
 	QFileInfo fi(m_DEFORMPointTrackInputFile);
 	if(!fi.exists())
@@ -542,11 +541,7 @@ void ImportFEAData::execute()
 	
 	break;	
       }
-    case 2: // PZFLEX
-      {
-	break;	
-      }
-    case 3: // DEFORM
+    case 2: // DEFORM
       {
 	
 	// Create the output Data Container
@@ -575,7 +570,7 @@ void ImportFEAData::execute()
 	
 	break;
       }
-    case 4:// DEFORM POINT TRACK
+    case 3:// DEFORM POINT TRACK
       {
 	for(size_t i = 0; i < m_NumTimeSteps; i++)
 	  {

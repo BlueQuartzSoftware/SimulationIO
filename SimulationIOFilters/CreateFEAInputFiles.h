@@ -33,7 +33,7 @@ class SimulationIO_EXPORT CreateFEAInputFiles : public AbstractFilter
   PYB11_PROPERTY(QString JobName READ getJobName WRITE setJobName)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
   PYB11_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
-  PYB11_PROPERTY(IntVec3_t NumElem READ getNumElem WRITE setNumElem)
+    //  PYB11_PROPERTY(IntVec3_t NumElem READ getNumElem WRITE setNumElem)
   PYB11_PROPERTY(int NumDepvar READ getNumDepvar WRITE setNumDepvar)
   PYB11_PROPERTY(int NumMatConst READ getNumMatConst WRITE setNumMatConst)
   PYB11_PROPERTY(int NumUserOutVar READ getNumUserOutVar WRITE setNumUserOutVar)
@@ -46,7 +46,7 @@ class SimulationIO_EXPORT CreateFEAInputFiles : public AbstractFilter
   PYB11_PROPERTY(DynamicTableData ClusterData READ getClusterData WRITE setClusterData)
   PYB11_PROPERTY(DynamicTableData MatConst READ getMatConst WRITE setMatConst)
 
-  PYB11_PROPERTY(bool UseMeshCreatedByDREAM3D READ getUseMeshCreatedByDREAM3D WRITE setUseMeshCreatedByDREAM3D)
+    //  PYB11_PROPERTY(bool UseMeshCreatedByDREAM3D READ getUseMeshCreatedByDREAM3D WRITE setUseMeshCreatedByDREAM3D)
 
 public:
   SIMPL_SHARED_POINTERS(CreateFEAInputFiles)
@@ -67,8 +67,8 @@ public:
   SIMPL_FILTER_PARAMETER(QString, OutputFilePrefix)
   Q_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
 
-  SIMPL_FILTER_PARAMETER(IntVec3_t, NumElem)
-  Q_PROPERTY(IntVec3_t NumElem READ getNumElem WRITE setNumElem)
+  // SIMPL_FILTER_PARAMETER(IntVec3_t, NumElem)
+  // Q_PROPERTY(IntVec3_t NumElem READ getNumElem WRITE setNumElem)
 
   SIMPL_FILTER_PARAMETER(int, NumDepvar)
   Q_PROPERTY(int NumDepvar READ getNumDepvar WRITE setNumDepvar)
@@ -103,8 +103,8 @@ public:
   SIMPL_FILTER_PARAMETER(DynamicTableData, MatConst)
   Q_PROPERTY(DynamicTableData MatConst READ getMatConst WRITE setMatConst)
 
-  SIMPL_FILTER_PARAMETER(bool, UseMeshCreatedByDREAM3D)
-  Q_PROPERTY(bool UseMeshCreatedByDREAM3D READ getUseMeshCreatedByDREAM3D WRITE setUseMeshCreatedByDREAM3D)
+  //  SIMPL_FILTER_PARAMETER(bool, UseMeshCreatedByDREAM3D)
+  //  Q_PROPERTY(bool UseMeshCreatedByDREAM3D READ getUseMeshCreatedByDREAM3D WRITE setUseMeshCreatedByDREAM3D)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class

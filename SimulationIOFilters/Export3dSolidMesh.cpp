@@ -103,8 +103,7 @@ void Export3dSolidMesh::setupFilterParameters()
     choices.push_back("TetGen");
     choices.push_back("Netgen");
     choices.push_back("Gmsh");
-    choices.push_back("MOAB");
-    parameter->setChoices(choices);
+      parameter->setChoices(choices);
     QStringList linkedProps = {"SurfaceMeshFaceLabelsArrayPath", "FeaturePhasesArrayPath", "FeatureCentroidArrayPath", "RefineMesh", "MaxRadiusEdgeRatio", "MinDihedralAngle", "OptimizationLevel", "LimitTetrahedraVolume", "MaxTetrahedraVolume", "TetDataContainerName", "VertexAttributeMatrixName", "CellAttributeMatrixName", "GmshSTLFileName", "NetgenSTLFileName", "MeshSize"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);

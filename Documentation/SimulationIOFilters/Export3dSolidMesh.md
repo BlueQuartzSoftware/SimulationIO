@@ -29,6 +29,8 @@ This **Filter** can be used to create a volume mesh of the sample using three di
 | Optimization Level | int | optimization level, if _TetGen_ is chosen|
 | Limit Tetrahedra Volume | bool | Option to limit the volume of tetrahedrons, if _TetGen_ is chosen|
 | Maximum Tetrahedron Volume | float | Maximum volume of tetrahedrons, if _TetGen_ is chosen|
+| STL File Prefix | File Prefix | Prefix of STL filenames (xxxFeature_#.stl), if _Netgen_ or _Gmsh_ is chosen |
+| Mesh Size | String | verycoarse/coarse/moderate/fine/veryfine, if _Netgen_ is chosen |
 
 ## Required Geometry ##
  Not Applicable
@@ -38,15 +40,15 @@ This **Filter** can be used to create a volume mesh of the sample using three di
 |------|--------------|-------------|---------|-----|
 | **Face Attribute Array** | Face Labels | int32_t | (2) | Specifies which **Features** are on either side of each **Face**, if _TetGen_ is chosen |
 | **Feature Attribute Array** | Euler Angles | float | (3) | Three angles defining the orientation of the **Feature** |
-| **Feature Attribute Array** | Phases | int32_t | (1) |  Specifies to which **Ensemble** each **Feature** belongs |
-| **Feature Attribute Array** | Feature Centroids | float | (3) | Centroid of each **Feature** |
+| **Feature Attribute Array** | Phases | int32_t | (1) |  Specifies to which **Ensemble** each **Cell** belongs if _TetGen_ is chosen |
+| **Feature Attribute Array** | Feature Centroids | float | (3) | Centroid of each **Feature**, if _TetGen_ is chosen |
 
 ## Created Objects ##
 | Kind | Default Name | Type | Component Dimensions | Description |
 |------|--------------|-------------|---------|-----|
-| **Data Container** | TetrahedralDataContainer | N/A | N/A | Created **Data Container** with a **Tetrahedral Geometry** |
-| **Attribute Matrix** | VertexData | Vertex | N/A | Created **Vertex Attribute Matrix** name  |
-| **Attribute Matrix** | CellData | Cell | N/A | Created **Cell Attribute Matrix** name  |
+| **Data Container** | TetrahedralDataContainer | N/A | N/A | Created **Data Container** with a **Tetrahedral Geometry**,  if _TetGen_ is chosen |
+| **Attribute Matrix** | VertexData | Vertex | N/A | Created **Vertex Attribute Matrix** name, if _TetGen_ is chosen  |
+| **Attribute Matrix** | CellData | Cell | N/A | Created **Cell Attribute Matrix** name, if _TetGen_ is chosen  |
 
 ## License & Copyright ##
 

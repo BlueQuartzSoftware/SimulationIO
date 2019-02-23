@@ -188,20 +188,20 @@ void ImportFEAData::setupFilterParameters()
   }
 
   {
-    parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", DEFORMInputFile, FilterParameter::Parameter, ImportFEAData, "", "*.DAT",3));
+    parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", DEFORMInputFile, FilterParameter::Parameter, ImportFEAData, "", "*.DAT",2));
   }
 
 
   {
-    parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", DEFORMPointTrackInputFile, FilterParameter::Parameter, ImportFEAData, "", "*.RST", 4));
+    parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", DEFORMPointTrackInputFile, FilterParameter::Parameter, ImportFEAData, "", "*.RST", 3));
 
     QStringList linkedProps("SingleTimeStepValue");
-    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Read Single Time Step", ImportSingleTimeStep, FilterParameter::Parameter, ImportFEAData, linkedProps, 4));
+    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Read Single Time Step", ImportSingleTimeStep, FilterParameter::Parameter, ImportFEAData, linkedProps, 3));
     linkedProps.clear();
-    parameters.push_back(SIMPL_NEW_INTEGER_FP("Time Step", SingleTimeStepValue, FilterParameter::Parameter, ImportFEAData, 4));
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("Time Step", SingleTimeStepValue, FilterParameter::Parameter, ImportFEAData, 3));
 
     parameters.push_back(SeparatorFilterParameter::New("", FilterParameter::CreatedArray));
-    parameters.push_back(SIMPL_NEW_STRING_FP("Time Series Bundle Name", TimeSeriesBundleName, FilterParameter::CreatedArray, ImportFEAData,4));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Time Series Bundle Name", TimeSeriesBundleName, FilterParameter::CreatedArray, ImportFEAData,3));
   }
 
   parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Name", DataContainerName, FilterParameter::CreatedArray, ImportFEAData));
@@ -214,6 +214,7 @@ void ImportFEAData::setupFilterParameters()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+
 void ImportFEAData::readFilterParameters(AbstractFilterParametersReader* reader, int index)
 {
   reader->openFilterGroup(this, index);
@@ -574,7 +575,7 @@ void ImportFEAData::execute()
       {
 	for(size_t i = 0; i < m_NumTimeSteps; i++)
 	  {
-	    QString ss = QObject::tr("Starting to read time step %1 of %2").arg(i).arg(m_NumTimeSteps);
+	    QString ss = QObject::tr("Starting to read time step %1 of %2").arg(i).arg(m_NumTimeSteps-1);
 	    notifyStatusMessage(getMessagePrefix(), getHumanLabel(), ss);
 	    readTimeStep(m_InStream, i);
 	  }
@@ -1626,7 +1627,7 @@ void ImportFEAData::readTimeStep(QFile& reader, qint32 t)
   // Skip past the data if we are not reading this time step.
   if(m_selectedTimeStep && t != m_selectedTimeStepValue)
   {
-    QString ss = QObject::tr("Skipping time step %1 of %2").arg(t).arg(m_NumTimeSteps);
+    QString ss = QObject::tr("Skipping time step %1 of %2").arg(t).arg(m_NumTimeSteps-1);
     notifyStatusMessage(getMessagePrefix(), getHumanLabel(), ss);
     for(size_t nodeIdx = 0; nodeIdx < m_NumPoints*m_LinesPerBlock; ++nodeIdx)
     {

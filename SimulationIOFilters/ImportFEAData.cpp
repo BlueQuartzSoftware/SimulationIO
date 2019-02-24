@@ -250,9 +250,31 @@ void ImportFEAData::dataCheck()
 
   m_Pause = false;
   m_ProcessPtr.reset();
-
+    
   switch(m_FEAPackage)
     {
+    case 0:
+      {
+	// Create the output Data Container
+	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }
+	
+	// Create our output Vertex and Cell Matrix objects
+	QVector<size_t> tDims(1, 0);
+	AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }
+	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }	
+      }
     case 1: // BSAM
       {
 	QFileInfo fi(m_BSAMInputFile);
@@ -269,6 +291,26 @@ void ImportFEAData::dataCheck()
 	    setErrorCondition(-1);
 	    notifyErrorMessage(getHumanLabel(), ss, -1);
 	  }
+
+	// Create the output Data Container
+	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }
+	
+	// Create our output Vertex and Cell Matrix objects
+	QVector<size_t> tDims(1, 0);
+	AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }
+	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }	
 
 	break;
       }
@@ -290,6 +332,26 @@ void ImportFEAData::dataCheck()
 	    notifyErrorMessage(getHumanLabel(), ss, -1);
 	  }
 	
+	// Create the output Data Container
+	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }
+	
+	// Create our output Vertex and Cell Matrix objects
+	QVector<size_t> tDims(1, 0);
+	AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }
+	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
+	if(getErrorCondition() < 0)
+	  {
+	    return;
+	  }	
+
 	break;
       }
     case 3: // DEFORM POINT TRACK
@@ -488,26 +550,10 @@ void ImportFEAData::execute()
 	QString abqpyscrwExt = m_odbName + ".py";
 	runABQpyscr(abqpyscrwExt); 
 
-	// Create the output Data Container
-	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
-	if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
-	
-	// Create our output Vertex and Cell Matrix objects
-	QVector<size_t> tDims(1, 0);
-	AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
-	if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
-	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
-	if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
-	
+	DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getDataContainerName()); 
+	AttributeMatrix::Pointer vertexAttrMat = m->getAttributeMatrix(getVertexAttributeMatrixName());
+	AttributeMatrix::Pointer cellAttrMat = m->getAttributeMatrix(getCellAttributeMatrixName());
+
 	QString outTxtFile = m_odbFilePath + QDir::separator() + "odbtotxt.dat";
 	scanABQFile(outTxtFile, m.get(), vertexAttrMat.get(), cellAttrMat.get());
 		
@@ -516,25 +562,10 @@ void ImportFEAData::execute()
 
     case 1: // BSAM
       {
-	// Create the output Data Container
-	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
-	if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
-	
-	// Create our output Vertex Matrix objects
-	QVector<size_t> tDims(1, 0);
-	AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
-	if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
-	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
-	if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
+
+	DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getDataContainerName()); 
+	AttributeMatrix::Pointer vertexAttrMat = m->getAttributeMatrix(getVertexAttributeMatrixName());
+	AttributeMatrix::Pointer cellAttrMat = m->getAttributeMatrix(getCellAttributeMatrixName());
 
 	scanBSAMFile(m.get(), vertexAttrMat.get(), cellAttrMat.get());
 
@@ -545,29 +576,13 @@ void ImportFEAData::execute()
     case 2: // DEFORM
       {
 	
-	// Create the output Data Container
-	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
-	if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
-	
-	// Create our output Vertex and Cell Matrix objects
-	QVector<size_t> tDims(1, 0);
-	AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
-	if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
-	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
-	if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
-	
+	DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getDataContainerName()); 
+	AttributeMatrix::Pointer vertexAttrMat = m->getAttributeMatrix(getVertexAttributeMatrixName());
+	AttributeMatrix::Pointer cellAttrMat = m->getAttributeMatrix(getCellAttributeMatrixName());
+
 	scanDEFORMFile(m.get(), vertexAttrMat.get(), cellAttrMat.get());
 
-	notifyStatusMessage(getHumanLabel(), "Import Complete");
+	notifyStatusMessage(getHumanLabel(), "DEFORM Import Complete");
 	
 	break;
       }

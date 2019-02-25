@@ -142,8 +142,8 @@ void ImportFEAData::initialize()
 // -----------------------------------------------------------------------------
 void ImportFEAData::setupFilterParameters()
 {
-    FilterParameterVector parameters;
- {
+  FilterParameterVectorType parameters;
+  {
     LinkedChoicesFilterParameter::Pointer parameter = LinkedChoicesFilterParameter::New();
     parameter->setHumanLabel("FEA package");
     parameter->setPropertyName("FEAPackage");

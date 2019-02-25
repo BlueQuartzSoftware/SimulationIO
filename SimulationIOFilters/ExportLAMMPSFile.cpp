@@ -73,7 +73,7 @@ ExportLAMMPSFile::~ExportLAMMPSFile() = default;
 // -----------------------------------------------------------------------------
 void ExportLAMMPSFile::setupFilterParameters()
 {
-  FilterParameterVector parameters;
+  FilterParameterVectorType parameters;
 
   parameters.push_back(SIMPL_NEW_OUTPUT_FILE_FP("LAMMPS File", LammpsFile, FilterParameter::Parameter, ExportLAMMPSFile));
 

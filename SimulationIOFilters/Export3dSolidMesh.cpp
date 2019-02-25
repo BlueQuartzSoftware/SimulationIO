@@ -92,7 +92,7 @@ void Export3dSolidMesh::initialize()
 // -----------------------------------------------------------------------------
 void Export3dSolidMesh::setupFilterParameters()
 {
-  FilterParameterVector parameters;
+  FilterParameterVectorType parameters;
   {
     LinkedChoicesFilterParameter::Pointer parameter = LinkedChoicesFilterParameter::New();
     parameter->setHumanLabel("Meshing package");

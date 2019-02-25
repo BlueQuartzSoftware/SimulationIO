@@ -86,7 +86,7 @@ void CreateFEAInputFiles::initialize()
 // -----------------------------------------------------------------------------
 void CreateFEAInputFiles::setupFilterParameters()
 {
-  FilterParameterVector parameters;
+  FilterParameterVectorType parameters;
   {
     LinkedChoicesFilterParameter::Pointer parameter = LinkedChoicesFilterParameter::New();
     parameter->setHumanLabel("FEA package");

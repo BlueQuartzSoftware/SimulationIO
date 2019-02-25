@@ -63,7 +63,7 @@ void ExportDAMASKFiles::initialize()
 // -----------------------------------------------------------------------------
 void ExportDAMASKFiles::setupFilterParameters()
 {
-  FilterParameterVector parameters;
+  FilterParameterVectorType parameters;
 
   parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Parameter, ExportDAMASKFiles,"*" ,"*" ));
   parameters.push_back(SIMPL_NEW_STRING_FP("Geometry File Name", GeometryFileName, FilterParameter::Parameter, ExportDAMASKFiles));

@@ -274,6 +274,7 @@ void ImportFEAData::dataCheck()
 	  {
 	    return;
 	  }	
+	break;
       }
     case 1: // BSAM
       {

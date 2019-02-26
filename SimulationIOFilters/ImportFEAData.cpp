@@ -48,6 +48,7 @@ ImportFEAData::ImportFEAData()
 : m_FEAPackage(0)
 , m_odbName("")
 , m_odbFilePath("")
+, m_ABQPythonCommand("")
 , m_InstanceName("PART-1-1")
 , m_Step("Step-1")
 , m_FrameNumber(1)
@@ -157,6 +158,7 @@ void ImportFEAData::setupFilterParameters()
     parameter->setChoices(choices);
     QStringList linkedProps = {"odbName",
                                "odbFilePath",
+                               "ABQPythonCommand",
                                "InstanceName",
 			       "Step", 
 			       "FrameNumber",    
@@ -176,6 +178,7 @@ void ImportFEAData::setupFilterParameters()
   {
     parameters.push_back(SIMPL_NEW_STRING_FP("odb Name", odbName, FilterParameter::Parameter, ImportFEAData, 0));
     parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("odb File Path", odbFilePath, FilterParameter::Parameter, ImportFEAData,"*" ,"*" ,0));
+    parameters.push_back(SIMPL_NEW_STRING_FP("ABAQUS Python Command", ABQPythonCommand, FilterParameter::Parameter, ImportFEAData, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Instance Name", InstanceName, FilterParameter::Parameter, ImportFEAData, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Step", Step, FilterParameter::Parameter, ImportFEAData, 0));
     parameters.push_back(SIMPL_NEW_INTEGER_FP("Frame Number", FrameNumber, FilterParameter::Parameter, ImportFEAData, 0));
@@ -220,6 +223,7 @@ void ImportFEAData::readFilterParameters(AbstractFilterParametersReader* reader,
   reader->openFilterGroup(this, index);
   setodbName(reader->readString("odbName", getodbName()));
   setodbFilePath(reader->readString("odbFilePath", getodbFilePath()));
+  setABQPythonCommand(reader->readString("ABQPythonCommand", getABQPythonCommand()));
   setInstanceName(reader->readString("InstanceName", getInstanceName()));
   setStep(reader->readString("Step", getStep()));
   setFrameNumber(reader->readValue("FrameNumber", getFrameNumber()));
@@ -255,6 +259,16 @@ void ImportFEAData::dataCheck()
     {
     case 0:
       {
+
+	QStringList arguments = splitArgumentsString(m_ABQPythonCommand);
+	if(arguments.empty())
+	  {
+	    QString ss = QObject::tr("Abaqus python command to run a script has not been specified.");
+	    setErrorCondition(-4001);
+	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+	    return;
+	  }
+	
 	// Create the output Data Container
 	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
 	if(getErrorCondition() < 0)
@@ -701,9 +715,10 @@ void ImportFEAData::runABQpyscr(const QString& file)
 {
   //cmd to run: "abaqus python filename.py
 
-  QString program = "abaqus";
-  QStringList arguments;
-  arguments << "python" << file;
+  QStringList arguments = splitArgumentsString(m_ABQPythonCommand);
+  QString program = arguments[0];
+
+  arguments.removeAt(0);
 
   m_ProcessPtr = QSharedPointer<QProcess>(new QProcess(nullptr));
   qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
@@ -716,7 +731,7 @@ void ImportFEAData::runABQpyscr(const QString& file)
   m_ProcessPtr->setWorkingDirectory(m_odbFilePath);
   m_ProcessPtr->start(program, arguments);
   m_ProcessPtr->waitForStarted(2000);
-  m_ProcessPtr->waitForFinished();
+  m_ProcessPtr->waitForFinished(100000);
 
   notifyStatusMessage(getHumanLabel(), "Finished running ABAQUS python script");
 
@@ -725,6 +740,45 @@ void ImportFEAData::runABQpyscr(const QString& file)
 //
 //
 //
+
+QStringList ImportFEAData::splitArgumentsString(QString arguments)
+{
+  QStringList argumentList;
+  for(int i = 0; i < m_ABQPythonCommand.size(); i++)
+  {
+    if(m_ABQPythonCommand[i] == '\"')
+    {
+      i++;
+      int start = i;
+      int index = m_ABQPythonCommand.indexOf("\"", start);
+      if(index == -1)
+      {
+        index = m_ABQPythonCommand.size();
+      }
+      int end = index - 1;
+      argumentList.push_back(m_ABQPythonCommand.mid(start, end - start + 1));
+      i = index;
+    }
+    else
+    {
+      int start = i;
+      int index = m_ABQPythonCommand.indexOf(" ", start + 1);
+      if(index == -1)
+      {
+        index = m_ABQPythonCommand.size();
+      }
+      int end = index - 1;
+      argumentList.push_back(m_ABQPythonCommand.mid(start, end - start + 1));
+      i = index;
+    }
+  }
+
+  return argumentList;
+}
+
+// -----------------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
 
 void ImportFEAData::processHasFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {

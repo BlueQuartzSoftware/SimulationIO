@@ -37,6 +37,7 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
     PYB11_PROPERTY(QString odbName READ getodbName WRITE setodbName)
       //PYB11_PROPERTY(QString ABQInputFile READ getABQInputFile WRITE setABQInputFile)
     PYB11_PROPERTY(QString odbFilePath READ getodbFilePath WRITE setodbFilePath)
+    PYB11_PROPERTY(QString ABQPythonCommand READ getABQPythonCommand WRITE setABQPythonCommand)
     PYB11_PROPERTY(QString InstanceName READ getInstanceName WRITE setInstanceName)
     PYB11_PROPERTY(QString Step READ getStep WRITE setStep)
     PYB11_PROPERTY(int FrameNumber READ getFrameNumber WRITE setFrameNumber)
@@ -77,6 +78,9 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
 
     SIMPL_FILTER_PARAMETER(QString, odbFilePath)
     Q_PROPERTY(QString odbFilePath READ getodbFilePath WRITE setodbFilePath)
+
+    SIMPL_FILTER_PARAMETER(QString, ABQPythonCommand)
+    Q_PROPERTY(QString ABQPythonCommand READ getABQPythonCommand WRITE setABQPythonCommand)
 
     SIMPL_FILTER_PARAMETER(QString, InstanceName)
     Q_PROPERTY(QString InstanceName READ getInstanceName WRITE setInstanceName)
@@ -287,7 +291,9 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
       QMutex m_Mutex;                                              
       bool m_Pause = false;
       QSharedPointer<QProcess> m_ProcessPtr;                           
-      QStringList arguments;
+      //  QStringList arguments;
+
+      QStringList splitArgumentsString(QString arguments);
   
       QString m_CachedFileName;
       QFile m_InStream;

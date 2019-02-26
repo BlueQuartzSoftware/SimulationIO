@@ -205,7 +205,7 @@ void ImportFEAData::setupFilterParameters()
     parameters.push_back(SIMPL_NEW_STRING_FP("Time Series Bundle Name", TimeSeriesBundleName, FilterParameter::CreatedArray, ImportFEAData,4));
   }
 
-  parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Name", DataContainerName, FilterParameter::CreatedArray, ImportFEAData));
+  parameters.push_back(SIMPL_NEW_DC_CREATION_FP("Data Container Name", DataContainerName, FilterParameter::CreatedArray, ImportFEAData));
   parameters.push_back(SIMPL_NEW_STRING_FP("Vertex Attribute Matrix Name", VertexAttributeMatrixName, FilterParameter::CreatedArray, ImportFEAData));    
   parameters.push_back(SIMPL_NEW_STRING_FP("Cell Attribute Matrix Name", CellAttributeMatrixName, FilterParameter::CreatedArray, ImportFEAData));
 
@@ -227,12 +227,12 @@ void ImportFEAData::readFilterParameters(AbstractFilterParametersReader* reader,
   setElementSet(reader->readString("ElementSet", getElementSet()));
   setDEFORMInputFile(reader->readString("InputFile", getDEFORMInputFile()));
   setBSAMInputFile(reader->readString("InputFile", getBSAMInputFile()));
-  setDataContainerName(reader->readString("DataContainerName", getDataContainerName()));
+  setDataContainerName(reader->readDataArrayPath("DataContainerName", getDataContainerName()));
   setVertexAttributeMatrixName(reader->readString("VertexAttributeMatrixName", getVertexAttributeMatrixName()));
   setCellAttributeMatrixName(reader->readString("CellAttributeMatrixName", getCellAttributeMatrixName()));
 
   setDEFORMPointTrackInputFile(reader->readString("InputFile", getDEFORMPointTrackInputFile()));
-  //setDataContainerName(reader->readString("DataContainerName", getDataContainerName()));
+  // setDataContainerName(reader->readDataArrayPath("DataContainerName", getDataContainerName()));
   setTimeSeriesBundleName(reader->readString("TimeSeriesBundleName", getTimeSeriesBundleName()));
 
   reader->closeFilterGroup();

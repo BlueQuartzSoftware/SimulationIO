@@ -171,7 +171,7 @@ void Export3dSolidMesh::setupFilterParameters()
 
   {
     parameters.push_back(SeparatorFilterParameter::New("", FilterParameter::CreatedArray));
-    parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Name", TetDataContainerName, FilterParameter::CreatedArray, Export3dSolidMesh, 0));
+    parameters.push_back(SIMPL_NEW_DC_CREATION_FP("Data Container Name", TetDataContainerName, FilterParameter::CreatedArray, Export3dSolidMesh, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Vertex Attribute Matrix Name", VertexAttributeMatrixName, FilterParameter::CreatedArray, Export3dSolidMesh, 0));    
     parameters.push_back(SIMPL_NEW_STRING_FP("Cell Attribute Matrix Name", CellAttributeMatrixName, FilterParameter::CreatedArray, Export3dSolidMesh, 0));
   }
@@ -192,7 +192,7 @@ void Export3dSolidMesh::readFilterParameters(AbstractFilterParametersReader* rea
   setFeatureEulerAnglesArrayPath(reader->readDataArrayPath("FeatureEulerAnglesArrayPath", getFeatureEulerAnglesArrayPath()));
   setFeaturePhasesArrayPath(reader->readDataArrayPath("FeaturePhasesArrayPath", getFeaturePhasesArrayPath()));
   setFeatureCentroidArrayPath(reader->readDataArrayPath("FeatureCentroidArrayPath", getFeatureCentroidArrayPath()));
-  setTetDataContainerName(reader->readString("DataContainerName", getTetDataContainerName()));
+  setTetDataContainerName(reader->readDataArrayPath("DataContainerName", getDataContainerName()));
   setVertexAttributeMatrixName(reader->readString("VertexAttributeMatrixName", getVertexAttributeMatrixName()));
   setCellAttributeMatrixName(reader->readString("CellAttributeMatrixName", getCellAttributeMatrixName()));
   setNetgenSTLFileName(reader->readString("NetgenSTLFileName", getNetgenSTLFileName()));

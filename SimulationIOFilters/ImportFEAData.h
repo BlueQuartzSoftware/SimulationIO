@@ -58,7 +58,7 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
     PYB11_PROPERTY(QString SelectedYCoordArrayName READ getSelectedYCoordArrayName WRITE setSelectedYCoordArrayName)
     PYB11_PROPERTY(QStringList DataArrayList READ getDataArrayList WRITE setDataArrayList)
 
-    PYB11_PROPERTY(QString DataContainerName READ getDataContainerName WRITE setDataContainerName)
+    PYB11_PROPERTY(DataArrayPath DataContainerName READ getDataContainerName WRITE setDataContainerName)
     PYB11_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
     PYB11_PROPERTY(QString CellAttributeMatrixName READ getCellAttributeMatrixName WRITE setCellAttributeMatrixName)
 
@@ -129,8 +129,8 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
     SIMPL_FILTER_PARAMETER(QStringList, DataArrayList)
     Q_PROPERTY(QStringList DataArrayList READ getDataArrayList WRITE setDataArrayList)
 
-    SIMPL_FILTER_PARAMETER(QString, DataContainerName)
-    Q_PROPERTY(QString DataContainerName READ getDataContainerName WRITE setDataContainerName)
+    SIMPL_FILTER_PARAMETER(DataArrayPath, DataContainerName)
+    Q_PROPERTY(DataArrayPath DataContainerName READ getDataContainerName WRITE setDataContainerName)
 
     SIMPL_FILTER_PARAMETER(QString, VertexAttributeMatrixName)
     Q_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)

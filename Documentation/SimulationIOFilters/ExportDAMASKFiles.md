@@ -7,15 +7,15 @@ SimulationIO (SimulationIO)
 
 ## Description ##
 
-This **Filter** writes the geometry file (*.geom) and material.config file required as an input for DAMASK. *.geom file has the information about sample's origin, dimensions, and resolution, and spatial distribution of grains. material.config has the description of Euler Angles corresponding to feature IDs used in *.geom file.
+This **Filter** writes the geometry file (*.geom) and material.config file required as an input for DAMASK. The geometry file has information about sample's origin, size, and dimensions, and spatial distribution of grains. The material.config file has description of Euler Angles and phase IDs.
 
 ## Parameters ##
 
 | Name | Type | Description |
 |------|------|------|
 | Output Path | Path | Path of the directory where files will be created |
-| Geometry File Name | Filename | Name of geometry (*.geom) file |
-| Homogenization Index | int | homogenization index |
+| Geometry File Name | String | Name of geometry (*.geom) file |
+| Homogenization Index | int | Homogenization index |
 
 ## Required Geometry ##
 
@@ -25,7 +25,7 @@ Not Applicable
 
 | Kind | Default Name | Type | Component Dimensions | Description |
 |------|--------------|-------------|---------|-----|
-| **Feature Attribute Array** | FeatureIds | int32_t | (3) |  Specifies to which **Feature** each **Cell** belongs |
+| **Feature Attribute Array** | FeatureIds | int32_t | (1) |  Specifies to which **Feature** each **Cell** belongs |
 | **Feature Attribute Array** | Euler Angles | float | (3) | Three angles defining the orientation of the **Feature** |
 | **Feature Attribute Array** | Phases | int32_t | (1) |  Specifies to which **Ensemble** each **Cell** belongs |
 
@@ -34,6 +34,7 @@ Not Applicable
 
 ## Example Pipelines ##
 
++DAMASKPipeline
 
 ## License & Copyright ##
 

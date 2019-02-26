@@ -206,19 +206,25 @@ void ExportDAMASKFiles::execute()
   m->getGeometryAs<ImageGeom>()->getResolution(res);
   float origin[3] = {0.0f, 0.0f, 0.0f};
   m->getGeometryAs<ImageGeom>()->getOrigin(origin);
+  float size[3] = {0.0f, 0.0f, 0.0f};
+
+  for(int32_t i = 0; i < 3; i++)
+    {
+      size[i] = dims[i]*res[i];
+    }
 
   int32_t totalPoints = m->getGeometryAs<ImageGeom>()->getNumberOfElements();
 
   fprintf(geomf,"6       header\n");
   fprintf(geomf,"Generted from DREAM.3D\n");
   fprintf(geomf,"grid    a %zu    b %zu    c %zu\n",dims[0], dims[1], dims[2]);
-  fprintf(geomf,"size    x %.3f    y %.3f    z %.3f\n",res[0], res[1], res[2]);
+  fprintf(geomf,"size    x %.3f    y %.3f    z %.3f\n",size[0], size[1], size[2]);
   fprintf(geomf,"origin    x %.3f    y %.3f    z %.3f\n",origin[0], origin[1], origin[2]);
   fprintf(geomf,"homogenization  %d\n", m_HomogenizationIndex);
   fprintf(geomf,"microstructures 0\n");
 
   int32_t entriesPerLine = 0;
-  for(int32_t i = 0; i < totalPoints; i++)
+  for(int32_t i = 1; i <= totalPoints; i++)
     {
       if(entriesPerLine != 0) // no comma at start
 	{
@@ -232,7 +238,7 @@ void ExportDAMASKFiles::execute()
 	      entriesPerLine = 0;
 	    }
 	}
-      fprintf(geomf,"%d", i+1);
+      fprintf(geomf,"%10d", i);
       entriesPerLine++;
     }
 

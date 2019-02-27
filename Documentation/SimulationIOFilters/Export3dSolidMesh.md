@@ -9,17 +9,22 @@ This **Filter** can be used to create a volume mesh of the sample using three di
 
 There are two ways to create a volume mesh using this filter. One of the ways is to use the surface mesh created by the filter **Qucik Surface Mesh**. TetGen is used for this purpose. Another way is to use the STL files of individual grains. Gmsh or Netgen can be used for this purpose. 
 
+DREAM.3D needs the exact location of these packages to be specified in the "Package Location" field. For example, in MacOS, if Netgen is installed in /Applications, user needs to enter the following address in the "Package Location" field:
+
+/Applications/Netgen.app/Contents/MacOS
+
 #### Packages ####
 
 ##### TetGen #####
 
 
 ##### Netgen #####
-Netgen is used to create a volume mesh from STL files of individual grains. 
+Netgen is used to create a volume mesh from STL files of individual grains. All the STL files should be present in the directory mentioned in the "Path" field. "STL File Prefix" should be the same that was used for creating the STL files. First, volume mesh of each **feature** is created, followed by merging of individual meshes. File names of individual mesh files is STLFilePrefixFeature_#.vol and the file name of the merged mesh is STLFilePrefixMergedMesh.vol. All the mesh files are present in the directory mentioned in "Path" Field. User has the option of chosing the mesh quality from very coarse, coarse, moderate, fine, and very fine. 
 
+It is required to use the filter "Reverse Triangle Winding" before creating the STL files for using Netgen flter.
 
 ##### Gmsh #####
-
+Gmsh is used to create a volume mesh from STL files of individual grains. All the STL files should be present in the directory mentioned in the "Path" field. "STL File Prefix" should be the same that was used for creating the STL files. File name of the merged mesh is gmsh.msh and is created in the directory mentioned in the "Path" Field.
 
 ## Parameters ##
 | Name | Type | Description |
@@ -53,6 +58,11 @@ Netgen is used to create a volume mesh from STL files of individual grains.
 | **Data Container** | TetrahedralDataContainer | N/A | N/A | Created **Data Container** with a **Tetrahedral Geometry**,  if _TetGen_ is chosen |
 | **Attribute Matrix** | VertexData | Vertex | N/A | Created **Vertex Attribute Matrix** name, if _TetGen_ is chosen  |
 | **Attribute Matrix** | CellData | Cell | N/A | Created **Cell Attribute Matrix** name, if _TetGen_ is chosen  |
+
+## Example Pipelines ##
+
++NetgenPipeline
++GmshPipeline
 
 ## License & Copyright ##
 

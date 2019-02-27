@@ -584,10 +584,10 @@ void CreateFEAInputFiles::execute()
 	    fprintf(f5, "*Material, name = Grain%d_Phase%d_set\n", i, m_phaseId[i-1] );
 	    fprintf(f5, "*Depvar\n");
 	    fprintf(f5, "%d\n", m_NumDepvar);
-	    fprintf(f5, "*User Material, constants = %d\n", m_NumMatConst);
+	    fprintf(f5, "*User Material, constants = %d\n", m_NumMatConst+5);
 	    fprintf(f5, "%d, %d, %.3f, %.3f, %.3f", i, m_phaseId[i - 1], m_orient[(i - 1) * 3], m_orient[(i - 1) * 3 + 1], m_orient[(i - 1) * 3 + 2]);
 	    size_t entriesPerLine = 5;
-	    for(int32_t j = 0; j < m_NumMatConst - 5; j++)
+	    for(int32_t j = 0; j < m_NumMatConst; j++)
 	      {
 		if(entriesPerLine != 0) // no comma at start
 		  {

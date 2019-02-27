@@ -7,16 +7,33 @@ SimulationIO (SimulationIO)
 
 ## Description ##
 
-This **Filter** writes the input files for different packages.
+This **Filter** writes the input files for different simulation packages. The currently supported packages are ABAQUS, PZFLEX and BSAM. 
+
+This **filter** assumes that the finite element discretization is equal to the discretization of image. Thus, the number of finite elements in each direction are equal to the number of cells. Please try **Export 3D Solid Mesh** filter to make mesh that is different from the distribution of cells in an image.
 
 #### Packages ####
 
 ##### ABAQUS #####
+The **ABAQUS** option writes out five files for input into the Abaqus analysis tool. The files created are: xxx.inp (the master file), xxx_nodes.inp, xxx_elems.inp, xxx_elset.inp and xxx_sects.inp. 
+
+The material information is written in the master file (xxx.inp). There is a table to enter the values of material constants. Number of values in the table should be equal to the number entered in "Number of Material Contants" field. However, the total number of material constants that will be written in the *.inp file will be (5 + <Number of Material Constants>). The first five values under *User Material are <grainID>, <phaseID>, <Euler1>, <Euler2>, and <Euler3>. The user provided material constants are written after these five values. A format of material data that is written to *.inp file is shown below:
+
+*Material, name = GrainId#_PhaseID#_set
+*Depvar
+< Number of Solution Dependent Variables>
+*User Material, constants = 5 + <Number of Material Constants>
+<grainID>, <phaseID>, <Euler1>, <Euler2>, <Euler3>, <materialConstant1>, <materialConstant2>, <materialConstant3>
+...
+*User Output Variables
+<Number of User Output Variables>
+
+Currently, this **filter** is valid only for cuboidal geometries and creates brick elements (C3D8/C3D8R) only.
 
 ##### PZFLEX #####
+The **PZFLEX** option of this **filter** writes out PZFLEX's input file (*.flxtbl). The required input for this option is *Feature IDs* and the output consists of a header, nodal coordinates and a description of spatial distribution of features.
 
 ##### BSAM #####
-The input file for BSAM consists of information about mesh, materials, and models. This **Filter** just focusses on the mesh data. It will read in the mesh files provided by the user, and write the mesh information to the input (*.in) file. User should specify the number of clusters and also provide a mesh file in *.ele format for each cluster. The mesh files should be named as <OutputFilePrefix_Cluster#.ele>, where # corresponds to the cluster number and placed in the directory specified in OutputPath.
+The **BSAM** option of this **filter** writes out the mesh related data in BSAM's input file. It will read in the mesh files provided by the user, and write their content to the input (*.in) file. User should specify the number of clusters and also provide a mesh file in *.ele format for each cluster. The mesh files should be named as <OutputFilePrefix_Cluster#.ele>, where # corresponds to the cluster number and placed in the directory specified in **Output Path**.
 
 ## Parameters ##
 
@@ -42,7 +59,7 @@ The input file for BSAM consists of information about mesh, materials, and model
 
 | Kind | Default Name | Type | Component Dimensions | Description |
 |------|--------------|-------------|---------|-----|
-| **Feature Attribute Array** | FeatureIds | int32_t | (3) |  Specifies to which **Feature** each **Cell** belongs, if _ABAQUS_ or _PZFLEX_ is chosen |
+| **Feature Attribute Array** | FeatureIds | int32_t | (1) |  Specifies to which **Feature** each **Cell** belongs, if _ABAQUS_ or _PZFLEX_ is chosen |
 | **Feature Attribute Array** | Euler Angles | float | (3) | Three angles defining the orientation of the **Feature**, if _ABAQUS_ is chosen |
 | **Feature Attribute Array** | Phases | int32_t | (1) |  Specifies to which **Ensemble** each **Cell** belongs, if _ABAQUS_ is chosen |
 

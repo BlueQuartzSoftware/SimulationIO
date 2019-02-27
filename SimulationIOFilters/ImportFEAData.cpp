@@ -972,7 +972,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
   QVector<size_t> tDims(1, numCells);
   cellAttrMat->resizeAttributeArrays(tDims);
   QString eleType = tokens.at(2);
-  QString eleDim = 3D;
+  QString eleDim = "3D";
 
   if(eleType == "CPE4R" || eleType == "CPS4R")
     {

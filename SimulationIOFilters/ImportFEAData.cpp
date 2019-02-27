@@ -650,6 +650,7 @@ int32_t ImportFEAData::writeABQpyscr(const QString& file,
   fprintf(f, "from odbSection import *\n");
   fprintf(f, "\n");
   fprintf(f, "import os\n");    
+  fprintf(f, "\n");
 
   fprintf(f, "odbName = '%s'\n",odbName.toLatin1().data());
   fprintf(f, "odbFilePath = '%s'\n",odbFilePath.toLatin1().data());
@@ -657,12 +658,15 @@ int32_t ImportFEAData::writeABQpyscr(const QString& file,
   fprintf(f, "frameNum = %d\n",frameNum);
   fprintf(f, "step = '%s'\n",step.toLatin1().data());
   fprintf(f, "instanceName = '%s'\n",instanceName.toLatin1().data());
+  fprintf(f, "\n");
 
   fprintf(f, "odbfileName = os.path.join(odbFilePath,odbName)\n"); 
   fprintf(f, "odb = openOdb(path = odbfileName)\n");  
+  fprintf(f, "\n");
 
   fprintf(f, "outTxtFile = 'odbtotxt.dat'\n");
   fprintf(f, "fid = open(outTxtFile, \"a\")\n");
+  fprintf(f, "\n");
 
   fprintf(f, "E1 = odb.rootAssembly.instances[instanceName]\n"); 
 
@@ -672,17 +676,20 @@ int32_t ImportFEAData::writeABQpyscr(const QString& file,
   fprintf(f, "fid.write(' ')\n");
   fprintf(f, "fid.write(E1.elements[0].type)\n");
   fprintf(f, "fid.write('\\n')\n"); 
+
   fprintf(f, "for element in E1.elements:  \n");
-  fprintf(f, "    fid.write(str(element.label)),\n"); 
-  fprintf(f, "    fid.write(' ')\n"); 
-  fprintf(f, "    fid.write(str(element.connectivity[0]) + ' ' + str(element.connectivity[1]) + ' ' + str(element.connectivity[2]) + ' ' + str(element.connectivity[3]) + ' ' + str(element.connectivity[4]) + ' ' + str(element.connectivity[5]) + ' ' + str(element.connectivity[6]) + ' ' + str(element.connectivity[7]) ),\n"); 
-  fprintf(f, "    fid.write('\\n')\n"); 
+  fprintf(f, "    fid.write(str(element.label)),\n");
+  fprintf(f, "    fid.write(' ')\n");
+  fprintf(f, "    for conn in element.connectivity:\n");
+  fprintf(f, "        fid.write(str(conn)),\n");
+  fprintf(f, "        fid.write(' ')\n");
+  fprintf(f, "    fid.write('\\n')\n");
+  fprintf(f, "\n");
 
   fprintf(f, "n1 = len(E1.nodes)\n"); 
   fprintf(f, "fid.write('NODES ')\n");
   fprintf(f, "fid.write(str(n1))\n");
   fprintf(f, "fid.write('\\n')\n");
-
   fprintf(f, "for node in E1.nodes:  \n");
   fprintf(f, "    fid.write(str(node.label)),\n");
   fprintf(f, "    fid.write(' ')\n");  
@@ -690,16 +697,43 @@ int32_t ImportFEAData::writeABQpyscr(const QString& file,
   fprintf(f, "        fid.write(str(coords)),\n");
   fprintf(f, "        fid.write(' ')\n");
   fprintf(f, "    fid.write('\\n')\n"); 	   
+  fprintf(f, "\n");
 
-  fprintf(f, "fieldOut = odb.steps[step].frames[frameNum].fieldOutputs[outputVar].values\n\n"); 
+  fprintf(f, "fieldOut = odb.steps[step].frames[frameNum].fieldOutputs\n\n"); 
+  fprintf(f, "\n");
 
-  fprintf(f, "fid.write(outputVar)\n");
-  fprintf(f, "fid.write('\\n')\n"); 	   
-  fprintf(f, "for j in fieldOut:\n");
-  fprintf(f, "    fid.write(str(j.elementLabel) + '  ' + str(j.data[0]) + '  ' + str(j.data[1]) + '  ' + str(j.data[2]) + '  ' + str(j.data[3]) + '  ' + str(j.data[4]) + '  ' + str(j.data[5]))\n");
-  fprintf(f, "    fid.write('\\n')\n"); 	   
+  fprintf(f, "for f in fieldOut.values():\n");
+  fprintf(f, "        for loc in f.locations:\n");
+  fprintf(f, "            pos = loc.position\n");
+  fprintf(f, "        fid.write(str(f.name))\n");
+  fprintf(f, "        fid.write(' ')\n");
+  fprintf(f, "        fid.write(str(f.type))\n");
+  fprintf(f, "        fid.write(' ')\n");
+  fprintf(f, "        fid.write(str(pos))\n");
+  fprintf(f, "        fid.write('\\n')\n"); 	   
+  fprintf(f, "        if pos == NODAL:\n");
+  fprintf(f, "             di=odb.steps[step].frames[frameNum].fieldOutputs[f.name].getSubset(region=E1).values\n");
+  fprintf(f, "             for v in di:\n");
+  fprintf(f, "                  fid.write(str(v.nodeLabel)),\n");
+  fprintf(f, "                  fid.write(' ')\n");  
+  fprintf(f, "                  for component in v.data:\n");
+  fprintf(f, "                      fid.write(str(component)),\n");
+  fprintf(f, "                      fid.write(' ')\n");
+  fprintf(f, "                  fid.write('\\n')\n"); 	   	   
+  fprintf(f, "\n");
 
-  fprintf(f,"fid.close()");
+  fprintf(f, "        if pos == INTEGRATION_POINT:\n");
+  fprintf(f, "             di=odb.steps[step].frames[frameNum].fieldOutputs[f.name].getSubset(region=E1).values\n");
+  fprintf(f, "             for v in di:\n");
+  fprintf(f, "                  fid.write(str(v.elementLabel)),\n");
+  fprintf(f, "                  fid.write(' ')\n"); 
+  fprintf(f, "                  if f.type == SCALAR:\n");
+  fprintf(f, "                      fid.write(str(v.data)),\n");
+  fprintf(f, "                  if f.type != SCALAR:\n");
+  fprintf(f, "                      for component in v.data:\n");
+  fprintf(f, "                          fid.write(str(component)),\n");
+  fprintf(f, "                  fid.write('\\n')\n"); 	   
+  fprintf(f, "fid.close()");
   notifyStatusMessage(getHumanLabel(), "Finished writing ABAQUS python script");
   fclose(f);
 

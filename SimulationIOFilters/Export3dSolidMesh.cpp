@@ -625,13 +625,25 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
   m_ProcessPtr = QSharedPointer<QProcess>(new QProcess(nullptr));
 
   QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+
+#if defined(Q_OS_MAC)
   if (m_MeshingPackage == 1)
     {
-      env.insert("PYTHONPATH", "/Applications/Netgen.app/Contents/Resources/lib/python3.7/site-packages:.");
-      env.insert("NETGENDIR", "/Applications/Netgen.app/Contents/MacOS");
-      env.insert("DYLD_LIBRARY_PATH", "/Applications/Netgen.app/Contents/MacOS");
-      env.insert("PATH", "$NETGENDIR:$PATH");
+      QString env_PYTHONPATH = m_PackageLocation + QDir::separator() + QString("..") + QDir::separator() + QString("Resources") + QDir::separator() + QString("lib") + QDir::separator() + QString("python3.7") + QDir::separator() + QString("site-packages");
+      QString env_NETGENDIR = m_PackageLocation;
+      QString env_DYLD_LIBRARYPATH = m_PackageLocation;
+      
+      env.insert("PYTHONPATH", env_PYTHONPATH);
+      env.insert("NETGENDIR", env_NETGENDIR);
+      env.insert("DYLD_LIBRARY_PATH", env_DYLD_LIBRARYPATH);
+
+
+      //      env.insert("PYTHONPATH", "/Applications/Netgen.app/Contents/Resources/lib/python3.7/site-packages:.");
+      //  env.insert("NETGENDIR", "/Applications/Netgen.app/Contents/MacOS");
+      //env.insert("DYLD_LIBRARY_PATH", "/Applications/Netgen.app/Contents/MacOS");
+      //env.insert("PATH", "$NETGENDIR:$PATH");
     }
+#endif
   m_ProcessPtr->setProcessEnvironment(env);
 
   qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
@@ -681,10 +693,22 @@ void Export3dSolidMesh::mergeMesh(const QString& mergeFile, const QString& meshF
   m_ProcessPtr = QSharedPointer<QProcess>(new QProcess(nullptr));
 
   QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-  env.insert("PYTHONPATH", "/Applications/Netgen.app/Contents/Resources/lib/python3.7/site-packages:.");
-  env.insert("NETGENDIR", "/Applications/Netgen.app/Contents/MacOS");
-  env.insert("DYLD_LIBRARY_PATH", "/Applications/Netgen.app/Contents/MacOS");
-  env.insert("PATH", "$NETGENDIR:$PATH");
+
+#if defined(Q_OS_MAC)
+  QString env_PYTHONPATH = m_PackageLocation + QDir::separator() + QString("..") + QDir::separator() + QString("Resources") + QDir::separator() + QString("lib") + QDir::separator() + QString("python3.7") + QDir::separator() + QString("site-packages");
+  QString env_NETGENDIR = m_PackageLocation;
+  QString env_DYLD_LIBRARYPATH = m_PackageLocation;
+  
+  env.insert("PYTHONPATH", env_PYTHONPATH);
+  env.insert("NETGENDIR", env_NETGENDIR);
+  env.insert("DYLD_LIBRARY_PATH", env_DYLD_LIBRARYPATH);
+#endif
+
+  // env.insert("PYTHONPATH", "/Applications/Netgen.app/Contents/Resources/lib/python3.7/site-packages:.");
+  // env.insert("NETGENDIR", "/Applications/Netgen.app/Contents/MacOS");
+  // env.insert("DYLD_LIBRARY_PATH", "/Applications/Netgen.app/Contents/MacOS");
+  // env.insert("PATH", "$NETGENDIR:$PATH");
+
   m_ProcessPtr->setProcessEnvironment(env);
 
   qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");

@@ -5,13 +5,17 @@ Export3dSolidMesh {#export3dsolidmesh}
 SimulationIO (SimulationIO)
 
 ## Description ##
-This **Filter** can be used to create a volume mesh of the sample using three different packages: TegGen, Netgen, and Gmsh.
+This **Filter** can be used to create a volume mesh of the sample using three different packages: TegGen, Netgen, and Gmsh. 
+
+There are two ways to create a volume mesh using this filter. One of the ways is to use the surface mesh created by the filter **Qucik Surface Mesh**. TetGen is used for this purpose. Another way is to use the STL files of individual grains. Gmsh or Netgen can be used for this purpose. 
 
 #### Packages ####
 
 ##### TetGen #####
 
+
 ##### Netgen #####
+Netgen is used to create a volume mesh from STL files of individual grains. 
 
 
 ##### Gmsh #####
@@ -21,7 +25,7 @@ This **Filter** can be used to create a volume mesh of the sample using three di
 | Name | Type | Description |
 |------|------|------|
 | Meshing package | Enumeration | Package to be used for creating a solid mesh |
-| Path | Path | Path of the directory where the required files exists and new files will be created |
+| Path | Path | Path of the directory where the required files exist and new files will be created |
 | Package Location | Path | Location of the executable |
 | Refine Mesh(q) | bool | Option to set parameters for refining the mesh, if _TetGen_ is chosen|
 | Maximum Radius-Edge Ratio | float | maximum radius-edge ratio, if _TetGen_ is chosen|

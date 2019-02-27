@@ -972,9 +972,11 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
   QVector<size_t> tDims(1, numCells);
   cellAttrMat->resizeAttributeArrays(tDims);
   QString eleType = tokens.at(2);
+  QString eleDim = 3D;
 
   if(eleType == "CPE4R" || eleType == "CPS4R")
     {
+      eleDim = "2D";
       inStream.seek(dataOffset);
       // Read until you get to the vertex block
       while(word.compare("NODES") != 0)
@@ -1045,6 +1047,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
   
   if(eleType == "C3D8R")
     {
+      eleDim = "3D";
       inStream.seek(dataOffset);
       // Read until you get to the vertex block
       while(word.compare("NODES") != 0)
@@ -1162,7 +1165,11 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
 	{
 	  numComp = 1;
 	}
-      else if (dataArrayType == "VECTOR")
+      else if (eleDim == "2D" && dataArrayType == "VECTOR")
+	{
+	  numComp = 2;
+	}
+      else if (eleDim == "3D" && dataArrayType == "VECTOR")
 	{
 	  numComp = 3;
 	}

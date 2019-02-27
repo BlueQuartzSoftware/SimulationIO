@@ -41,8 +41,8 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
     PYB11_PROPERTY(QString InstanceName READ getInstanceName WRITE setInstanceName)
     PYB11_PROPERTY(QString Step READ getStep WRITE setStep)
     PYB11_PROPERTY(int FrameNumber READ getFrameNumber WRITE setFrameNumber)
-    PYB11_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable)
-    PYB11_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
+      //    PYB11_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable)
+      //  PYB11_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
 
     PYB11_PROPERTY(QString BSAMInputFile READ getBSAMInputFile WRITE setBSAMInputFile)
 
@@ -91,11 +91,11 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
     SIMPL_FILTER_PARAMETER(int, FrameNumber)
     Q_PROPERTY(int FrameNumber READ getFrameNumber WRITE setFrameNumber)
     
-    SIMPL_FILTER_PARAMETER(QString, OutputVariable)
-    Q_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable)
+    /* SIMPL_FILTER_PARAMETER(QString, OutputVariable) */
+    /* Q_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable) */
 
-    SIMPL_FILTER_PARAMETER(QString, ElementSet)
-    Q_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
+    /* SIMPL_FILTER_PARAMETER(QString, ElementSet) */
+    /* Q_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet) */
 
     SIMPL_FILTER_PARAMETER(QString, DEFORMInputFile)
     Q_PROPERTY(QString DEFORMInputFile READ getDEFORMInputFile WRITE setDEFORMInputFile)
@@ -275,10 +275,8 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
                             const QString& odbFilePath,
                             const QString& instanceName,
                             const QString& step,
-                            int frameNum,
-                            const QString& outputVar,
-                            const QString &elSet);
-      
+                            int frameNum);
+       
       void runABQpyscr(const QString& file) ; 
       
       void scanABQFile(const QString& file, DataContainer* dataContainer, AttributeMatrix* vertexAttributeMatrix, AttributeMatrix* cellAttributeMatrix);

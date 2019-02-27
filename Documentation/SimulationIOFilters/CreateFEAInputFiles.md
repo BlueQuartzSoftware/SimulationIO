@@ -16,16 +16,16 @@ This **filter** assumes that the finite element discretization is equal to the d
 ##### ABAQUS #####
 The **ABAQUS** option writes out five files for input into the Abaqus analysis tool. The files created are: xxx.inp (the master file), xxx_nodes.inp, xxx_elems.inp, xxx_elset.inp and xxx_sects.inp. 
 
-The material information is written in the master file (xxx.inp). There is a table to enter the values of material constants. Number of values in the table should be equal to the number entered in "Number of Material Contants" field. However, the total number of material constants that will be written in the *.inp file will be (5 + <Number of Material Constants>). The first five values under *User Material are <grainID>, <phaseID>, <Euler1>, <Euler2>, and <Euler3>. The user provided material constants are written after these five values. A format of material data that is written to *.inp file is shown below:
+The material information is written in the master file (xxx.inp). There is a table to enter the values of material constants. Number of values in the table should be equal to the number entered in "Number of Material Contants" field. However, the total number of material constants that will be written in the *.inp file will be (5 + "Number of Material Constants"). The first five values under *User Material are grainID, phaseID, Euler1, Euler2, and Euler3. The user provided material constants are written after these five values. A format of material data that is written to *.inp file is shown below:
 
 *Material, name = GrainId#_PhaseID#_set
 *Depvar
 < Number of Solution Dependent Variables>
-*User Material, constants = 5 + <Number of Material Constants>
-<grainID>, <phaseID>, <Euler1>, <Euler2>, <Euler3>, <materialConstant1>, <materialConstant2>, <materialConstant3>
+*User Material, constants = 5 + "Number of Material Constants"
+grainID, phaseID, Euler1, Euler2, Euler3, materialConstant1, materialConstant2, materialConstant3
 ...
 *User Output Variables
-<Number of User Output Variables>
+"Number of User Output Variables"
 
 Currently, this **filter** is valid only for cuboidal geometries and creates brick elements (C3D8/C3D8R) only.
 

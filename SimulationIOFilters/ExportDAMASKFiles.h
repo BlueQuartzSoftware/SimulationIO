@@ -33,6 +33,7 @@ class SimulationIO_EXPORT ExportDAMASKFiles : public AbstractFilter
   PYB11_PROPERTY(DataArrayPath FeatureIdsArrayPath READ getFeatureIdsArrayPath WRITE setFeatureIdsArrayPath)
   PYB11_PROPERTY(DataArrayPath CellPhasesArrayPath READ getCellPhasesArrayPath WRITE setCellPhasesArrayPath)
   PYB11_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
+  PYB11_PROPERTY(bool CompressGeomFile READ getCompressGeomFile WRITE setCompressGeomFile)
 
   public:
     SIMPL_SHARED_POINTERS(ExportDAMASKFiles)
@@ -58,6 +59,9 @@ class SimulationIO_EXPORT ExportDAMASKFiles : public AbstractFilter
 
     SIMPL_FILTER_PARAMETER(DataArrayPath, CellEulerAnglesArrayPath)
     Q_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
+
+    SIMPL_FILTER_PARAMETER(bool, CompressGeomFile)
+    Q_PROPERTY(bool CompressGeomFile READ getCompressGeomFile WRITE setCompressGeomFile)
 
     /**
      * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class

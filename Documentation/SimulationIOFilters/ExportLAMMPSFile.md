@@ -7,7 +7,7 @@ SimulationIO (SimulationIO)
 
 ## Description ##
 
-This **Filter** creates a data file with atomic positions and tags. This data file can be used as part of the input for LAMMPS.
+This **Filter** is used to create an atomistic representation of microstructure from image data. The data file produced by this **filter** can be used for initializing the atomic coordinates in LAMMPS package.
 
 ## Parameters ##
 

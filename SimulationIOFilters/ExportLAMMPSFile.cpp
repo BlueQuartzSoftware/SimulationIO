@@ -260,7 +260,7 @@ void ExportLAMMPSFile::execute()
   for(int64_t i = 0; i < numAtoms; i++)
   {
     imageGeom->getCoords(i, pos);
-    fprintf(lammpsFile, "%lld %d %f %f %f %d %d %d\n", (long long int)(i), m_FeatureIds[i], pos[0], pos[1], pos[2], dummy, dummy, dummy); // Write the positions to the output file
+    fprintf(lammpsFile, "%lld %d %f %f %f %d %d %d\n", (long long int)(i+1), m_FeatureIds[i], pos[0], pos[1], pos[2], dummy, dummy, dummy); // Write the positions to the output file
   }
 
   fprintf(lammpsFile, "\n");
@@ -285,7 +285,8 @@ void ExportLAMMPSFile::execute()
       grainId++;
     }
 
-  for(int32_t i = 1; i < numAtomTypes; i++)
+  fprintf(lammpsFile, "# Euler angles of features\n");
+  for(int32_t i = 1; i <= numAtomTypes; i++)
     {
       fprintf(lammpsFile, "# %d, %.3f, %.3f, %.3f\n", i, m_orient[(i - 1) * 3], m_orient[(i - 1) * 3 + 1], m_orient[(i - 1) * 3 + 2]);
     }
@@ -325,8 +326,7 @@ const QString ExportLAMMPSFile::getCompiledLibraryName() const
 // -----------------------------------------------------------------------------
 const QString ExportLAMMPSFile::getBrandingString() const
 {
-  //  return "IO";
-  return SimulationIOConstants::SimulationIOBaseName;
+  return "SimulationIO";
 }
 
 // -----------------------------------------------------------------------------
@@ -345,7 +345,7 @@ const QString ExportLAMMPSFile::getFilterVersion() const
 // -----------------------------------------------------------------------------
 const QString ExportLAMMPSFile::getGroupName() const
 {
-  return SIMPL::FilterGroups::IOFilters;
+  return SIMPL::FilterGroups::Unsupported; 
 }
 
 // -----------------------------------------------------------------------------
@@ -361,7 +361,7 @@ const QUuid ExportLAMMPSFile::getUuid()
 // -----------------------------------------------------------------------------
 const QString ExportLAMMPSFile::getSubGroupName() const
 {
-  return SIMPL::FilterSubGroups::OutputFilters;
+  return "SimulationIO"; 
 }
 
 // -----------------------------------------------------------------------------

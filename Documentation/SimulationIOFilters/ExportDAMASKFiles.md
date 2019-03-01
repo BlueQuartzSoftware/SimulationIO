@@ -16,6 +16,7 @@ This **Filter** writes the geometry file (*.geom) and material.config file requi
 | Output Path | Path | Path of the directory where files will be created |
 | Geometry File Name | String | Name of geometry (*.geom) file |
 | Homogenization Index | int | Homogenization index |
+| Compress Geom File | bool | Option to chose between compressed and uncompressed versions of *.geom file |
 
 ## Required Geometry ##
 

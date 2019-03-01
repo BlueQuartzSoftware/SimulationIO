@@ -9,6 +9,8 @@ SimulationIO (SimulationIO)
 
 This **Filter** is used to create an atomistic representation of microstructure from image data. The data file produced by this **filter** can be used for initializing the atomic coordinates in LAMMPS package.
 
+This **filter** should be used in conjunction with another **filter** named "Insert Atoms". Given a microstructure, the "Insert Atoms" filter follows the orientation of different features to insert atoms in them and saves the configuration of atoms in a **Vertex Data Container**. The "Export LAMMPS Filter" uses this **Vertex Data Container** to create an input file for LAMMPS.  
+
 ## Parameters ##
 
 | Name | Type | Description |
@@ -23,8 +25,7 @@ Not Applicable
 
 | Kind | Default Name | Type | Component Dimensions | Description |
 |------|--------------|-------------|---------|-----|
-| **Feature Attribute Array** | FeatureIds | int32_t | (3) |  Specifies to which **Feature** each **Cell** belongs |
-| **Feature Attribute Array** | Euler Angles | float | (3) | Three angles defining the orientation of the **Feature** |
+| **Feature Attribute Array** | Atom Feature Labels | int32_t | (1) |  Specifies to which **Feature** each atom belongs |
 
 ## Created Objects ##
 

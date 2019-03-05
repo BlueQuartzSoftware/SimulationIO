@@ -32,6 +32,8 @@
 #include "SIMPLib/Geometry/HexahedralGeom.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Geometry/QuadGeom.h"
+#include "SIMPLib/Geometry/TetrahedralGeom.h"
+#include "SIMPLib/Geometry/TriangleGeom.h"
 #include "SIMPLib/Geometry/VertexGeom.h"
 #include "SIMPLib/SIMPLibVersion.h"
 #include "SIMPLib/Utilities/TimeUtilities.h"
@@ -183,8 +185,6 @@ void ImportFEAData::setupFilterParameters()
     parameters.push_back(SIMPL_NEW_STRING_FP("Instance Name", InstanceName, FilterParameter::Parameter, ImportFEAData, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Step", Step, FilterParameter::Parameter, ImportFEAData, 0));
     parameters.push_back(SIMPL_NEW_INTEGER_FP("Frame Number", FrameNumber, FilterParameter::Parameter, ImportFEAData, 0));
-    //   parameters.push_back(SIMPL_NEW_STRING_FP("Output Variable", OutputVariable, FilterParameter::Parameter, ImportFEAData, 0));
-    //  parameters.push_back(SIMPL_NEW_STRING_FP("Element Set", ElementSet, FilterParameter::Parameter, ImportFEAData, 0));
   }
 
   {
@@ -228,8 +228,6 @@ void ImportFEAData::readFilterParameters(AbstractFilterParametersReader* reader,
   setInstanceName(reader->readString("InstanceName", getInstanceName()));
   setStep(reader->readString("Step", getStep()));
   setFrameNumber(reader->readValue("FrameNumber", getFrameNumber()));
-  //  setOutputVariable(reader->readString("OutputVariable", getOutputVariable()));
-  // setElementSet(reader->readString("ElementSet", getElementSet()));
   setDEFORMInputFile(reader->readString("InputFile", getDEFORMInputFile()));
   setBSAMInputFile(reader->readString("InputFile", getBSAMInputFile()));
   setDataContainerName(reader->readString("DataContainerName", getDataContainerName()));
@@ -237,7 +235,6 @@ void ImportFEAData::readFilterParameters(AbstractFilterParametersReader* reader,
   setCellAttributeMatrixName(reader->readString("CellAttributeMatrixName", getCellAttributeMatrixName()));
 
   setDEFORMPointTrackInputFile(reader->readString("InputFile", getDEFORMPointTrackInputFile()));
-  //setDataContainerName(reader->readString("DataContainerName", getDataContainerName()));
   setTimeSeriesBundleName(reader->readString("TimeSeriesBundleName", getTimeSeriesBundleName()));
 
   reader->closeFilterGroup();
@@ -974,6 +971,154 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
   QString eleType = tokens.at(2);
   QString eleDim = "3D";
 
+  //
+  // triangles
+  //
+  if(eleType == "CPE3" || eleType == "CPS3")
+    {
+      eleDim = "2D";
+      inStream.seek(dataOffset);
+      // Read until you get to the vertex block
+      while(word.compare("NODES") != 0)
+	{
+	  buf = inStream.readLine();
+	  buf = buf.trimmed();
+	  buf = buf.simplified();
+	  tokens = buf.split(' ');
+	  word = tokens.at(0);
+	}
+
+      // Set the number of vertices and then create vertices array and resize vertex attr mat.
+      numVerts = tokens.at(1).toULongLong(&ok);
+      tDims[0] = numVerts;
+      vertexAttrMat->resizeAttributeArrays(tDims);
+    
+      SharedVertexList::Pointer vertexPtr = TriangleGeom::CreateSharedVertexList(static_cast<int64_t>(numVerts), allocate);
+      float* vertex = vertexPtr->getPointer(0);
+      
+      // Read or Skip past all the vertex data
+      for(size_t i = 0; i < numVerts; i++)
+	{
+	  buf = inStream.readLine();
+	  if(allocate)
+	    {
+	      buf = buf.trimmed();
+	      buf = buf.simplified();
+	      tokens = buf.split(' ');
+	      vertex[3 * i] = tokens[1].toFloat(&ok);
+	      vertex[3 * i + 1] = tokens[2].toFloat(&ok);
+	      vertex[3 * i + 2] = 0.0;
+	    }
+	}
+    
+      inStream.seek(dataOffset);
+    
+      while(word.compare("ELEMENTS") != 0)
+	{
+	  buf = inStream.readLine();
+	  buf = buf.trimmed();
+	  buf = buf.simplified();
+	  tokens = buf.split(' ');
+	  word = tokens.at(0);
+	}
+  
+      TriangleGeom::Pointer triGeomPtr = TriangleGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::TriangleGeometry, allocate);
+      triGeomPtr->setSpatialDimensionality(2);
+      dataContainer->setGeometry(triGeomPtr);
+      int64_t* triangles = triGeomPtr->getTriPointer(0);
+    
+      for(size_t i = 0; i < numCells; i++)
+	{
+	  buf = inStream.readLine();
+	  if(allocate)
+	    {
+	      buf = buf.trimmed();
+	      buf = buf.simplified();
+	      tokens = buf.split(' ');
+	      // Subtract one from the node number because ABAQUS starts at node 1 and we start at node 0
+	      triangles[3 * i] = tokens[1].toInt(&ok) - 1;
+	      triangles[3 * i + 1] = tokens[2].toInt(&ok) - 1;
+	      triangles[3 * i + 2] = tokens[3].toInt(&ok) - 1;
+	    }
+	}
+      // End reading of the connectivity
+    }
+  
+  //
+  //tetrahedral
+  //
+  if(eleType == "C3D4")
+    {
+      eleDim = "3D";
+      inStream.seek(dataOffset);
+      // Read until you get to the vertex block
+      while(word.compare("NODES") != 0)
+	{
+	  buf = inStream.readLine();
+	  buf = buf.trimmed();
+	  buf = buf.simplified();
+	  tokens = buf.split(' ');
+	  word = tokens.at(0);
+	}
+
+      // Set the number of vertices and then create vertices array and resize vertex attr mat.
+      numVerts = tokens.at(1).toULongLong(&ok);
+      tDims[0] = numVerts;
+      vertexAttrMat->resizeAttributeArrays(tDims);
+    
+      SharedVertexList::Pointer vertexPtr = TetrahedralGeom::CreateSharedVertexList(static_cast<int64_t>(numVerts), allocate);
+      float* vertex = vertexPtr->getPointer(0);
+      
+      // Read or Skip past all the vertex data
+      for(size_t i = 0; i < numVerts; i++)
+	{
+	  buf = inStream.readLine();
+	  if(allocate)
+	    {
+	      buf = buf.trimmed();
+	      buf = buf.simplified();
+	      tokens = buf.split(' ');
+	      vertex[3 * i] = tokens[1].toFloat(&ok);
+	      vertex[3 * i + 1] = tokens[2].toFloat(&ok);
+	      vertex[3 * i + 2] = tokens[3].toFloat(&ok);
+	    }
+	}
+    
+      inStream.seek(dataOffset);
+    
+      while(word.compare("ELEMENTS") != 0)
+	{
+	  buf = inStream.readLine();
+	  buf = buf.trimmed();
+	  buf = buf.simplified();
+	  tokens = buf.split(' ');
+	  word = tokens.at(0);
+	}
+  
+      TetrahedralGeom::Pointer tetGeomPtr = TetrahedralGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::TetrahedralGeometry, allocate);
+      tetGeomPtr->setSpatialDimensionality(3);
+      dataContainer->setGeometry(tetGeomPtr);
+      int64_t* tets = tetGeomPtr->getTetPointer(0);
+    
+      for(size_t i = 0; i < numCells; i++)
+	{
+	  buf = inStream.readLine();
+	  if(allocate)
+	    {
+	      buf = buf.trimmed();
+	      buf = buf.simplified();
+	      tokens = buf.split(' ');
+	      // Subtract one from the node number because ABAQUS starts at node 1 and we start at node 0
+	      tets[4 * i] = tokens[1].toInt(&ok) - 1;
+	      tets[4 * i + 1] = tokens[2].toInt(&ok) - 1;
+	      tets[4 * i + 2] = tokens[3].toInt(&ok) - 1;
+	      tets[4 * i + 3] = tokens[4].toInt(&ok) - 1;
+	    }
+	}
+      // End reading of the connectivity
+    }
+  
+  // quadrilaterals
   if(eleType == "CPE4R" || eleType == "CPS4R")
     {
       eleDim = "2D";

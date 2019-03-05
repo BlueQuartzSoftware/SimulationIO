@@ -66,8 +66,8 @@ Export3dSolidMesh::Export3dSolidMesh()
   , m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
   , m_GmshSTLFileName("")
   , m_NetgenSTLFileName("")
-  , m_MeshSize("")
-
+  , m_MeshSize(0)
+  , m_MeshFileFormat(0)
 {
   initialize();
 }
@@ -103,8 +103,8 @@ void Export3dSolidMesh::setupFilterParameters()
     choices.push_back("TetGen");
     choices.push_back("Netgen");
     choices.push_back("Gmsh");
-      parameter->setChoices(choices);
-    QStringList linkedProps = {"SurfaceMeshFaceLabelsArrayPath", "FeaturePhasesArrayPath", "FeatureCentroidArrayPath", "RefineMesh", "MaxRadiusEdgeRatio", "MinDihedralAngle", "OptimizationLevel", "LimitTetrahedraVolume", "MaxTetrahedraVolume", "TetDataContainerName", "VertexAttributeMatrixName", "CellAttributeMatrixName", "GmshSTLFileName", "NetgenSTLFileName", "MeshSize"};
+    parameter->setChoices(choices);
+    QStringList linkedProps = {"SurfaceMeshFaceLabelsArrayPath", "FeaturePhasesArrayPath", "FeatureCentroidArrayPath", "RefineMesh", "MaxRadiusEdgeRatio", "MinDihedralAngle", "OptimizationLevel", "LimitTetrahedraVolume", "MaxTetrahedraVolume", "TetDataContainerName", "VertexAttributeMatrixName", "CellAttributeMatrixName", "GmshSTLFileName", "NetgenSTLFileName", "MeshSize", "MeshFileFormat"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -147,6 +147,22 @@ void Export3dSolidMesh::setupFilterParameters()
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Centroids", FeatureCentroidArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
   }
 
+  {
+    ChoiceFilterParameter::Pointer parameter = ChoiceFilterParameter::New();
+    parameter->setHumanLabel("Mesh File Format");
+    parameter->setPropertyName("MeshFileFormat");
+    parameter->setSetterCallback(SIMPL_BIND_SETTER(Export3dSolidMesh, this, MeshFileFormat));
+    parameter->setGetterCallback(SIMPL_BIND_GETTER(Export3dSolidMesh, this, MeshFileFormat));
+
+    QVector<QString> choices;
+    choices.push_back("msh");
+    choices.push_back("inp");
+    parameter->setChoices(choices);
+    parameter->setGroupIndex(2);
+    parameter->setCategory(FilterParameter::Parameter);
+    parameters.push_back(parameter);
+  }
+
   parameters.push_back(SeparatorFilterParameter::New("Mesh Quality Options", FilterParameter::Parameter));
   {
     QStringList linkedProps = {"MaxRadiusEdgeRatio", "MinDihedralAngle"};
@@ -157,7 +173,22 @@ void Export3dSolidMesh::setupFilterParameters()
     parameters.push_back(SIMPL_NEW_INTEGER_FP("Optimization Level (O)", OptimizationLevel, FilterParameter::Parameter, Export3dSolidMesh, 0));
   }
   {
-    parameters.push_back(SIMPL_NEW_STRING_FP("Mesh Size", MeshSize, FilterParameter::Parameter, Export3dSolidMesh,1));
+    ChoiceFilterParameter::Pointer parameter = ChoiceFilterParameter::New();
+    parameter->setHumanLabel("Mesh Size");
+    parameter->setPropertyName("MeshSize");
+    parameter->setSetterCallback(SIMPL_BIND_SETTER(Export3dSolidMesh, this, MeshSize));
+    parameter->setGetterCallback(SIMPL_BIND_GETTER(Export3dSolidMesh, this, MeshSize));
+
+    QVector<QString> choices;
+    choices.push_back("very coarse");
+    choices.push_back("coarse");
+    choices.push_back("moderate");
+    choices.push_back("fine");
+    choices.push_back("very fine");
+    parameter->setChoices(choices);
+    parameter->setGroupIndex(1);
+    parameter->setCategory(FilterParameter::Parameter);
+    parameters.push_back(parameter);
   }
 
   {
@@ -195,8 +226,9 @@ void Export3dSolidMesh::readFilterParameters(AbstractFilterParametersReader* rea
   setVertexAttributeMatrixName(reader->readString("VertexAttributeMatrixName", getVertexAttributeMatrixName()));
   setCellAttributeMatrixName(reader->readString("CellAttributeMatrixName", getCellAttributeMatrixName()));
   setNetgenSTLFileName(reader->readString("NetgenSTLFileName", getNetgenSTLFileName()));
-  setMeshSize(reader->readString("MeshSize", getMeshSize()));
+  setMeshSize(reader->readValue("MeshSize", getMeshSize()));
   setGmshSTLFileName(reader->readString("GmshSTLFileName", getGmshSTLFileName()));
+  setMeshFileFormat(reader->readValue("MeshFileFormat", getMeshFileFormat()));
   reader->closeFilterGroup();
 }
 
@@ -597,7 +629,27 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
 	//cmd to run: "netgen file.stlb -batchmode -verycoarse/coarse/moderate/fine/veryfine -meshfile=output filename
 	
 	switches = "-";
-	switches += m_MeshSize;
+	if (m_MeshSize == 0)
+	  {
+	    switches += "verycoarse";    
+	  }
+	else if (m_MeshSize == 1)
+	  {
+	    switches += "coarse";    
+	  }
+	else if (m_MeshSize == 2)
+	  {
+	    switches += "moderate";    
+	  }
+	else if (m_MeshSize == 3)
+	  {
+	    switches += "fine";    
+	  }
+	else if (m_MeshSize == 4)
+	  {
+	    switches += "veryfine";    
+	  }
+	
 	program += "netgen";
 	
 	QString switchMeshFile;
@@ -611,12 +663,24 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
       }
     case 2:
       {
+	QString switch1;
+	QString switch2;
 
+	switch1 = "-format";
+	
 	//cmd to run: "gmsh file -3
+	if (m_MeshFileFormat == 1)
+	  {
+	    switch2 = "inp";    
+	  }
+	else 
+	  {
+	    switch2 = "auto";    
+	  }
 	
 	switches = "-3";
 	program += "gmsh";
-	arguments << file << switches;
+	arguments << file << switches<<switch1<<switch2;
 
 	break;
       }

@@ -1,5 +1,5 @@
 {
-    "00": {
+    "0": {
         "CellEnsembleAttributeMatrixName": "CellEnsembleData",
         "CrystalStructuresArrayName": "CrystalStructures",
         "Filter_Enabled": true,
@@ -19,7 +19,7 @@
                     22.013751983642578,
                     32.01375198364258
                 ],
-                "BoundaryArea": 0,
+                "BoundaryArea": -1.0842021724855044e-19,
                 "Crystal Symmetry": 1,
                 "FeatureSize Distribution": {
                     "Average": 2.299999952316284,
@@ -104,18 +104,18 @@
         "StatsDataArrayName": "Statistics",
         "StatsGeneratorDataContainerName": "StatsGeneratorDataContainer"
     },
-    "01": {
-        "BoxDimensions": "X Range: 0 to 8 (Delta: 8)\nY Range: 0 to 8 (Delta: 8)\nZ Range: 0 to 8 (Delta: 8)",
+    "1": {
+        "BoxDimensions": "X Range: 0 to 16 (Delta: 16)\nY Range: 0 to 16 (Delta: 16)\nZ Range: 0 to 16 (Delta: 16)",
         "CellAttributeMatrixName": "CellData",
         "DataContainerName": "SyntheticVolumeDataContainer",
         "Dimensions": {
-            "x": 16,
-            "y": 16,
-            "z": 16
+            "x": 32,
+            "y": 32,
+            "z": 32
         },
         "EnsembleAttributeMatrixName": "CellEnsembleData",
         "EstimateNumberOfFeatures": 1,
-        "EstimatedPrimaryFeatures": "3",
+        "EstimatedPrimaryFeatures": "8",
         "FilterVersion": "6.5.111",
         "Filter_Enabled": true,
         "Filter_Human_Label": "Initialize Synthetic Volume",
@@ -142,7 +142,7 @@
             "z": 0.5
         }
     },
-    "02": {
+    "2": {
         "FilterVersion": "6.5.111",
         "Filter_Enabled": true,
         "Filter_Human_Label": "Establish Shape Types",
@@ -159,7 +159,7 @@
         ],
         "ShapeTypesArrayName": "ShapeTypes"
     },
-    "03": {
+    "3": {
         "CellPhasesArrayName": "Phases",
         "FeatureGeneration": 0,
         "FeatureIdsArrayName": "FeatureIds",
@@ -217,7 +217,7 @@
         },
         "UseMask": 0
     },
-    "04": {
+    "4": {
         "BoundaryCellsArrayName": "BoundaryCells",
         "CellFeatureAttributeMatrixPath": {
             "Attribute Matrix Name": "Grain Data",
@@ -241,7 +241,7 @@
         "StoreSurfaceFeatures": 1,
         "SurfaceFeaturesArrayName": "SurfaceFeatures"
     },
-    "05": {
+    "5": {
         "AvgQuatsArrayName": "AvgQuats",
         "CellEulerAnglesArrayName": "EulerAngles",
         "CrystalStructuresArrayPath": {
@@ -298,7 +298,7 @@
         },
         "VolumesArrayName": "Volumes"
     },
-    "06": {
+    "6": {
         "CellEulerAnglesArrayPath": {
             "Attribute Matrix Name": "CellData",
             "Data Array Name": "EulerAngles",
@@ -332,7 +332,7 @@
         },
         "UseGoodVoxels": 0
     },
-    "07": {
+    "7": {
         "FaceAttributeMatrixName": "FaceData",
         "FaceLabelsArrayName": "FaceLabels",
         "FeatureAttributeMatrixName": "FaceFeatureData",
@@ -352,21 +352,13 @@
         "SurfaceDataContainerName": "TriangleDataContainer",
         "VertexAttributeMatrixName": "VertexData"
     },
-    "08": {
-        "FilterVersion": "6.5.111",
-        "Filter_Enabled": true,
-        "Filter_Human_Label": "Reverse Triangle Winding",
-        "Filter_Name": "ReverseTriangleWinding",
-        "Filter_Uuid": "{9b9fb9e1-074d-54b6-a6ce-0be21ab4496d}",
-        "SurfaceDataContainerName": "TriangleDataContainer"
-    },
-    "09": {
+    "8": {
         "FilterVersion": "6.5.111",
         "Filter_Enabled": true,
         "Filter_Human_Label": "Export STL Files from Triangle Geometry",
         "Filter_Name": "WriteStlFile",
         "Filter_Uuid": "{b9134758-d5e5-59dd-9907-28d23e0e0143}",
-        "OutputStlDirectory": "/Users/saurabhpuri/Desktop/Netgen",
+        "OutputStlDirectory": "/Users/saurabhpuri/Desktop/Gmsh",
         "OutputStlPrefix": "test",
         "SurfaceMeshFaceLabelsArrayPath": {
             "Attribute Matrix Name": "FaceData",
@@ -379,7 +371,7 @@
             "Data Container Name": "TriangleDataContainer"
         }
     },
-    "10": {
+    "9": {
         "CellAttributeMatrixName": "CellData",
         "FeatureCentroidArrayPath": {
             "Attribute Matrix Name": "CellFeatureData",
@@ -401,16 +393,17 @@
         "Filter_Human_Label": "Export 3d Solid Mesh",
         "Filter_Name": "Export3dSolidMesh",
         "Filter_Uuid": "{fcff3b03-bff6-5511-bc65-5e558d12f0a6}",
-        "GmshSTLFileName": "",
+        "GmshSTLFileName": "test",
         "LimitTetrahedraVolume": 0,
         "MaxRadiusEdgeRatio": 2,
         "MaxTetrahedraVolume": 0.10000000149011612,
-        "MeshSize": 1,
-        "MeshingPackage": 1,
+        "MeshFileFormat": 0,
+        "MeshSize": 0,
+        "MeshingPackage": 2,
         "MinDihedralAngle": 0,
         "NetgenSTLFileName": "test",
         "OptimizationLevel": 2,
-        "PackageLocation": "/Applications/Netgen.app/Contents/MacOS",
+        "PackageLocation": "/Applications/Gmsh.app/Contents/MacOS",
         "RefineMesh": 1,
         "SurfaceMeshFaceLabelsArrayPath": {
             "Attribute Matrix Name": "FaceData",
@@ -419,11 +412,11 @@
         },
         "TetDataContainerName": "TetrahedralDataContainer",
         "VertexAttributeMatrixName": "VertexData",
-        "outputPath": "/Users/saurabhpuri/Desktop/Netgen"
+        "outputPath": "/Users/saurabhpuri/Desktop/Gmsh"
     },
     "PipelineBuilder": {
-        "Name": "NetgenPipeline",
-        "Number_Filters": 11,
+        "Name": "LAMMPSPipeline",
+        "Number_Filters": 10,
         "Version": 6
     }
 }

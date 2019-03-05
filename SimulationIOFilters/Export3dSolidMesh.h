@@ -49,9 +49,10 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
   PYB11_PROPERTY(QString CellAttributeMatrixName READ getCellAttributeMatrixName WRITE setCellAttributeMatrixName)
 
   PYB11_PROPERTY(QString GmshSTLFileName READ getGmshSTLFileName WRITE setGmshSTLFileName)
+  PYB11_PROPERTY(int MeshFileFormat READ getMeshFileFormat WRITE setMeshFileFormat)
 
   PYB11_PROPERTY(QString NetgenSTLFileName READ getNetgenSTLFileName WRITE setNetgenSTLFileName)
-  PYB11_PROPERTY(QString MeshSize READ getMeshSize WRITE setMeshSize)
+  PYB11_PROPERTY(int MeshSize READ getMeshSize WRITE setMeshSize)
 
   public:
     SIMPL_SHARED_POINTERS(Export3dSolidMesh)
@@ -111,11 +112,15 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
     SIMPL_FILTER_PARAMETER(QString, GmshSTLFileName)
     Q_PROPERTY(QString GmshSTLFileName READ getGmshSTLFileName WRITE setGmshSTLFileName)
 
+    SIMPL_FILTER_PARAMETER(int, MeshFileFormat)
+    Q_PROPERTY(int MeshFileFormat READ getMeshFileFormat WRITE setMeshFileFormat)
+
     SIMPL_FILTER_PARAMETER(QString, NetgenSTLFileName)
     Q_PROPERTY(QString NetgenSTLFileName READ getNetgenSTLFileName WRITE setNetgenSTLFileName)
 
-    SIMPL_FILTER_PARAMETER(QString, MeshSize)
-    Q_PROPERTY(QString MeshSize READ getMeshSize WRITE setMeshSize)
+    SIMPL_FILTER_PARAMETER(int, MeshSize)
+    Q_PROPERTY(int MeshSize READ getMeshSize WRITE setMeshSize)
+
 
     /**
      * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class

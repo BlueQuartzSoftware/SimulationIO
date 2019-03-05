@@ -7,12 +7,15 @@ SimulationIO (SimulationIO)
 
 ## Description ##
 
-This **Filter** writes the geometry file (*.geom) and material.config file required as an input for DAMASK. The geometry file has information about sample's origin, size, and dimensions, and spatial distribution of grains. The material.config file has description of Euler Angles and phase IDs.
+This **Filter** writes the geometry file (*.geom) and material.config file required as an input for the DAMASK package. The geometry file has information about sample's origin, size, and dimensions, and spatial distribution of grains. The material.config file has description of Euler Angles and phase IDs. The material.config file created by DREAM.3D has information about texture and microstructure, however, the user needs to add information about homogenization, crystallite and phase.
+
+There are two options for writing the files: poitwise and grainwise. In the pointwise case, every cell is considered to be a different grain. In the grainwise case, **Feature ID** is used to specify the feature to which a cell belongs.
 
 ## Parameters ##
 
 | Name | Type | Description |
 |------|------|------|
+| Data Format | Enumeration | format type for DAMASK files |
 | Output Path | Path | Path of the directory where files will be created |
 | Geometry File Name | String | Name of geometry (*.geom) file |
 | Homogenization Index | int | Homogenization index |

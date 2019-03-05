@@ -52,13 +52,8 @@ CreateFEAInputFiles::CreateFEAInputFiles()
   , m_CellEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles)
   , m_DelamMat("")
   , m_NumClusters(1)
-  //  , m_UseMeshCreatedByDREAM3D(true)
 {
   initialize();
-
-  // m_NumElem.x = 20;
-  // m_NumElem.y = 20;
-  // m_NumElem.z = 20;
 
   m_NumKeypoints.x = 2;
   m_NumKeypoints.y = 2;
@@ -99,7 +94,6 @@ void CreateFEAInputFiles::setupFilterParameters()
     choices.push_back("PZFLEX");
     choices.push_back("BSAM");
     parameter->setChoices(choices);
-    //  QStringList linkedProps = {"JobName", "NumElem", "NumDepvar", "NumMatConst", "NumUserOutVar", "MatConst", "CellEulerAnglesArrayPath", "CellPhasesArrayPath", "DelamMat", "NumKeypoints", "NumClusters", "ClusterData", "UseMeshCreatedByDREAM3D"};
     QStringList linkedProps = {"JobName", "NumDepvar", "NumMatConst", "NumUserOutVar", "MatConst", "AbqFeatureIdsArrayPath", "PzflexFeatureIdsArrayPath", "CellEulerAnglesArrayPath", "CellPhasesArrayPath", "DelamMat", "NumKeypoints", "NumClusters"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
@@ -111,11 +105,6 @@ void CreateFEAInputFiles::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_STRING_FP("Output File Prefix", OutputFilePrefix, FilterParameter::Parameter, CreateFEAInputFiles));
 
   {
-    //  QStringList linkedProps = {"NumElem"};
-    //  parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Use Mesh Created By DREAM.3D", UseMeshCreatedByDREAM3D, FilterParameter::Parameter, CreateFEAInputFiles, linkedProps, 0));
-    // linkedProps.clear();
-
-    //   parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Elements", NumElem, FilterParameter::Parameter, CreateFEAInputFiles, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Job Name", JobName, FilterParameter::Parameter, CreateFEAInputFiles,0));
     parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Solution Dependent State Variables", NumDepvar, FilterParameter::Parameter, CreateFEAInputFiles, 0));
     parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Material Constants", NumMatConst, FilterParameter::Parameter, CreateFEAInputFiles, 0));
@@ -161,21 +150,7 @@ void CreateFEAInputFiles::setupFilterParameters()
   }
 
   {
-    parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Clusters", NumClusters, FilterParameter::Parameter, CreateFEAInputFiles, 2));
-
-    // Table - Dynamic rows and fixed columns
-    // {
-    //   QStringList cHeaders;
-    //   cHeaders << "Elements"
-    // 	       << "Nodes"
-    // 	       << "Sets";
-    //   std::vector<std::vector<double>> defaultTable(1, std::vector<double>(3, 0.0));
-    //   m_ClusterData.setColHeaders(cHeaders);
-    //   m_ClusterData.setTableData(defaultTable);
-    //   m_ClusterData.setDynamicRows(true);
-    //   parameters.push_back(SIMPL_NEW_DYN_TABLE_FP("Cluster Data", ClusterData, FilterParameter::Parameter, CreateFEAInputFiles, 2));
-    // }
-    
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Clusters", NumClusters, FilterParameter::Parameter, CreateFEAInputFiles, 2));    
   }
 
   setFilterParameters(parameters);
@@ -187,14 +162,21 @@ void CreateFEAInputFiles::setupFilterParameters()
 void CreateFEAInputFiles::readFilterParameters(AbstractFilterParametersReader* reader, int index)
 {
   reader->openFilterGroup(this, index);
+  setFEAPackage(reader->readValue("FEAPackage", getFEAPackage()));
   setOutputPath(reader->readString("OutputPath", getOutputPath()));
   setOutputFilePrefix(reader->readString("OutputFilePrefix", getOutputFilePrefix()));
-  // setNumElem(reader->readIntVec3("Number of Elements", getNumElem()));
+  setJobName(reader->readString("JobName", getJobName()));
+  setNumDepvar(reader->readValue("NumDepvar", getNumDepvar()));
+  setNumMatConst(reader->readValue("NumMatConst", getNumMatConst()));
+  setNumUserOutVar(reader->readValue("NumUserOutVar", getNumUserOutVar()));
+  setMatConst(reader->readDynamicTableData("MatConst", getMatConst()));
+  setDelamMat(reader->readString("DelamMat", getDelamMat()));
+  setNumKeypoints(reader->readIntVec3("NumKeypoints", getNumKeypoints()));
+  setAbqFeatureIdsArrayPath(reader->readDataArrayPath("AbqFeatureIdsArrayPath", getAbqFeatureIdsArrayPath()));
   setCellEulerAnglesArrayPath(reader->readDataArrayPath("CellEulerAnglesArrayPath", getCellEulerAnglesArrayPath()));
   setCellPhasesArrayPath(reader->readDataArrayPath("CellPhasesArrayPath", getCellPhasesArrayPath()));
-  setAbqFeatureIdsArrayPath(reader->readDataArrayPath("AbqFeatureIdsArrayPath", getAbqFeatureIdsArrayPath()));
   setPzflexFeatureIdsArrayPath(reader->readDataArrayPath("PzflexFeatureIdsArrayPath", getPzflexFeatureIdsArrayPath()));
-  setJobName(reader->readString("JobName", getJobName()));
+  setNumClusters(reader->readValue("NumClusters", getNumClusters()));
   reader->closeFilterGroup();
 }
 
@@ -221,8 +203,6 @@ void CreateFEAInputFiles::dataCheck()
     QString ss = QObject::tr("The directory path for the output file does not exist. DREAM.3D will attempt to create this path during execution of the filter");
     notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
   }
-
-  //  FileSystemPathHelper::CheckOutputFile(this, "Output File Path", getOutputPath(), true);
 
   switch(m_FEAPackage)
     {
@@ -292,6 +272,8 @@ void CreateFEAInputFiles::dataCheck()
 	      dataArrayPaths.push_back(getPzflexFeatureIdsArrayPath());
 	    }
 	  
+	  break;
+
 	}
     }
   //
@@ -477,8 +459,7 @@ void CreateFEAInputFiles::execute()
 	Int32ArrayType::Pointer m_connLengthPtr = Int32ArrayType::CreateArray(8*ne_x*ne_y*ne_z , "CONNECTIVITY_INTERNAL_USE_ONLY");
 	int32_t* m_conn = m_connLengthPtr->getPointer(0);
 	
-	fprintf(f2,"*ELEMENTS, TYPE=C3D8R, ELSET=ALLELEMENTS\n");  
-	//	fprintf(f5,"*ELEMENTS, TYPE=C3D8R, ELSET=ALLELEMENTS\n");  
+	fprintf(f2,"*ELEMENT, TYPE=C3D8R, ELSET=ALLELEMENTS\n");  
 	
 	for(int32_t k = 0; k < ne_z; k++)
 	  {
@@ -507,8 +488,7 @@ void CreateFEAInputFiles::execute()
 		for(int32_t i = 0; i < ne_x; i++)
 		  {
 		    index =  k*ne_x*ne_y + j*ne_x + i;
-		    fprintf(f2,"%d, %d, %d, %d, %d, %d, %d, %d, %d\n", index+1, m_conn[index*8],m_conn[index*8+1],m_conn[index*8+2],m_conn[index*8+3],m_conn[index*8+4],m_conn[index*3+5],m_conn[index*8+6],m_conn[index*8+7]);  
-		    //    fprintf(f5,"%d, %d, %d, %d, %d, %d, %d, %d, %d\n", index+1, m_conn[index*8],m_conn[index*8+1],m_conn[index*8+2],m_conn[index*8+3],m_conn[index*8+4],m_conn[index*3+5],m_conn[index*8+6],m_conn[index*8+7]);  
+		    fprintf(f2,"%d, %d, %d, %d, %d, %d, %d, %d, %d\n", index+1, m_conn[index*8],m_conn[index*8+1],m_conn[index*8+2],m_conn[index*8+3],m_conn[index*8+4],m_conn[index*8+5],m_conn[index*8+6],m_conn[index*8+7]);  
 		  }
 	      }
 	  }
@@ -545,7 +525,6 @@ void CreateFEAInputFiles::execute()
 	  {
 	    size_t elementPerLine = 0;
 	    fprintf(f4, "*Elset, elset=Grain%d_Phase%d_set\n", voxelId, m_phaseId[voxelId-1] );
-	    // fprintf(f5, "*Elset, elset=Grain%d_Phase%d_set\n", voxelId, m_phaseId[voxelId-1] );
 
 	    for(int32_t i = 0; i < totalPoints; i++)
 	      {

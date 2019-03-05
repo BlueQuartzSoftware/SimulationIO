@@ -27,6 +27,8 @@
 class SimulationIO_EXPORT ExportDAMASKFiles : public AbstractFilter
 {
   Q_OBJECT
+  PYB11_CREATE_BINDINGS(ExportDAMASKFiles SUPERCLASS AbstractFilter)
+  PYB11_PROPERTY(int DataFormat READ getDataFormat WRITE setDataFormat)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
   PYB11_PROPERTY(QString GeometryFileName READ getGeometryFileName WRITE setGeometryFileName)
   PYB11_PROPERTY(int HomogenizationIndex READ getHomogenizationIndex WRITE setHomogenizationIndex)
@@ -41,6 +43,9 @@ class SimulationIO_EXPORT ExportDAMASKFiles : public AbstractFilter
     SIMPL_TYPE_MACRO_SUPER(ExportDAMASKFiles, AbstractFilter)
 
     ~ExportDAMASKFiles() override;
+
+    SIMPL_FILTER_PARAMETER(int, DataFormat)
+    Q_PROPERTY(int DataFormat READ getDataFormat WRITE setDataFormat)
 
     SIMPL_FILTER_PARAMETER(QString, OutputPath)
     Q_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)

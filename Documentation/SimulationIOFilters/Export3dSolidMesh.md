@@ -24,7 +24,7 @@ Netgen is used to create a volume mesh from STL files of individual grains. All 
 It is required to use the filter "Reverse Triangle Winding" before creating the STL files for using Netgen flter.
 
 ##### Gmsh #####
-Gmsh is used to create a volume mesh from STL files of individual grains. All the STL files should be present in the directory mentioned in the "Path" field. "STL File Prefix" should be the same that was used for creating the STL files. File name of the merged mesh is gmsh.msh and is created in the directory mentioned in the "Path" Field.
+Gmsh is used to create a volume mesh from STL files of individual grains. All the STL files should be present in the directory mentioned in the "Path" field. "STL File Prefix" should be the same that was used for creating the STL files. File name of the merged mesh is gmsh.xxx and is created in the directory mentioned in the "Path" Field. The extension of the merged mesh depends on the **Mesh File Format** that user uses. ABAQUS input file can be created from this filter by using the "inp" option.
 
 ## Parameters ##
 | Name | Type | Description |
@@ -39,7 +39,8 @@ Gmsh is used to create a volume mesh from STL files of individual grains. All th
 | Limit Tetrahedra Volume | bool | Option to limit the volume of tetrahedrons, if _TetGen_ is chosen|
 | Maximum Tetrahedron Volume | float | Maximum volume of tetrahedrons, if _TetGen_ is chosen|
 | STL File Prefix | File Prefix | Prefix of STL filenames (xxxFeature_#.stl), if _Netgen_ or _Gmsh_ is chosen |
-| Mesh Size | String | verycoarse/coarse/moderate/fine/veryfine, if _Netgen_ is chosen |
+| Mesh Size | Enumeration | verycoarse/coarse/moderate/fine/veryfine, if _Netgen_ is chosen |
+| Mesh File Format | Enumeration | mesh file format: msh or inp, if _Gmsh_ is chosen |
 
 ## Required Geometry ##
  Not Applicable

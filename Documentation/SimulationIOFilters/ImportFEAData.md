@@ -18,7 +18,7 @@ Based on the operating system, the command used for running a python script in A
 
 cmd /C abaqus python <odbname.py>
 
-It is assumed that ABAQUS is installed on the machine and "abaqus python *.py" is working on a command window. Currently, element types of C3D8R, CPE4R, and CPS4R can be read using this **filter**.
+It is assumed that ABAQUS is installed on the machine and "abaqus python *.py" is working on a command window. Currently, element types of C3D8R, C3D4, CPE4R, CPS4R, CPE3, and CPS3 can be read using this **filter**.
 
 ##### BSAM #####
 The output from BSAM consists of an array of *.dat files, with each file corresponding to a different load step. This **Filter** reads one file at a time and saves the geometry (nodal coordinates and connectivity), nodal stresses and strains, nodal displacements, values of the variable "cluster" at different nodes, and nodal values of the variable "va" (va1, va2, va3, va4) in a newly created **Data Container**. The current implementation is for brick elements with 8 nodes.

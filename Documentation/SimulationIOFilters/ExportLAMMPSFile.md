@@ -31,7 +31,7 @@ Not Applicable
 
 
 ## Example Pipelines ##
-
++LAMMPSPipeline
 
 ## License & Copyright ##
 

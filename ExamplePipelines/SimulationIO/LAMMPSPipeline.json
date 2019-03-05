@@ -1,5 +1,5 @@
 {
-    "0": {
+    "00": {
         "CellEnsembleAttributeMatrixName": "CellEnsembleData",
         "CrystalStructuresArrayName": "CrystalStructures",
         "Filter_Enabled": true,
@@ -19,7 +19,7 @@
                     22.013751983642578,
                     32.01375198364258
                 ],
-                "BoundaryArea": -1.0842021724855044e-19,
+                "BoundaryArea": 0,
                 "Crystal Symmetry": 1,
                 "FeatureSize Distribution": {
                     "Average": 2.299999952316284,
@@ -104,18 +104,18 @@
         "StatsDataArrayName": "Statistics",
         "StatsGeneratorDataContainerName": "StatsGeneratorDataContainer"
     },
-    "1": {
-        "BoxDimensions": "X Range: 0 to 16 (Delta: 16)\nY Range: 0 to 16 (Delta: 16)\nZ Range: 0 to 16 (Delta: 16)",
+    "01": {
+        "BoxDimensions": "X Range: 0 to 0.1 (Delta: 0.1)\nY Range: 0 to 0.1 (Delta: 0.1)\nZ Range: 0 to 0.01 (Delta: 0.01)",
         "CellAttributeMatrixName": "CellData",
         "DataContainerName": "SyntheticVolumeDataContainer",
         "Dimensions": {
-            "x": 32,
-            "y": 32,
-            "z": 32
+            "x": 100,
+            "y": 100,
+            "z": 10
         },
         "EnsembleAttributeMatrixName": "CellEnsembleData",
         "EstimateNumberOfFeatures": 1,
-        "EstimatedPrimaryFeatures": "8",
+        "EstimatedPrimaryFeatures": "2",
         "FilterVersion": "6.5.111",
         "Filter_Enabled": true,
         "Filter_Human_Label": "Initialize Synthetic Volume",
@@ -137,12 +137,12 @@
             "z": 0
         },
         "Resolution": {
-            "x": 0.5,
-            "y": 0.5,
-            "z": 0.5
+            "x": 0.0010000000474974513,
+            "y": 0.0010000000474974513,
+            "z": 0.0010000000474974513
         }
     },
-    "2": {
+    "02": {
         "FilterVersion": "6.5.111",
         "Filter_Enabled": true,
         "Filter_Human_Label": "Establish Shape Types",
@@ -159,7 +159,7 @@
         ],
         "ShapeTypesArrayName": "ShapeTypes"
     },
-    "3": {
+    "03": {
         "CellPhasesArrayName": "Phases",
         "FeatureGeneration": 0,
         "FeatureIdsArrayName": "FeatureIds",
@@ -217,7 +217,7 @@
         },
         "UseMask": 0
     },
-    "4": {
+    "04": {
         "BoundaryCellsArrayName": "BoundaryCells",
         "CellFeatureAttributeMatrixPath": {
             "Attribute Matrix Name": "Grain Data",
@@ -241,7 +241,7 @@
         "StoreSurfaceFeatures": 1,
         "SurfaceFeaturesArrayName": "SurfaceFeatures"
     },
-    "5": {
+    "05": {
         "AvgQuatsArrayName": "AvgQuats",
         "CellEulerAnglesArrayName": "EulerAngles",
         "CrystalStructuresArrayPath": {
@@ -298,7 +298,7 @@
         },
         "VolumesArrayName": "Volumes"
     },
-    "6": {
+    "06": {
         "CellEulerAnglesArrayPath": {
             "Attribute Matrix Name": "CellData",
             "Data Array Name": "EulerAngles",
@@ -332,14 +332,48 @@
         },
         "UseGoodVoxels": 0
     },
-    "7": {
+    "07": {
+        "CellAttributeMatrixPath": {
+            "Attribute Matrix Name": "CellData",
+            "Data Array Name": "",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "CellFeatureAttributeMatrixPath": {
+            "Attribute Matrix Name": "Grain Data",
+            "Data Array Name": "",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FeatureIdsArrayPath": {
+            "Attribute Matrix Name": "CellData",
+            "Data Array Name": "FeatureIds",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FilterVersion": "6.5.111",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Crop Geometry (Image)",
+        "Filter_Name": "CropImageGeometry",
+        "Filter_Uuid": "{baa4b7fe-31e5-5e63-a2cb-0bb9d844cfaf}",
+        "NewBoxDimensions": "X Range: 0.01 to 0.012 (Delta: 0.002) 0-1 Voxels\nY Range: 0.01 to 0.012 (Delta: 0.002) 0-1 Voxels\nZ Range: 0.004 to 0.006 (Delta: 0.002) 0-1 Voxels\n",
+        "NewDataContainerName": "NewImageDataContainer",
+        "OldBoxDimensions": "X Range: 0 to 0.1 (Delta: 0.1) 0-99 Voxels\nY Range: 0 to 0.1 (Delta: 0.1) 0-99 Voxels\nZ Range: 0 to 0.01 (Delta: 0.01) 0-9 Voxels\n",
+        "RenumberFeatures": 1,
+        "SaveAsNewDataContainer": 1,
+        "UpdateOrigin": 1,
+        "XMax": 11,
+        "XMin": 10,
+        "YMax": 11,
+        "YMin": 10,
+        "ZMax": 5,
+        "ZMin": 4
+    },
+    "08": {
         "FaceAttributeMatrixName": "FaceData",
         "FaceLabelsArrayName": "FaceLabels",
         "FeatureAttributeMatrixName": "FaceFeatureData",
         "FeatureIdsArrayPath": {
             "Attribute Matrix Name": "CellData",
             "Data Array Name": "FeatureIds",
-            "Data Container Name": "SyntheticVolumeDataContainer"
+            "Data Container Name": "NewImageDataContainer"
         },
         "FilterVersion": "6.5.111",
         "Filter_Enabled": true,
@@ -348,75 +382,82 @@
         "Filter_Uuid": "{07b49e30-3900-5c34-862a-f1fb48bad568}",
         "NodeTypesArrayName": "NodeType",
         "SelectedDataArrayPaths": [
+            {
+                "Attribute Matrix Name": "CellData",
+                "Data Array Name": "FeatureIds",
+                "Data Container Name": "NewImageDataContainer"
+            },
+            {
+                "Attribute Matrix Name": "CellData",
+                "Data Array Name": "EulerAngles",
+                "Data Container Name": "NewImageDataContainer"
+            },
+            {
+                "Attribute Matrix Name": "CellData",
+                "Data Array Name": "IPFColor",
+                "Data Container Name": "NewImageDataContainer"
+            },
+            {
+                "Attribute Matrix Name": "CellData",
+                "Data Array Name": "Phases",
+                "Data Container Name": "NewImageDataContainer"
+            }
         ],
         "SurfaceDataContainerName": "TriangleDataContainer",
         "VertexAttributeMatrixName": "VertexData"
     },
-    "8": {
+    "09": {
+        "AtomFeatureLabelsArrayName": "AtomFeatureLabels",
+        "AvgQuatsArrayPath": {
+            "Attribute Matrix Name": "Grain Data",
+            "Data Array Name": "AvgQuats",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "Basis": 0,
         "FilterVersion": "6.5.111",
         "Filter_Enabled": true,
-        "Filter_Human_Label": "Export STL Files from Triangle Geometry",
-        "Filter_Name": "WriteStlFile",
-        "Filter_Uuid": "{b9134758-d5e5-59dd-9907-28d23e0e0143}",
-        "OutputStlDirectory": "/Users/saurabhpuri/Desktop/Gmsh",
-        "OutputStlPrefix": "test",
+        "Filter_Human_Label": "Insert Atoms",
+        "Filter_Name": "InsertAtoms",
+        "Filter_Uuid": "{4ee65edd-8d7f-5b0b-a7dd-c4b96e272a87}",
+        "LatticeConstants": {
+            "x": 10,
+            "y": 10,
+            "z": 10
+        },
         "SurfaceMeshFaceLabelsArrayPath": {
             "Attribute Matrix Name": "FaceData",
             "Data Array Name": "FaceLabels",
             "Data Container Name": "TriangleDataContainer"
         },
-        "SurfaceMeshFacePhasesArrayPath": {
-            "Attribute Matrix Name": "FaceData",
-            "Data Array Name": "Phases",
-            "Data Container Name": "TriangleDataContainer"
-        }
+        "VertexAttributeMatrixName": "VertexData",
+        "VertexDataContainerName": "VertexDataContainer"
     },
-    "9": {
-        "CellAttributeMatrixName": "CellData",
-        "FeatureCentroidArrayPath": {
-            "Attribute Matrix Name": "CellFeatureData",
-            "Data Array Name": "Centroids",
-            "Data Container Name": "ImageDataContainer"
-        },
-        "FeatureEulerAnglesArrayPath": {
-            "Attribute Matrix Name": "Grain Data",
-            "Data Array Name": "EulerAngles",
-            "Data Container Name": "SyntheticVolumeDataContainer"
-        },
-        "FeaturePhasesArrayPath": {
-            "Attribute Matrix Name": "CellFeatureData",
-            "Data Array Name": "Phases",
-            "Data Container Name": "ImageDataContainer"
+    "10": {
+        "AtomFeatureLabelsPath": {
+            "Attribute Matrix Name": "VertexData",
+            "Data Array Name": "AtomFeatureLabels",
+            "Data Container Name": "VertexDataContainer"
         },
         "FilterVersion": "1.0.104",
         "Filter_Enabled": true,
-        "Filter_Human_Label": "Export 3d Solid Mesh",
-        "Filter_Name": "Export3dSolidMesh",
-        "Filter_Uuid": "{fcff3b03-bff6-5511-bc65-5e558d12f0a6}",
-        "GmshSTLFileName": "test",
-        "LimitTetrahedraVolume": 0,
-        "MaxRadiusEdgeRatio": 2,
-        "MaxTetrahedraVolume": 0.10000000149011612,
-        "MeshFileFormat": 0,
-        "MeshSize": 0,
-        "MeshingPackage": 2,
-        "MinDihedralAngle": 0,
-        "NetgenSTLFileName": "test",
-        "OptimizationLevel": 2,
-        "PackageLocation": "/Applications/Gmsh.app/Contents/MacOS",
-        "RefineMesh": 1,
-        "SurfaceMeshFaceLabelsArrayPath": {
-            "Attribute Matrix Name": "FaceData",
-            "Data Array Name": "FaceLabels",
-            "Data Container Name": "TriangleDataContainer"
-        },
-        "TetDataContainerName": "TetrahedralDataContainer",
-        "VertexAttributeMatrixName": "VertexData",
-        "outputPath": "/Users/saurabhpuri/Desktop/Gmsh"
+        "Filter_Human_Label": "Export LAMMPS Data File",
+        "Filter_Name": "ExportLAMMPSFile",
+        "Filter_Uuid": "{33c10889-4cdc-5992-ae00-1795e9bee022}",
+        "LammpsFile": "/Users/saurabhpuri/Desktop/Lammps/test.txt"
+    },
+    "11": {
+        "FilterVersion": "1.2.774",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Write DREAM.3D Data File",
+        "Filter_Name": "DataContainerWriter",
+        "Filter_Uuid": "{3fcd4c43-9d75-5b86-aad4-4441bc914f37}",
+        "OutputFile": "/Users/saurabhpuri/Desktop/Lammps/lammps.dream3d",
+        "WriteTimeSeries": 0,
+        "WriteXdmfFile": 1
     },
     "PipelineBuilder": {
         "Name": "LAMMPSPipeline",
-        "Number_Filters": 10,
+        "Number_Filters": 12,
         "Version": 6
     }
 }

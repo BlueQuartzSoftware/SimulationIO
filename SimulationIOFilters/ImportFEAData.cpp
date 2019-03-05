@@ -17,6 +17,7 @@
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/ChoiceFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
+#include "SIMPLib/FilterParameters/DataContainerCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DynamicChoiceFilterParameter.h"
 #include "SIMPLib/FilterParameters/FloatFilterParameter.h"
@@ -368,52 +369,52 @@ void ImportFEAData::dataCheck()
 	      }
 
 	    // Create the output Data Container for the first time step
-	    QString dcName = getDataContainerName() + "_" + QString::number(t);
-	    DataContainer::Pointer v = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, dcName);
-	    if(getErrorCondition() < 0)
-	      {
-		QString ss = QObject::tr("Error Creating Vertex Data Container with name '%1' for Time Step %2").arg(dcName).arg(t);
-		setErrorCondition(-390);
-		notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-		return;
-	      }
+        QString dcName = getDataContainerName().getDataContainerName() + "_" + QString::number(t);
+        DataContainer::Pointer v = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, dcName);
+        if(getErrorCondition() < 0)
+        {
+          QString ss = QObject::tr("Error Creating Vertex Data Container with name '%1' for Time Step %2").arg(dcName).arg(t);
+          setErrorCondition(-390);
+          notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+          return;
+        }
 
-	    VertexGeom::Pointer vertices = VertexGeom::CreateGeometry(m_NumPoints, SIMPL::Geometry::VertexGeometry, !getInPreflight());
-	    v->setGeometry(vertices);
+        VertexGeom::Pointer vertices = VertexGeom::CreateGeometry(m_NumPoints, SIMPL::Geometry::VertexGeometry, !getInPreflight());
+        v->setGeometry(vertices);
 
-	    QVector<size_t> tDims(1, m_NumPoints);
-	    AttributeMatrix::Pointer vertexAttrMat = v->createNonPrereqAttributeMatrix(this, SIMPL::Defaults::VertexAttributeMatrixName, tDims, AttributeMatrix::Type::Vertex);
-	    if(getErrorCondition() < 0)
-	      {
-		QString ss = QObject::tr("Error Creating AttributeMatrix with name '%1' for Time Step %2").arg(SIMPL::Defaults::VertexAttributeMatrixName).arg(t);
-		setErrorCondition(-390);
-		notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-		return;
-	      }
+        QVector<size_t> tDims(1, m_NumPoints);
+        AttributeMatrix::Pointer vertexAttrMat = v->createNonPrereqAttributeMatrix(this, SIMPL::Defaults::VertexAttributeMatrixName, tDims, AttributeMatrix::Type::Vertex);
+        if(getErrorCondition() < 0)
+        {
+          QString ss = QObject::tr("Error Creating AttributeMatrix with name '%1' for Time Step %2").arg(SIMPL::Defaults::VertexAttributeMatrixName).arg(t);
+          setErrorCondition(-390);
+          notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+          return;
+        }
 
-	    QMapIterator<QString, SimulationIO::DeformDataParser::Pointer> parserIter(m_NamePointerMap);
-	    while(parserIter.hasNext())
-	      {
-		parserIter.next();
-		QString name = parserIter.key();
-		SimulationIO::DeformDataParser::Pointer parser = parserIter.value();
-		IDataArray::Pointer dataPtr = parser->initializeNewDataArray(m_NumPoints, name, !getInPreflight()); // Get a copy of the DataArray
+        QMapIterator<QString, SimulationIO::DeformDataParser::Pointer> parserIter(m_NamePointerMap);
+        while(parserIter.hasNext())
+        {
+          parserIter.next();
+          QString name = parserIter.key();
+          SimulationIO::DeformDataParser::Pointer parser = parserIter.value();
+          IDataArray::Pointer dataPtr = parser->initializeNewDataArray(m_NumPoints, name, !getInPreflight()); // Get a copy of the DataArray
 
-		if((getInPreflight()))
-		  {
-		    if((name.compare(getSelectedTimeArrayName()) != 0) && (name.compare(getSelectedTimeStepArrayName()) != 0) && (name.compare(getSelectedPointNumArrayName()) != 0) &&
-		       (name.compare(getSelectedXCoordArrayName()) != 0) && (name.compare(getSelectedYCoordArrayName()) != 0))
-		      {
-			vertexAttrMat->addAttributeArray(dataPtr->getName(), dataPtr);
-		      }
-		  }
-		else
-		  {
-		    vertexAttrMat->addAttributeArray(dataPtr->getName(), dataPtr);
-		  }
-	      }
-	    
-	    // Generate the AttributeMatrix that will serve as the Meta-Data information for the DataContainerBundle
+          if((getInPreflight()))
+          {
+            if((name.compare(getSelectedTimeArrayName()) != 0) && (name.compare(getSelectedTimeStepArrayName()) != 0) && (name.compare(getSelectedPointNumArrayName()) != 0) &&
+               (name.compare(getSelectedXCoordArrayName()) != 0) && (name.compare(getSelectedYCoordArrayName()) != 0))
+            {
+              vertexAttrMat->insert_or_assign(dataPtr);
+            }
+          }
+          else
+          {
+            vertexAttrMat->insert_or_assign(dataPtr);
+          }
+        }
+
+      // Generate the AttributeMatrix that will serve as the Meta-Data information for the DataContainerBundle
 	    QVector<size_t> bundleAttrDims(1, 1);
 	    AttributeMatrix::Pointer metaData = v->createNonPrereqAttributeMatrix(this, m_BundleMetaDataAMName, bundleAttrDims, AttributeMatrix::Type::MetaData);
 	    if(getErrorCondition() < 0)
@@ -956,8 +957,8 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
     int32_t numComp = 4;
     QVector<size_t> cDims(1, static_cast<size_t>(numComp));
     data = FloatArrayType::CreateArray(count, cDims, word, allocate);
-    cellAttrMat->addAttributeArray(data->getName(), data);
-      
+    cellAttrMat->insert_or_assign(data);
+
     for(size_t i = 0; i < count; i++)
       {
 	buf = inStream.readLine();
@@ -1059,8 +1060,8 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
       int32_t numComp = 6;
       QVector<size_t> cDims(1, static_cast<size_t>(numComp));
       data = FloatArrayType::CreateArray(count, cDims, word, allocate);
-      cellAttrMat->addAttributeArray(data->getName(), data);
-      
+      cellAttrMat->insert_or_assign(data);
+
       for(size_t i = 0; i < count; i++)
 	{
 	  buf = inStream.readLine();
@@ -1230,14 +1231,14 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
         data = FloatArrayType::CreateArray(count, cDims, dataArrayName, allocate);
         if(count == numVerts)
         {
-          vertexAttrMat->addAttributeArray(data->getName(), data);
+          vertexAttrMat->insert_or_assign(data);
           status = "";
           ss << "Reading Vertex Data: " << data->getName();
           notifyStatusMessage(getHumanLabel(), status);
         }
         else if(count == numCells)
         {
-          cellAttrMat->addAttributeArray(data->getName(), data);
+          cellAttrMat->insert_or_assign(data);
           status = "";
           ss << "Reading Cell Data: " << data->getName();
           notifyStatusMessage(getHumanLabel(), status);
@@ -1317,33 +1318,33 @@ void ImportFEAData::scanBSAMFile(DataContainer* dataContainer, AttributeMatrix* 
   int32_t numDispComp = 3;
   QVector<size_t> cDims(1, static_cast<size_t>(numDispComp));
   dispdata = FloatArrayType::CreateArray(numVerts, cDims, dataArrayName, allocate);
-  vertexAttrMat->addAttributeArray(dispdata->getName(), dispdata);
+  vertexAttrMat->insert_or_assign(dispdata);
 
   dataArrayName = "STRESS";
   FloatArrayType::Pointer stressdata = FloatArrayType::NullPointer();
   int32_t numStrComp = 6;
   cDims[0] = static_cast<size_t>(numStrComp);
   stressdata = FloatArrayType::CreateArray(numVerts, cDims, dataArrayName, allocate);
-  vertexAttrMat->addAttributeArray(stressdata->getName(), stressdata);
+  vertexAttrMat->insert_or_assign(stressdata);
 
   dataArrayName = "STRAIN";
   FloatArrayType::Pointer straindata = FloatArrayType::NullPointer();
   straindata = FloatArrayType::CreateArray(numVerts, cDims, dataArrayName, allocate);
-  vertexAttrMat->addAttributeArray(straindata->getName(), straindata);
+  vertexAttrMat->insert_or_assign(straindata);
 
   dataArrayName = "CLUSTER";
   Int32ArrayType::Pointer clusterdata = Int32ArrayType::NullPointer();
   int32_t numClusterComp = 1;
   cDims[0] = static_cast<size_t>(numClusterComp);
   clusterdata = Int32ArrayType::CreateArray(numVerts, cDims, dataArrayName, allocate);
-  vertexAttrMat->addAttributeArray(clusterdata->getName(), clusterdata);
+  vertexAttrMat->insert_or_assign(clusterdata);
 
   dataArrayName = "VA";
   FloatArrayType::Pointer vadata = FloatArrayType::NullPointer();
   int32_t numVaComp = 4;
   cDims[0] = static_cast<size_t>(numVaComp);
   vadata = FloatArrayType::CreateArray(numVerts, cDims, dataArrayName, allocate);
-  vertexAttrMat->addAttributeArray(vadata->getName(), vadata);
+  vertexAttrMat->insert_or_assign(vadata);
 
   // Read or Skip past all the vertex data
   for(size_t i = 0; i < numVerts; i++)
@@ -1640,7 +1641,7 @@ void ImportFEAData::readTimeStep(QFile& reader, qint32 t)
     return;
   }
 
-  QString dcName = getDataContainerName() + "_" + QString::number(t);
+  QString dcName = getDataContainerName().getDataContainerName() + "_" + QString::number(t);
 
   DataContainer::Pointer v = getDataContainerArray()->getDataContainer(dcName);
   VertexGeom::Pointer vertices = v->getGeometryAs<VertexGeom>();
@@ -1733,13 +1734,13 @@ void ImportFEAData::readTimeStep(QFile& reader, qint32 t)
   timeStepPtr->resize(1);
 
   //
-  tsbAttrMat->addAttributeArray(timeValuePtr->getName(), timeValuePtr);
-  tsbAttrMat->addAttributeArray(timeStepPtr->getName(), timeStepPtr);
+  tsbAttrMat->insert_or_assign(timeValuePtr);
+  tsbAttrMat->insert_or_assign(timeStepPtr);
 
   QVector<size_t> cDims(1, 1);
   Int32ArrayType::Pointer timeIndexArray = Int32ArrayType::CreateArray(1, cDims, READ_DEF_PT_TRACKING_TIME_INDEX, true);
   timeIndexArray->setValue(0, t);
-  tsbAttrMat->addAttributeArray(timeIndexArray->getName(), timeIndexArray);
+  tsbAttrMat->insert_or_assign(timeIndexArray);
 
   IDataContainerBundle::Pointer bundle = getDataContainerArray()->getDataContainerBundle(getTimeSeriesBundleName());
   if(nullptr != bundle.get())

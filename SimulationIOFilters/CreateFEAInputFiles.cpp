@@ -55,13 +55,13 @@ CreateFEAInputFiles::CreateFEAInputFiles()
 {
   initialize();
 
-  m_NumElem.x = 20;
-  m_NumElem.y = 20;
-  m_NumElem.z = 20;
+  m_NumElem[0] = 20;
+  m_NumElem[1] = 20;
+  m_NumElem[2] = 20;
 
-  m_NumKeypoints.x = 2;
-  m_NumKeypoints.y = 2;
-  m_NumKeypoints.z = 2;
+  m_NumKeypoints[0] = 2;
+  m_NumKeypoints[1] = 2;
+  m_NumKeypoints[2] = 2;
 
   setupFilterParameters();
 }
@@ -292,9 +292,9 @@ void CreateFEAInputFiles::execute()
   
   size_t dims[3] = {0, 0, 0};
   std::tie(dims[0], dims[1], dims[2]) = m->getGeometryAs<ImageGeom>()->getDimensions();
-  float res[3] = {0.0f, 0.0f, 0.0f};
-  m->getGeometryAs<ImageGeom>()->getResolution(res);
-  float origin[3] = {0.0f, 0.0f, 0.0f};
+  FloatVec3Type res = {0.0f, 0.0f, 0.0f};
+  m->getGeometryAs<ImageGeom>()->getSpacing(res);
+  FloatVec3Type origin = {0.0f, 0.0f, 0.0f};
   m->getGeometryAs<ImageGeom>()->getOrigin(origin);
   //
   // find total number of Grain Ids
@@ -374,22 +374,22 @@ void CreateFEAInputFiles::execute()
 	int32_t nnode_x,nnode_y,nnode_z;
 	int32_t index;
 
-	ne_x = m_NumElem.x;
-	ne_y = m_NumElem.y;
-	ne_z = m_NumElem.z;
-	
-	nnode_x = ne_x + 1;
-	nnode_y = ne_y + 1;
-	nnode_z = ne_z + 1;	
-	//
+  ne_x = m_NumElem[0];
+  ne_y = m_NumElem[1];
+  ne_z = m_NumElem[2];
 
-	FloatArrayType::Pointer m_coordLengthPtr = FloatArrayType::CreateArray(3*nnode_x*nnode_y*nnode_z , "NODAL_COORDINATES_INTERNAL_USE_ONLY");
-	float* m_coord = m_coordLengthPtr->getPointer(0);
-	
-	fprintf(f1,"*NODE, NSET=ALLNODES\n");  
-	fprintf(f5,"*NODE, NSET=ALLNODES\n");  
-	
-	for(int32_t k = 0; k < nnode_z; k++)
+  nnode_x = ne_x + 1;
+  nnode_y = ne_y + 1;
+  nnode_z = ne_z + 1;
+  //
+
+  FloatArrayType::Pointer m_coordLengthPtr = FloatArrayType::CreateArray(3 * nnode_x * nnode_y * nnode_z, "NODAL_COORDINATES_INTERNAL_USE_ONLY");
+  float* m_coord = m_coordLengthPtr->getPointer(0);
+
+  fprintf(f1, "*NODE, NSET=ALLNODES\n");
+  fprintf(f5, "*NODE, NSET=ALLNODES\n");
+
+  for(int32_t k = 0; k < nnode_z; k++)
 	  {
 	    for(int32_t j = 0; j < nnode_y; j++)
 	      {
@@ -660,16 +660,16 @@ void CreateFEAInputFiles::execute()
 	fprintf(f, "\n");
 	//
 	fprintf(f, "keypoints\n");
-	fprintf(f, "%d %d %d\n", m_NumKeypoints.x, m_NumKeypoints.y, m_NumKeypoints.z);
-	//
-	fprintf(f, "divisions\n");
-	fprintf(f, "%d %d %d\n",ne_x,ne_y,ne_z);
-	//
-	fprintf(f, "name %d\n", maxGrainId);
-	//
-	fprintf(f, "void %s\n", m_DelamMat.toLatin1().data());
-	//
-	fprintf(f, "matr %d\n", ne_x * ne_y * ne_z);
+  fprintf(f, "%d %d %d\n", m_NumKeypoints[0], m_NumKeypoints[1], m_NumKeypoints[2]);
+  //
+  fprintf(f, "divisions\n");
+  fprintf(f, "%d %d %d\n", ne_x, ne_y, ne_z);
+  //
+  fprintf(f, "name %d\n", maxGrainId);
+  //
+  fprintf(f, "void %s\n", m_DelamMat.toLatin1().data());
+  //
+  fprintf(f, "matr %d\n", ne_x * ne_y * ne_z);
 	//
 	entriesPerLine = 0;
 	for(int32_t i = 0; i < totalPoints; i++)

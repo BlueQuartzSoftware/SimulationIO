@@ -17,6 +17,7 @@
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/ChoiceFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
+#include "SIMPLib/FilterParameters/DataContainerCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DynamicTableData.h"
 #include "SIMPLib/FilterParameters/DynamicTableFilterParameter.h"
@@ -192,7 +193,7 @@ void Export3dSolidMesh::readFilterParameters(AbstractFilterParametersReader* rea
   setFeatureEulerAnglesArrayPath(reader->readDataArrayPath("FeatureEulerAnglesArrayPath", getFeatureEulerAnglesArrayPath()));
   setFeaturePhasesArrayPath(reader->readDataArrayPath("FeaturePhasesArrayPath", getFeaturePhasesArrayPath()));
   setFeatureCentroidArrayPath(reader->readDataArrayPath("FeatureCentroidArrayPath", getFeatureCentroidArrayPath()));
-  setTetDataContainerName(reader->readDataArrayPath("DataContainerName", getDataContainerName()));
+  setTetDataContainerName(reader->readDataArrayPath("TetDataContainerName", getTetDataContainerName()));
   setVertexAttributeMatrixName(reader->readString("VertexAttributeMatrixName", getVertexAttributeMatrixName()));
   setCellAttributeMatrixName(reader->readString("CellAttributeMatrixName", getCellAttributeMatrixName()));
   setNetgenSTLFileName(reader->readString("NetgenSTLFileName", getNetgenSTLFileName()));
@@ -901,21 +902,21 @@ void Export3dSolidMesh::scanTetGenFile(const QString& fileEle, const QString& fi
   int32_t numComp = 1;
   QVector<size_t> cDims(1, static_cast<size_t>(numComp));
   featureIDsdata = Int32ArrayType::CreateArray(numCells, cDims, dataArrayName, allocate);
-  cellAttrMat->addAttributeArray(featureIDsdata->getName(), featureIDsdata);
+  cellAttrMat->insert_or_assign(featureIDsdata);
 
   dataArrayName = "Euler Angles";
   FloatArrayType::Pointer eulerangles = FloatArrayType::NullPointer();
   numComp = 3;
   cDims[0] = static_cast<size_t>(numComp);
   eulerangles = FloatArrayType::CreateArray(numCells, cDims, dataArrayName, allocate);
-  cellAttrMat->addAttributeArray(eulerangles->getName(), eulerangles);
+  cellAttrMat->insert_or_assign(eulerangles);
 
   dataArrayName = "Phases";
   Int32ArrayType::Pointer phasesdata = Int32ArrayType::NullPointer();
   numComp = 1;
   cDims[0] = static_cast<size_t>(numComp);
   phasesdata = Int32ArrayType::CreateArray(numCells, cDims, dataArrayName, allocate);
-  cellAttrMat->addAttributeArray(phasesdata->getName(), phasesdata);
+  cellAttrMat->insert_or_assign(phasesdata);
 
   for(size_t i = 0; i < numCells; i++)
     {

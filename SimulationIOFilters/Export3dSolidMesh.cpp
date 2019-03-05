@@ -902,21 +902,21 @@ void Export3dSolidMesh::scanTetGenFile(const QString& fileEle, const QString& fi
   int32_t numComp = 1;
   QVector<size_t> cDims(1, static_cast<size_t>(numComp));
   featureIDsdata = Int32ArrayType::CreateArray(numCells, cDims, dataArrayName, allocate);
-  cellAttrMat->insert_or_assign(featureIDsdata);
+  cellAttrMat->insertOrAssign(featureIDsdata);
 
   dataArrayName = "Euler Angles";
   FloatArrayType::Pointer eulerangles = FloatArrayType::NullPointer();
   numComp = 3;
   cDims[0] = static_cast<size_t>(numComp);
   eulerangles = FloatArrayType::CreateArray(numCells, cDims, dataArrayName, allocate);
-  cellAttrMat->insert_or_assign(eulerangles);
+  cellAttrMat->insertOrAssign(eulerangles);
 
   dataArrayName = "Phases";
   Int32ArrayType::Pointer phasesdata = Int32ArrayType::NullPointer();
   numComp = 1;
   cDims[0] = static_cast<size_t>(numComp);
   phasesdata = Int32ArrayType::CreateArray(numCells, cDims, dataArrayName, allocate);
-  cellAttrMat->insert_or_assign(phasesdata);
+  cellAttrMat->insertOrAssign(phasesdata);
 
   for(size_t i = 0; i < numCells; i++)
     {

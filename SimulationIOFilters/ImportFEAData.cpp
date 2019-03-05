@@ -405,12 +405,12 @@ void ImportFEAData::dataCheck()
             if((name.compare(getSelectedTimeArrayName()) != 0) && (name.compare(getSelectedTimeStepArrayName()) != 0) && (name.compare(getSelectedPointNumArrayName()) != 0) &&
                (name.compare(getSelectedXCoordArrayName()) != 0) && (name.compare(getSelectedYCoordArrayName()) != 0))
             {
-              vertexAttrMat->insert_or_assign(dataPtr);
+              vertexAttrMat->insertOrAssign(dataPtr);
             }
           }
           else
           {
-            vertexAttrMat->insert_or_assign(dataPtr);
+            vertexAttrMat->insertOrAssign(dataPtr);
           }
         }
 
@@ -957,7 +957,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
     int32_t numComp = 4;
     QVector<size_t> cDims(1, static_cast<size_t>(numComp));
     data = FloatArrayType::CreateArray(count, cDims, word, allocate);
-    cellAttrMat->insert_or_assign(data);
+    cellAttrMat->insertOrAssign(data);
 
     for(size_t i = 0; i < count; i++)
       {
@@ -1060,7 +1060,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
       int32_t numComp = 6;
       QVector<size_t> cDims(1, static_cast<size_t>(numComp));
       data = FloatArrayType::CreateArray(count, cDims, word, allocate);
-      cellAttrMat->insert_or_assign(data);
+      cellAttrMat->insertOrAssign(data);
 
       for(size_t i = 0; i < count; i++)
 	{
@@ -1231,14 +1231,14 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
         data = FloatArrayType::CreateArray(count, cDims, dataArrayName, allocate);
         if(count == numVerts)
         {
-          vertexAttrMat->insert_or_assign(data);
+          vertexAttrMat->insertOrAssign(data);
           status = "";
           ss << "Reading Vertex Data: " << data->getName();
           notifyStatusMessage(getHumanLabel(), status);
         }
         else if(count == numCells)
         {
-          cellAttrMat->insert_or_assign(data);
+          cellAttrMat->insertOrAssign(data);
           status = "";
           ss << "Reading Cell Data: " << data->getName();
           notifyStatusMessage(getHumanLabel(), status);
@@ -1318,33 +1318,33 @@ void ImportFEAData::scanBSAMFile(DataContainer* dataContainer, AttributeMatrix* 
   int32_t numDispComp = 3;
   QVector<size_t> cDims(1, static_cast<size_t>(numDispComp));
   dispdata = FloatArrayType::CreateArray(numVerts, cDims, dataArrayName, allocate);
-  vertexAttrMat->insert_or_assign(dispdata);
+  vertexAttrMat->insertOrAssign(dispdata);
 
   dataArrayName = "STRESS";
   FloatArrayType::Pointer stressdata = FloatArrayType::NullPointer();
   int32_t numStrComp = 6;
   cDims[0] = static_cast<size_t>(numStrComp);
   stressdata = FloatArrayType::CreateArray(numVerts, cDims, dataArrayName, allocate);
-  vertexAttrMat->insert_or_assign(stressdata);
+  vertexAttrMat->insertOrAssign(stressdata);
 
   dataArrayName = "STRAIN";
   FloatArrayType::Pointer straindata = FloatArrayType::NullPointer();
   straindata = FloatArrayType::CreateArray(numVerts, cDims, dataArrayName, allocate);
-  vertexAttrMat->insert_or_assign(straindata);
+  vertexAttrMat->insertOrAssign(straindata);
 
   dataArrayName = "CLUSTER";
   Int32ArrayType::Pointer clusterdata = Int32ArrayType::NullPointer();
   int32_t numClusterComp = 1;
   cDims[0] = static_cast<size_t>(numClusterComp);
   clusterdata = Int32ArrayType::CreateArray(numVerts, cDims, dataArrayName, allocate);
-  vertexAttrMat->insert_or_assign(clusterdata);
+  vertexAttrMat->insertOrAssign(clusterdata);
 
   dataArrayName = "VA";
   FloatArrayType::Pointer vadata = FloatArrayType::NullPointer();
   int32_t numVaComp = 4;
   cDims[0] = static_cast<size_t>(numVaComp);
   vadata = FloatArrayType::CreateArray(numVerts, cDims, dataArrayName, allocate);
-  vertexAttrMat->insert_or_assign(vadata);
+  vertexAttrMat->insertOrAssign(vadata);
 
   // Read or Skip past all the vertex data
   for(size_t i = 0; i < numVerts; i++)
@@ -1734,13 +1734,13 @@ void ImportFEAData::readTimeStep(QFile& reader, qint32 t)
   timeStepPtr->resize(1);
 
   //
-  tsbAttrMat->insert_or_assign(timeValuePtr);
-  tsbAttrMat->insert_or_assign(timeStepPtr);
+  tsbAttrMat->insertOrAssign(timeValuePtr);
+  tsbAttrMat->insertOrAssign(timeStepPtr);
 
   QVector<size_t> cDims(1, 1);
   Int32ArrayType::Pointer timeIndexArray = Int32ArrayType::CreateArray(1, cDims, READ_DEF_PT_TRACKING_TIME_INDEX, true);
   timeIndexArray->setValue(0, t);
-  tsbAttrMat->insert_or_assign(timeIndexArray);
+  tsbAttrMat->insertOrAssign(timeIndexArray);
 
   IDataContainerBundle::Pointer bundle = getDataContainerArray()->getDataContainerBundle(getTimeSeriesBundleName());
   if(nullptr != bundle.get())

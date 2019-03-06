@@ -970,6 +970,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
   cellAttrMat->resizeAttributeArrays(tDims);
   QString eleType = tokens.at(2);
   QString eleDim = "3D";
+  int32_t numIntPoints = 1;
 
   //
   // triangles
@@ -1119,8 +1120,13 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
     }
   
   // quadrilaterals
-  if(eleType == "CPE4R" || eleType == "CPS4R")
+  if(eleType == "CPE4R" || eleType == "CPS4R" || eleType == "CPE4" || eleType == "CPS4")
     {
+      if (eleType == "CPE4" || eleType == "CPS4")
+	{
+	  numIntPoints = 4;
+	}
+
       eleDim = "2D";
       inStream.seek(dataOffset);
       // Read until you get to the vertex block
@@ -1190,8 +1196,13 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
       // End reading of the connectivity
     }
   
-  if(eleType == "C3D8R")
+  if(eleType == "C3D8R" || eleType == "C3D8")
     {
+      if (eleType == "C3D8")
+	{
+	  numIntPoints = 8;
+	}
+
       eleDim = "3D";
       inStream.seek(dataOffset);
       // Read until you get to the vertex block
@@ -1343,36 +1354,78 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
       // Read a Data set
       //
       FloatArrayType::Pointer data = FloatArrayType::NullPointer();
-      for(size_t i = 0; i < count; i++)
+     
+      if (dataArrayPos == "NODAL")
 	{
-	  buf = inStream.readLine();
-	  buf = buf.trimmed();
-	  buf = buf.simplified();
-	  tokens = buf.split(' ');
-
-	  if(i == 0)
+	  for(size_t i = 0; i < count; i++)
 	    {
-	      QVector<size_t> cDims(1, static_cast<size_t>(numComp));
-	      data = FloatArrayType::CreateArray(count, cDims, dataArrayName, allocate);
-	      if(count == numVerts)
+	      buf = inStream.readLine();
+	      buf = buf.trimmed();
+	      buf = buf.simplified();
+	      tokens = buf.split(' ');
+	      
+	      if(i == 0)
 		{
-		  vertexAttrMat->addAttributeArray(data->getName(), data);
-		  status = "";
-		  ss << "Reading Vertex Data: " << data->getName();
-		  notifyStatusMessage(getHumanLabel(), status);
+		  QVector<size_t> cDims(1, static_cast<size_t>(numComp));
+		  data = FloatArrayType::CreateArray(count, cDims, dataArrayName, allocate);
+		  if(count == numVerts)
+		    {
+		      vertexAttrMat->addAttributeArray(data->getName(), data);
+		      status = "";
+		      ss << "Reading Vertex Data: " << data->getName();
+		      notifyStatusMessage(getHumanLabel(), status);
+		    }
+		  else if(count == numCells)
+		    {
+		      cellAttrMat->addAttributeArray(data->getName(), data);
+		      status = "";
+		      ss << "Reading Cell Data: " << data->getName();
+		      notifyStatusMessage(getHumanLabel(), status);
+		    }
 		}
-	      else if(count == numCells)
+	      for(int32_t c = 0; c < numComp; c++)
 		{
-		  cellAttrMat->addAttributeArray(data->getName(), data);
-		  status = "";
-		  ss << "Reading Cell Data: " << data->getName();
-		  notifyStatusMessage(getHumanLabel(), status);
+		  float value = tokens[c + 1].toFloat(&ok);
+		  data->setComponent(i, c, value);
 		}
 	    }
-	  for(int32_t c = 0; c < numComp; c++)
+	}
+      else if (dataArrayPos == "INTEGRATION_POINT")
+	{
+	  for(size_t i = 0; i < count; i++)
 	    {
-	      float value = tokens[c + 1].toFloat(&ok);
-	      data->setComponent(i, c, value);
+	      for(int32_t k = 0; k < numIntPoints; k++)
+		{
+		  buf = inStream.readLine();
+		  buf = buf.trimmed();
+		  buf = buf.simplified();
+		  tokens = buf.split(' ');
+		  
+		  if(i == 0 && k == 0)
+		    {
+		      QVector<size_t> cDims(1, static_cast<size_t>(numComp*numIntPoints));
+		      data = FloatArrayType::CreateArray(count, cDims, dataArrayName, allocate);
+		      if(count == numVerts)
+			{
+			  vertexAttrMat->addAttributeArray(data->getName(), data);
+			  status = "";
+			  ss << "Reading Vertex Data: " << data->getName();
+			  notifyStatusMessage(getHumanLabel(), status);
+			}
+		      else if(count == numCells)
+			{
+			  cellAttrMat->addAttributeArray(data->getName(), data);
+			  status = "";
+			  ss << "Reading Cell Data: " << data->getName();
+			  notifyStatusMessage(getHumanLabel(), status);
+			}
+		    }
+		  for(int32_t c = 0; c < numComp; c++)
+		    {
+		      float value = tokens[c + 1].toFloat(&ok);
+		      data->setComponent(i, k*numComp+c, value);
+		    }
+		}
 	    }
 	}
     }

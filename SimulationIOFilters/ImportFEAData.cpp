@@ -1730,8 +1730,8 @@ void ImportFEAData::readTimeStep(QFile& reader, qint32 t)
   attrMat->removeAttributeArray(timeStepPtr->getName());
 
   // Resize the arrays to 1 value. This will KEEP the first value of the array
-  timeValuePtr->resize(1);
-  timeStepPtr->resize(1);
+  timeValuePtr->resizeTuples(1);
+  timeStepPtr->resizeTuples(1);
 
   //
   tsbAttrMat->insertOrAssign(timeValuePtr);

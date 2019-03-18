@@ -116,7 +116,12 @@ void ExportLAMMPSFile::dataCheck()
   getDataContainerArray()->getPrereqGeometryFromDataContainer<VertexGeom, AbstractFilter>(this, getAtomFeatureLabelsPath().getDataContainerName());
 
   DataContainer::Pointer v = getDataContainerArray()->getDataContainer(getAtomFeatureLabelsPath().getDataContainerName());
-
+  if(nullptr == v.get())
+  {
+    setErrorCondition(-38401);
+    notifyErrorMessage(getHumanLabel(), "DataContainer not found", getErrorCondition());
+    return;
+  }
   VertexGeom::Pointer vertices = v->getPrereqGeometry<VertexGeom, AbstractFilter>(this);
   if(getErrorCondition() < 0)
   {
@@ -126,7 +131,7 @@ void ExportLAMMPSFile::dataCheck()
   // We MUST have Nodes
   if(nullptr == vertices->getVertices().get())
   {
-    setErrorCondition(-384);
+    setErrorCondition(-38400);
     notifyErrorMessage(getHumanLabel(), "VertexDataContainer missing Nodes", getErrorCondition());
   }
 

@@ -1745,7 +1745,7 @@ void ImportFEAData::readTimeStep(QFile& reader, qint32 t)
   IDataContainerBundle::Pointer bundle = getDataContainerArray()->getDataContainerBundle(getTimeSeriesBundleName());
   if(nullptr != bundle.get())
   {
-    bundle->addDataContainer(getDataContainerArray()->getDataContainer(dcName));
+    bundle->addOrReplaceAttributeArray(getDataContainerArray()->getDataContainer(dcName));
   }
 }
 

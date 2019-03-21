@@ -1745,7 +1745,7 @@ void ImportFEAData::readTimeStep(QFile& reader, qint32 t)
   IDataContainerBundle::Pointer bundle = getDataContainerArray()->getDataContainerBundle(getTimeSeriesBundleName());
   if(nullptr != bundle.get())
   {
-    bundle->addOrReplaceAttributeArray(getDataContainerArray()->getDataContainer(dcName));
+    bundle->addOrReplaceDataContainer(getDataContainerArray()->getDataContainer(dcName));
   }
 }
 
@@ -1759,7 +1759,6 @@ void ImportFEAData::parseDataTokens(QVector<QByteArray>& tokens, qint32 nodeIdx)
   while(parserIter.hasNext())
   {
     parserIter.next();
-    QString name = parserIter.key();
     SimulationIO::DeformDataParser::Pointer parser = parserIter.value();
     parser->parse(tokens.at(parser->getColumnIndex()), nodeIdx);
   }

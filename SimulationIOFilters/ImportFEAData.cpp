@@ -262,10 +262,9 @@ void ImportFEAData::dataCheck()
 	if(arguments.empty())
 	  {
 	    QString ss = QObject::tr("Abaqus python command to run a script has not been specified.");
-	    setErrorCondition(-4001);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	    return;
-	  }
+      notifyErrorMessage("", ss, -4001);
+      return;
+    }
 	
 	// Create the output Data Container
 	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
@@ -294,20 +293,18 @@ void ImportFEAData::dataCheck()
 	if(!fi.exists())
 	  {
 	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getBSAMInputFile());
-	    setErrorCondition(-388);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
+      notifyErrorMessage("", ss, -388);
+    }
 
-	if(m_BSAMInputFile.isEmpty())
+    if(m_BSAMInputFile.isEmpty())
 	  {
 	    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, -1);
-	  }
+      notifyErrorMessage("", ss, -1);
+    }
 
-	// Create the output Data Container
-	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
-	if(getErrorCondition() < 0)
+    // Create the output Data Container
+    DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
+    if(getErrorCondition() < 0)
 	  {
 	    return;
 	  }
@@ -334,20 +331,18 @@ void ImportFEAData::dataCheck()
 	if(!fi.exists())
 	  {
 	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMInputFile());
-	    setErrorCondition(-388);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
+      notifyErrorMessage("", ss, -388);
+    }
 
-	if(m_DEFORMInputFile.isEmpty())
+    if(m_DEFORMInputFile.isEmpty())
 	  {
 	    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, -1);
-	  }
-	
-	// Create the output Data Container
-	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
-	if(getErrorCondition() < 0)
+      notifyErrorMessage("", ss, -1);
+    }
+
+    // Create the output Data Container
+    DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
+    if(getErrorCondition() < 0)
 	  {
 	    return;
 	  }
@@ -373,19 +368,17 @@ void ImportFEAData::dataCheck()
 	if(!fi.exists())
 	  {
 	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMPointTrackInputFile());
-	    setErrorCondition(-388);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
-	
-	if(m_DEFORMPointTrackInputFile.isEmpty())
+      notifyErrorMessage("", ss, -388);
+    }
+
+    if(m_DEFORMPointTrackInputFile.isEmpty())
 	  {
 	    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, -1);
-	  }
+      notifyErrorMessage("", ss, -1);
+    }
 
-	// If any of the checks above threw errors then we can not go any further so bail out now.
-	if(getErrorCondition() < 0)
+    // If any of the checks above threw errors then we can not go any further so bail out now.
+    if(getErrorCondition() < 0)
 	  {
 	    return;
 	  }
@@ -415,20 +408,18 @@ void ImportFEAData::dataCheck()
 	if(getErrorCondition() < 0)
 	  {
 	    QString ss = QObject::tr("Error reading header information from file: '%1'").arg(getDEFORMPointTrackInputFile());
-	    setErrorCondition(-389);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	    return;
-	  }
+      notifyErrorMessage("", ss, -389);
+      return;
+    }
 
 	if(getImportSingleTimeStep() != m_selectedTimeStep || getSingleTimeStepValue() != m_selectedTimeStepValue)
 	  {
 	    if(getImportSingleTimeStep() && getSingleTimeStepValue() >= m_NumTimeSteps)
 	      {
 		QString ss = QObject::tr("Please select a timestep in the range");
-		setErrorCondition(-91010);
-		notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-		return;
-	      }
+    notifyErrorMessage("", ss, -91010);
+    return;
+        }
 	    m_selectedTimeStep = getImportSingleTimeStep();
 	    m_selectedTimeStepValue = getSingleTimeStepValue();
 	  }	
@@ -448,10 +439,9 @@ void ImportFEAData::dataCheck()
 	    if(getErrorCondition() < 0)
 	      {
 		QString ss = QObject::tr("Error Creating Vertex Data Container with name '%1' for Time Step %2").arg(dcName).arg(t);
-		setErrorCondition(-390);
-		notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-		return;
-	      }
+    notifyErrorMessage("", ss, -390);
+    return;
+        }
 
 	    VertexGeom::Pointer vertices = VertexGeom::CreateGeometry(m_NumPoints, SIMPL::Geometry::VertexGeometry, !getInPreflight());
 	    v->setGeometry(vertices);
@@ -461,10 +451,9 @@ void ImportFEAData::dataCheck()
 	    if(getErrorCondition() < 0)
 	      {
 		QString ss = QObject::tr("Error Creating AttributeMatrix with name '%1' for Time Step %2").arg(SIMPL::Defaults::VertexAttributeMatrixName).arg(t);
-		setErrorCondition(-390);
-		notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-		return;
-	      }
+    notifyErrorMessage("", ss, -390);
+    return;
+        }
 
 	    QMapIterator<QString, SimulationIO::DeformDataParser::Pointer> parserIter(m_NamePointerMap);
 	    while(parserIter.hasNext())
@@ -542,10 +531,9 @@ void ImportFEAData::execute()
 	if(!dir.mkpath(m_odbFilePath))
 	  {
 	    QString ss = QObject::tr("Error in accessing odb file '%1'").arg(m_odbFilePath);
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	    return;
-	  }
+      notifyErrorMessage("", ss, -1);
+      return;
+    }
 
 	// Create ABAQUS python script
 	QString abqpyscr = m_odbFilePath + QDir::separator() + m_odbName + ".py";
@@ -554,10 +542,9 @@ void ImportFEAData::execute()
 	if(err < 0)
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS python script '%1'").arg(abqpyscr);
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	    return;
-	  }
+      notifyErrorMessage("", ss, -1);
+      return;
+    }
 
 	// Running ABAQUS python script
 	QString abqpyscrwExt = m_odbName + ".py";
@@ -582,7 +569,7 @@ void ImportFEAData::execute()
 
 	scanBSAMFile(m.get(), vertexAttrMat.get(), cellAttrMat.get());
 
-	notifyStatusMessage(getHumanLabel(), "Import Complete");
+	notifyStatusMessage("", "Import Complete");
 	
 	break;	
       }
@@ -595,7 +582,7 @@ void ImportFEAData::execute()
 
 	scanDEFORMFile(m.get(), vertexAttrMat.get(), cellAttrMat.get());
 
-	notifyStatusMessage(getHumanLabel(), "DEFORM Import Complete");
+	notifyStatusMessage("", "DEFORM Import Complete");
 	
 	break;
       }
@@ -609,7 +596,7 @@ void ImportFEAData::execute()
 	  }
 	
 	/* Let the GUI know we are done with this filter */
-	notifyStatusMessage(getHumanLabel(), "Import Complete");
+	notifyStatusMessage("", "Import Complete");
 	break;
       }
 
@@ -730,7 +717,7 @@ int32_t ImportFEAData::writeABQpyscr(const QString& file,
   fprintf(f, "                          fid.write(' ')\n");
   fprintf(f, "                  fid.write('\\n')\n"); 	   
   fprintf(f, "fid.close()");
-  notifyStatusMessage(getHumanLabel(), "Finished writing ABAQUS python script");
+  notifyStatusMessage("", "Finished writing ABAQUS python script");
   fclose(f);
 
   return err;
@@ -763,7 +750,7 @@ void ImportFEAData::runABQpyscr(const QString& file)
   m_ProcessPtr->waitForStarted(2000);
   m_ProcessPtr->waitForFinished(100000);
 
-  notifyStatusMessage(getHumanLabel(), "Finished running ABAQUS python script");
+  notifyStatusMessage("", "Finished running ABAQUS python script");
 
 }
 
@@ -818,14 +805,12 @@ void ImportFEAData::processHasFinished(int exitCode, QProcess::ExitStatus exitSt
   else if(exitStatus == QProcess::CrashExit)
     {
       QString ss = QObject::tr("The process crashed during its exit.");
-      setErrorCondition(-4003);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage("", ss, -4003);
     }
   else if(exitCode < 0)
     {
       QString ss = QObject::tr("The process finished with exit code %1.").arg(QString::number(exitCode));
-      setErrorCondition(-4004);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage("", ss, -4004);
     }
   else if(getErrorCondition() >= 0)
     {
@@ -844,8 +829,7 @@ void ImportFEAData::processHasErroredOut(QProcess::ProcessError error)
   if(getCancel())
     {
       QString ss = QObject::tr("The process was killed by the user.");
-      setWarningCondition(-4004);
-      notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
+      notifyWarningMessage("", ss, -4004);
     }
   else if(error == QProcess::FailedToStart)
     {
@@ -855,38 +839,32 @@ void ImportFEAData::processHasErroredOut(QProcess::ProcessError error)
       QString ss = QObject::tr("The process failed to start. Either the invoked program is missing, or you may have insufficient permissions to invoke the program \
 or the path containing the executble is not in the system's environment path. PATH=%1.\n Try using the absolute path to the executable.")
 	.arg(pathEnv);
-      setErrorCondition(-4005);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage("", ss, -4005);
     }
   else if(error == QProcess::Crashed)
     {
       QString ss = QObject::tr("The process crashed some time after starting successfully.");
-      setErrorCondition(-4006);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage("", ss, -4006);
     }
   else if(error == QProcess::Timedout)
     {
       QString ss = QObject::tr("The process timed out.");
-      setErrorCondition(-4007);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage("", ss, -4007);
     }
   else if(error == QProcess::WriteError)
     {
       QString ss = QObject::tr("An error occurred when attempting to write to the process.");
-      setErrorCondition(-4008);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage("", ss, -4008);
     }
   else if(error == QProcess::ReadError)
     {
       QString ss = QObject::tr("An error occurred when attempting to read from the process.");
-      setErrorCondition(-4009);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage("", ss, -4009);
     }
   else
     {
       QString ss = QObject::tr("An unknown error occurred.");
-      setErrorCondition(-4010);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage("", ss, -4010);
     }
 
   m_Pause = false;
@@ -906,7 +884,7 @@ void ImportFEAData::sendErrorOutput()
 	{
 	  error.chop(1);
 	}
-      notifyStandardOutputMessage(getHumanLabel(), getPipelineIndex() + 1, error);
+      notifyStatusMessage("", error);
       m_WaitCondition.wakeAll();
     }
 }
@@ -919,7 +897,7 @@ void ImportFEAData::sendStandardOutput()
 {
   if(m_ProcessPtr.data() != nullptr)
     {
-      notifyStandardOutputMessage(getHumanLabel(), getPipelineIndex() + 1, m_ProcessPtr->readAllStandardOutput());
+      notifyStatusMessage("", m_ProcessPtr->readAllStandardOutput());
       m_WaitCondition.wakeAll();
     }
 }
@@ -939,8 +917,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
   if(!inStream.open(QIODevice::ReadOnly | QIODevice::Text))
     {
       QString ss = QObject::tr("Input file could not be opened: %1").arg(file);
-      setErrorCondition(-100);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage("", ss, -100);
       return;
     }
 
@@ -1287,7 +1264,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
   QTextStream ss(&status);
   status = "";
   ss << "Scanning for Vertex & Cell data....";
-  notifyStatusMessage(getHumanLabel(), status);
+  notifyStatusMessage("", status);
   while(!inStream.atEnd())
     {
       buf.clear();
@@ -1373,14 +1350,14 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
 		      vertexAttrMat->addAttributeArray(data->getName(), data);
 		      status = "";
 		      ss << "Reading Vertex Data: " << data->getName();
-		      notifyStatusMessage(getHumanLabel(), status);
+		      notifyStatusMessage("", status);
 		    }
 		  else if(count == numCells)
 		    {
 		      cellAttrMat->addAttributeArray(data->getName(), data);
 		      status = "";
 		      ss << "Reading Cell Data: " << data->getName();
-		      notifyStatusMessage(getHumanLabel(), status);
+		      notifyStatusMessage("", status);
 		    }
 		}
 	      for(int32_t c = 0; c < numComp; c++)
@@ -1410,14 +1387,14 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
 			  vertexAttrMat->addAttributeArray(data->getName(), data);
 			  status = "";
 			  ss << "Reading Vertex Data: " << data->getName();
-			  notifyStatusMessage(getHumanLabel(), status);
+			  notifyStatusMessage("", status);
 			}
 		      else if(count == numCells)
 			{
 			  cellAttrMat->addAttributeArray(data->getName(), data);
 			  status = "";
 			  ss << "Reading Cell Data: " << data->getName();
-			  notifyStatusMessage(getHumanLabel(), status);
+			  notifyStatusMessage("", status);
 			}
 		    }
 		  for(int32_t c = 0; c < numComp; c++)
@@ -1444,8 +1421,7 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
   if(!inStream.open(QIODevice::ReadOnly | QIODevice::Text))
     {
       QString ss = QObject::tr("Input file could not be opened: %1").arg(getDEFORMInputFile());
-      setErrorCondition(-100);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage("", ss, -100);
       return;
     }
 
@@ -1475,7 +1451,7 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
   QString status;
   QTextStream ss(&status);
   ss << "DEFORM Data File: Number of Vetex Points=" << numVerts;
-  notifyStatusMessage(getHumanLabel(), status);
+  notifyStatusMessage("", status);
 
   // Read or Skip past all the vertex data
   for(size_t i = 0; i < numVerts; i++)
@@ -1506,7 +1482,7 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
   tDims[0] = numCells;
   status = "";
   ss << "DEFORM Data File: Number of Quad Cells=" << numCells;
-  notifyStatusMessage(getHumanLabel(), status);
+  notifyStatusMessage("", status);
   cellAttrMat->resizeAttributeArrays(tDims);
   QuadGeom::Pointer quadGeomPtr = QuadGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::QuadGeometry, allocate);
   quadGeomPtr->setSpatialDimensionality(2);
@@ -1533,7 +1509,7 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
 
   status = "";
   ss << "Scanning for Vertex & Cell data....";
-  notifyStatusMessage(getHumanLabel(), status);
+  notifyStatusMessage("", status);
   while(!inStream.atEnd())
     {
       // Now we are reading either cell or vertex data based on the number of items
@@ -1555,15 +1531,14 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
 
       if(count != numVerts && count != numCells)
 	{
-	  setErrorCondition(-96000);
-	  QString msg = QString("Reading %1 Data from DEFORM data file, data array does not have a number of entries (%2) equal to the number of vertices (%3) or cells (%4)")
-	    .arg(dataArrayName)
-	    .arg(count)
-	    .arg(numVerts)
-	    .arg(numCells);
-	  notifyErrorMessage(getHumanLabel(), msg, getErrorCondition());
-	  return;
-	}
+    QString msg = QString("Reading %1 Data from DEFORM data file, data array does not have a number of entries (%2) equal to the number of vertices (%3) or cells (%4)")
+                      .arg(dataArrayName)
+                      .arg(count)
+                      .arg(numVerts)
+                      .arg(numCells);
+    notifyErrorMessage("", msg, -96000);
+    return;
+  }
       if(inStream.atEnd())
 	{
 	  return;
@@ -1588,14 +1563,14 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
 		  vertexAttrMat->addAttributeArray(data->getName(), data);
 		  status = "";
 		  ss << "Reading Vertex Data: " << data->getName();
-		  notifyStatusMessage(getHumanLabel(), status);
+		  notifyStatusMessage("", status);
 		}
 	      else if(count == numCells)
 		{
 		  cellAttrMat->addAttributeArray(data->getName(), data);
 		  status = "";
 		  ss << "Reading Cell Data: " << data->getName();
-		  notifyStatusMessage(getHumanLabel(), status);
+		  notifyStatusMessage("", status);
 		}
 	    }
 	  if(allocate)
@@ -1623,8 +1598,7 @@ void ImportFEAData::scanBSAMFile(DataContainer* dataContainer, AttributeMatrix* 
   if(!inStream.open(QIODevice::ReadOnly | QIODevice::Text))
     {
       QString ss = QObject::tr("Input file could not be opened: %1").arg(getBSAMInputFile());
-      setErrorCondition(-100);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage("", ss, -100);
       return;
     }
 
@@ -1651,7 +1625,7 @@ void ImportFEAData::scanBSAMFile(DataContainer* dataContainer, AttributeMatrix* 
   QString status;
   QTextStream ss(&status);
   ss << "BSAM Data File: Number of Vetex Points=" << numVerts;
-  notifyStatusMessage(getHumanLabel(), status);
+  notifyStatusMessage("", status);
   SharedVertexList::Pointer vertexPtr = HexahedralGeom::CreateSharedVertexList(static_cast<int64_t>(numVerts), allocate);
   float* vertex = vertexPtr->getPointer(0);
 
@@ -1660,7 +1634,7 @@ void ImportFEAData::scanBSAMFile(DataContainer* dataContainer, AttributeMatrix* 
   tDims[0] = numCells;
   status = "";
   ss << "BSAM Data File: Number of Quad Cells=" << numCells;
-  notifyStatusMessage(getHumanLabel(), status);
+  notifyStatusMessage("", status);
   cellAttrMat->resizeAttributeArrays(tDims);
   HexahedralGeom::Pointer hexGeomPtr = HexahedralGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::HexahedralGeometry, allocate);
   hexGeomPtr->setSpatialDimensionality(3);
@@ -1776,8 +1750,7 @@ void ImportFEAData::readHeader(QFile& reader)
   if(!reader.open(QIODevice::ReadOnly | QIODevice::Text))
     {
       QString ss = QObject::tr("The Input Point Tracking file could not be opened.").arg(getDEFORMPointTrackInputFile());
-      setErrorCondition(-100);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage("", ss, -100);
       return;
     }
 
@@ -1897,9 +1870,8 @@ void ImportFEAData::readHeader(QFile& reader)
 	  SimulationIO::FloatParser::Pointer dparser = SimulationIO::FloatParser::New(data, name, index);
 	  m_NamePointerMap.insert(name, dparser);
 	  QString ss = QObject::tr("Data Block Column Name '%1' was unknown. We will parse the data as Floating point Data (32 Bit)").arg(name);
-	  setWarningCondition(-1);
-	  notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
-	}
+    notifyWarningMessage("", ss, -1);
+  }
       index++;
     }
 
@@ -1949,9 +1921,8 @@ void ImportFEAData::readHeader(QFile& reader)
 	  SimulationIO::FloatParser::Pointer dparser = SimulationIO::FloatParser::New(data, name, index);
 	  m_NamePointerMap.insert(name, dparser);
 	  QString ss = QObject::tr("Data Block Column Name '%1' was unknown. We will parse the data as Floating point Data (32 Bit)").arg(name);
-	  setWarningCondition(-1);
-	  notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
-	}
+    notifyWarningMessage("", ss, -1);
+  }
       m_DataArrayList << name;
       index++;
     }

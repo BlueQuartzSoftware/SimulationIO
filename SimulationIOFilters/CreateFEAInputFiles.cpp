@@ -190,18 +190,16 @@ void CreateFEAInputFiles::dataCheck()
 
   if(m_OutputPath.isEmpty())
   {
-    setErrorCondition(-12001);
     QString ss = QObject::tr("The output path must be set");
-    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    notifyErrorMessage("", ss, -12001);
   }
 
   QFileInfo fi(m_OutputPath);
   QDir parentPath = fi.path();
   if(!parentPath.exists())
   {
-    setWarningCondition(-10100);
     QString ss = QObject::tr("The directory path for the output file does not exist. DREAM.3D will attempt to create this path during execution of the filter");
-    notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
+    notifyWarningMessage("", ss, -10100);
   }
 
   switch(m_FEAPackage)
@@ -309,8 +307,7 @@ void CreateFEAInputFiles::execute()
   if(!dir.mkpath(m_OutputPath))
     {
       QString ss = QObject::tr("Error creating parent path '%1'").arg(m_OutputPath);
-      setErrorCondition(-1);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage("", ss, -1);
       return;
     }
   //
@@ -357,75 +354,70 @@ void CreateFEAInputFiles::execute()
 	if(nullptr == f1)
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS nodes file '%1'").arg(nodesFile);
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
-	
-	FILE* f2 = fopen(fileNames.at(1).toLatin1().data(), "wb");
-	if(nullptr == f2)
+      notifyErrorMessage("", ss, -1);
+    }
+
+    FILE* f2 = fopen(fileNames.at(1).toLatin1().data(), "wb");
+    if(nullptr == f2)
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS connectivity file '%1'").arg(elemsFile);
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
-	
-	FILE* f3 = fopen(fileNames.at(2).toLatin1().data(), "wb");
-	if(nullptr == f3)
+      notifyErrorMessage("", ss, -1);
+    }
+
+    FILE* f3 = fopen(fileNames.at(2).toLatin1().data(), "wb");
+    if(nullptr == f3)
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS sections file '%1'").arg(sectsFile);
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
+      notifyErrorMessage("", ss, -1);
+    }
 
-	FILE* f4 = fopen(fileNames.at(3).toLatin1().data(), "wb");
-	if(nullptr == f4)
+    FILE* f4 = fopen(fileNames.at(3).toLatin1().data(), "wb");
+    if(nullptr == f4)
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS element set file '%1'").arg(elsetFile);
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
+      notifyErrorMessage("", ss, -1);
+    }
 
-	FILE* f5 = fopen(fileNames.at(4).toLatin1().data(), "wb");
-	if(nullptr == f5)
+    FILE* f5 = fopen(fileNames.at(4).toLatin1().data(), "wb");
+    if(nullptr == f5)
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS input file '%1'").arg(masterFile);
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
-	
-	//
-	fprintf(f5, "*Heading\n");
-	fprintf(f5, "%s\n", m_JobName.toLatin1().data());
-	fprintf(f5, "** Job name : %s\n", m_JobName.toLatin1().data());
-	fprintf(f5, "*Preprint, echo = NO, model = NO, history = NO, contact = NO\n");
-	fprintf(f5, "**\n");
-	fprintf(f5, "*Include, Input = %s\n", (m_OutputFilePrefix + "_nodes.inp").toLatin1().data());
-	fprintf(f5, "*Include, Input = %s\n", (m_OutputFilePrefix + "_elems.inp").toLatin1().data());
-	fprintf(f5, "*Include, Input = %s\n", (m_OutputFilePrefix + "_elset.inp").toLatin1().data());
-	fprintf(f5, "*Include, Input = %s\n", (m_OutputFilePrefix + "_sects.inp").toLatin1().data());
-	fprintf(f5, "**\n");
-	//
-	//
-	int32_t ne_x,ne_y,ne_z;
-	int32_t nnode_x,nnode_y,nnode_z;
-	int32_t index;
+      notifyErrorMessage("", ss, -1);
+    }
 
-	ne_x = dims[0];
-	ne_y = dims[1];
-	ne_z = dims[2];
-	
-	nnode_x = ne_x + 1;
-	nnode_y = ne_y + 1;
-	nnode_z = ne_z + 1;	
-	//
+    //
+    fprintf(f5, "*Heading\n");
+    fprintf(f5, "%s\n", m_JobName.toLatin1().data());
+    fprintf(f5, "** Job name : %s\n", m_JobName.toLatin1().data());
+    fprintf(f5, "*Preprint, echo = NO, model = NO, history = NO, contact = NO\n");
+    fprintf(f5, "**\n");
+    fprintf(f5, "*Include, Input = %s\n", (m_OutputFilePrefix + "_nodes.inp").toLatin1().data());
+    fprintf(f5, "*Include, Input = %s\n", (m_OutputFilePrefix + "_elems.inp").toLatin1().data());
+    fprintf(f5, "*Include, Input = %s\n", (m_OutputFilePrefix + "_elset.inp").toLatin1().data());
+    fprintf(f5, "*Include, Input = %s\n", (m_OutputFilePrefix + "_sects.inp").toLatin1().data());
+    fprintf(f5, "**\n");
+    //
+    //
+    int32_t ne_x, ne_y, ne_z;
+    int32_t nnode_x, nnode_y, nnode_z;
+    int32_t index;
 
-	FloatArrayType::Pointer m_coordLengthPtr = FloatArrayType::CreateArray(3*nnode_x*nnode_y*nnode_z , "NODAL_COORDINATES_INTERNAL_USE_ONLY");
-	float* m_coord = m_coordLengthPtr->getPointer(0);
-	
-	fprintf(f1,"*NODE, NSET=ALLNODES\n");  
-	//	fprintf(f5,"*NODE, NSET=ALLNODES\n");  
-	
-	for(int32_t k = 0; k < nnode_z; k++)
+    ne_x = dims[0];
+    ne_y = dims[1];
+    ne_z = dims[2];
+
+    nnode_x = ne_x + 1;
+    nnode_y = ne_y + 1;
+    nnode_z = ne_z + 1;
+    //
+
+    FloatArrayType::Pointer m_coordLengthPtr = FloatArrayType::CreateArray(3 * nnode_x * nnode_y * nnode_z, "NODAL_COORDINATES_INTERNAL_USE_ONLY");
+    float* m_coord = m_coordLengthPtr->getPointer(0);
+
+    fprintf(f1, "*NODE, NSET=ALLNODES\n");
+    //	fprintf(f5,"*NODE, NSET=ALLNODES\n");
+
+    for(int32_t k = 0; k < nnode_z; k++)
 	  {
 	    for(int32_t j = 0; j < nnode_y; j++)
 	      {
@@ -453,7 +445,7 @@ void CreateFEAInputFiles::execute()
 	      }
 	  }
 	//
-	notifyStatusMessage(getHumanLabel(), "Finished Writing ABAQUS Nodes File");
+	notifyStatusMessage("", "Finished Writing ABAQUS Nodes File");
 	//
 	//
 	Int32ArrayType::Pointer m_connLengthPtr = Int32ArrayType::CreateArray(8*ne_x*ne_y*ne_z , "CONNECTIVITY_INTERNAL_USE_ONLY");
@@ -493,7 +485,7 @@ void CreateFEAInputFiles::execute()
 	      }
 	  }
 	//
-	notifyStatusMessage(getHumanLabel(), "Finished Writing ABAQUS Elements Connectivity File");
+	notifyStatusMessage("", "Finished Writing ABAQUS Elements Connectivity File");
 	//
 	//  
 	Int32ArrayType::Pointer m_phaseIdLengthPtr = Int32ArrayType::CreateArray(maxGrainId , "PHASEID_INTERNAL_USE_ONLY");
@@ -553,7 +545,7 @@ void CreateFEAInputFiles::execute()
 	    voxelId++;
 	  }
 	//
-	notifyStatusMessage(getHumanLabel(), "Finished Writing ABAQUS Element Sets File");
+	notifyStatusMessage("", "Finished Writing ABAQUS Element Sets File");
 	//
 	//
 	std::vector<std::vector<double>> MatConst = m_MatConst.getTableData();
@@ -597,7 +589,7 @@ void CreateFEAInputFiles::execute()
 	    grain++;
 	  }
 	//
-	notifyStatusMessage(getHumanLabel(), "Finished Writing ABAQUS Sections File");	
+	notifyStatusMessage("", "Finished Writing ABAQUS Sections File");	
 	//
 	//
 	fclose(f1);
@@ -637,29 +629,28 @@ void CreateFEAInputFiles::execute()
 	if(nullptr == f)
 	  {
 	    QString ss = QObject::tr("Error writing PZFLEX input file '%1'").arg(masterFile);
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }	
-	//
-	fprintf(f, "hedr 0\n");
-	fprintf(f, "info 1\n");
-	//
-	float tempCoord = 0.0f;
-	int32_t ne_x,ne_y,ne_z;
-	int32_t nnode_x,nnode_y,nnode_z;
-	
-	ne_x = dims[0];
-	ne_y = dims[1];
-	ne_z = dims[2];
-	
-	nnode_x = ne_x + 1;
-	nnode_y = ne_y + 1;
-	nnode_z = ne_z + 1;
+      notifyErrorMessage("", ss, -1);
+    }
+    //
+    fprintf(f, "hedr 0\n");
+    fprintf(f, "info 1\n");
+    //
+    float tempCoord = 0.0f;
+    int32_t ne_x, ne_y, ne_z;
+    int32_t nnode_x, nnode_y, nnode_z;
 
-	//
-	fprintf(f, "xcrd %d\n",nnode_x);
-	size_t entriesPerLine = 0;
-	for(int32_t i = 0; i < nnode_x; i++)
+    ne_x = dims[0];
+    ne_y = dims[1];
+    ne_z = dims[2];
+
+    nnode_x = ne_x + 1;
+    nnode_y = ne_y + 1;
+    nnode_z = ne_z + 1;
+
+    //
+    fprintf(f, "xcrd %d\n", nnode_x);
+    size_t entriesPerLine = 0;
+    for(int32_t i = 0; i < nnode_x; i++)
 	  {
 	    if(entriesPerLine != 0) // no space at start
 	      {
@@ -769,10 +760,9 @@ void CreateFEAInputFiles::execute()
 	if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
 	  {
 	    QString ss = QObject::tr("BSAM file can not be created: %1").arg(masterFile);
-	    setErrorCondition(-100);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	    return;
-	  }
+      notifyErrorMessage("", ss, -100);
+      return;
+    }
 
 	//
 	file.write("***********************************************\n");
@@ -790,10 +780,9 @@ void CreateFEAInputFiles::execute()
 	    if(!inStream.open(QIODevice::ReadOnly | QIODevice::Text))
 	      {
 		QString ss = QObject::tr("BSAM Input file could not be opened: %1").arg(inpFile);
-		setErrorCondition(-100);
-		notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-		return;
-	      }
+    notifyErrorMessage("", ss, -100);
+    return;
+        }
 
 	    QByteArray buf;
 

@@ -41,6 +41,11 @@
 
 #define READ_DEF_PT_TRACKING_TIME_INDEX "Time Index"
 
+enum createdPathID : RenameDataPath::DataID_t
+{
+  DataContainerID = 1
+};
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -370,7 +375,7 @@ void ImportFEAData::dataCheck()
 
 	    // Create the output Data Container for the first time step
         QString dcName = getDataContainerName().getDataContainerName() + "_" + QString::number(t);
-        DataContainer::Pointer v = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, dcName);
+        DataContainer::Pointer v = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, dcName, DataContainerID);
         if(getErrorCondition() < 0)
         {
           QString ss = QObject::tr("Error Creating Vertex Data Container with name '%1' for Time Step %2").arg(dcName).arg(t);
@@ -490,10 +495,10 @@ void ImportFEAData::execute()
 	runABQpyscr(abqpyscrwExt); 
 
 	// Create the output Data Container
-	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
-	if(getErrorCondition() < 0)
-	  {
-	    return;
+  DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName(), DataContainerID);
+  if(getErrorCondition() < 0)
+  {
+    return;
 	  }
 	
 	// Create our output Vertex and Cell Matrix objects
@@ -518,10 +523,10 @@ void ImportFEAData::execute()
     case 1: // BSAM
       {
 	// Create the output Data Container
-	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
-	if(getErrorCondition() < 0)
-	  {
-	    return;
+  DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName(), DataContainerID);
+  if(getErrorCondition() < 0)
+  {
+    return;
 	  }
 	
 	// Create our output Vertex Matrix objects
@@ -551,10 +556,10 @@ void ImportFEAData::execute()
       {
 	
 	// Create the output Data Container
-	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
-	if(getErrorCondition() < 0)
-	  {
-	    return;
+  DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName(), DataContainerID);
+  if(getErrorCondition() < 0)
+  {
+    return;
 	  }
 	
 	// Create our output Vertex and Cell Matrix objects

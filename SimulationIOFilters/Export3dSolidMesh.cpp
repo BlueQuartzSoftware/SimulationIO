@@ -45,6 +45,11 @@
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"
 
+enum createdPathID : RenameDataPath::DataID_t
+{
+  DataContainerID = 1
+};
+
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -287,10 +292,10 @@ void Export3dSolidMesh::dataCheck()
 	getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
 	
 	// Create the output Data Container
-	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getTetDataContainerName());
-	if(getErrorCondition() < 0)
-	  {
-	    return;
+  DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getTetDataContainerName(), DataContainerID);
+  if(getErrorCondition() < 0)
+  {
+    return;
 	  }
 	
 	// Create our output Vertex and Cell Matrix objects

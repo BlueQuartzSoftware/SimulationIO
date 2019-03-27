@@ -163,7 +163,7 @@
         "CellPhasesArrayName": "Phases",
         "FeatureGeneration": 0,
         "FeatureIdsArrayName": "FeatureIds",
-        "FeatureInputFile": "/Users/saurabhpuri",
+        "FeatureInputFile": "",
         "FeaturePhasesArrayName": "Phases",
         "FilterVersion": "6.5.111",
         "Filter_Enabled": true,
@@ -443,7 +443,7 @@
         "Filter_Human_Label": "Export LAMMPS Data File",
         "Filter_Name": "ExportLAMMPSFile",
         "Filter_Uuid": "{33c10889-4cdc-5992-ae00-1795e9bee022}",
-        "LammpsFile": "/Users/saurabhpuri/Desktop/Lammps/test.txt"
+        "LammpsFile": "Data/Output/Lammps/lamps.txt"
     },
     "11": {
         "FilterVersion": "1.2.774",
@@ -451,12 +451,12 @@
         "Filter_Human_Label": "Write DREAM.3D Data File",
         "Filter_Name": "DataContainerWriter",
         "Filter_Uuid": "{3fcd4c43-9d75-5b86-aad4-4441bc914f37}",
-        "OutputFile": "/Users/saurabhpuri/Desktop/Lammps/lammps.dream3d",
+        "OutputFile": "Data/Output/Lammps/lammps.dream3d",
         "WriteTimeSeries": 0,
         "WriteXdmfFile": 1
     },
     "PipelineBuilder": {
-        "Name": "LAMMPSPipeline",
+        "Name": "LAMMPS Example Pipeline",
         "Number_Filters": 12,
         "Version": 6
     }

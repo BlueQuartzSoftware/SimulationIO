@@ -47,6 +47,9 @@
 
 enum createdPathID : RenameDataPath::DataID_t
 {
+  AttributeMatrixID21 = 21,
+  AttributeMatrixID22 = 22,
+
   DataContainerID = 1
 };
 
@@ -300,13 +303,13 @@ void Export3dSolidMesh::dataCheck()
 	
 	// Create our output Vertex and Cell Matrix objects
 	QVector<size_t> tDims(1, 0);
-	AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
-	if(getErrorCondition() < 0)
+  AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex, AttributeMatrixID21);
+  if(getErrorCondition() < 0)
 	  {
 	    return;
 	  }
-	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
-	if(getErrorCondition() < 0)
+    AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell, AttributeMatrixID22);
+    if(getErrorCondition() < 0)
 	  {
 	    return;
 	  }

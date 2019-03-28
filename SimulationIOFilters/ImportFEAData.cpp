@@ -43,6 +43,15 @@
 
 enum createdPathID : RenameDataPath::DataID_t
 {
+  AttributeMatrixID21 = 21,
+  AttributeMatrixID22 = 22,
+  AttributeMatrixID23 = 23,
+  AttributeMatrixID24 = 24,
+  AttributeMatrixID25 = 25,
+  AttributeMatrixID26 = 26,
+  AttributeMatrixID27 = 27,
+  AttributeMatrixID28 = 28,
+
   DataArrayID31 = 31,
   DataArrayID32 = 32,
   DataArrayID33 = 33,
@@ -392,7 +401,7 @@ void ImportFEAData::dataCheck()
         v->setGeometry(vertices);
 
         QVector<size_t> tDims(1, m_NumPoints);
-        AttributeMatrix::Pointer vertexAttrMat = v->createNonPrereqAttributeMatrix(this, SIMPL::Defaults::VertexAttributeMatrixName, tDims, AttributeMatrix::Type::Vertex);
+        AttributeMatrix::Pointer vertexAttrMat = v->createNonPrereqAttributeMatrix(this, SIMPL::Defaults::VertexAttributeMatrixName, tDims, AttributeMatrix::Type::Vertex, AttributeMatrixID21);
         if(getErrorCondition() < 0)
         {
           QString ss = QObject::tr("Error Creating AttributeMatrix with name '%1' for Time Step %2").arg(SIMPL::Defaults::VertexAttributeMatrixName).arg(t);
@@ -425,15 +434,15 @@ void ImportFEAData::dataCheck()
 
       // Generate the AttributeMatrix that will serve as the Meta-Data information for the DataContainerBundle
 	    QVector<size_t> bundleAttrDims(1, 1);
-	    AttributeMatrix::Pointer metaData = v->createNonPrereqAttributeMatrix(this, m_BundleMetaDataAMName, bundleAttrDims, AttributeMatrix::Type::MetaData);
-	    if(getErrorCondition() < 0)
+      AttributeMatrix::Pointer metaData = v->createNonPrereqAttributeMatrix(this, m_BundleMetaDataAMName, bundleAttrDims, AttributeMatrix::Type::MetaData, AttributeMatrixID22);
+      if(getErrorCondition() < 0)
 	      {
 	      }
 
 	    QVector<size_t> cDims(1, 1);
-      metaData->createNonPrereqArray<FloatArrayType, AbstractFilter, float>(this, getSelectedTimeArrayName(), 0.0f, cDims, DataArrayID31);     /* @ADD_DATAARRAY_ID@ */
-      metaData->createNonPrereqArray<Int32ArrayType, AbstractFilter, int32_t>(this, getSelectedTimeStepArrayName(), 0, cDims, DataArrayID32);  /* @ADD_DATAARRAY_ID@ */
-      metaData->createNonPrereqArray<Int32ArrayType, AbstractFilter, int32_t>(this, READ_DEF_PT_TRACKING_TIME_INDEX, 0, cDims, DataArrayID33); /* @ADD_DATAARRAY_ID@ */
+      metaData->createNonPrereqArray<FloatArrayType, AbstractFilter, float>(this, getSelectedTimeArrayName(), 0.0f, cDims, DataArrayID31);
+      metaData->createNonPrereqArray<Int32ArrayType, AbstractFilter, int32_t>(this, getSelectedTimeStepArrayName(), 0, cDims, DataArrayID32);
+      metaData->createNonPrereqArray<Int32ArrayType, AbstractFilter, int32_t>(this, READ_DEF_PT_TRACKING_TIME_INDEX, 0, cDims, DataArrayID33);
     }
 
   break;
@@ -507,13 +516,13 @@ void ImportFEAData::execute()
 	
 	// Create our output Vertex and Cell Matrix objects
 	QVector<size_t> tDims(1, 0);
-	AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
-	if(getErrorCondition() < 0)
+  AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex, AttributeMatrixID23);
+  if(getErrorCondition() < 0)
 	  {
 	    return;
 	  }
-	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
-	if(getErrorCondition() < 0)
+    AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell, AttributeMatrixID24);
+    if(getErrorCondition() < 0)
 	  {
 	    return;
 	  }
@@ -535,13 +544,13 @@ void ImportFEAData::execute()
 	
 	// Create our output Vertex Matrix objects
 	QVector<size_t> tDims(1, 0);
-	AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
-	if(getErrorCondition() < 0)
+  AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex, AttributeMatrixID25);
+  if(getErrorCondition() < 0)
 	  {
 	    return;
 	  }
-	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
-	if(getErrorCondition() < 0)
+    AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell, AttributeMatrixID26);
+    if(getErrorCondition() < 0)
 	  {
 	    return;
 	  }
@@ -568,13 +577,13 @@ void ImportFEAData::execute()
 	
 	// Create our output Vertex and Cell Matrix objects
 	QVector<size_t> tDims(1, 0);
-	AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
-	if(getErrorCondition() < 0)
+  AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex, AttributeMatrixID27);
+  if(getErrorCondition() < 0)
 	  {
 	    return;
 	  }
-	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
-	if(getErrorCondition() < 0)
+    AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell, AttributeMatrixID28);
+    if(getErrorCondition() < 0)
 	  {
 	    return;
 	  }

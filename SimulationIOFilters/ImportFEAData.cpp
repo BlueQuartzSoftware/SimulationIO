@@ -43,6 +43,10 @@
 
 enum createdPathID : RenameDataPath::DataID_t
 {
+  DataArrayID31 = 31,
+  DataArrayID32 = 32,
+  DataArrayID33 = 33,
+
   DataContainerID = 1
 };
 
@@ -427,12 +431,12 @@ void ImportFEAData::dataCheck()
 	      }
 
 	    QVector<size_t> cDims(1, 1);
-	    metaData->createNonPrereqArray<FloatArrayType, AbstractFilter, float>(this, getSelectedTimeArrayName(), 0.0f, cDims);
-	    metaData->createNonPrereqArray<Int32ArrayType, AbstractFilter, int32_t>(this, getSelectedTimeStepArrayName(), 0, cDims);
-	    metaData->createNonPrereqArray<Int32ArrayType, AbstractFilter, int32_t>(this, READ_DEF_PT_TRACKING_TIME_INDEX, 0, cDims);
-	  }
+      metaData->createNonPrereqArray<FloatArrayType, AbstractFilter, float>(this, getSelectedTimeArrayName(), 0.0f, cDims, DataArrayID31);     /* @ADD_DATAARRAY_ID@ */
+      metaData->createNonPrereqArray<Int32ArrayType, AbstractFilter, int32_t>(this, getSelectedTimeStepArrayName(), 0, cDims, DataArrayID32);  /* @ADD_DATAARRAY_ID@ */
+      metaData->createNonPrereqArray<Int32ArrayType, AbstractFilter, int32_t>(this, READ_DEF_PT_TRACKING_TIME_INDEX, 0, cDims, DataArrayID33); /* @ADD_DATAARRAY_ID@ */
+    }
 
-	break;
+  break;
       }
 
     }

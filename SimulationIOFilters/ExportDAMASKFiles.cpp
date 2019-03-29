@@ -212,7 +212,7 @@ void ExportDAMASKFiles::execute()
     {
       QString ss = QObject::tr("Error creating parent path '%1'").arg(m_OutputPath);
       setErrorCondition(-1);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage(ss, getErrorCondition());
       return;
     }
   //

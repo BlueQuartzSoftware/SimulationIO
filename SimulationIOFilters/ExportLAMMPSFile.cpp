@@ -127,7 +127,7 @@ void ExportLAMMPSFile::dataCheck()
   if(nullptr == vertices->getVertices().get())
   {
     setErrorCondition(-384);
-    notifyErrorMessage(getHumanLabel(), "VertexDataContainer missing Nodes", getErrorCondition());
+    notifyErrorMessage("VertexDataContainer missing Nodes", getErrorCondition());
   }
 
   QVector<DataArrayPath> dataArrayPaths;
@@ -193,7 +193,7 @@ void ExportLAMMPSFile::execute()
   {
     QString ss = QObject::tr(": Error creating LAMMPS output file '%1'").arg(getLammpsFile());
     setErrorCondition(-11000);
-    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    notifyErrorMessage(ss, getErrorCondition());
     return;
   }
 

@@ -252,13 +252,13 @@ void Export3dSolidMesh::dataCheck()
 	    if(getMaxRadiusEdgeRatio() <= 0)
 	      {
 		setErrorCondition(-1);
-		notifyErrorMessage(getHumanLabel(), "Maximum radius-edge ratio must be greater than 0", getErrorCondition());
-	      }
+    notifyErrorMessage("Maximum radius-edge ratio must be greater than 0", getErrorCondition());
+        }
 	    if(getMinDihedralAngle() < 0)
 	      {
 		setErrorCondition(-1);
-		notifyErrorMessage(getHumanLabel(), "Minimum dihedral angle must be 0 or greater", getErrorCondition());
-	      }
+    notifyErrorMessage("Minimum dihedral angle must be 0 or greater", getErrorCondition());
+        }
 	  }
   
 	if(getLimitTetrahedraVolume())
@@ -266,15 +266,15 @@ void Export3dSolidMesh::dataCheck()
 	    if(getMaxTetrahedraVolume() <= 0)
 	      {
 		setErrorCondition(-1);
-		notifyErrorMessage(getHumanLabel(), "Maximum tetrahedron volume must be greater than 0", getErrorCondition());
-	      }
+    notifyErrorMessage("Maximum tetrahedron volume must be greater than 0", getErrorCondition());
+        }
 	  }
   
 	if(getOptimizationLevel() < 0 || getOptimizationLevel() > 10)
 	  {
 	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), "Optimization level must be on the interval [0, 10]", getErrorCondition());
-	  }
+      notifyErrorMessage("Optimization level must be on the interval [0, 10]", getErrorCondition());
+    }
   
 	QVector<DataArrayPath> dataArrayPaths;
 	QVector<size_t> cDims(1, 1);
@@ -411,7 +411,7 @@ void Export3dSolidMesh::execute()
     {
       QString ss = QObject::tr("Output directory does not exist '%1'").arg(m_outputPath);
       setErrorCondition(-1);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage(ss, getErrorCondition());
       return;
     }
 
@@ -519,8 +519,8 @@ void Export3dSolidMesh::execute()
 	  {
 	    QString ss = QObject::tr("Error creating Gmsh geo file '%1'").arg(gmshGeoFile);
 	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
+      notifyErrorMessage(ss, getErrorCondition());
+    }
 
 	for(size_t i = 1; i < numfeatures; i++)
 	  {
@@ -554,7 +554,7 @@ void Export3dSolidMesh::createTetgenInpFile(const QString& file, int64_t numNode
     {
       QString ss = QObject::tr("Error writing tetGen input file '%1'").arg(file);
       setErrorCondition(-1);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage(ss, getErrorCondition());
     }
 
   fprintf(f1,"# Part 1 - node list\n");
@@ -800,13 +800,13 @@ void Export3dSolidMesh::processHasFinished(int exitCode, QProcess::ExitStatus ex
     {
       QString ss = QObject::tr("The process crashed during its exit.");
       setErrorCondition(-4003);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage(ss, getErrorCondition());
     }
   else if(exitCode < 0)
     {
       QString ss = QObject::tr("The process finished with exit code %1.").arg(QString::number(exitCode));
       setErrorCondition(-4004);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage(ss, getErrorCondition());
     }
   else if(getErrorCondition() >= 0)
     {
@@ -826,7 +826,7 @@ void Export3dSolidMesh::processHasErroredOut(QProcess::ProcessError error)
     {
       QString ss = QObject::tr("The process was killed by the user.");
       setWarningCondition(-4004);
-      notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
+      notifyWarningMessage(ss, getWarningCondition());
     }
   else if(error == QProcess::FailedToStart)
     {
@@ -837,37 +837,37 @@ void Export3dSolidMesh::processHasErroredOut(QProcess::ProcessError error)
 or the path containing the executble is not in the system's environment path. PATH=%1.\n Try using the absolute path to the executable.")
 	.arg(pathEnv);
       setErrorCondition(-4005);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage(ss, getErrorCondition());
     }
   else if(error == QProcess::Crashed)
     {
       QString ss = QObject::tr("The process crashed some time after starting successfully.");
       setErrorCondition(-4006);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage(ss, getErrorCondition());
     }
   else if(error == QProcess::Timedout)
     {
       QString ss = QObject::tr("The process timed out.");
       setErrorCondition(-4007);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage(ss, getErrorCondition());
     }
   else if(error == QProcess::WriteError)
     {
       QString ss = QObject::tr("An error occurred when attempting to write to the process.");
       setErrorCondition(-4008);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage(ss, getErrorCondition());
     }
   else if(error == QProcess::ReadError)
     {
       QString ss = QObject::tr("An error occurred when attempting to read from the process.");
       setErrorCondition(-4009);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage(ss, getErrorCondition());
     }
   else
     {
       QString ss = QObject::tr("An unknown error occurred.");
       setErrorCondition(-4010);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage(ss, getErrorCondition());
     }
 
   m_Pause = false;
@@ -921,7 +921,7 @@ void Export3dSolidMesh::scanTetGenFile(const QString& fileEle, const QString& fi
     {
       QString ss = QObject::tr("Input file could not be opened: %1").arg(fileEle);
       setErrorCondition(-100);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage(ss, getErrorCondition());
       return;
     }
   
@@ -929,7 +929,7 @@ void Export3dSolidMesh::scanTetGenFile(const QString& fileEle, const QString& fi
     {
       QString ss = QObject::tr("Input file could not be opened: %1").arg(fileNode);
       setErrorCondition(-100);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage(ss, getErrorCondition());
       return;
     }
 

@@ -192,7 +192,7 @@ void CreateFEAInputFiles::dataCheck()
   {
     setErrorCondition(-12001);
     QString ss = QObject::tr("The output path must be set");
-    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    notifyErrorMessage(ss, getErrorCondition());
   }
 
   QFileInfo fi(m_OutputPath);
@@ -201,7 +201,7 @@ void CreateFEAInputFiles::dataCheck()
   {
     setWarningCondition(-10100);
     QString ss = QObject::tr("The directory path for the output file does not exist. DREAM.3D will attempt to create this path during execution of the filter");
-    notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
+    notifyWarningMessage(ss, getWarningCondition());
   }
 
   switch(m_FEAPackage)
@@ -310,7 +310,7 @@ void CreateFEAInputFiles::execute()
     {
       QString ss = QObject::tr("Error creating parent path '%1'").arg(m_OutputPath);
       setErrorCondition(-1);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      notifyErrorMessage(ss, getErrorCondition());
       return;
     }
   //
@@ -358,40 +358,40 @@ void CreateFEAInputFiles::execute()
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS nodes file '%1'").arg(nodesFile);
 	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
+      notifyErrorMessage(ss, getErrorCondition());
+    }
 	
 	FILE* f2 = fopen(fileNames.at(1).toLatin1().data(), "wb");
 	if(nullptr == f2)
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS connectivity file '%1'").arg(elemsFile);
 	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
+      notifyErrorMessage(ss, getErrorCondition());
+    }
 	
 	FILE* f3 = fopen(fileNames.at(2).toLatin1().data(), "wb");
 	if(nullptr == f3)
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS sections file '%1'").arg(sectsFile);
 	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
+      notifyErrorMessage(ss, getErrorCondition());
+    }
 
 	FILE* f4 = fopen(fileNames.at(3).toLatin1().data(), "wb");
 	if(nullptr == f4)
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS element set file '%1'").arg(elsetFile);
 	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
+      notifyErrorMessage(ss, getErrorCondition());
+    }
 
 	FILE* f5 = fopen(fileNames.at(4).toLatin1().data(), "wb");
 	if(nullptr == f5)
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS input file '%1'").arg(masterFile);
 	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
+      notifyErrorMessage(ss, getErrorCondition());
+    }
 	
 	//
 	fprintf(f5, "*Heading\n");
@@ -638,8 +638,8 @@ void CreateFEAInputFiles::execute()
 	  {
 	    QString ss = QObject::tr("Error writing PZFLEX input file '%1'").arg(masterFile);
 	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }	
+      notifyErrorMessage(ss, getErrorCondition());
+    }	
 	//
 	fprintf(f, "hedr 0\n");
 	fprintf(f, "info 1\n");
@@ -770,8 +770,8 @@ void CreateFEAInputFiles::execute()
 	  {
 	    QString ss = QObject::tr("BSAM file can not be created: %1").arg(masterFile);
 	    setErrorCondition(-100);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	    return;
+      notifyErrorMessage(ss, getErrorCondition());
+      return;
 	  }
 
 	//
@@ -791,8 +791,8 @@ void CreateFEAInputFiles::execute()
 	      {
 		QString ss = QObject::tr("BSAM Input file could not be opened: %1").arg(inpFile);
 		setErrorCondition(-100);
-		notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-		return;
+    notifyErrorMessage(ss, getErrorCondition());
+    return;
 	      }
 
 	    QByteArray buf;

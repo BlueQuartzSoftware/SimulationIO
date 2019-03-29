@@ -251,33 +251,37 @@ void Export3dSolidMesh::dataCheck()
 	  {
 	    if(getMaxRadiusEdgeRatio() <= 0)
 	      {
-          notifyErrorMessage("", "Maximum radius-edge ratio must be greater than 0", -1);
-        }
-        if(getMinDihedralAngle() < 0)
+		setErrorCondition(-1);
+		notifyErrorMessage(getHumanLabel(), "Maximum radius-edge ratio must be greater than 0", getErrorCondition());
+	      }
+	    if(getMinDihedralAngle() < 0)
 	      {
-          notifyErrorMessage("", "Minimum dihedral angle must be 0 or greater", -1);
-        }
-    }
+		setErrorCondition(-1);
+		notifyErrorMessage(getHumanLabel(), "Minimum dihedral angle must be 0 or greater", getErrorCondition());
+	      }
+	  }
   
 	if(getLimitTetrahedraVolume())
 	  {
 	    if(getMaxTetrahedraVolume() <= 0)
 	      {
-          notifyErrorMessage("", "Maximum tetrahedron volume must be greater than 0", -1);
-        }
-    }
+		setErrorCondition(-1);
+		notifyErrorMessage(getHumanLabel(), "Maximum tetrahedron volume must be greater than 0", getErrorCondition());
+	      }
+	  }
   
 	if(getOptimizationLevel() < 0 || getOptimizationLevel() > 10)
 	  {
-      notifyErrorMessage("", "Optimization level must be on the interval [0, 10]", -1);
-    }
-
-    QVector<DataArrayPath> dataArrayPaths;
-    QVector<size_t> cDims(1, 1);
-
-    m_FeaturePhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getFeaturePhasesArrayPath(),
-                                                                                                             cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-    if(nullptr != m_FeaturePhasesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+	    setErrorCondition(-1);
+	    notifyErrorMessage(getHumanLabel(), "Optimization level must be on the interval [0, 10]", getErrorCondition());
+	  }
+  
+	QVector<DataArrayPath> dataArrayPaths;
+	QVector<size_t> cDims(1, 1);
+	
+	m_FeaturePhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getFeaturePhasesArrayPath(),
+														 cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+	if(nullptr != m_FeaturePhasesPtr.lock())                                                                         /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
 	  {
 	    m_FeaturePhases = m_FeaturePhasesPtr.lock()->getPointer(0);
 	  } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -406,7 +410,8 @@ void Export3dSolidMesh::execute()
   if(!dir.mkpath(m_outputPath))
     {
       QString ss = QObject::tr("Output directory does not exist '%1'").arg(m_outputPath);
-      notifyErrorMessage("", ss, -1);
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
       return;
     }
 
@@ -513,10 +518,11 @@ void Export3dSolidMesh::execute()
 	if(nullptr == f1)
 	  {
 	    QString ss = QObject::tr("Error creating Gmsh geo file '%1'").arg(gmshGeoFile);
-      notifyErrorMessage("", ss, -1);
-    }
+	    setErrorCondition(-1);
+	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+	  }
 
-    for(size_t i = 1; i < numfeatures; i++)
+	for(size_t i = 1; i < numfeatures; i++)
 	  {
 
 	    STLFileNamewExt = m_GmshSTLFileName + QString("Feature_") + QString::number(i) + ".stl";
@@ -547,7 +553,8 @@ void Export3dSolidMesh::createTetgenInpFile(const QString& file, int64_t numNode
   if(nullptr == f1)
     {
       QString ss = QObject::tr("Error writing tetGen input file '%1'").arg(file);
-      notifyErrorMessage("", ss, -1);
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
     }
 
   fprintf(f1,"# Part 1 - node list\n");
@@ -715,7 +722,7 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
   m_ProcessPtr->waitForStarted(2000);
   m_ProcessPtr->waitForFinished(10000000);
 
-  notifyStatusMessage("", "Finished running Package");
+  notifyStatusMessage(getHumanLabel(), "Finished running Package");
 
 }
 
@@ -780,7 +787,7 @@ void Export3dSolidMesh::mergeMesh(const QString& mergeFile, const QString& meshF
   m_ProcessPtr->waitForStarted(2000);
   m_ProcessPtr->waitForFinished();
 
-  notifyStatusMessage("", "Merging individual volume meshes");
+  notifyStatusMessage(getHumanLabel(), "Merging individual volume meshes");
 
 }
 
@@ -794,12 +801,14 @@ void Export3dSolidMesh::processHasFinished(int exitCode, QProcess::ExitStatus ex
   else if(exitStatus == QProcess::CrashExit)
     {
       QString ss = QObject::tr("The process crashed during its exit.");
-      notifyErrorMessage("", ss, -4003);
+      setErrorCondition(-4003);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
     }
   else if(exitCode < 0)
     {
       QString ss = QObject::tr("The process finished with exit code %1.").arg(QString::number(exitCode));
-      notifyErrorMessage("", ss, -4004);
+      setErrorCondition(-4004);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
     }
   else if(getErrorCondition() >= 0)
     {
@@ -818,7 +827,8 @@ void Export3dSolidMesh::processHasErroredOut(QProcess::ProcessError error)
   if(getCancel())
     {
       QString ss = QObject::tr("The process was killed by the user.");
-      notifyWarningMessage("", ss, -4004);
+      setWarningCondition(-4004);
+      notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
     }
   else if(error == QProcess::FailedToStart)
     {
@@ -828,32 +838,38 @@ void Export3dSolidMesh::processHasErroredOut(QProcess::ProcessError error)
       QString ss = QObject::tr("The package failed to start. Either the package is missing, or you may have insufficient permissions \
 or the path containing the executble is not in the system's environment path. PATH=%1.\n Try using the absolute path to the executable.")
 	.arg(pathEnv);
-      notifyErrorMessage("", ss, -4005);
+      setErrorCondition(-4005);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
     }
   else if(error == QProcess::Crashed)
     {
       QString ss = QObject::tr("The process crashed some time after starting successfully.");
-      notifyErrorMessage("", ss, -4006);
+      setErrorCondition(-4006);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
     }
   else if(error == QProcess::Timedout)
     {
       QString ss = QObject::tr("The process timed out.");
-      notifyErrorMessage("", ss, -4007);
+      setErrorCondition(-4007);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
     }
   else if(error == QProcess::WriteError)
     {
       QString ss = QObject::tr("An error occurred when attempting to write to the process.");
-      notifyErrorMessage("", ss, -4008);
+      setErrorCondition(-4008);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
     }
   else if(error == QProcess::ReadError)
     {
       QString ss = QObject::tr("An error occurred when attempting to read from the process.");
-      notifyErrorMessage("", ss, -4009);
+      setErrorCondition(-4009);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
     }
   else
     {
       QString ss = QObject::tr("An unknown error occurred.");
-      notifyErrorMessage("", ss, -4010);
+      setErrorCondition(-4010);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
     }
 
   m_Pause = false;
@@ -873,7 +889,7 @@ void Export3dSolidMesh::sendErrorOutput()
 	{
 	  error.chop(1);
 	}
-      notifyStatusMessage("", error);
+      notifyStandardOutputMessage(getHumanLabel(), getPipelineIndex() + 1, error);
       m_WaitCondition.wakeAll();
     }
 }
@@ -886,7 +902,7 @@ void Export3dSolidMesh::sendStandardOutput()
 {
   if(m_ProcessPtr.data() != nullptr)
     {
-      notifyStatusMessage("", m_ProcessPtr->readAllStandardOutput());
+      notifyStandardOutputMessage(getHumanLabel(), getPipelineIndex() + 1, m_ProcessPtr->readAllStandardOutput());
       m_WaitCondition.wakeAll();
     }
 }
@@ -906,14 +922,16 @@ void Export3dSolidMesh::scanTetGenFile(const QString& fileEle, const QString& fi
   if(!inStreamEle.open(QIODevice::ReadOnly | QIODevice::Text))
     {
       QString ss = QObject::tr("Input file could not be opened: %1").arg(fileEle);
-      notifyErrorMessage("", ss, -100);
+      setErrorCondition(-100);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
       return;
     }
   
   if(!inStreamNode.open(QIODevice::ReadOnly | QIODevice::Text))
     {
       QString ss = QObject::tr("Input file could not be opened: %1").arg(fileNode);
-      notifyErrorMessage("", ss, -100);
+      setErrorCondition(-100);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
       return;
     }
 

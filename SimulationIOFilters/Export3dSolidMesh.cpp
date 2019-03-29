@@ -82,8 +82,8 @@ Export3dSolidMesh::~Export3dSolidMesh() = default;
 // -----------------------------------------------------------------------------
 void Export3dSolidMesh::initialize()
 {
-  setErrorCondition(0);
-  setWarningCondition(0);
+  clearErrorCondition();
+  clearWarningCondition();
   setCancel(false);
 }
 
@@ -237,8 +237,8 @@ void Export3dSolidMesh::readFilterParameters(AbstractFilterParametersReader* rea
 // -----------------------------------------------------------------------------
 void Export3dSolidMesh::dataCheck()
 {
-  setErrorCondition(0);
-  setWarningCondition(0); 
+  clearErrorCondition();
+  clearWarningCondition();
 
   m_Pause = false;
   m_ProcessPtr.reset();

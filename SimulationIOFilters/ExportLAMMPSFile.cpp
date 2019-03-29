@@ -108,8 +108,8 @@ void ExportLAMMPSFile::initialize()
 // -----------------------------------------------------------------------------
 void ExportLAMMPSFile::dataCheck()
 {
-  setErrorCondition(0);
-  setWarningCondition(0);
+  clearErrorCondition();
+  clearWarningCondition();
 
   FileSystemPathHelper::CheckOutputFile(this, "Output LAMMPS File", getLammpsFile(), true);
 
@@ -260,8 +260,8 @@ void ExportLAMMPSFile::execute()
   // Close the input and output files
   fclose(lammpsFile);
 
-  setErrorCondition(0);
-  setWarningCondition(0);
+  clearErrorCondition();
+  clearWarningCondition();
   notifyStatusMessage(getHumanLabel(), "Complete");
 }
 

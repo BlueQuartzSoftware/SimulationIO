@@ -59,8 +59,8 @@ ExportDAMASKFiles::~ExportDAMASKFiles() = default;
 // -----------------------------------------------------------------------------
 void ExportDAMASKFiles::initialize()
 {
-  setErrorCondition(0);
-  setWarningCondition(0);
+  clearErrorCondition();
+  clearWarningCondition();
   setCancel(false);
 }
 
@@ -137,8 +137,8 @@ void ExportDAMASKFiles::readFilterParameters(AbstractFilterParametersReader* rea
 // -----------------------------------------------------------------------------
 void ExportDAMASKFiles::dataCheck()
 {
-  setErrorCondition(0);
-  setWarningCondition(0);  
+  clearErrorCondition();
+  clearWarningCondition();
 
   getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom, AbstractFilter>(this, getFeatureIdsArrayPath().getDataContainerName());
 

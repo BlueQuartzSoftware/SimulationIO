@@ -722,8 +722,7 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
   m_ProcessPtr->waitForStarted(2000);
   m_ProcessPtr->waitForFinished(10000000);
 
-  notifyStatusMessage(getHumanLabel(), "Finished running Package");
-
+  notifyStatusMessage("Finished running Package");
 }
 
 //
@@ -787,8 +786,7 @@ void Export3dSolidMesh::mergeMesh(const QString& mergeFile, const QString& meshF
   m_ProcessPtr->waitForStarted(2000);
   m_ProcessPtr->waitForFinished();
 
-  notifyStatusMessage(getHumanLabel(), "Merging individual volume meshes");
-
+  notifyStatusMessage("Merging individual volume meshes");
 }
 
 

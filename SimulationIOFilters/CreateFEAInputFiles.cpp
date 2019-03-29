@@ -453,15 +453,15 @@ void CreateFEAInputFiles::execute()
 	      }
 	  }
 	//
-	notifyStatusMessage(getHumanLabel(), "Finished Writing ABAQUS Nodes File");
-	//
-	//
-	Int32ArrayType::Pointer m_connLengthPtr = Int32ArrayType::CreateArray(8*ne_x*ne_y*ne_z , "CONNECTIVITY_INTERNAL_USE_ONLY");
-	int32_t* m_conn = m_connLengthPtr->getPointer(0);
-	
-	fprintf(f2,"*ELEMENT, TYPE=C3D8R, ELSET=ALLELEMENTS\n");  
-	
-	for(int32_t k = 0; k < ne_z; k++)
+    notifyStatusMessage("Finished Writing ABAQUS Nodes File");
+    //
+    //
+    Int32ArrayType::Pointer m_connLengthPtr = Int32ArrayType::CreateArray(8 * ne_x * ne_y * ne_z, "CONNECTIVITY_INTERNAL_USE_ONLY");
+    int32_t* m_conn = m_connLengthPtr->getPointer(0);
+
+    fprintf(f2, "*ELEMENT, TYPE=C3D8R, ELSET=ALLELEMENTS\n");
+
+    for(int32_t k = 0; k < ne_z; k++)
 	  {
 	    for(int32_t j = 0; j < ne_y; j++)
 	      {
@@ -493,17 +493,17 @@ void CreateFEAInputFiles::execute()
 	      }
 	  }
 	//
-	notifyStatusMessage(getHumanLabel(), "Finished Writing ABAQUS Elements Connectivity File");
-	//
-	//  
-	Int32ArrayType::Pointer m_phaseIdLengthPtr = Int32ArrayType::CreateArray(maxGrainId , "PHASEID_INTERNAL_USE_ONLY");
-	int32_t* m_phaseId = m_phaseIdLengthPtr->getPointer(0);
-	
-	FloatArrayType::Pointer m_orientLengthPtr = FloatArrayType::CreateArray(maxGrainId*3, "ORIENTATION_INTERNAL_USE_ONLY");
-	float* m_orient = m_orientLengthPtr->getPointer(0);
+    notifyStatusMessage("Finished Writing ABAQUS Elements Connectivity File");
+    //
+    //
+    Int32ArrayType::Pointer m_phaseIdLengthPtr = Int32ArrayType::CreateArray(maxGrainId, "PHASEID_INTERNAL_USE_ONLY");
+    int32_t* m_phaseId = m_phaseIdLengthPtr->getPointer(0);
 
-	int32_t grainId = 1;
-	while(grainId <= maxGrainId)
+    FloatArrayType::Pointer m_orientLengthPtr = FloatArrayType::CreateArray(maxGrainId * 3, "ORIENTATION_INTERNAL_USE_ONLY");
+    float* m_orient = m_orientLengthPtr->getPointer(0);
+
+    int32_t grainId = 1;
+    while(grainId <= maxGrainId)
 	  {
 	    for(int32_t i = 0; i < totalPoints; i++)
 	      {
@@ -553,12 +553,12 @@ void CreateFEAInputFiles::execute()
 	    voxelId++;
 	  }
 	//
-	notifyStatusMessage(getHumanLabel(), "Finished Writing ABAQUS Element Sets File");
-	//
-	//
-	std::vector<std::vector<double>> MatConst = m_MatConst.getTableData();
+    notifyStatusMessage("Finished Writing ABAQUS Element Sets File");
+    //
+    //
+    std::vector<std::vector<double>> MatConst = m_MatConst.getTableData();
 
-	for(int32_t i = 1; i <= maxGrainId; i++)
+    for(int32_t i = 1; i <= maxGrainId; i++)
 	  {
 	    fprintf(f5, "*Material, name = Grain%d_Phase%d_set\n", i, m_phaseId[i-1] );
 	    fprintf(f5, "*Depvar\n");
@@ -597,15 +597,15 @@ void CreateFEAInputFiles::execute()
 	    grain++;
 	  }
 	//
-	notifyStatusMessage(getHumanLabel(), "Finished Writing ABAQUS Sections File");	
-	//
-	//
-	fclose(f1);
-	fclose(f2);
-	fclose(f3);
-	fclose(f4);
-	fclose(f5);
-	break;
+    notifyStatusMessage("Finished Writing ABAQUS Sections File");
+    //
+    //
+    fclose(f1);
+    fclose(f2);
+    fclose(f3);
+    fclose(f4);
+    fclose(f5);
+    break;
       }
     case 1: // PZFLEX
       {

@@ -582,9 +582,9 @@ void ImportFEAData::execute()
 
 	scanBSAMFile(m.get(), vertexAttrMat.get(), cellAttrMat.get());
 
-	notifyStatusMessage(getHumanLabel(), "Import Complete");
-	
-	break;	
+  notifyStatusMessage("Import Complete");
+
+  break;	
       }
     case 2: // DEFORM
       {
@@ -595,22 +595,22 @@ void ImportFEAData::execute()
 
 	scanDEFORMFile(m.get(), vertexAttrMat.get(), cellAttrMat.get());
 
-	notifyStatusMessage(getHumanLabel(), "DEFORM Import Complete");
-	
-	break;
+  notifyStatusMessage("DEFORM Import Complete");
+
+  break;
       }
     case 3:// DEFORM POINT TRACK
       {
 	for(size_t i = 0; i < m_NumTimeSteps; i++)
 	  {
 	    QString ss = QObject::tr("Starting to read time step %1 of %2").arg(i).arg(m_NumTimeSteps-1);
-	    notifyStatusMessage(getMessagePrefix(), getHumanLabel(), ss);
-	    readTimeStep(m_InStream, i);
+      notifyStatusMessageWithPrefix(getMessagePrefix(), ss);
+      readTimeStep(m_InStream, i);
 	  }
 	
 	/* Let the GUI know we are done with this filter */
-	notifyStatusMessage(getHumanLabel(), "Import Complete");
-	break;
+    notifyStatusMessage("Import Complete");
+    break;
       }
 
     }
@@ -730,7 +730,7 @@ int32_t ImportFEAData::writeABQpyscr(const QString& file,
   fprintf(f, "                          fid.write(' ')\n");
   fprintf(f, "                  fid.write('\\n')\n"); 	   
   fprintf(f, "fid.close()");
-  notifyStatusMessage(getHumanLabel(), "Finished writing ABAQUS python script");
+  notifyStatusMessage("Finished writing ABAQUS python script");
   fclose(f);
 
   return err;
@@ -763,8 +763,7 @@ void ImportFEAData::runABQpyscr(const QString& file)
   m_ProcessPtr->waitForStarted(2000);
   m_ProcessPtr->waitForFinished(100000);
 
-  notifyStatusMessage(getHumanLabel(), "Finished running ABAQUS python script");
-
+  notifyStatusMessage("Finished running ABAQUS python script");
 }
 
 //
@@ -1287,7 +1286,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
   QTextStream ss(&status);
   status = "";
   ss << "Scanning for Vertex & Cell data....";
-  notifyStatusMessage(getHumanLabel(), status);
+  notifyStatusMessage(status);
   while(!inStream.atEnd())
     {
       buf.clear();
@@ -1373,15 +1372,15 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
 		      vertexAttrMat->addAttributeArray(data->getName(), data);
 		      status = "";
 		      ss << "Reading Vertex Data: " << data->getName();
-		      notifyStatusMessage(getHumanLabel(), status);
-		    }
+          notifyStatusMessage(status);
+        }
 		  else if(count == numCells)
 		    {
 		      cellAttrMat->addAttributeArray(data->getName(), data);
 		      status = "";
 		      ss << "Reading Cell Data: " << data->getName();
-		      notifyStatusMessage(getHumanLabel(), status);
-		    }
+          notifyStatusMessage(status);
+        }
 		}
 	      for(int32_t c = 0; c < numComp; c++)
 		{
@@ -1410,15 +1409,15 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
 			  vertexAttrMat->addAttributeArray(data->getName(), data);
 			  status = "";
 			  ss << "Reading Vertex Data: " << data->getName();
-			  notifyStatusMessage(getHumanLabel(), status);
-			}
+        notifyStatusMessage(status);
+      }
 		      else if(count == numCells)
 			{
 			  cellAttrMat->addAttributeArray(data->getName(), data);
 			  status = "";
 			  ss << "Reading Cell Data: " << data->getName();
-			  notifyStatusMessage(getHumanLabel(), status);
-			}
+        notifyStatusMessage(status);
+      }
 		    }
 		  for(int32_t c = 0; c < numComp; c++)
 		    {
@@ -1475,7 +1474,7 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
   QString status;
   QTextStream ss(&status);
   ss << "DEFORM Data File: Number of Vetex Points=" << numVerts;
-  notifyStatusMessage(getHumanLabel(), status);
+  notifyStatusMessage(status);
 
   // Read or Skip past all the vertex data
   for(size_t i = 0; i < numVerts; i++)
@@ -1506,7 +1505,7 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
   tDims[0] = numCells;
   status = "";
   ss << "DEFORM Data File: Number of Quad Cells=" << numCells;
-  notifyStatusMessage(getHumanLabel(), status);
+  notifyStatusMessage(status);
   cellAttrMat->resizeAttributeArrays(tDims);
   QuadGeom::Pointer quadGeomPtr = QuadGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::QuadGeometry, allocate);
   quadGeomPtr->setSpatialDimensionality(2);
@@ -1533,7 +1532,7 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
 
   status = "";
   ss << "Scanning for Vertex & Cell data....";
-  notifyStatusMessage(getHumanLabel(), status);
+  notifyStatusMessage(status);
   while(!inStream.atEnd())
     {
       // Now we are reading either cell or vertex data based on the number of items
@@ -1588,15 +1587,15 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
 		  vertexAttrMat->addAttributeArray(data->getName(), data);
 		  status = "";
 		  ss << "Reading Vertex Data: " << data->getName();
-		  notifyStatusMessage(getHumanLabel(), status);
-		}
+      notifyStatusMessage(status);
+    }
 	      else if(count == numCells)
 		{
 		  cellAttrMat->addAttributeArray(data->getName(), data);
 		  status = "";
 		  ss << "Reading Cell Data: " << data->getName();
-		  notifyStatusMessage(getHumanLabel(), status);
-		}
+      notifyStatusMessage(status);
+    }
 	    }
 	  if(allocate)
 	    {
@@ -1651,7 +1650,7 @@ void ImportFEAData::scanBSAMFile(DataContainer* dataContainer, AttributeMatrix* 
   QString status;
   QTextStream ss(&status);
   ss << "BSAM Data File: Number of Vetex Points=" << numVerts;
-  notifyStatusMessage(getHumanLabel(), status);
+  notifyStatusMessage(status);
   SharedVertexList::Pointer vertexPtr = HexahedralGeom::CreateSharedVertexList(static_cast<int64_t>(numVerts), allocate);
   float* vertex = vertexPtr->getPointer(0);
 
@@ -1660,7 +1659,7 @@ void ImportFEAData::scanBSAMFile(DataContainer* dataContainer, AttributeMatrix* 
   tDims[0] = numCells;
   status = "";
   ss << "BSAM Data File: Number of Quad Cells=" << numCells;
-  notifyStatusMessage(getHumanLabel(), status);
+  notifyStatusMessage(status);
   cellAttrMat->resizeAttributeArrays(tDims);
   HexahedralGeom::Pointer hexGeomPtr = HexahedralGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::HexahedralGeometry, allocate);
   hexGeomPtr->setSpatialDimensionality(3);
@@ -1987,7 +1986,7 @@ void ImportFEAData::readTimeStep(QFile& reader, qint32 t)
   if(m_selectedTimeStep && t != m_selectedTimeStepValue)
     {
       QString ss = QObject::tr("Skipping time step %1 of %2").arg(t).arg(m_NumTimeSteps-1);
-      notifyStatusMessage(getMessagePrefix(), getHumanLabel(), ss);
+      notifyStatusMessageWithPrefix(getMessagePrefix(), ss);
       for(size_t nodeIdx = 0; nodeIdx < m_NumPoints*m_LinesPerBlock; ++nodeIdx)
 	{
 	  QByteArray line = reader.readLine();

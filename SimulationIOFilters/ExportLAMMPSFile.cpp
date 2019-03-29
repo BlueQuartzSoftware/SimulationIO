@@ -262,7 +262,7 @@ void ExportLAMMPSFile::execute()
 
   clearErrorCondition();
   clearWarningCondition();
-  notifyStatusMessage(getHumanLabel(), "Complete");
+  notifyStatusMessage("Complete");
 }
 
 // -----------------------------------------------------------------------------

@@ -152,7 +152,7 @@ void ExportDAMASKFiles::dataCheck()
     {
       m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
     } /* Now assign the raw pointer to data from the DataArray<T> object */
-  if(getErrorCondition() >= 0)
+    if(getErrorCode() >= 0)
     {
       dataArrayPaths.push_back(getFeatureIdsArrayPath());
     }
@@ -163,7 +163,7 @@ void ExportDAMASKFiles::dataCheck()
     {
       m_CellPhases = m_CellPhasesPtr.lock()->getPointer(0);
     } /* Now assign the raw pointer to data from the DataArray<T> object */
-  if(getErrorCondition() >= 0)
+    if(getErrorCode() >= 0)
     {
       dataArrayPaths.push_back(getCellPhasesArrayPath());
     }
@@ -175,7 +175,7 @@ void ExportDAMASKFiles::dataCheck()
     {
       m_CellEulerAngles = m_CellEulerAnglesPtr.lock()->getPointer(0);
     } /* Now assign the raw pointer to data from the DataArray<T> object */
-  if(getErrorCondition() >= 0)
+    if(getErrorCode() >= 0)
     {
       dataArrayPaths.push_back(getCellEulerAnglesArrayPath());
     }
@@ -211,8 +211,7 @@ void ExportDAMASKFiles::execute()
   if(!dir.mkpath(m_OutputPath))
     {
       QString ss = QObject::tr("Error creating parent path '%1'").arg(m_OutputPath);
-      setErrorCondition(-1);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-1, ss);
       return;
     }
   //
@@ -403,7 +402,10 @@ void ExportDAMASKFiles::execute()
   fclose(matf);
   //
   //
-  if(getErrorCondition() < 0) { return; }
+  if(getErrorCode() < 0)
+  {
+    return;
+  }
   //
   if (getCancel()) { return; }
   //

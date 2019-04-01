@@ -262,29 +262,28 @@ void ImportFEAData::dataCheck()
 	if(arguments.empty())
 	  {
 	    QString ss = QObject::tr("Abaqus python command to run a script has not been specified.");
-	    setErrorCondition(-4001);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-4001, ss);
       return;
 	  }
 	
 	// Create the output Data Container
 	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
-	if(getErrorCondition() < 0)
-	  {
-	    return;
+  if(getErrorCode() < 0)
+  {
+    return;
 	  }
 	
 	// Create our output Vertex and Cell Matrix objects
 	QVector<size_t> tDims(1, 0);
 	AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
-	if(getErrorCondition() < 0)
-	  {
-	    return;
+  if(getErrorCode() < 0)
+  {
+    return;
 	  }
 	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
-	if(getErrorCondition() < 0)
-	  {
-	    return;
+  if(getErrorCode() < 0)
+  {
+    return;
 	  }	
 	break;
       }
@@ -294,35 +293,33 @@ void ImportFEAData::dataCheck()
 	if(!fi.exists())
 	  {
 	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getBSAMInputFile());
-	    setErrorCondition(-388);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-388, ss);
     }
 
 	if(m_BSAMInputFile.isEmpty())
 	  {
 	    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
-	    setErrorCondition(-1);
-      notifyErrorMessage(ss, -1);
+      setErrorCondition(-1, ss);
     }
 
 	// Create the output Data Container
 	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
-	if(getErrorCondition() < 0)
-	  {
-	    return;
+  if(getErrorCode() < 0)
+  {
+    return;
 	  }
 	
 	// Create our output Vertex and Cell Matrix objects
 	QVector<size_t> tDims(1, 0);
 	AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
-	if(getErrorCondition() < 0)
-	  {
-	    return;
+  if(getErrorCode() < 0)
+  {
+    return;
 	  }
 	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
-	if(getErrorCondition() < 0)
-	  {
-	    return;
+  if(getErrorCode() < 0)
+  {
+    return;
 	  }	
 
 	break;
@@ -334,35 +331,33 @@ void ImportFEAData::dataCheck()
 	if(!fi.exists())
 	  {
 	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMInputFile());
-	    setErrorCondition(-388);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-388, ss);
     }
 
 	if(m_DEFORMInputFile.isEmpty())
 	  {
 	    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
-	    setErrorCondition(-1);
-      notifyErrorMessage(ss, -1);
+      setErrorCondition(-1, ss);
     }
 	
 	// Create the output Data Container
 	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
-	if(getErrorCondition() < 0)
-	  {
-	    return;
+  if(getErrorCode() < 0)
+  {
+    return;
 	  }
 	
 	// Create our output Vertex and Cell Matrix objects
 	QVector<size_t> tDims(1, 0);
 	AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
-	if(getErrorCondition() < 0)
-	  {
-	    return;
+  if(getErrorCode() < 0)
+  {
+    return;
 	  }
 	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
-	if(getErrorCondition() < 0)
-	  {
-	    return;
+  if(getErrorCode() < 0)
+  {
+    return;
 	  }	
 
 	break;
@@ -373,20 +368,18 @@ void ImportFEAData::dataCheck()
 	if(!fi.exists())
 	  {
 	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMPointTrackInputFile());
-	    setErrorCondition(-388);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-388, ss);
     }
 	
 	if(m_DEFORMPointTrackInputFile.isEmpty())
 	  {
 	    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
-	    setErrorCondition(-1);
-      notifyErrorMessage(ss, -1);
+      setErrorCondition(-1, ss);
     }
 
 	// If any of the checks above threw errors then we can not go any further so bail out now.
-	if(getErrorCondition() < 0)
-	  {
+    if(getErrorCode() < 0)
+    {
 	    return;
 	  }
 	
@@ -412,11 +405,10 @@ void ImportFEAData::dataCheck()
 	  }
 
 	// Make sure we did not have any errors
-	if(getErrorCondition() < 0)
-	  {
+    if(getErrorCode() < 0)
+    {
 	    QString ss = QObject::tr("Error reading header information from file: '%1'").arg(getDEFORMPointTrackInputFile());
-	    setErrorCondition(-389);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-389, ss);
       return;
 	  }
 
@@ -425,8 +417,7 @@ void ImportFEAData::dataCheck()
 	    if(getImportSingleTimeStep() && getSingleTimeStepValue() >= m_NumTimeSteps)
 	      {
 		QString ss = QObject::tr("Please select a timestep in the range");
-		setErrorCondition(-91010);
-    notifyErrorMessage(ss, getErrorCondition());
+    setErrorCondition(-91010, ss);
     return;
 	      }
 	    m_selectedTimeStep = getImportSingleTimeStep();
@@ -445,12 +436,11 @@ void ImportFEAData::dataCheck()
 	    // Create the output Data Container for the first time step
 	    QString dcName = getDataContainerName() + "_" + QString::number(t);
 	    DataContainer::Pointer v = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, dcName);
-	    if(getErrorCondition() < 0)
-	      {
-		QString ss = QObject::tr("Error Creating Vertex Data Container with name '%1' for Time Step %2").arg(dcName).arg(t);
-		setErrorCondition(-390);
-    notifyErrorMessage(ss, getErrorCondition());
-    return;
+      if(getErrorCode() < 0)
+      {
+        QString ss = QObject::tr("Error Creating Vertex Data Container with name '%1' for Time Step %2").arg(dcName).arg(t);
+        setErrorCondition(-390, ss);
+        return;
 	      }
 
 	    VertexGeom::Pointer vertices = VertexGeom::CreateGeometry(m_NumPoints, SIMPL::Geometry::VertexGeometry, !getInPreflight());
@@ -458,12 +448,11 @@ void ImportFEAData::dataCheck()
 
 	    QVector<size_t> tDims(1, m_NumPoints);
 	    AttributeMatrix::Pointer vertexAttrMat = v->createNonPrereqAttributeMatrix(this, SIMPL::Defaults::VertexAttributeMatrixName, tDims, AttributeMatrix::Type::Vertex);
-	    if(getErrorCondition() < 0)
-	      {
-		QString ss = QObject::tr("Error Creating AttributeMatrix with name '%1' for Time Step %2").arg(SIMPL::Defaults::VertexAttributeMatrixName).arg(t);
-		setErrorCondition(-390);
-    notifyErrorMessage(ss, getErrorCondition());
-    return;
+      if(getErrorCode() < 0)
+      {
+        QString ss = QObject::tr("Error Creating AttributeMatrix with name '%1' for Time Step %2").arg(SIMPL::Defaults::VertexAttributeMatrixName).arg(t);
+        setErrorCondition(-390, ss);
+        return;
 	      }
 
 	    QMapIterator<QString, SimulationIO::DeformDataParser::Pointer> parserIter(m_NamePointerMap);
@@ -491,8 +480,8 @@ void ImportFEAData::dataCheck()
 	    // Generate the AttributeMatrix that will serve as the Meta-Data information for the DataContainerBundle
 	    QVector<size_t> bundleAttrDims(1, 1);
 	    AttributeMatrix::Pointer metaData = v->createNonPrereqAttributeMatrix(this, m_BundleMetaDataAMName, bundleAttrDims, AttributeMatrix::Type::MetaData);
-	    if(getErrorCondition() < 0)
-	      {
+      if(getErrorCode() < 0)
+      {
 	      }
 
 	    QVector<size_t> cDims(1, 1);
@@ -529,9 +518,11 @@ void ImportFEAData::execute()
 {
   //initialize();
   int32_t err = 0;
-  setErrorCondition(err);
   dataCheck();
-  if(getErrorCondition() < 0) { return; }
+  if(getErrorCode() < 0)
+  {
+    return;
+  }
 
   switch(m_FEAPackage)
     {
@@ -542,8 +533,7 @@ void ImportFEAData::execute()
 	if(!dir.mkpath(m_odbFilePath))
 	  {
 	    QString ss = QObject::tr("Error in accessing odb file '%1'").arg(m_odbFilePath);
-	    setErrorCondition(-1);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-1, ss);
       return;
 	  }
 
@@ -554,8 +544,7 @@ void ImportFEAData::execute()
 	if(err < 0)
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS python script '%1'").arg(abqpyscr);
-	    setErrorCondition(-1);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-1, ss);
       return;
 	  }
 
@@ -817,16 +806,14 @@ void ImportFEAData::processHasFinished(int exitCode, QProcess::ExitStatus exitSt
   else if(exitStatus == QProcess::CrashExit)
     {
       QString ss = QObject::tr("The process crashed during its exit.");
-      setErrorCondition(-4003);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-4003, ss);
     }
   else if(exitCode < 0)
     {
       QString ss = QObject::tr("The process finished with exit code %1.").arg(QString::number(exitCode));
-      setErrorCondition(-4004);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-4004, ss);
     }
-  else if(getErrorCondition() >= 0)
+    else if(getErrorCode() >= 0)
     {
     }
 
@@ -843,8 +830,7 @@ void ImportFEAData::processHasErroredOut(QProcess::ProcessError error)
   if(getCancel())
     {
       QString ss = QObject::tr("The process was killed by the user.");
-      setWarningCondition(-4004);
-      notifyWarningMessage(ss, getWarningCondition());
+      setWarningCondition(-4004, ss);
     }
   else if(error == QProcess::FailedToStart)
     {
@@ -854,38 +840,32 @@ void ImportFEAData::processHasErroredOut(QProcess::ProcessError error)
       QString ss = QObject::tr("The process failed to start. Either the invoked program is missing, or you may have insufficient permissions to invoke the program \
 or the path containing the executble is not in the system's environment path. PATH=%1.\n Try using the absolute path to the executable.")
 	.arg(pathEnv);
-      setErrorCondition(-4005);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-4005, ss);
     }
   else if(error == QProcess::Crashed)
     {
       QString ss = QObject::tr("The process crashed some time after starting successfully.");
-      setErrorCondition(-4006);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-4006, ss);
     }
   else if(error == QProcess::Timedout)
     {
       QString ss = QObject::tr("The process timed out.");
-      setErrorCondition(-4007);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-4007, ss);
     }
   else if(error == QProcess::WriteError)
     {
       QString ss = QObject::tr("An error occurred when attempting to write to the process.");
-      setErrorCondition(-4008);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-4008, ss);
     }
   else if(error == QProcess::ReadError)
     {
       QString ss = QObject::tr("An error occurred when attempting to read from the process.");
-      setErrorCondition(-4009);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-4009, ss);
     }
   else
     {
       QString ss = QObject::tr("An unknown error occurred.");
-      setErrorCondition(-4010);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-4010, ss);
     }
 
   m_Pause = false;
@@ -905,8 +885,8 @@ void ImportFEAData::sendErrorOutput()
 	{
 	  error.chop(1);
 	}
-      notifyStandardOutputMessage(getHumanLabel(), getPipelineIndex() + 1, error);
-      m_WaitCondition.wakeAll();
+  notifyStatusMessage(error);
+  m_WaitCondition.wakeAll();
     }
 }
 
@@ -918,7 +898,7 @@ void ImportFEAData::sendStandardOutput()
 {
   if(m_ProcessPtr.data() != nullptr)
     {
-      notifyStandardOutputMessage(getHumanLabel(), getPipelineIndex() + 1, m_ProcessPtr->readAllStandardOutput());
+      notifyStatusMessage(m_ProcessPtr->readAllStandardOutput());
       m_WaitCondition.wakeAll();
     }
 }
@@ -938,8 +918,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
   if(!inStream.open(QIODevice::ReadOnly | QIODevice::Text))
     {
       QString ss = QObject::tr("Input file could not be opened: %1").arg(file);
-      setErrorCondition(-100);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-100, ss);
       return;
     }
 
@@ -1443,8 +1422,7 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
   if(!inStream.open(QIODevice::ReadOnly | QIODevice::Text))
     {
       QString ss = QObject::tr("Input file could not be opened: %1").arg(getDEFORMInputFile());
-      setErrorCondition(-100);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-100, ss);
       return;
     }
 
@@ -1554,13 +1532,12 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
 
       if(count != numVerts && count != numCells)
 	{
-	  setErrorCondition(-96000);
-	  QString msg = QString("Reading %1 Data from DEFORM data file, data array does not have a number of entries (%2) equal to the number of vertices (%3) or cells (%4)")
+    QString msg = QString("Reading %1 Data from DEFORM data file, data array does not have a number of entries (%2) equal to the number of vertices (%3) or cells (%4)")
 	    .arg(dataArrayName)
 	    .arg(count)
 	    .arg(numVerts)
 	    .arg(numCells);
-    notifyErrorMessage(msg, getErrorCondition());
+    setErrorCondition(-96000, msg);
     return;
 	}
       if(inStream.atEnd())
@@ -1622,8 +1599,7 @@ void ImportFEAData::scanBSAMFile(DataContainer* dataContainer, AttributeMatrix* 
   if(!inStream.open(QIODevice::ReadOnly | QIODevice::Text))
     {
       QString ss = QObject::tr("Input file could not be opened: %1").arg(getBSAMInputFile());
-      setErrorCondition(-100);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-100, ss);
       return;
     }
 
@@ -1775,8 +1751,7 @@ void ImportFEAData::readHeader(QFile& reader)
   if(!reader.open(QIODevice::ReadOnly | QIODevice::Text))
     {
       QString ss = QObject::tr("The Input Point Tracking file could not be opened.").arg(getDEFORMPointTrackInputFile());
-      setErrorCondition(-100);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-100, ss);
       return;
     }
 
@@ -1896,8 +1871,7 @@ void ImportFEAData::readHeader(QFile& reader)
 	  SimulationIO::FloatParser::Pointer dparser = SimulationIO::FloatParser::New(data, name, index);
 	  m_NamePointerMap.insert(name, dparser);
 	  QString ss = QObject::tr("Data Block Column Name '%1' was unknown. We will parse the data as Floating point Data (32 Bit)").arg(name);
-	  setWarningCondition(-1);
-    notifyWarningMessage(ss, getWarningCondition());
+    setWarningCondition(-1, ss);
   }
       index++;
     }
@@ -1948,8 +1922,7 @@ void ImportFEAData::readHeader(QFile& reader)
 	  SimulationIO::FloatParser::Pointer dparser = SimulationIO::FloatParser::New(data, name, index);
 	  m_NamePointerMap.insert(name, dparser);
 	  QString ss = QObject::tr("Data Block Column Name '%1' was unknown. We will parse the data as Floating point Data (32 Bit)").arg(name);
-	  setWarningCondition(-1);
-    notifyWarningMessage(ss, getWarningCondition());
+    setWarningCondition(-1, ss);
   }
       m_DataArrayList << name;
       index++;
@@ -2073,9 +2046,9 @@ void ImportFEAData::readTimeStep(QFile& reader, qint32 t)
 
   // Generate the AttributeMatrix that will serve as the Meta-Data information for the DataContainerBundle
   AttributeMatrix::Pointer tsbAttrMat = v->getAttributeMatrix(m_BundleMetaDataAMName);
-  if(getErrorCondition() < 0)
-    {
-      return;
+  if(getErrorCode() < 0)
+  {
+    return;
     }
 
   // Remove the Arrays from the Vertex AttributeMatrix. We still have references to the DataArray objects so they will not get deleted.

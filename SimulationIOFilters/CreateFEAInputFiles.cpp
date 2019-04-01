@@ -190,18 +190,16 @@ void CreateFEAInputFiles::dataCheck()
 
   if(m_OutputPath.isEmpty())
   {
-    setErrorCondition(-12001);
     QString ss = QObject::tr("The output path must be set");
-    notifyErrorMessage(ss, getErrorCondition());
+    setErrorCondition(-12001, ss);
   }
 
   QFileInfo fi(m_OutputPath);
   QDir parentPath = fi.path();
   if(!parentPath.exists())
   {
-    setWarningCondition(-10100);
     QString ss = QObject::tr("The directory path for the output file does not exist. DREAM.3D will attempt to create this path during execution of the filter");
-    notifyWarningMessage(ss, getWarningCondition());
+    setWarningCondition(-10100, ss);
   }
 
   switch(m_FEAPackage)
@@ -221,8 +219,8 @@ void CreateFEAInputFiles::dataCheck()
 	  {
 	    m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
 	  } /* Now assign the raw pointer to data from the DataArray<T> object */
-	if(getErrorCondition() >= 0)
-	  {
+    if(getErrorCode() >= 0)
+    {
 	    dataArrayPaths.push_back(getAbqFeatureIdsArrayPath());
 	  }
 
@@ -232,8 +230,8 @@ void CreateFEAInputFiles::dataCheck()
 	  {
 	    m_CellPhases = m_CellPhasesPtr.lock()->getPointer(0);
 	  } /* Now assign the raw pointer to data from the DataArray<T> object */
-	if(getErrorCondition() >= 0)
-	  {
+    if(getErrorCode() >= 0)
+    {
 	    dataArrayPaths.push_back(getCellPhasesArrayPath());
 	  }
 	
@@ -244,8 +242,8 @@ void CreateFEAInputFiles::dataCheck()
 	  {
 	    m_CellEulerAngles = m_CellEulerAnglesPtr.lock()->getPointer(0);
 	  } /* Now assign the raw pointer to data from the DataArray<T> object */
-	if(getErrorCondition() >= 0)
-	  {
+    if(getErrorCode() >= 0)
+    {
 	    dataArrayPaths.push_back(getCellEulerAnglesArrayPath());
 	  }
 
@@ -267,8 +265,8 @@ void CreateFEAInputFiles::dataCheck()
 	    {
 	      m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
 	    } /* Now assign the raw pointer to data from the DataArray<T> object */
-	  if(getErrorCondition() >= 0)
-	    {
+      if(getErrorCode() >= 0)
+      {
 	      dataArrayPaths.push_back(getPzflexFeatureIdsArrayPath());
 	    }
 	  
@@ -301,7 +299,10 @@ void CreateFEAInputFiles::execute()
 {
   initialize();
   dataCheck();
-  if(getErrorCondition() < 0) { return; }
+  if(getErrorCode() < 0)
+  {
+    return;
+  }
   //
   //
   // Check Output Path
@@ -309,8 +310,7 @@ void CreateFEAInputFiles::execute()
   if(!dir.mkpath(m_OutputPath))
     {
       QString ss = QObject::tr("Error creating parent path '%1'").arg(m_OutputPath);
-      setErrorCondition(-1);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-1, ss);
       return;
     }
   //
@@ -357,40 +357,35 @@ void CreateFEAInputFiles::execute()
 	if(nullptr == f1)
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS nodes file '%1'").arg(nodesFile);
-	    setErrorCondition(-1);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-1, ss);
     }
 	
 	FILE* f2 = fopen(fileNames.at(1).toLatin1().data(), "wb");
 	if(nullptr == f2)
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS connectivity file '%1'").arg(elemsFile);
-	    setErrorCondition(-1);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-1, ss);
     }
 	
 	FILE* f3 = fopen(fileNames.at(2).toLatin1().data(), "wb");
 	if(nullptr == f3)
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS sections file '%1'").arg(sectsFile);
-	    setErrorCondition(-1);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-1, ss);
     }
 
 	FILE* f4 = fopen(fileNames.at(3).toLatin1().data(), "wb");
 	if(nullptr == f4)
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS element set file '%1'").arg(elsetFile);
-	    setErrorCondition(-1);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-1, ss);
     }
 
 	FILE* f5 = fopen(fileNames.at(4).toLatin1().data(), "wb");
 	if(nullptr == f5)
 	  {
 	    QString ss = QObject::tr("Error writing ABAQUS input file '%1'").arg(masterFile);
-	    setErrorCondition(-1);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-1, ss);
     }
 	
 	//
@@ -637,8 +632,7 @@ void CreateFEAInputFiles::execute()
 	if(nullptr == f)
 	  {
 	    QString ss = QObject::tr("Error writing PZFLEX input file '%1'").arg(masterFile);
-	    setErrorCondition(-1);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-1, ss);
     }	
 	//
 	fprintf(f, "hedr 0\n");
@@ -769,8 +763,7 @@ void CreateFEAInputFiles::execute()
 	if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
 	  {
 	    QString ss = QObject::tr("BSAM file can not be created: %1").arg(masterFile);
-	    setErrorCondition(-100);
-      notifyErrorMessage(ss, getErrorCondition());
+      setErrorCondition(-100, ss);
       return;
 	  }
 
@@ -790,8 +783,7 @@ void CreateFEAInputFiles::execute()
 	    if(!inStream.open(QIODevice::ReadOnly | QIODevice::Text))
 	      {
 		QString ss = QObject::tr("BSAM Input file could not be opened: %1").arg(inpFile);
-		setErrorCondition(-100);
-    notifyErrorMessage(ss, getErrorCondition());
+    setErrorCondition(-100, ss);
     return;
 	      }
 

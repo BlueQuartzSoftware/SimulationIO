@@ -118,7 +118,7 @@ void ExportLAMMPSFile::dataCheck()
   DataContainer::Pointer v = getDataContainerArray()->getDataContainer(getAtomFeatureLabelsPath().getDataContainerName());
 
   VertexGeom::Pointer vertices = v->getPrereqGeometry<VertexGeom, AbstractFilter>(this);
-  if(getErrorCondition() < 0)
+  if(getErrorCode() < 0)
   {
     return;
   }
@@ -126,8 +126,7 @@ void ExportLAMMPSFile::dataCheck()
   // We MUST have Nodes
   if(nullptr == vertices->getVertices().get())
   {
-    setErrorCondition(-384);
-    notifyErrorMessage("VertexDataContainer missing Nodes", getErrorCondition());
+    setErrorCondition(-384, "VertexDataContainer missing Nodes");
   }
 
   QVector<DataArrayPath> dataArrayPaths;
@@ -140,7 +139,7 @@ void ExportLAMMPSFile::dataCheck()
   {
     m_AtomFeatureLabels = m_AtomFeatureLabelsPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
-  if(getErrorCondition() >= 0)
+  if(getErrorCode() >= 0)
   {
     dataArrayPaths.push_back(getAtomFeatureLabelsPath());
   }
@@ -168,7 +167,7 @@ void ExportLAMMPSFile::preflight()
 void ExportLAMMPSFile::execute()
 {
   dataCheck();
-  if(getErrorCondition() < 0)
+  if(getErrorCode() < 0)
   {
     return;
   }
@@ -192,8 +191,7 @@ void ExportLAMMPSFile::execute()
   if(nullptr == lammpsFile)
   {
     QString ss = QObject::tr(": Error creating LAMMPS output file '%1'").arg(getLammpsFile());
-    setErrorCondition(-11000);
-    notifyErrorMessage(ss, getErrorCondition());
+    setErrorCondition(-11000, ss);
     return;
   }
 

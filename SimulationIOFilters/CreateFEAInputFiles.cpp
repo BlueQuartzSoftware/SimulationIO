@@ -46,18 +46,14 @@ CreateFEAInputFiles::CreateFEAInputFiles()
 , m_NumDepvar(1)
 , m_NumMatConst(6)
 , m_NumUserOutVar(1)
-, m_FeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
+, m_AbqFeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
+, m_PzflexFeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
 , m_CellPhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Phases)
 , m_CellEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles)
 , m_DelamMat("")
 , m_NumClusters(1)
-, m_UseMeshCreatedByDREAM3D(true)
 {
   initialize();
-
-  m_NumElem[0] = 20;
-  m_NumElem[1] = 20;
-  m_NumElem[2] = 20;
 
   m_NumKeypoints[0] = 2;
   m_NumKeypoints[1] = 2;
@@ -98,8 +94,9 @@ void CreateFEAInputFiles::setupFilterParameters()
     choices.push_back("PZFLEX");
     choices.push_back("BSAM");
     parameter->setChoices(choices);
-    QStringList linkedProps = {"JobName",  "NumElem",      "NumDepvar",   "NumMatConst", "NumUserOutVar",          "MatConst", "CellEulerAnglesArrayPath", "CellPhasesArrayPath",
-                               "DelamMat", "NumKeypoints", "NumClusters", "ClusterData", "UseMeshCreatedByDREAM3D"};
+    QStringList linkedProps = {
+        "JobName",  "NumDepvar",    "NumMatConst", "NumUserOutVar", "MatConst", "AbqFeatureIdsArrayPath", "PzflexFeatureIdsArrayPath", "CellEulerAnglesArrayPath", "CellPhasesArrayPath",
+        "DelamMat", "NumKeypoints", "NumClusters"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -110,11 +107,6 @@ void CreateFEAInputFiles::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_STRING_FP("Output File Prefix", OutputFilePrefix, FilterParameter::Parameter, CreateFEAInputFiles));
 
   {
-    QStringList linkedProps = {"NumElem"};
-    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Use Mesh Created By DREAM.3D", UseMeshCreatedByDREAM3D, FilterParameter::Parameter, CreateFEAInputFiles, linkedProps, 0));
-    linkedProps.clear();
-
-    parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Elements", NumElem, FilterParameter::Parameter, CreateFEAInputFiles, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Job Name", JobName, FilterParameter::Parameter, CreateFEAInputFiles, 0));
     parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Solution Dependent State Variables", NumDepvar, FilterParameter::Parameter, CreateFEAInputFiles, 0));
     parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Material Constants", NumMatConst, FilterParameter::Parameter, CreateFEAInputFiles, 0));
@@ -139,7 +131,7 @@ void CreateFEAInputFiles::setupFilterParameters()
   parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::RequiredArray));
   {
     DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", FeatureIdsArrayPath, FilterParameter::RequiredArray, CreateFEAInputFiles, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", AbqFeatureIdsArrayPath, FilterParameter::RequiredArray, CreateFEAInputFiles, req, 0));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
@@ -151,20 +143,12 @@ void CreateFEAInputFiles::setupFilterParameters()
   }
 
   {
-    parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Clusters", NumClusters, FilterParameter::Parameter, CreateFEAInputFiles, 2));
+    DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", PzflexFeatureIdsArrayPath, FilterParameter::RequiredArray, CreateFEAInputFiles, req, 1));
+  }
 
-    // Table - Dynamic rows and fixed columns
-    {
-      QStringList cHeaders;
-      cHeaders << "Elements"
-               << "Nodes"
-               << "Sets";
-      std::vector<std::vector<double>> defaultTable(1, std::vector<double>(3, 0.0));
-      m_ClusterData.setColHeaders(cHeaders);
-      m_ClusterData.setTableData(defaultTable);
-      m_ClusterData.setDynamicRows(true);
-      parameters.push_back(SIMPL_NEW_DYN_TABLE_FP("Cluster Data", ClusterData, FilterParameter::Parameter, CreateFEAInputFiles, 2));
-    }
+  {
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Clusters", NumClusters, FilterParameter::Parameter, CreateFEAInputFiles, 2));
   }
 
   setFilterParameters(parameters);
@@ -176,13 +160,21 @@ void CreateFEAInputFiles::setupFilterParameters()
 void CreateFEAInputFiles::readFilterParameters(AbstractFilterParametersReader* reader, int index)
 {
   reader->openFilterGroup(this, index);
+  setFEAPackage(reader->readValue("FEAPackage", getFEAPackage()));
   setOutputPath(reader->readString("OutputPath", getOutputPath()));
   setOutputFilePrefix(reader->readString("OutputFilePrefix", getOutputFilePrefix()));
-  setNumElem(reader->readIntVec3("Number of Elements", getNumElem()));
+  setJobName(reader->readString("JobName", getJobName()));
+  setNumDepvar(reader->readValue("NumDepvar", getNumDepvar()));
+  setNumMatConst(reader->readValue("NumMatConst", getNumMatConst()));
+  setNumUserOutVar(reader->readValue("NumUserOutVar", getNumUserOutVar()));
+  setMatConst(reader->readDynamicTableData("MatConst", getMatConst()));
+  setDelamMat(reader->readString("DelamMat", getDelamMat()));
+  setNumKeypoints(reader->readIntVec3("NumKeypoints", getNumKeypoints()));
+  setAbqFeatureIdsArrayPath(reader->readDataArrayPath("AbqFeatureIdsArrayPath", getAbqFeatureIdsArrayPath()));
   setCellEulerAnglesArrayPath(reader->readDataArrayPath("CellEulerAnglesArrayPath", getCellEulerAnglesArrayPath()));
   setCellPhasesArrayPath(reader->readDataArrayPath("CellPhasesArrayPath", getCellPhasesArrayPath()));
-  setFeatureIdsArrayPath(reader->readDataArrayPath("FeatureIdsArrayPath", getFeatureIdsArrayPath()));
-  setJobName(reader->readString("JobName", getJobName()));
+  setPzflexFeatureIdsArrayPath(reader->readDataArrayPath("PzflexFeatureIdsArrayPath", getPzflexFeatureIdsArrayPath()));
+  setNumClusters(reader->readValue("NumClusters", getNumClusters()));
   reader->closeFilterGroup();
 }
 
@@ -194,29 +186,43 @@ void CreateFEAInputFiles::dataCheck()
   setErrorCondition(0);
   setWarningCondition(0);
 
-  //  FileSystemPathHelper::CheckOutputFile(this, "Output File Path", getOutputPath(), true);
-
-  getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom, AbstractFilter>(this, getFeatureIdsArrayPath().getDataContainerName());
-
-  QVector<DataArrayPath> dataArrayPaths;
-
-  QVector<size_t> cDims(1, 1);
-
-  m_FeatureIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getFeatureIdsArrayPath(),
-                                                                                                        cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_FeatureIdsPtr.lock())                                                                         /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  if(m_OutputPath.isEmpty())
   {
-    m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
-  } /* Now assign the raw pointer to data from the DataArray<T> object */
-  if(getErrorCondition() >= 0)
+    setErrorCondition(-12001);
+    QString ss = QObject::tr("The output path must be set");
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
+
+  QFileInfo fi(m_OutputPath);
+  QDir parentPath = fi.path();
+  if(!parentPath.exists())
   {
-    dataArrayPaths.push_back(getFeatureIdsArrayPath());
+    setWarningCondition(-10100);
+    QString ss = QObject::tr("The directory path for the output file does not exist. DREAM.3D will attempt to create this path during execution of the filter");
+    notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
   }
 
   switch(m_FEAPackage)
   {
   case 0: // ABAQUS
   {
+
+    getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom, AbstractFilter>(this, getAbqFeatureIdsArrayPath().getDataContainerName());
+
+    QVector<DataArrayPath> dataArrayPaths;
+
+    QVector<size_t> cDims(1, 1);
+
+    m_FeatureIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getAbqFeatureIdsArrayPath(),
+                                                                                                          cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+    if(nullptr != m_FeatureIdsPtr.lock())                                                                         /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+    {
+      m_CellPhases = m_CellPhasesPtr.lock()->getPointer(0);
+    } /* Now assign the raw pointer to data from the DataArray<T> object */
+    if(getErrorCondition() >= 0)
+    {
+      dataArrayPaths.push_back(getAbqFeatureIdsArrayPath());
+    }
 
     m_CellPhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getCellPhasesArrayPath(),
                                                                                                           cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
@@ -242,6 +248,27 @@ void CreateFEAInputFiles::dataCheck()
     }
 
     getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
+
+    break;
+  }
+  case 1:
+  {
+    getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom, AbstractFilter>(this, getPzflexFeatureIdsArrayPath().getDataContainerName());
+
+    QVector<DataArrayPath> dataArrayPaths;
+
+    QVector<size_t> cDims(1, 1);
+
+    m_FeatureIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getPzflexFeatureIdsArrayPath(),
+                                                                                                          cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+    if(nullptr != m_FeatureIdsPtr.lock())                                                                         /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+    {
+      m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
+    } /* Now assign the raw pointer to data from the DataArray<T> object */
+    if(getErrorCondition() >= 0)
+    {
+      dataArrayPaths.push_back(getPzflexFeatureIdsArrayPath());
+    }
 
     break;
   }
@@ -288,25 +315,6 @@ void CreateFEAInputFiles::execute()
   }
   //
   //
-  DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getFeatureIdsArrayPath().getDataContainerName());
-
-  size_t dims[3] = {0, 0, 0};
-  std::tie(dims[0], dims[1], dims[2]) = m->getGeometryAs<ImageGeom>()->getDimensions();
-  FloatVec3Type res = {0.0f, 0.0f, 0.0f};
-  m->getGeometryAs<ImageGeom>()->getSpacing(res);
-  FloatVec3Type origin = {0.0f, 0.0f, 0.0f};
-  m->getGeometryAs<ImageGeom>()->getOrigin(origin);
-  //
-  // find total number of Grain Ids
-  int32_t maxGrainId = 0;
-  int32_t totalPoints = m->getGeometryAs<ImageGeom>()->getNumberOfElements();
-  for(int32_t i = 0; i < totalPoints; i++) // find number of grainIds
-  {
-    if(m_FeatureIds[i] > maxGrainId)
-    {
-      maxGrainId = m_FeatureIds[i];
-    }
-  }
   //
   //
   switch(m_FEAPackage)
@@ -314,6 +322,27 @@ void CreateFEAInputFiles::execute()
   case 0: // ABAQUS
   {
     //
+
+    DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getAbqFeatureIdsArrayPath().getDataContainerName());
+
+    size_t dims[3] = {0, 0, 0};
+    std::tie(dims[0], dims[1], dims[2]) = m->getGeometryAs<ImageGeom>()->getDimensions();
+    FloatVec3Type spacing;
+    m->getGeometryAs<ImageGeom>()->getSpacing(spacing);
+    FloatVec3Type origin;
+    m->getGeometryAs<ImageGeom>()->getOrigin(origin);
+    //
+    // find total number of Grain Ids
+    int32_t maxGrainId = 0;
+    int32_t totalPoints = m->getGeometryAs<ImageGeom>()->getNumberOfElements();
+    for(int32_t i = 0; i < totalPoints; i++) // find number of grainIds
+    {
+      if(m_FeatureIds[i] > maxGrainId)
+      {
+        maxGrainId = m_FeatureIds[i];
+      }
+    }
+
     // Create file names
     QString nodesFile = m_OutputPath + QDir::separator() + m_OutputFilePrefix + "_nodes.inp";
     QString elemsFile = m_OutputPath + QDir::separator() + m_OutputFilePrefix + "_elems.inp";
@@ -327,7 +356,7 @@ void CreateFEAInputFiles::execute()
     FILE* f1 = fopen(fileNames.at(0).toLatin1().data(), "wb");
     if(nullptr == f1)
     {
-      QString ss = QObject::tr("Error writing nodes file '%1'").arg(nodesFile);
+      QString ss = QObject::tr("Error writing ABAQUS nodes file '%1'").arg(nodesFile);
       setErrorCondition(-1);
       notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
     }
@@ -335,7 +364,7 @@ void CreateFEAInputFiles::execute()
     FILE* f2 = fopen(fileNames.at(1).toLatin1().data(), "wb");
     if(nullptr == f2)
     {
-      QString ss = QObject::tr("Error writing connectivity file '%1'").arg(elemsFile);
+      QString ss = QObject::tr("Error writing ABAQUS connectivity file '%1'").arg(elemsFile);
       setErrorCondition(-1);
       notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
     }
@@ -343,7 +372,7 @@ void CreateFEAInputFiles::execute()
     FILE* f3 = fopen(fileNames.at(2).toLatin1().data(), "wb");
     if(nullptr == f3)
     {
-      QString ss = QObject::tr("Error writing ABAQUS input file '%1'").arg(sectsFile);
+      QString ss = QObject::tr("Error writing ABAQUS sections file '%1'").arg(sectsFile);
       setErrorCondition(-1);
       notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
     }
@@ -351,7 +380,7 @@ void CreateFEAInputFiles::execute()
     FILE* f4 = fopen(fileNames.at(3).toLatin1().data(), "wb");
     if(nullptr == f4)
     {
-      QString ss = QObject::tr("Error writing ABAQUS input file '%1'").arg(elsetFile);
+      QString ss = QObject::tr("Error writing ABAQUS element set file '%1'").arg(elsetFile);
       setErrorCondition(-1);
       notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
     }
@@ -369,14 +398,21 @@ void CreateFEAInputFiles::execute()
     fprintf(f5, "%s\n", m_JobName.toLatin1().data());
     fprintf(f5, "** Job name : %s\n", m_JobName.toLatin1().data());
     fprintf(f5, "*Preprint, echo = NO, model = NO, history = NO, contact = NO\n");
+    fprintf(f5, "**\n");
+    fprintf(f5, "*Include, Input = %s\n", (m_OutputFilePrefix + "_nodes.inp").toLatin1().data());
+    fprintf(f5, "*Include, Input = %s\n", (m_OutputFilePrefix + "_elems.inp").toLatin1().data());
+    fprintf(f5, "*Include, Input = %s\n", (m_OutputFilePrefix + "_elset.inp").toLatin1().data());
+    fprintf(f5, "*Include, Input = %s\n", (m_OutputFilePrefix + "_sects.inp").toLatin1().data());
+    fprintf(f5, "**\n");
+    //
     //
     int32_t ne_x, ne_y, ne_z;
     int32_t nnode_x, nnode_y, nnode_z;
     int32_t index;
 
-    ne_x = m_NumElem[0];
-    ne_y = m_NumElem[1];
-    ne_z = m_NumElem[2];
+    ne_x = dims[0];
+    ne_y = dims[1];
+    ne_z = dims[2];
 
     nnode_x = ne_x + 1;
     nnode_y = ne_y + 1;
@@ -387,7 +423,7 @@ void CreateFEAInputFiles::execute()
     float* m_coord = m_coordLengthPtr->getPointer(0);
 
     fprintf(f1, "*NODE, NSET=ALLNODES\n");
-    fprintf(f5, "*NODE, NSET=ALLNODES\n");
+    //	fprintf(f5,"*NODE, NSET=ALLNODES\n");
 
     for(int32_t k = 0; k < nnode_z; k++)
     {
@@ -396,9 +432,9 @@ void CreateFEAInputFiles::execute()
         for(int32_t i = 0; i < nnode_x; i++)
         {
           index = k * nnode_x * nnode_y + j * nnode_x + i;
-          m_coord[index * 3] = origin[0] + (i * res[0]);
-          m_coord[index * 3 + 1] = origin[1] + (j * res[1]);
-          m_coord[index * 3 + 2] = origin[2] + (k * res[2]);
+          m_coord[index * 3] = origin[0] + (i * spacing[0]);
+          m_coord[index * 3 + 1] = origin[1] + (j * spacing[1]);
+          m_coord[index * 3 + 2] = origin[2] + (k * spacing[2]);
         }
       }
     }
@@ -412,16 +448,18 @@ void CreateFEAInputFiles::execute()
         {
           index = k * nnode_x * nnode_y + j * nnode_x + i;
           fprintf(f1, "%d, %.3f, %.3f, %.3f\n", index + 1, m_coord[index * 3], m_coord[index * 3 + 1], m_coord[index * 3 + 2]);
-          fprintf(f5, "%d, %.3f, %.3f, %.3f\n", index + 1, m_coord[index * 3], m_coord[index * 3 + 1], m_coord[index * 3 + 2]);
+          //	    fprintf(f5,"%d, %.3f, %.3f, %.3f\n", index+1, m_coord[index*3],m_coord[index*3+1],m_coord[index*3+2]);
         }
       }
     }
     //
+    notifyStatusMessage(getHumanLabel(), "Finished Writing ABAQUS Nodes File");
+    //
+    //
     Int32ArrayType::Pointer m_connLengthPtr = Int32ArrayType::CreateArray(8 * ne_x * ne_y * ne_z, "CONNECTIVITY_INTERNAL_USE_ONLY");
     int32_t* m_conn = m_connLengthPtr->getPointer(0);
 
-    fprintf(f2, "*ELEMENTS, TYPE=C3D8R, ELSET=ALLELEMENTS\n");
-    fprintf(f5, "*ELEMENTS, TYPE=C3D8R, ELSET=ALLELEMENTS\n");
+    fprintf(f2, "*ELEMENT, TYPE=C3D8R, ELSET=ALLELEMENTS\n");
 
     for(int32_t k = 0; k < ne_z; k++)
     {
@@ -451,12 +489,13 @@ void CreateFEAInputFiles::execute()
         {
           index = k * ne_x * ne_y + j * ne_x + i;
           fprintf(f2, "%d, %d, %d, %d, %d, %d, %d, %d, %d\n", index + 1, m_conn[index * 8], m_conn[index * 8 + 1], m_conn[index * 8 + 2], m_conn[index * 8 + 3], m_conn[index * 8 + 4],
-                  m_conn[index * 3 + 5], m_conn[index * 8 + 6], m_conn[index * 8 + 7]);
-          fprintf(f5, "%d, %d, %d, %d, %d, %d, %d, %d, %d\n", index + 1, m_conn[index * 8], m_conn[index * 8 + 1], m_conn[index * 8 + 2], m_conn[index * 8 + 3], m_conn[index * 8 + 4],
-                  m_conn[index * 3 + 5], m_conn[index * 8 + 6], m_conn[index * 8 + 7]);
+                  m_conn[index * 8 + 5], m_conn[index * 8 + 6], m_conn[index * 8 + 7]);
         }
       }
     }
+    //
+    notifyStatusMessage(getHumanLabel(), "Finished Writing ABAQUS Elements Connectivity File");
+    //
     //
     Int32ArrayType::Pointer m_phaseIdLengthPtr = Int32ArrayType::CreateArray(maxGrainId, "PHASEID_INTERNAL_USE_ONLY");
     int32_t* m_phaseId = m_phaseIdLengthPtr->getPointer(0);
@@ -487,7 +526,6 @@ void CreateFEAInputFiles::execute()
     {
       size_t elementPerLine = 0;
       fprintf(f4, "*Elset, elset=Grain%d_Phase%d_set\n", voxelId, m_phaseId[voxelId - 1]);
-      fprintf(f5, "*Elset, elset=Grain%d_Phase%d_set\n", voxelId, m_phaseId[voxelId - 1]);
 
       for(int32_t i = 0; i < totalPoints; i++)
       {
@@ -498,25 +536,27 @@ void CreateFEAInputFiles::execute()
             if((elementPerLine % 16) != 0u) // 16 per line
             {
               fprintf(f4, ", ");
-              fprintf(f5, ", ");
+              //	    fprintf(f5, ", ");
             }
             else
             {
               fprintf(f4, ",\n");
-              fprintf(f5, ",\n");
+              //  fprintf(f5, ",\n");
             }
           }
           fprintf(f4, "%llu", static_cast<unsigned long long int>(i + 1));
-          fprintf(f5, "%llu", static_cast<unsigned long long int>(i + 1));
+          //    fprintf(f5, "%llu", static_cast<unsigned long long int>(i + 1));
           elementPerLine++;
         }
       }
       fprintf(f4, "\n");
-      fprintf(f5, "\n");
+      //  fprintf(f5, "\n");
       voxelId++;
     }
     //
-
+    notifyStatusMessage(getHumanLabel(), "Finished Writing ABAQUS Element Sets File");
+    //
+    //
     std::vector<std::vector<double>> MatConst = m_MatConst.getTableData();
 
     for(int32_t i = 1; i <= maxGrainId; i++)
@@ -524,10 +564,10 @@ void CreateFEAInputFiles::execute()
       fprintf(f5, "*Material, name = Grain%d_Phase%d_set\n", i, m_phaseId[i - 1]);
       fprintf(f5, "*Depvar\n");
       fprintf(f5, "%d\n", m_NumDepvar);
-      fprintf(f5, "*User Material, constants = %d\n", m_NumMatConst);
+      fprintf(f5, "*User Material, constants = %d\n", m_NumMatConst + 5);
       fprintf(f5, "%d, %d, %.3f, %.3f, %.3f", i, m_phaseId[i - 1], m_orient[(i - 1) * 3], m_orient[(i - 1) * 3 + 1], m_orient[(i - 1) * 3 + 2]);
       size_t entriesPerLine = 5;
-      for(int32_t j = 0; j < m_NumMatConst - 5; j++)
+      for(int32_t j = 0; j < m_NumMatConst; j++)
       {
         if(entriesPerLine != 0) // no comma at start
         {
@@ -554,10 +594,13 @@ void CreateFEAInputFiles::execute()
     while(grain <= maxGrainId)
     {
       fprintf(f3, "*Solid Section, elset=Grain%d_Phase%d_set, material=Grain%d_Phase%d_mat\n", grain, m_phaseId[grain - 1], grain, m_phaseId[grain - 1]);
-      fprintf(f5, "*Solid Section, elset=Grain%d_Phase%d_set, material=Grain%d_Phase%d_mat\n", grain, m_phaseId[grain - 1], grain, m_phaseId[grain - 1]);
+      //    fprintf(f5, "*Solid Section, elset=Grain%d_Phase%d_set, material=Grain%d_Phase%d_mat\n", grain, m_phaseId[grain-1], grain, m_phaseId[grain-1]);
       grain++;
     }
-
+    //
+    notifyStatusMessage(getHumanLabel(), "Finished Writing ABAQUS Sections File");
+    //
+    //
     fclose(f1);
     fclose(f2);
     fclose(f3);
@@ -568,6 +611,27 @@ void CreateFEAInputFiles::execute()
   case 1: // PZFLEX
   {
     //
+
+    DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getPzflexFeatureIdsArrayPath().getDataContainerName());
+
+    size_t dims[3] = {0, 0, 0};
+    std::tie(dims[0], dims[1], dims[2]) = m->getGeometryAs<ImageGeom>()->getDimensions();
+    FloatVec3Type spacing;
+    m->getGeometryAs<ImageGeom>()->getSpacing(spacing);
+    FloatVec3Type origin;
+    m->getGeometryAs<ImageGeom>()->getOrigin(origin);
+    //
+    // find total number of Grain Ids
+    int32_t maxGrainId = 0;
+    int32_t totalPoints = m->getGeometryAs<ImageGeom>()->getNumberOfElements();
+    for(int32_t i = 0; i < totalPoints; i++) // find number of grainIds
+    {
+      if(m_FeatureIds[i] > maxGrainId)
+      {
+        maxGrainId = m_FeatureIds[i];
+      }
+    }
+
     QString masterFile = m_OutputPath + QDir::separator() + m_OutputFilePrefix + ".flxtbl";
     //
     FILE* f = fopen(masterFile.toLatin1().data(), "wb");
@@ -610,7 +674,7 @@ void CreateFEAInputFiles::execute()
           entriesPerLine = 0;
         }
       }
-      tempCoord = origin[0] + (i * res[0]);
+      tempCoord = origin[0] + (i * spacing[0]);
       fprintf(f, "%.3f", tempCoord);
       entriesPerLine++;
     }
@@ -632,7 +696,7 @@ void CreateFEAInputFiles::execute()
           entriesPerLine = 0;
         }
       }
-      tempCoord = origin[1] + (i * res[1]);
+      tempCoord = origin[1] + (i * spacing[1]);
       fprintf(f, "%.3f", tempCoord);
       entriesPerLine++;
     }
@@ -654,7 +718,7 @@ void CreateFEAInputFiles::execute()
           entriesPerLine = 0;
         }
       }
-      tempCoord = origin[2] + (i * res[2]);
+      tempCoord = origin[2] + (i * spacing[2]);
       fprintf(f, "%.3f", tempCoord);
       entriesPerLine++;
     }
@@ -699,20 +763,53 @@ void CreateFEAInputFiles::execute()
   case 2: // BSAM
   {
     //
-    QString masterFile = m_OutputPath + QDir::separator() + m_OutputFilePrefix + ".flxtbl";
+    QString masterFile = m_OutputPath + QDir::separator() + m_OutputFilePrefix + ".in";
     //
-    FILE* f = fopen(masterFile.toLatin1().data(), "wb");
-    if(nullptr == f)
+    QFile file;
+    file.setFileName(masterFile);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-      QString ss = QObject::tr("Error writing PZFLEX input file '%1'").arg(masterFile);
-      setErrorCondition(-1);
+      QString ss = QObject::tr("BSAM file can not be created: %1").arg(masterFile);
+      setErrorCondition(-100);
       notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      return;
     }
+
     //
-    fprintf(f, "hedr 0\n");
-    fprintf(f, "info 1\n");
+    file.write("***********************************************\n");
+    file.write("**** BSAM INPUT FILE  generated by DREAM.3D ***\n");
+    file.write("***********************************************\n");
+    file.write("\n");
     //
-    fclose(f);
+
+    for(int32_t i = 0; i < m_NumClusters; i++)
+    {
+      QString inpFile = m_OutputPath + QDir::separator() + m_OutputFilePrefix + QString("_Cluster") + QString::number(i + 1) + ".ele";
+
+      QFile inStream(inpFile);
+
+      if(!inStream.open(QIODevice::ReadOnly | QIODevice::Text))
+      {
+        QString ss = QObject::tr("BSAM Input file could not be opened: %1").arg(inpFile);
+        setErrorCondition(-100);
+        notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+        return;
+      }
+
+      QByteArray buf;
+
+      file.write("***********************************************\n");
+      while(!inStream.atEnd())
+      {
+        buf = inStream.readLine();
+        file.write(buf);
+      }
+
+      file.write("\n");
+    }
+
+    file.close();
+    //
     break;
   }
   }

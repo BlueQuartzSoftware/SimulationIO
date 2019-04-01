@@ -7,38 +7,38 @@ SimulationIO (SimulationIO)
 
 ## Description ##
 
-This **Filter** does the following...
+This **Filter** writes the geometry file (*.geom) and material.config file required as an input for the DAMASK package. The geometry file has information about sample's origin, size, and dimensions, and spatial distribution of grains. The material.config file has description of Euler Angles and phase IDs. The material.config file created by DREAM.3D has information about texture and microstructure, however, the user needs to add information about homogenization, crystallite and phase.
+
+There are two options for writing the files: poitwise and grainwise. In the pointwise case, every cell is considered to be a different grain. In the grainwise case, **Feature ID** is used to specify the feature to which a cell belongs.
 
 ## Parameters ##
 
 | Name | Type | Description |
 |------|------|------|
-| Parameter Name | Parameter Type | Description of parameter... |
+| Data Format | Enumeration | format type for DAMASK files |
+| Output Path | Path | Path of the directory where files will be created |
+| Geometry File Name | String | Name of geometry (*.geom) file |
+| Homogenization Index | int | Homogenization index |
+| Compress Geom File | bool | Option to chose between compressed and uncompressed versions of *.geom file |
 
 ## Required Geometry ##
 
-Required Geometry Type -or- Not Applicable
+Not Applicable
 
 ## Required Objects ##
 
 | Kind | Default Name | Type | Component Dimensions | Description |
 |------|--------------|-------------|---------|-----|
-| **Data Container** | Data Container Name | N/A | N/A | Description of object... |
-| **Attribute Matrix** | Attribute Matrix Name | Element/Feature/Ensemble/etc. | N/A | Description of object... |
-| **Element/Feature/Ensemble/etc. Attribute Array** | AttributeArray Name | int32_t/float/etc. | (1)/(3)/etc. | Description of object... |
+| **Feature Attribute Array** | FeatureIds | int32_t | (1) |  Specifies to which **Feature** each **Cell** belongs |
+| **Feature Attribute Array** | Euler Angles | float | (3) | Three angles defining the orientation of the **Feature** |
+| **Feature Attribute Array** | Phases | int32_t | (1) |  Specifies to which **Ensemble** each **Cell** belongs |
 
 ## Created Objects ##
-
-| Kind | Default Name | Type | Component Dimensions | Description |
-|------|--------------|-------------|---------|-----|
-| **Data Container** | Data Container Name | N/A | N/A | Description of object... |
-| **Attribute Matrix** | Attribute Matrix Name | Element/Feature/Ensemble/etc. | N/A | Description of object... |
-| **Element/Feature/Ensemble/etc. Attribute Array** | AttributeArray Name | int32_t/float/etc. | (1)/(3)/etc. | Description of object... |
 
 
 ## Example Pipelines ##
 
-List the names of the example pipelines where this filter is used.
++DAMASKPipeline
 
 ## License & Copyright ##
 

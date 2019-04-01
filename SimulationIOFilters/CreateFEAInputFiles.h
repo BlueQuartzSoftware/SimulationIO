@@ -33,20 +33,17 @@ class SimulationIO_EXPORT CreateFEAInputFiles : public AbstractFilter
   PYB11_PROPERTY(QString JobName READ getJobName WRITE setJobName)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
   PYB11_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
-  PYB11_PROPERTY(IntVec3Type NumElem READ getNumElem WRITE setNumElem)
   PYB11_PROPERTY(int NumDepvar READ getNumDepvar WRITE setNumDepvar)
   PYB11_PROPERTY(int NumMatConst READ getNumMatConst WRITE setNumMatConst)
   PYB11_PROPERTY(int NumUserOutVar READ getNumUserOutVar WRITE setNumUserOutVar)
-  PYB11_PROPERTY(DataArrayPath FeatureIdsArrayPath READ getFeatureIdsArrayPath WRITE setFeatureIdsArrayPath)
+  PYB11_PROPERTY(DataArrayPath AbqFeatureIdsArrayPath READ getAbqFeatureIdsArrayPath WRITE setAbqFeatureIdsArrayPath)
+  PYB11_PROPERTY(DataArrayPath PzflexFeatureIdsArrayPath READ getPzflexFeatureIdsArrayPath WRITE setPzflexFeatureIdsArrayPath)
   PYB11_PROPERTY(DataArrayPath CellPhasesArrayPath READ getCellPhasesArrayPath WRITE setCellPhasesArrayPath)
   PYB11_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
   PYB11_PROPERTY(IntVec3Type NumKeypoints READ getNumKeypoints WRITE setNumKeypoints)
   PYB11_PROPERTY(QString DelamMat READ getDelamMat WRITE setDelamMat)
   PYB11_PROPERTY(int NumClusters READ getNumClusters WRITE setNumClusters)
-  PYB11_PROPERTY(DynamicTableData ClusterData READ getClusterData WRITE setClusterData)
   PYB11_PROPERTY(DynamicTableData MatConst READ getMatConst WRITE setMatConst)
-
-  PYB11_PROPERTY(bool UseMeshCreatedByDREAM3D READ getUseMeshCreatedByDREAM3D WRITE setUseMeshCreatedByDREAM3D)
 
 public:
   SIMPL_SHARED_POINTERS(CreateFEAInputFiles)
@@ -67,9 +64,6 @@ public:
   SIMPL_FILTER_PARAMETER(QString, OutputFilePrefix)
   Q_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
 
-  SIMPL_FILTER_PARAMETER(IntVec3Type, NumElem)
-  Q_PROPERTY(IntVec3Type NumElem READ getNumElem WRITE setNumElem)
-
   SIMPL_FILTER_PARAMETER(int, NumDepvar)
   Q_PROPERTY(int NumDepvar READ getNumDepvar WRITE setNumDepvar)
 
@@ -79,8 +73,11 @@ public:
   SIMPL_FILTER_PARAMETER(int, NumUserOutVar)
   Q_PROPERTY(int NumUserOutVar READ getNumUserOutVar WRITE setNumUserOutVar)
 
-  SIMPL_FILTER_PARAMETER(DataArrayPath, FeatureIdsArrayPath)
-  Q_PROPERTY(DataArrayPath FeatureIdsArrayPath READ getFeatureIdsArrayPath WRITE setFeatureIdsArrayPath)
+  SIMPL_FILTER_PARAMETER(DataArrayPath, AbqFeatureIdsArrayPath)
+  Q_PROPERTY(DataArrayPath AbqFeatureIdsArrayPath READ getAbqFeatureIdsArrayPath WRITE setAbqFeatureIdsArrayPath)
+
+  SIMPL_FILTER_PARAMETER(DataArrayPath, PzflexFeatureIdsArrayPath)
+  Q_PROPERTY(DataArrayPath PzflexFeatureIdsArrayPath READ getPzflexFeatureIdsArrayPath WRITE setPzflexFeatureIdsArrayPath)
 
   SIMPL_FILTER_PARAMETER(DataArrayPath, CellPhasesArrayPath)
   Q_PROPERTY(DataArrayPath CellPhasesArrayPath READ getCellPhasesArrayPath WRITE setCellPhasesArrayPath)
@@ -97,14 +94,8 @@ public:
   SIMPL_FILTER_PARAMETER(int, NumClusters)
   Q_PROPERTY(int NumClusters READ getNumClusters WRITE setNumClusters)
 
-  SIMPL_FILTER_PARAMETER(DynamicTableData, ClusterData)
-  Q_PROPERTY(DynamicTableData ClusterData READ getClusterData WRITE setClusterData)
-
   SIMPL_FILTER_PARAMETER(DynamicTableData, MatConst)
   Q_PROPERTY(DynamicTableData MatConst READ getMatConst WRITE setMatConst)
-
-  SIMPL_FILTER_PARAMETER(bool, UseMeshCreatedByDREAM3D)
-  Q_PROPERTY(bool UseMeshCreatedByDREAM3D READ getUseMeshCreatedByDREAM3D WRITE setUseMeshCreatedByDREAM3D)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class

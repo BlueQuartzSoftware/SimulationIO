@@ -37,11 +37,12 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
   PYB11_PROPERTY(QString odbName READ getodbName WRITE setodbName)
   // PYB11_PROPERTY(QString ABQInputFile READ getABQInputFile WRITE setABQInputFile)
   PYB11_PROPERTY(QString odbFilePath READ getodbFilePath WRITE setodbFilePath)
+  PYB11_PROPERTY(QString ABQPythonCommand READ getABQPythonCommand WRITE setABQPythonCommand)
   PYB11_PROPERTY(QString InstanceName READ getInstanceName WRITE setInstanceName)
   PYB11_PROPERTY(QString Step READ getStep WRITE setStep)
   PYB11_PROPERTY(int FrameNumber READ getFrameNumber WRITE setFrameNumber)
-  PYB11_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable)
-  PYB11_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
+  //    PYB11_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable)
+  //  PYB11_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
 
   PYB11_PROPERTY(QString BSAMInputFile READ getBSAMInputFile WRITE setBSAMInputFile)
 
@@ -58,7 +59,7 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
   PYB11_PROPERTY(QString SelectedYCoordArrayName READ getSelectedYCoordArrayName WRITE setSelectedYCoordArrayName)
   PYB11_PROPERTY(QStringList DataArrayList READ getDataArrayList WRITE setDataArrayList)
 
-  PYB11_PROPERTY(DataArrayPath DataContainerName READ getDataContainerName WRITE setDataContainerName)
+  PYB11_PROPERTY(QString DataContainerName READ getDataContainerName WRITE setDataContainerName)
   PYB11_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
   PYB11_PROPERTY(QString CellAttributeMatrixName READ getCellAttributeMatrixName WRITE setCellAttributeMatrixName)
 
@@ -78,6 +79,9 @@ public:
   SIMPL_FILTER_PARAMETER(QString, odbFilePath)
   Q_PROPERTY(QString odbFilePath READ getodbFilePath WRITE setodbFilePath)
 
+  SIMPL_FILTER_PARAMETER(QString, ABQPythonCommand)
+  Q_PROPERTY(QString ABQPythonCommand READ getABQPythonCommand WRITE setABQPythonCommand)
+
   SIMPL_FILTER_PARAMETER(QString, InstanceName)
   Q_PROPERTY(QString InstanceName READ getInstanceName WRITE setInstanceName)
 
@@ -87,11 +91,11 @@ public:
   SIMPL_FILTER_PARAMETER(int, FrameNumber)
   Q_PROPERTY(int FrameNumber READ getFrameNumber WRITE setFrameNumber)
 
-  SIMPL_FILTER_PARAMETER(QString, OutputVariable)
-  Q_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable)
+  /* SIMPL_FILTER_PARAMETER(QString, OutputVariable) */
+  /* Q_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable) */
 
-  SIMPL_FILTER_PARAMETER(QString, ElementSet)
-  Q_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
+  /* SIMPL_FILTER_PARAMETER(QString, ElementSet) */
+  /* Q_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet) */
 
   SIMPL_FILTER_PARAMETER(QString, DEFORMInputFile)
   Q_PROPERTY(QString DEFORMInputFile READ getDEFORMInputFile WRITE setDEFORMInputFile)
@@ -129,8 +133,8 @@ public:
   SIMPL_FILTER_PARAMETER(QStringList, DataArrayList)
   Q_PROPERTY(QStringList DataArrayList READ getDataArrayList WRITE setDataArrayList)
 
-  SIMPL_FILTER_PARAMETER(DataArrayPath, DataContainerName)
-  Q_PROPERTY(DataArrayPath DataContainerName READ getDataContainerName WRITE setDataContainerName)
+  SIMPL_FILTER_PARAMETER(QString, DataContainerName)
+  Q_PROPERTY(QString DataContainerName READ getDataContainerName WRITE setDataContainerName)
 
   SIMPL_FILTER_PARAMETER(QString, VertexAttributeMatrixName)
   Q_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
@@ -265,8 +269,7 @@ private:
    * @param elSet
    * @return
    */
-  int32_t writeABQpyscr(const QString& file, const QString& odbName, const QString& odbFilePath, const QString& instanceName, const QString& step, int frameNum, const QString& outputVar,
-                        const QString& elSet);
+  int32_t writeABQpyscr(const QString& file, const QString& odbName, const QString& odbFilePath, const QString& instanceName, const QString& step, int frameNum);
 
   void runABQpyscr(const QString& file);
 
@@ -280,7 +283,9 @@ private:
   QMutex m_Mutex;
   bool m_Pause = false;
   QSharedPointer<QProcess> m_ProcessPtr;
-  QStringList arguments;
+  //  QStringList arguments;
+
+  QStringList splitArgumentsString(QString arguments);
 
   QString m_CachedFileName;
   QFile m_InStream;

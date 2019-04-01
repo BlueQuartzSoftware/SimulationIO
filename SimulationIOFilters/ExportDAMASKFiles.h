@@ -27,12 +27,15 @@
 class SimulationIO_EXPORT ExportDAMASKFiles : public AbstractFilter
 {
   Q_OBJECT
+  PYB11_CREATE_BINDINGS(ExportDAMASKFiles SUPERCLASS AbstractFilter)
+  PYB11_PROPERTY(int DataFormat READ getDataFormat WRITE setDataFormat)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
   PYB11_PROPERTY(QString GeometryFileName READ getGeometryFileName WRITE setGeometryFileName)
   PYB11_PROPERTY(int HomogenizationIndex READ getHomogenizationIndex WRITE setHomogenizationIndex)
   PYB11_PROPERTY(DataArrayPath FeatureIdsArrayPath READ getFeatureIdsArrayPath WRITE setFeatureIdsArrayPath)
   PYB11_PROPERTY(DataArrayPath CellPhasesArrayPath READ getCellPhasesArrayPath WRITE setCellPhasesArrayPath)
   PYB11_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
+  PYB11_PROPERTY(bool CompressGeomFile READ getCompressGeomFile WRITE setCompressGeomFile)
 
 public:
   SIMPL_SHARED_POINTERS(ExportDAMASKFiles)
@@ -40,6 +43,9 @@ public:
   SIMPL_TYPE_MACRO_SUPER(ExportDAMASKFiles, AbstractFilter)
 
   ~ExportDAMASKFiles() override;
+
+  SIMPL_FILTER_PARAMETER(int, DataFormat)
+  Q_PROPERTY(int DataFormat READ getDataFormat WRITE setDataFormat)
 
   SIMPL_FILTER_PARAMETER(QString, OutputPath)
   Q_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
@@ -58,6 +64,9 @@ public:
 
   SIMPL_FILTER_PARAMETER(DataArrayPath, CellEulerAnglesArrayPath)
   Q_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
+
+  SIMPL_FILTER_PARAMETER(bool, CompressGeomFile)
+  Q_PROPERTY(bool CompressGeomFile READ getCompressGeomFile WRITE setCompressGeomFile)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class

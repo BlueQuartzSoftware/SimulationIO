@@ -10,11 +10,15 @@
 
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
+#include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
+#include "SIMPLib/FilterParameters/ChoiceFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
 #include "SIMPLib/FilterParameters/IntFilterParameter.h"
 #include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
+#include "SIMPLib/FilterParameters/LinkedBooleanFilterParameter.h"
+#include "SIMPLib/FilterParameters/LinkedChoicesFilterParameter.h"
 #include "SIMPLib/FilterParameters/OutputFileFilterParameter.h"
 #include "SIMPLib/FilterParameters/OutputPathFilterParameter.h"
 #include "SIMPLib/FilterParameters/PreflightUpdatedValueFilterParameter.h"
@@ -32,12 +36,14 @@
 //
 // -----------------------------------------------------------------------------
 ExportDAMASKFiles::ExportDAMASKFiles()
-: m_OutputPath("")
+: m_DataFormat(0)
+, m_OutputPath("")
 , m_GeometryFileName("")
 , m_HomogenizationIndex(1)
 , m_FeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
 , m_CellPhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Phases)
 , m_CellEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles)
+, m_CompressGeomFile(true)
 
 {
   initialize();
@@ -64,11 +70,29 @@ void ExportDAMASKFiles::initialize()
 void ExportDAMASKFiles::setupFilterParameters()
 {
   FilterParameterVectorType parameters;
+  {
+    LinkedChoicesFilterParameter::Pointer parameter = LinkedChoicesFilterParameter::New();
+    parameter->setHumanLabel("Data Format");
+    parameter->setPropertyName("DataFormat");
+    parameter->setSetterCallback(SIMPL_BIND_SETTER(ExportDAMASKFiles, this, DataFormat));
+    parameter->setGetterCallback(SIMPL_BIND_GETTER(ExportDAMASKFiles, this, DataFormat));
+    QVector<QString> choices;
+    choices.push_back("pointwise");
+    choices.push_back("grainwise");
+    parameter->setChoices(choices);
+    QStringList linkedProps = {"CompressGeomFile"};
+    parameter->setLinkedProperties(linkedProps);
+    parameter->setEditable(false);
+    parameter->setCategory(FilterParameter::Parameter);
+    parameters.push_back(parameter);
+  }
 
   parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Parameter, ExportDAMASKFiles, "*", "*"));
   parameters.push_back(SIMPL_NEW_STRING_FP("Geometry File Name", GeometryFileName, FilterParameter::Parameter, ExportDAMASKFiles));
 
   parameters.push_back(SIMPL_NEW_INTEGER_FP("Homogenization Index", HomogenizationIndex, FilterParameter::Parameter, ExportDAMASKFiles));
+
+  parameters.push_back(SIMPL_NEW_BOOL_FP("Compress Geom File", CompressGeomFile, FilterParameter::Parameter, ExportDAMASKFiles, 0));
 
   parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::RequiredArray));
   {
@@ -93,8 +117,12 @@ void ExportDAMASKFiles::setupFilterParameters()
 void ExportDAMASKFiles::readFilterParameters(AbstractFilterParametersReader* reader, int index)
 {
   reader->openFilterGroup(this, index);
+
+  setDataFormat(reader->readValue("DataFormat", getDataFormat()));
   setOutputPath(reader->readString("OutputPath", getOutputPath()));
   setGeometryFileName(reader->readString("GeometryFileName", getGeometryFileName()));
+  setHomogenizationIndex(reader->readValue("HomogenizationIndex", getHomogenizationIndex()));
+  setCompressGeomFile(reader->readValue("CompressGeomFile", getCompressGeomFile()));
   setCellEulerAnglesArrayPath(reader->readDataArrayPath("CellEulerAnglesArrayPath", getCellEulerAnglesArrayPath()));
   setCellPhasesArrayPath(reader->readDataArrayPath("CellPhasesArrayPath", getCellPhasesArrayPath()));
   setFeatureIdsArrayPath(reader->readDataArrayPath("FeatureIdsArrayPath", getFeatureIdsArrayPath()));
@@ -108,8 +136,6 @@ void ExportDAMASKFiles::dataCheck()
 {
   setErrorCondition(0);
   setWarningCondition(0);
-
-  //  FileSystemPathHelper::CheckOutputFile(this, "Output File Path", getOutputPath(), true);
 
   getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom, AbstractFilter>(this, getFeatureIdsArrayPath().getDataContainerName());
 
@@ -197,55 +223,177 @@ void ExportDAMASKFiles::execute()
 
   size_t dims[3] = {0, 0, 0};
   std::tie(dims[0], dims[1], dims[2]) = m->getGeometryAs<ImageGeom>()->getDimensions();
-  FloatVec3Type res = {0.0f, 0.0f, 0.0f};
-  m->getGeometryAs<ImageGeom>()->getSpacing(res);
-  FloatVec3Type origin = {0.0f, 0.0f, 0.0f};
+  FloatVec3Type spacing;
+  m->getGeometryAs<ImageGeom>()->getSpacing(spacing);
+  FloatVec3Type origin;
   m->getGeometryAs<ImageGeom>()->getOrigin(origin);
+  float size[3] = {0.0f, 0.0f, 0.0f};
+
+  for(int32_t i = 0; i < 3; i++)
+  {
+    size[i] = dims[i] * spacing[i];
+  }
 
   int32_t totalPoints = m->getGeometryAs<ImageGeom>()->getNumberOfElements();
 
+  // find total number of features
+  int32_t maxGrainId = 0;
+  for(int32_t i = 0; i < totalPoints; i++)
+  {
+    if(m_FeatureIds[i] > maxGrainId)
+    {
+      maxGrainId = m_FeatureIds[i];
+    }
+  }
+  //
+  //
   fprintf(geomf, "6       header\n");
-  fprintf(geomf, "Generted from DREAM.3D\n");
+  fprintf(geomf, "# Generated by DREAM.3D\n");
   fprintf(geomf, "grid    a %zu    b %zu    c %zu\n", dims[0], dims[1], dims[2]);
-  fprintf(geomf, "size    x %.3f    y %.3f    z %.3f\n", res[0], res[1], res[2]);
+  fprintf(geomf, "size    x %.3f    y %.3f    z %.3f\n", size[0], size[1], size[2]);
   fprintf(geomf, "origin    x %.3f    y %.3f    z %.3f\n", origin[0], origin[1], origin[2]);
   fprintf(geomf, "homogenization  %d\n", m_HomogenizationIndex);
-  fprintf(geomf, "microstructures 0\n");
 
-  int32_t entriesPerLine = 0;
-  for(int32_t i = 0; i < totalPoints; i++)
+  switch(m_DataFormat)
   {
-    if(entriesPerLine != 0) // no comma at start
+  case 0: // pointwise
+  {
+    fprintf(geomf, "microstructures %d\n", totalPoints);
+
+    if(m_CompressGeomFile)
     {
-      if((entriesPerLine % 10) != 0) // 10 per line
+      fprintf(geomf, "1 to %10d", totalPoints);
+    }
+    else
+    {
+      int32_t entriesPerLine = 0;
+      for(int32_t i = 1; i <= totalPoints; i++)
       {
-        fprintf(geomf, " ");
-      }
-      else
-      {
-        fprintf(geomf, "\n");
-        entriesPerLine = 0;
+        if(entriesPerLine != 0)
+        {
+          if((entriesPerLine % 10) != 0) // 10 per line
+          {
+            fprintf(geomf, " ");
+          }
+          else
+          {
+            fprintf(geomf, "\n");
+            entriesPerLine = 0;
+          }
+        }
+        fprintf(geomf, "%10d", i);
+        entriesPerLine++;
       }
     }
-    fprintf(geomf, "%d", i + 1);
-    entriesPerLine++;
+    break;
   }
-
-  fprintf(matf, "<texture>\n");
-  for(int32_t i = 0; i < totalPoints; i++)
+  case 1: // grainwise
   {
-    fprintf(matf, "[point%d]\n", i + 1);
-    fprintf(matf, "(gauss) phi1 %.3f   Phi %.3f    phi2 %.3f \n", m_CellEulerAngles[i * 3] * 180.0 * SIMPLib::Constants::k_1OverPi,
-            m_CellEulerAngles[i * 3 + 1] * 180.0 * SIMPLib::Constants::k_1OverPi, m_CellEulerAngles[i * 3 + 2] * 180.0 * SIMPLib::Constants::k_1OverPi);
+    fprintf(geomf, "microstructures %d\n", maxGrainId);
+
+    int32_t entriesPerLine = 0;
+    for(int32_t i = 0; i < totalPoints; i++)
+    {
+      if(entriesPerLine != 0)
+      {
+        if((entriesPerLine % 10) != 0) // 10 per line
+        {
+          fprintf(geomf, " ");
+        }
+        else
+        {
+          fprintf(geomf, "\n");
+          entriesPerLine = 0;
+        }
+      }
+      fprintf(geomf, "%10d", m_FeatureIds[i]);
+      entriesPerLine++;
+      //
+    }
+    break;
+  }
   }
 
-  fprintf(matf, "<microstructure>\n");
-  for(int32_t i = 0; i < totalPoints; i++)
+  //
+  //
+  fprintf(matf, "#############################################################################\n");
+  fprintf(matf, "# Generated by DREAM.3D\n");
+  fprintf(matf, "#############################################################################\n");
+  fprintf(matf, "# Add <homogenization>, <crystallite>, and <phase> for a complete definition\n");
+  fprintf(matf, "#############################################################################\n");
+  //
+  //
+  switch(m_DataFormat)
   {
-    fprintf(matf, "[point%d]\n", i + 1);
-    fprintf(matf, "(constituent)   phase %d texture %d \n", m_CellPhases[i], i + 1);
-  }
+  case 0: // pointwise
+  {
 
+    fprintf(matf, "<texture>\n");
+    for(int32_t i = 0; i < totalPoints; i++)
+    {
+      fprintf(matf, "[point%d]\n", i + 1);
+      fprintf(matf, "(gauss) phi1 %.3f   Phi %.3f    phi2 %.3f   scatter 0.0   fraction 1.0 \n", m_CellEulerAngles[i * 3] * 180.0 * SIMPLib::Constants::k_1OverPi,
+              m_CellEulerAngles[i * 3 + 1] * 180.0 * SIMPLib::Constants::k_1OverPi, m_CellEulerAngles[i * 3 + 2] * 180.0 * SIMPLib::Constants::k_1OverPi);
+    }
+
+    fprintf(matf, "<microstructure>\n");
+    for(int32_t i = 0; i < totalPoints; i++)
+    {
+      fprintf(matf, "[point%d]\n", i + 1);
+      fprintf(matf, "crystallite 1\n");
+      fprintf(matf, "(constituent)   phase %d texture %d fraction 1.0\n", m_CellPhases[i], i + 1);
+    }
+    //
+    //
+    break;
+  }
+  case 1: // grainwise
+  {
+    //
+    Int32ArrayType::Pointer m_phaseIdLengthPtr = Int32ArrayType::CreateArray(maxGrainId, "PHASEID_INTERNAL_USE_ONLY");
+    int32_t* m_phaseId = m_phaseIdLengthPtr->getPointer(0);
+
+    FloatArrayType::Pointer m_orientLengthPtr = FloatArrayType::CreateArray(maxGrainId * 3, "ORIENTATION_INTERNAL_USE_ONLY");
+    float* m_orient = m_orientLengthPtr->getPointer(0);
+
+    int32_t grainId = 1;
+    while(grainId <= maxGrainId)
+    {
+      for(int32_t i = 0; i < totalPoints; i++)
+      {
+        if(m_FeatureIds[i] == grainId)
+        {
+          m_phaseId[grainId - 1] = m_CellPhases[i];
+          m_orient[(grainId - 1) * 3] = m_CellEulerAngles[i * 3] * 180.0 * SIMPLib::Constants::k_1OverPi;
+          m_orient[(grainId - 1) * 3 + 1] = m_CellEulerAngles[i * 3 + 1] * 180.0 * SIMPLib::Constants::k_1OverPi;
+          m_orient[(grainId - 1) * 3 + 2] = m_CellEulerAngles[i * 3 + 2] * 180.0 * SIMPLib::Constants::k_1OverPi;
+        }
+      }
+      grainId++;
+    }
+    //
+    //
+    //
+    fprintf(matf, "<texture>\n");
+    for(int32_t i = 1; i <= maxGrainId; i++)
+    {
+      fprintf(matf, "[grain%d]\n", i);
+      fprintf(matf, "(gauss) phi1 %.3f   Phi %.3f    phi2 %.3f   scatter 0.0   fraction 1.0 \n", m_orient[(i - 1) * 3], m_orient[(i - 1) * 3 + 1], m_orient[(i - 1) * 3 + 2]);
+    }
+
+    fprintf(matf, "<microstructure>\n");
+    for(int32_t i = 1; i <= maxGrainId; i++)
+    {
+      fprintf(matf, "[grain%d]\n", i);
+      fprintf(matf, "crystallite 1\n");
+      fprintf(matf, "(constituent)   phase %d texture %d fraction 1.0\n", m_phaseId[i - 1], i);
+    }
+    //
+    //
+    break;
+  }
+    //
+  }
   //
   //
   fclose(geomf);

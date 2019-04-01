@@ -17,7 +17,6 @@
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/ChoiceFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
-#include "SIMPLib/FilterParameters/DataContainerCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DynamicTableData.h"
 #include "SIMPLib/FilterParameters/DynamicTableFilterParameter.h"
@@ -45,14 +44,6 @@
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"
 
-enum createdPathID : RenameDataPath::DataID_t
-{
-  AttributeMatrixID21 = 21,
-  AttributeMatrixID22 = 22,
-
-  DataContainerID = 1
-};
-
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
@@ -74,9 +65,9 @@ Export3dSolidMesh::Export3dSolidMesh()
 , m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
 , m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
 , m_GmshSTLFileName("")
+, m_MeshFileFormat(0)
 , m_NetgenSTLFileName("")
-, m_MeshSize("")
-
+, m_MeshSize(0)
 {
   initialize();
 }
@@ -112,7 +103,6 @@ void Export3dSolidMesh::setupFilterParameters()
     choices.push_back("TetGen");
     choices.push_back("Netgen");
     choices.push_back("Gmsh");
-    choices.push_back("MOAB");
     parameter->setChoices(choices);
     QStringList linkedProps = {"SurfaceMeshFaceLabelsArrayPath",
                                "FeaturePhasesArrayPath",
@@ -128,7 +118,8 @@ void Export3dSolidMesh::setupFilterParameters()
                                "CellAttributeMatrixName",
                                "GmshSTLFileName",
                                "NetgenSTLFileName",
-                               "MeshSize"};
+                               "MeshSize",
+                               "MeshFileFormat"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -170,6 +161,22 @@ void Export3dSolidMesh::setupFilterParameters()
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Centroids", FeatureCentroidArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
   }
 
+  {
+    ChoiceFilterParameter::Pointer parameter = ChoiceFilterParameter::New();
+    parameter->setHumanLabel("Mesh File Format");
+    parameter->setPropertyName("MeshFileFormat");
+    parameter->setSetterCallback(SIMPL_BIND_SETTER(Export3dSolidMesh, this, MeshFileFormat));
+    parameter->setGetterCallback(SIMPL_BIND_GETTER(Export3dSolidMesh, this, MeshFileFormat));
+
+    QVector<QString> choices;
+    choices.push_back("msh");
+    choices.push_back("inp");
+    parameter->setChoices(choices);
+    parameter->setGroupIndex(2);
+    parameter->setCategory(FilterParameter::Parameter);
+    parameters.push_back(parameter);
+  }
+
   parameters.push_back(SeparatorFilterParameter::New("Mesh Quality Options", FilterParameter::Parameter));
   {
     QStringList linkedProps = {"MaxRadiusEdgeRatio", "MinDihedralAngle"};
@@ -180,7 +187,22 @@ void Export3dSolidMesh::setupFilterParameters()
     parameters.push_back(SIMPL_NEW_INTEGER_FP("Optimization Level (O)", OptimizationLevel, FilterParameter::Parameter, Export3dSolidMesh, 0));
   }
   {
-    parameters.push_back(SIMPL_NEW_STRING_FP("Mesh Size", MeshSize, FilterParameter::Parameter, Export3dSolidMesh, 1));
+    ChoiceFilterParameter::Pointer parameter = ChoiceFilterParameter::New();
+    parameter->setHumanLabel("Mesh Size");
+    parameter->setPropertyName("MeshSize");
+    parameter->setSetterCallback(SIMPL_BIND_SETTER(Export3dSolidMesh, this, MeshSize));
+    parameter->setGetterCallback(SIMPL_BIND_GETTER(Export3dSolidMesh, this, MeshSize));
+
+    QVector<QString> choices;
+    choices.push_back("very coarse");
+    choices.push_back("coarse");
+    choices.push_back("moderate");
+    choices.push_back("fine");
+    choices.push_back("very fine");
+    parameter->setChoices(choices);
+    parameter->setGroupIndex(1);
+    parameter->setCategory(FilterParameter::Parameter);
+    parameters.push_back(parameter);
   }
 
   {
@@ -193,7 +215,7 @@ void Export3dSolidMesh::setupFilterParameters()
 
   {
     parameters.push_back(SeparatorFilterParameter::New("", FilterParameter::CreatedArray));
-    parameters.push_back(SIMPL_NEW_DC_CREATION_FP("Data Container Name", TetDataContainerName, FilterParameter::CreatedArray, Export3dSolidMesh, 0));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Name", TetDataContainerName, FilterParameter::CreatedArray, Export3dSolidMesh, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Vertex Attribute Matrix Name", VertexAttributeMatrixName, FilterParameter::CreatedArray, Export3dSolidMesh, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Cell Attribute Matrix Name", CellAttributeMatrixName, FilterParameter::CreatedArray, Export3dSolidMesh, 0));
   }
@@ -214,12 +236,13 @@ void Export3dSolidMesh::readFilterParameters(AbstractFilterParametersReader* rea
   setFeatureEulerAnglesArrayPath(reader->readDataArrayPath("FeatureEulerAnglesArrayPath", getFeatureEulerAnglesArrayPath()));
   setFeaturePhasesArrayPath(reader->readDataArrayPath("FeaturePhasesArrayPath", getFeaturePhasesArrayPath()));
   setFeatureCentroidArrayPath(reader->readDataArrayPath("FeatureCentroidArrayPath", getFeatureCentroidArrayPath()));
-  setTetDataContainerName(reader->readDataArrayPath("TetDataContainerName", getTetDataContainerName()));
+  setTetDataContainerName(reader->readString("DataContainerName", getTetDataContainerName()));
   setVertexAttributeMatrixName(reader->readString("VertexAttributeMatrixName", getVertexAttributeMatrixName()));
   setCellAttributeMatrixName(reader->readString("CellAttributeMatrixName", getCellAttributeMatrixName()));
   setNetgenSTLFileName(reader->readString("NetgenSTLFileName", getNetgenSTLFileName()));
-  setMeshSize(reader->readString("MeshSize", getMeshSize()));
+  setMeshSize(reader->readValue("MeshSize", getMeshSize()));
   setGmshSTLFileName(reader->readString("GmshSTLFileName", getGmshSTLFileName()));
+  setMeshFileFormat(reader->readValue("MeshFileFormat", getMeshFileFormat()));
   reader->closeFilterGroup();
 }
 
@@ -308,7 +331,7 @@ void Export3dSolidMesh::dataCheck()
     getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
 
     // Create the output Data Container
-    DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getTetDataContainerName(), DataContainerID);
+    DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getTetDataContainerName());
     if(getErrorCondition() < 0)
     {
       return;
@@ -316,12 +339,12 @@ void Export3dSolidMesh::dataCheck()
 
     // Create our output Vertex and Cell Matrix objects
     QVector<size_t> tDims(1, 0);
-    AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex, AttributeMatrixID21);
+    AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
     if(getErrorCondition() < 0)
     {
       return;
     }
-    AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell, AttributeMatrixID22);
+    AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
     if(getErrorCondition() < 0)
     {
       return;
@@ -503,11 +526,30 @@ void Export3dSolidMesh::execute()
     size_t numfeatures = m_FeatureEulerAnglesPtr.lock()->getNumberOfTuples();
     // creating Gmsh .geo file
     QString gmshGeoFile = m_outputPath + QDir::separator() + "gmsh.geo";
+    QString STLFileNamewExt;
 
-    createGmshGeoFile(gmshGeoFile);
+    FILE* f1 = fopen(gmshGeoFile.toLatin1().data(), "wb");
+    if(nullptr == f1)
+    {
+      QString ss = QObject::tr("Error creating Gmsh geo file '%1'").arg(gmshGeoFile);
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    }
+
+    for(size_t i = 1; i < numfeatures; i++)
+    {
+
+      STLFileNamewExt = m_GmshSTLFileName + QString("Feature_") + QString::number(i) + ".stl";
+      fprintf(f1, "Merge \"%s\";\n", STLFileNamewExt.toLatin1().data());
+      fprintf(f1, "Surface Loop(%zu) = {%zu};\n", i, i);
+      fprintf(f1, "Volume(%zu) = {%zu};\n", i, i);
+    }
+
+    fclose(f1);
 
     // running Gmsh
     runPackage(gmshGeoFile, gmshGeoFile);
+
     break;
   }
   }
@@ -563,29 +605,6 @@ void Export3dSolidMesh::createTetgenInpFile(const QString& file, int64_t numNode
 //
 // -----------------------------------------------------------------------------
 
-void Export3dSolidMesh::createGmshGeoFile(const QString& file)
-{
-  FILE* f1 = fopen(file.toLatin1().data(), "wb");
-  if(nullptr == f1)
-  {
-    QString ss = QObject::tr("Error creating Gmsh geo file '%1'").arg(file);
-    setErrorCondition(-1);
-    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-  }
-
-  QString STLFileNamewExt = m_GmshSTLFileName + ".stl";
-
-  fprintf(f1, "Merge \"%s\";\n", STLFileNamewExt.toLatin1().data());
-  fprintf(f1, "Surface Loop(1) = {1};\n");
-  fprintf(f1, "Volume(1) = {1};\n");
-
-  fclose(f1);
-}
-
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-
 void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
 {
 
@@ -627,7 +646,27 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
     // cmd to run: "netgen file.stlb -batchmode -verycoarse/coarse/moderate/fine/veryfine -meshfile=output filename
 
     switches = "-";
-    switches += m_MeshSize;
+    if(m_MeshSize == 0)
+    {
+      switches += "verycoarse";
+    }
+    else if(m_MeshSize == 1)
+    {
+      switches += "coarse";
+    }
+    else if(m_MeshSize == 2)
+    {
+      switches += "moderate";
+    }
+    else if(m_MeshSize == 3)
+    {
+      switches += "fine";
+    }
+    else if(m_MeshSize == 4)
+    {
+      switches += "veryfine";
+    }
+
     program += "netgen";
 
     QString switchMeshFile;
@@ -641,12 +680,24 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
   }
   case 2:
   {
+    QString switch1;
+    QString switch2;
+
+    switch1 = "-format";
 
     // cmd to run: "gmsh file -3
+    if(m_MeshFileFormat == 1)
+    {
+      switch2 = "inp";
+    }
+    else
+    {
+      switch2 = "auto";
+    }
 
     switches = "-3";
     program += "gmsh";
-    arguments << file << switches;
+    arguments << file << switches << switch1 << switch2;
 
     break;
   }
@@ -655,13 +706,25 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
   m_ProcessPtr = QSharedPointer<QProcess>(new QProcess(nullptr));
 
   QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+
+#if defined(Q_OS_MAC)
   if(m_MeshingPackage == 1)
   {
-    env.insert("PYTHONPATH", "/Applications/Netgen.app/Contents/Resources/lib/python3.7/site-packages:.");
-    env.insert("NETGENDIR", "/Applications/Netgen.app/Contents/MacOS");
-    env.insert("DYLD_LIBRARY_PATH", "/Applications/Netgen.app/Contents/MacOS");
-    env.insert("PATH", "$NETGENDIR:$PATH");
+    QString env_PYTHONPATH = m_PackageLocation + QDir::separator() + QString("..") + QDir::separator() + QString("Resources") + QDir::separator() + QString("lib") + QDir::separator() +
+                             QString("python3.7") + QDir::separator() + QString("site-packages");
+    QString env_NETGENDIR = m_PackageLocation;
+    QString env_DYLD_LIBRARYPATH = m_PackageLocation;
+
+    env.insert("PYTHONPATH", env_PYTHONPATH);
+    env.insert("NETGENDIR", env_NETGENDIR);
+    env.insert("DYLD_LIBRARY_PATH", env_DYLD_LIBRARYPATH);
+
+    //      env.insert("PYTHONPATH", "/Applications/Netgen.app/Contents/Resources/lib/python3.7/site-packages:.");
+    //  env.insert("NETGENDIR", "/Applications/Netgen.app/Contents/MacOS");
+    // env.insert("DYLD_LIBRARY_PATH", "/Applications/Netgen.app/Contents/MacOS");
+    // env.insert("PATH", "$NETGENDIR:$PATH");
   }
+#endif
   m_ProcessPtr->setProcessEnvironment(env);
 
   qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
@@ -674,7 +737,7 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
   m_ProcessPtr->setWorkingDirectory(m_outputPath);
   m_ProcessPtr->start(program, arguments);
   m_ProcessPtr->waitForStarted(2000);
-  m_ProcessPtr->waitForFinished();
+  m_ProcessPtr->waitForFinished(10000000);
 
   notifyStatusMessage(getHumanLabel(), "Finished running Package");
 }
@@ -710,10 +773,23 @@ void Export3dSolidMesh::mergeMesh(const QString& mergeFile, const QString& meshF
   m_ProcessPtr = QSharedPointer<QProcess>(new QProcess(nullptr));
 
   QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-  env.insert("PYTHONPATH", "/Applications/Netgen.app/Contents/Resources/lib/python3.7/site-packages:.");
-  env.insert("NETGENDIR", "/Applications/Netgen.app/Contents/MacOS");
-  env.insert("DYLD_LIBRARY_PATH", "/Applications/Netgen.app/Contents/MacOS");
-  env.insert("PATH", "$NETGENDIR:$PATH");
+
+#if defined(Q_OS_MAC)
+  QString env_PYTHONPATH = m_PackageLocation + QDir::separator() + QString("..") + QDir::separator() + QString("Resources") + QDir::separator() + QString("lib") + QDir::separator() +
+                           QString("python3.7") + QDir::separator() + QString("site-packages");
+  QString env_NETGENDIR = m_PackageLocation;
+  QString env_DYLD_LIBRARYPATH = m_PackageLocation;
+
+  env.insert("PYTHONPATH", env_PYTHONPATH);
+  env.insert("NETGENDIR", env_NETGENDIR);
+  env.insert("DYLD_LIBRARY_PATH", env_DYLD_LIBRARYPATH);
+#endif
+
+  // env.insert("PYTHONPATH", "/Applications/Netgen.app/Contents/Resources/lib/python3.7/site-packages:.");
+  // env.insert("NETGENDIR", "/Applications/Netgen.app/Contents/MacOS");
+  // env.insert("DYLD_LIBRARY_PATH", "/Applications/Netgen.app/Contents/MacOS");
+  // env.insert("PATH", "$NETGENDIR:$PATH");
+
   m_ProcessPtr->setProcessEnvironment(env);
 
   qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");

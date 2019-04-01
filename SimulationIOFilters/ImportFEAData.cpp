@@ -4,9 +4,9 @@
 
 #include "ImportFEAData.h"
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QDateTime>
 #include <QtCore/QDir>
-#include <QtCore/QCoreApplication>
 #include <QtCore/QFileInfo>
 #include <QtCore/QString>
 
@@ -63,7 +63,7 @@ enum createdPathID : RenameDataPath::DataID_t
 //
 // -----------------------------------------------------------------------------
 
-ImportFEAData::ImportFEAData()  
+ImportFEAData::ImportFEAData()
 : m_FEAPackage(0)
 , m_odbName("")
 , m_odbFilePath("")
@@ -123,7 +123,6 @@ ImportFEAData::ImportFEAData()
   // Meta Data
   m_DataTypes[SimulationIOConstants::DEFORMData::Step] = SIMPL::TypeNames::Int32;
   m_DataTypes[SimulationIOConstants::DEFORMData::Time] = SIMPL::TypeNames::Float;
-
 }
 
 // -----------------------------------------------------------------------------
@@ -178,16 +177,16 @@ void ImportFEAData::setupFilterParameters()
     QStringList linkedProps = {"odbName",
                                "odbFilePath",
                                "InstanceName",
-			       "Step", 
-			       "FrameNumber",    
-			       "OutputVariable",    
+                               "Step",
+                               "FrameNumber",
+                               "OutputVariable",
                                "ElementSet",
                                "DEFORMInputFile",
                                "BSAMInputFile",
                                "DEFORMPointTrackInputFile",
                                "ImportSingleTimeStep",
                                "SingleTimeStepValue",
-                               "TimeSeriesBundleName"}; 
+                               "TimeSeriesBundleName"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -195,7 +194,7 @@ void ImportFEAData::setupFilterParameters()
   }
   {
     parameters.push_back(SIMPL_NEW_STRING_FP("odb Name", odbName, FilterParameter::Parameter, ImportFEAData, 0));
-    parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("odb File Path", odbFilePath, FilterParameter::Parameter, ImportFEAData,"*" ,"*" ,0));
+    parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("odb File Path", odbFilePath, FilterParameter::Parameter, ImportFEAData, "*", "*", 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Instance Name", InstanceName, FilterParameter::Parameter, ImportFEAData, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Step", Step, FilterParameter::Parameter, ImportFEAData, 0));
     parameters.push_back(SIMPL_NEW_INTEGER_FP("Frame Number", FrameNumber, FilterParameter::Parameter, ImportFEAData, 0));
@@ -204,13 +203,12 @@ void ImportFEAData::setupFilterParameters()
   }
 
   {
-    parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", BSAMInputFile, FilterParameter::Parameter, ImportFEAData, "", "*.DAT",1));
+    parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", BSAMInputFile, FilterParameter::Parameter, ImportFEAData, "", "*.DAT", 1));
   }
 
   {
-    parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", DEFORMInputFile, FilterParameter::Parameter, ImportFEAData, "", "*.DAT",3));
+    parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", DEFORMInputFile, FilterParameter::Parameter, ImportFEAData, "", "*.DAT", 3));
   }
-
 
   {
     parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", DEFORMPointTrackInputFile, FilterParameter::Parameter, ImportFEAData, "", "*.RST", 4));
@@ -221,11 +219,11 @@ void ImportFEAData::setupFilterParameters()
     parameters.push_back(SIMPL_NEW_INTEGER_FP("Time Step", SingleTimeStepValue, FilterParameter::Parameter, ImportFEAData, 4));
 
     parameters.push_back(SeparatorFilterParameter::New("", FilterParameter::CreatedArray));
-    parameters.push_back(SIMPL_NEW_STRING_FP("Time Series Bundle Name", TimeSeriesBundleName, FilterParameter::CreatedArray, ImportFEAData,4));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Time Series Bundle Name", TimeSeriesBundleName, FilterParameter::CreatedArray, ImportFEAData, 4));
   }
 
   parameters.push_back(SIMPL_NEW_DC_CREATION_FP("Data Container Name", DataContainerName, FilterParameter::CreatedArray, ImportFEAData));
-  parameters.push_back(SIMPL_NEW_STRING_FP("Vertex Attribute Matrix Name", VertexAttributeMatrixName, FilterParameter::CreatedArray, ImportFEAData));    
+  parameters.push_back(SIMPL_NEW_STRING_FP("Vertex Attribute Matrix Name", VertexAttributeMatrixName, FilterParameter::CreatedArray, ImportFEAData));
   parameters.push_back(SIMPL_NEW_STRING_FP("Cell Attribute Matrix Name", CellAttributeMatrixName, FilterParameter::CreatedArray, ImportFEAData));
 
   setFilterParameters(parameters);
@@ -271,185 +269,183 @@ void ImportFEAData::dataCheck()
   m_ProcessPtr.reset();
 
   switch(m_FEAPackage)
+  {
+  case 1: // BSAM
+  {
+    QFileInfo fi(m_BSAMInputFile);
+    if(!fi.exists())
     {
-    case 1: // BSAM
+      QString ss = QObject::tr("The input file does not exist: '%1'").arg(getBSAMInputFile());
+      setErrorCondition(-388);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    }
+
+    if(m_BSAMInputFile.isEmpty())
+    {
+      QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), ss, -1);
+    }
+
+    break;
+  }
+
+  case 3: // DEFORM
+  {
+    QFileInfo fi(m_DEFORMInputFile);
+    if(!fi.exists())
+    {
+      QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMInputFile());
+      setErrorCondition(-388);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    }
+
+    if(m_DEFORMInputFile.isEmpty())
+    {
+      QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), ss, -1);
+    }
+
+    break;
+  }
+  case 4: // DEFORM POINT TRACK
+  {
+    QFileInfo fi(m_DEFORMPointTrackInputFile);
+    if(!fi.exists())
+    {
+      QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMPointTrackInputFile());
+      setErrorCondition(-388);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    }
+
+    if(m_DEFORMPointTrackInputFile.isEmpty())
+    {
+      QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), ss, -1);
+    }
+
+    // If any of the checks above threw errors then we can not go any further so bail out now.
+    if(getErrorCondition() < 0)
+    {
+      return;
+    }
+
+    // Create the time series bundle
+    DataContainerBundle::Pointer dcb = DataContainerBundle::New(getTimeSeriesBundleName());
+    getDataContainerArray()->addDataContainerBundle(dcb);
+
+    // Add the names of the arrays within the MetaData AttributeMatrix of each data container stored in the bundle
+    // that define how/why the bundle was created.
+    QStringList metaArrayList;
+    metaArrayList << getSelectedTimeArrayName() << getSelectedTimeStepArrayName() << READ_DEF_PT_TRACKING_TIME_INDEX;
+    dcb->setMetaDataArrays(metaArrayList);
+
+    m_InStream.setFileName(getDEFORMPointTrackInputFile());
+
+    // Read the Header of the file to figure out what arrays we have
+    readHeader(m_InStream);
+
+    // Close the file if we are preflighting
+    if(getInPreflight())
+    {
+      m_InStream.close();
+    }
+
+    // Make sure we did not have any errors
+    if(getErrorCondition() < 0)
+    {
+      QString ss = QObject::tr("Error reading header information from file: '%1'").arg(getDEFORMPointTrackInputFile());
+      setErrorCondition(-389);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      return;
+    }
+
+    if(getImportSingleTimeStep() != m_selectedTimeStep || getSingleTimeStepValue() != m_selectedTimeStepValue)
+    {
+      if(getImportSingleTimeStep() && getSingleTimeStepValue() >= m_NumTimeSteps)
       {
-	QFileInfo fi(m_BSAMInputFile);
-	if(!fi.exists())
-	  {
-	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getBSAMInputFile());
-	    setErrorCondition(-388);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
-
-	if(m_BSAMInputFile.isEmpty())
-	  {
-	    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, -1);
-	  }
-
-	break;
+        QString ss = QObject::tr("Please select a timestep in the range");
+        setErrorCondition(-91010);
+        notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+        return;
       }
-      
-    case 3: // DEFORM
-      {
-	QFileInfo fi(m_DEFORMInputFile);
-	if(!fi.exists())
-	  {
-	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMInputFile());
-	    setErrorCondition(-388);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
+      m_selectedTimeStep = getImportSingleTimeStep();
+      m_selectedTimeStepValue = getSingleTimeStepValue();
+    }
 
-	if(m_DEFORMInputFile.isEmpty())
-	  {
-	    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, -1);
-	  }
-	
-	break;
+    // Now generate the complete set of Data Containers for our Time Steps, Each Data Container has an AttributeMatrix with the set of data arrays
+    for(int t = 0; t < m_NumTimeSteps; ++t)
+    {
+
+      if(m_selectedTimeStep && t != m_selectedTimeStepValue)
+      {
+        continue;
       }
-    case 4: // DEFORM POINT TRACK
+
+      // Create the output Data Container for the first time step
+      QString dcName = getDataContainerName().getDataContainerName() + "_" + QString::number(t);
+      DataContainer::Pointer v = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, dcName, DataContainerID);
+      if(getErrorCondition() < 0)
       {
-	QFileInfo fi(m_DEFORMPointTrackInputFile);
-	if(!fi.exists())
-	  {
-	    QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMPointTrackInputFile());
-	    setErrorCondition(-388);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
-	
-	if(m_DEFORMPointTrackInputFile.isEmpty())
-	  {
-	    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, -1);
-	  }
+        QString ss = QObject::tr("Error Creating Vertex Data Container with name '%1' for Time Step %2").arg(dcName).arg(t);
+        setErrorCondition(-390);
+        notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+        return;
+      }
 
-	// If any of the checks above threw errors then we can not go any further so bail out now.
-	if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
-	
-	// Create the time series bundle
-	DataContainerBundle::Pointer dcb = DataContainerBundle::New(getTimeSeriesBundleName());
-	getDataContainerArray()->addDataContainerBundle(dcb);
+      VertexGeom::Pointer vertices = VertexGeom::CreateGeometry(m_NumPoints, SIMPL::Geometry::VertexGeometry, !getInPreflight());
+      v->setGeometry(vertices);
 
-	// Add the names of the arrays within the MetaData AttributeMatrix of each data container stored in the bundle
-	// that define how/why the bundle was created.
-	QStringList metaArrayList;
-	metaArrayList << getSelectedTimeArrayName() << getSelectedTimeStepArrayName() << READ_DEF_PT_TRACKING_TIME_INDEX;
-	dcb->setMetaDataArrays(metaArrayList);
+      QVector<size_t> tDims(1, m_NumPoints);
+      AttributeMatrix::Pointer vertexAttrMat = v->createNonPrereqAttributeMatrix(this, SIMPL::Defaults::VertexAttributeMatrixName, tDims, AttributeMatrix::Type::Vertex, AttributeMatrixID21);
+      if(getErrorCondition() < 0)
+      {
+        QString ss = QObject::tr("Error Creating AttributeMatrix with name '%1' for Time Step %2").arg(SIMPL::Defaults::VertexAttributeMatrixName).arg(t);
+        setErrorCondition(-390);
+        notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+        return;
+      }
 
-	m_InStream.setFileName(getDEFORMPointTrackInputFile());
+      QMapIterator<QString, SimulationIO::DeformDataParser::Pointer> parserIter(m_NamePointerMap);
+      while(parserIter.hasNext())
+      {
+        parserIter.next();
+        QString name = parserIter.key();
+        SimulationIO::DeformDataParser::Pointer parser = parserIter.value();
+        IDataArray::Pointer dataPtr = parser->initializeNewDataArray(m_NumPoints, name, !getInPreflight()); // Get a copy of the DataArray
 
-	// Read the Header of the file to figure out what arrays we have
-	readHeader(m_InStream);
-
-	// Close the file if we are preflighting
-	if(getInPreflight())
-	  {
-	    m_InStream.close();
-	  }
-
-	// Make sure we did not have any errors
-	if(getErrorCondition() < 0)
-	  {
-	    QString ss = QObject::tr("Error reading header information from file: '%1'").arg(getDEFORMPointTrackInputFile());
-	    setErrorCondition(-389);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	    return;
-	  }
-
-	if(getImportSingleTimeStep() != m_selectedTimeStep || getSingleTimeStepValue() != m_selectedTimeStepValue)
-	  {
-	    if(getImportSingleTimeStep() && getSingleTimeStepValue() >= m_NumTimeSteps)
-	      {
-		QString ss = QObject::tr("Please select a timestep in the range");
-		setErrorCondition(-91010);
-		notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-		return;
-	      }
-	    m_selectedTimeStep = getImportSingleTimeStep();
-	    m_selectedTimeStepValue = getSingleTimeStepValue();
-	  }	
-
-	// Now generate the complete set of Data Containers for our Time Steps, Each Data Container has an AttributeMatrix with the set of data arrays
-	for(int t = 0; t < m_NumTimeSteps; ++t)
-	  {
-
-	    if(m_selectedTimeStep && t != m_selectedTimeStepValue)
-	      {
-		continue;
-	      }
-
-	    // Create the output Data Container for the first time step
-        QString dcName = getDataContainerName().getDataContainerName() + "_" + QString::number(t);
-        DataContainer::Pointer v = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, dcName, DataContainerID);
-        if(getErrorCondition() < 0)
+        if((getInPreflight()))
         {
-          QString ss = QObject::tr("Error Creating Vertex Data Container with name '%1' for Time Step %2").arg(dcName).arg(t);
-          setErrorCondition(-390);
-          notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-          return;
-        }
-
-        VertexGeom::Pointer vertices = VertexGeom::CreateGeometry(m_NumPoints, SIMPL::Geometry::VertexGeometry, !getInPreflight());
-        v->setGeometry(vertices);
-
-        QVector<size_t> tDims(1, m_NumPoints);
-        AttributeMatrix::Pointer vertexAttrMat = v->createNonPrereqAttributeMatrix(this, SIMPL::Defaults::VertexAttributeMatrixName, tDims, AttributeMatrix::Type::Vertex, AttributeMatrixID21);
-        if(getErrorCondition() < 0)
-        {
-          QString ss = QObject::tr("Error Creating AttributeMatrix with name '%1' for Time Step %2").arg(SIMPL::Defaults::VertexAttributeMatrixName).arg(t);
-          setErrorCondition(-390);
-          notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-          return;
-        }
-
-        QMapIterator<QString, SimulationIO::DeformDataParser::Pointer> parserIter(m_NamePointerMap);
-        while(parserIter.hasNext())
-        {
-          parserIter.next();
-          QString name = parserIter.key();
-          SimulationIO::DeformDataParser::Pointer parser = parserIter.value();
-          IDataArray::Pointer dataPtr = parser->initializeNewDataArray(m_NumPoints, name, !getInPreflight()); // Get a copy of the DataArray
-
-          if((getInPreflight()))
-          {
-            if((name.compare(getSelectedTimeArrayName()) != 0) && (name.compare(getSelectedTimeStepArrayName()) != 0) && (name.compare(getSelectedPointNumArrayName()) != 0) &&
-               (name.compare(getSelectedXCoordArrayName()) != 0) && (name.compare(getSelectedYCoordArrayName()) != 0))
-            {
-              vertexAttrMat->insertOrAssign(dataPtr);
-            }
-          }
-          else
+          if((name.compare(getSelectedTimeArrayName()) != 0) && (name.compare(getSelectedTimeStepArrayName()) != 0) && (name.compare(getSelectedPointNumArrayName()) != 0) &&
+             (name.compare(getSelectedXCoordArrayName()) != 0) && (name.compare(getSelectedYCoordArrayName()) != 0))
           {
             vertexAttrMat->insertOrAssign(dataPtr);
           }
         }
+        else
+        {
+          vertexAttrMat->insertOrAssign(dataPtr);
+        }
+      }
 
       // Generate the AttributeMatrix that will serve as the Meta-Data information for the DataContainerBundle
-	    QVector<size_t> bundleAttrDims(1, 1);
+      QVector<size_t> bundleAttrDims(1, 1);
       AttributeMatrix::Pointer metaData = v->createNonPrereqAttributeMatrix(this, m_BundleMetaDataAMName, bundleAttrDims, AttributeMatrix::Type::MetaData, AttributeMatrixID22);
       if(getErrorCondition() < 0)
-	      {
-	      }
+      {
+      }
 
-	    QVector<size_t> cDims(1, 1);
+      QVector<size_t> cDims(1, 1);
       metaData->createNonPrereqArray<FloatArrayType, AbstractFilter, float>(this, getSelectedTimeArrayName(), 0.0f, cDims, DataArrayID31);
       metaData->createNonPrereqArray<Int32ArrayType, AbstractFilter, int32_t>(this, getSelectedTimeStepArrayName(), 0, cDims, DataArrayID32);
       metaData->createNonPrereqArray<Int32ArrayType, AbstractFilter, int32_t>(this, READ_DEF_PT_TRACKING_TIME_INDEX, 0, cDims, DataArrayID33);
     }
 
-  break;
-      }
-
-    }
- 
+    break;
+  }
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -458,12 +454,12 @@ void ImportFEAData::dataCheck()
 void ImportFEAData::preflight()
 {
   // These are the REQUIRED lines of CODE to make sure the filter behaves correctly
-  setInPreflight(true); // Set the fact that we are preflighting.
-  emit preflightAboutToExecute(); // Emit this signal so that other widgets can do one file update
+  setInPreflight(true);              // Set the fact that we are preflighting.
+  emit preflightAboutToExecute();    // Emit this signal so that other widgets can do one file update
   emit updateFilterParameters(this); // Emit this signal to have the widgets push their values down to the filter
-  dataCheck(); // Run our DataCheck to make sure everthing is setup correctly
-  emit preflightExecuted(); // We are done preflighting this filter
-  setInPreflight(false); // Inform the system this filter is NOT in preflight mode anymore.
+  dataCheck();                       // Run our DataCheck to make sure everthing is setup correctly
+  emit preflightExecuted();          // We are done preflighting this filter
+  setInPreflight(false);             // Inform the system this filter is NOT in preflight mode anymore.
 }
 
 // -----------------------------------------------------------------------------
@@ -471,169 +467,168 @@ void ImportFEAData::preflight()
 // -----------------------------------------------------------------------------
 void ImportFEAData::execute()
 {
-  //initialize();
+  // initialize();
   int32_t err = 0;
   setErrorCondition(err);
   dataCheck();
-  if(getErrorCondition() < 0) { return; }
+  if(getErrorCondition() < 0)
+  {
+    return;
+  }
 
   switch(m_FEAPackage)
+  {
+  case 0: // ABAQUS
+  {
+    // Check Output Path
+    QDir dir;
+    if(!dir.mkpath(m_odbFilePath))
     {
-    case 0: // ABAQUS
-      {
-	// Check Output Path
-	QDir dir;
-	if(!dir.mkpath(m_odbFilePath))
-	  {
-	    QString ss = QObject::tr("Error in accessing odb file '%1'").arg(m_odbFilePath);
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	    return;
-	  }
-
-	// Create ABAQUS python script
-	QString abqpyscr = m_odbFilePath + QDir::separator() + m_odbName + ".py";
-	QString odbNamewExt = m_odbName + ".odb";
-	err = writeABQpyscr(abqpyscr, odbNamewExt, m_odbFilePath, m_InstanceName, m_Step, m_FrameNumber, m_OutputVariable, m_ElementSet); 
-	if(err < 0)
-	  {
-	    QString ss = QObject::tr("Error writing ABAQUS python script '%1'").arg(abqpyscr);
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	    return;
-	  }
-
-	// Running ABAQUS python script
-	QString abqpyscrwExt = m_odbName + ".py";
-	runABQpyscr(abqpyscrwExt); 
-
-	// Create the output Data Container
-  DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName(), DataContainerID);
-  if(getErrorCondition() < 0)
-  {
-    return;
-	  }
-	
-	// Create our output Vertex and Cell Matrix objects
-	QVector<size_t> tDims(1, 0);
-  AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex, AttributeMatrixID23);
-  if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
-    AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell, AttributeMatrixID24);
-    if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
-	
-	QString outTxtFile = m_odbFilePath + QDir::separator() + "odbtotxt.dat";
-	scanABQFile(outTxtFile, m.get(), vertexAttrMat.get(), cellAttrMat.get());
-		
-	break;
-      }
-
-    case 1: // BSAM
-      {
-	// Create the output Data Container
-  DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName(), DataContainerID);
-  if(getErrorCondition() < 0)
-  {
-    return;
-	  }
-	
-	// Create our output Vertex Matrix objects
-	QVector<size_t> tDims(1, 0);
-  AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex, AttributeMatrixID25);
-  if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
-    AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell, AttributeMatrixID26);
-    if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
-
-	scanBSAMFile(m.get(), vertexAttrMat.get(), cellAttrMat.get());
-
-	notifyStatusMessage(getHumanLabel(), "Import Complete");
-	
-	break;	
-      }
-    case 2: // PZFLEX
-      {
-	break;	
-      }
-    case 3: // DEFORM
-      {
-	
-	// Create the output Data Container
-  DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName(), DataContainerID);
-  if(getErrorCondition() < 0)
-  {
-    return;
-	  }
-	
-	// Create our output Vertex and Cell Matrix objects
-	QVector<size_t> tDims(1, 0);
-  AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex, AttributeMatrixID27);
-  if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
-    AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell, AttributeMatrixID28);
-    if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
-	
-	scanDEFORMFile(m.get(), vertexAttrMat.get(), cellAttrMat.get());
-
-	notifyStatusMessage(getHumanLabel(), "Import Complete");
-	
-	break;
-      }
-    case 4:// DEFORM POINT TRACK
-      {
-	for(size_t i = 0; i < m_NumTimeSteps; i++)
-	  {
-	    QString ss = QObject::tr("Starting to read time step %1 of %2").arg(i).arg(m_NumTimeSteps);
-	    notifyStatusMessage(getMessagePrefix(), getHumanLabel(), ss);
-	    readTimeStep(m_InStream, i);
-	  }
-	
-	/* Let the GUI know we are done with this filter */
-	notifyStatusMessage(getHumanLabel(), "Import Complete");
-	break;
-      }
-
+      QString ss = QObject::tr("Error in accessing odb file '%1'").arg(m_odbFilePath);
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      return;
     }
 
-  if (getCancel()) { return; }
+    // Create ABAQUS python script
+    QString abqpyscr = m_odbFilePath + QDir::separator() + m_odbName + ".py";
+    QString odbNamewExt = m_odbName + ".odb";
+    err = writeABQpyscr(abqpyscr, odbNamewExt, m_odbFilePath, m_InstanceName, m_Step, m_FrameNumber, m_OutputVariable, m_ElementSet);
+    if(err < 0)
+    {
+      QString ss = QObject::tr("Error writing ABAQUS python script '%1'").arg(abqpyscr);
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+      return;
+    }
+
+    // Running ABAQUS python script
+    QString abqpyscrwExt = m_odbName + ".py";
+    runABQpyscr(abqpyscrwExt);
+
+    // Create the output Data Container
+    DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName(), DataContainerID);
+    if(getErrorCondition() < 0)
+    {
+      return;
+    }
+
+    // Create our output Vertex and Cell Matrix objects
+    QVector<size_t> tDims(1, 0);
+    AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex, AttributeMatrixID23);
+    if(getErrorCondition() < 0)
+    {
+      return;
+    }
+    AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell, AttributeMatrixID24);
+    if(getErrorCondition() < 0)
+    {
+      return;
+    }
+
+    QString outTxtFile = m_odbFilePath + QDir::separator() + "odbtotxt.dat";
+    scanABQFile(outTxtFile, m.get(), vertexAttrMat.get(), cellAttrMat.get());
+
+    break;
+  }
+
+  case 1: // BSAM
+  {
+    // Create the output Data Container
+    DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName(), DataContainerID);
+    if(getErrorCondition() < 0)
+    {
+      return;
+    }
+
+    // Create our output Vertex Matrix objects
+    QVector<size_t> tDims(1, 0);
+    AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex, AttributeMatrixID25);
+    if(getErrorCondition() < 0)
+    {
+      return;
+    }
+    AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell, AttributeMatrixID26);
+    if(getErrorCondition() < 0)
+    {
+      return;
+    }
+
+    scanBSAMFile(m.get(), vertexAttrMat.get(), cellAttrMat.get());
+
+    notifyStatusMessage(getHumanLabel(), "Import Complete");
+
+    break;
+  }
+  case 2: // PZFLEX
+  {
+    break;
+  }
+  case 3: // DEFORM
+  {
+
+    // Create the output Data Container
+    DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName(), DataContainerID);
+    if(getErrorCondition() < 0)
+    {
+      return;
+    }
+
+    // Create our output Vertex and Cell Matrix objects
+    QVector<size_t> tDims(1, 0);
+    AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex, AttributeMatrixID27);
+    if(getErrorCondition() < 0)
+    {
+      return;
+    }
+    AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell, AttributeMatrixID28);
+    if(getErrorCondition() < 0)
+    {
+      return;
+    }
+
+    scanDEFORMFile(m.get(), vertexAttrMat.get(), cellAttrMat.get());
+
+    notifyStatusMessage(getHumanLabel(), "Import Complete");
+
+    break;
+  }
+  case 4: // DEFORM POINT TRACK
+  {
+    for(size_t i = 0; i < m_NumTimeSteps; i++)
+    {
+      QString ss = QObject::tr("Starting to read time step %1 of %2").arg(i).arg(m_NumTimeSteps);
+      notifyStatusMessage(getMessagePrefix(), getHumanLabel(), ss);
+      readTimeStep(m_InStream, i);
+    }
+
+    /* Let the GUI know we are done with this filter */
+    notifyStatusMessage(getHumanLabel(), "Import Complete");
+    break;
+  }
+  }
+
+  if(getCancel())
+  {
+    return;
+  }
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 
-int32_t ImportFEAData::writeABQpyscr(const QString& file,
-                                     const QString& odbName,
-                                     const QString& odbFilePath,
-                                     const QString& instanceName,
-                                     const QString& step,
-                                     int frameNum,
-                                     const QString& outputVar,
-                                     const QString &elSet)
+int32_t ImportFEAData::writeABQpyscr(const QString& file, const QString& odbName, const QString& odbFilePath, const QString& instanceName, const QString& step, int frameNum, const QString& outputVar,
+                                     const QString& elSet)
 {
   int32_t err = 0;
   FILE* f = nullptr;
   f = fopen(file.toLatin1().data(), "wb");
   if(nullptr == f)
-    {
-      return -1;
-    }
-  
+  {
+    return -1;
+  }
+
   fprintf(f, "from sys import *\n");
   fprintf(f, "from string import *\n");
   fprintf(f, "from math import *\n");
@@ -642,71 +637,71 @@ int32_t ImportFEAData::writeABQpyscr(const QString& file,
   fprintf(f, "from odbMaterial import *\n");
   fprintf(f, "from odbSection import *\n");
   fprintf(f, "\n");
-  fprintf(f, "import os\n");    
+  fprintf(f, "import os\n");
 
-  fprintf(f, "odbName = '%s'\n",odbName.toLatin1().data());
-  fprintf(f, "odbFilePath = '%s'\n",odbFilePath.toLatin1().data());
-  fprintf(f, "outputVar = '%s'\n",outputVar.toLatin1().data());
-  fprintf(f, "frameNum = %d\n",frameNum);
-  fprintf(f, "step = '%s'\n",step.toLatin1().data());
-  fprintf(f, "instanceName = '%s'\n",instanceName.toLatin1().data());
+  fprintf(f, "odbName = '%s'\n", odbName.toLatin1().data());
+  fprintf(f, "odbFilePath = '%s'\n", odbFilePath.toLatin1().data());
+  fprintf(f, "outputVar = '%s'\n", outputVar.toLatin1().data());
+  fprintf(f, "frameNum = %d\n", frameNum);
+  fprintf(f, "step = '%s'\n", step.toLatin1().data());
+  fprintf(f, "instanceName = '%s'\n", instanceName.toLatin1().data());
 
-  fprintf(f, "odbfileName = os.path.join(odbFilePath,odbName)\n"); 
-  fprintf(f, "odb = openOdb(path = odbfileName)\n");  
+  fprintf(f, "odbfileName = os.path.join(odbFilePath,odbName)\n");
+  fprintf(f, "odb = openOdb(path = odbfileName)\n");
 
   fprintf(f, "outTxtFile = 'odbtotxt.dat'\n");
   fprintf(f, "fid = open(outTxtFile, \"a\")\n");
 
-  fprintf(f, "E1 = odb.rootAssembly.instances[instanceName]\n"); 
+  fprintf(f, "E1 = odb.rootAssembly.instances[instanceName]\n");
 
-  fprintf(f, "n2 = len(E1.elements)\n");  
-  fprintf(f, "fid.write('ELEMENTS ')\n"); 
-  fprintf(f, "fid.write(str(n2))\n"); 
+  fprintf(f, "n2 = len(E1.elements)\n");
+  fprintf(f, "fid.write('ELEMENTS ')\n");
+  fprintf(f, "fid.write(str(n2))\n");
   fprintf(f, "fid.write(' ')\n");
   fprintf(f, "fid.write(E1.elements[0].type)\n");
-  fprintf(f, "fid.write('\\n')\n"); 
+  fprintf(f, "fid.write('\\n')\n");
   fprintf(f, "for element in E1.elements:  \n");
-  fprintf(f, "    fid.write(str(element.label)),\n"); 
-  fprintf(f, "    fid.write(' ')\n"); 
-  fprintf(f, "    fid.write(str(element.connectivity[0]) + ' ' + str(element.connectivity[1]) + ' ' + str(element.connectivity[2]) + ' ' + str(element.connectivity[3]) + ' ' + str(element.connectivity[4]) + ' ' + str(element.connectivity[5]) + ' ' + str(element.connectivity[6]) + ' ' + str(element.connectivity[7]) ),\n"); 
-  fprintf(f, "    fid.write('\\n')\n"); 
+  fprintf(f, "    fid.write(str(element.label)),\n");
+  fprintf(f, "    fid.write(' ')\n");
+  fprintf(f, "    fid.write(str(element.connectivity[0]) + ' ' + str(element.connectivity[1]) + ' ' + str(element.connectivity[2]) + ' ' + str(element.connectivity[3]) + ' ' + "
+             "str(element.connectivity[4]) + ' ' + str(element.connectivity[5]) + ' ' + str(element.connectivity[6]) + ' ' + str(element.connectivity[7]) ),\n");
+  fprintf(f, "    fid.write('\\n')\n");
 
-  fprintf(f, "n1 = len(E1.nodes)\n"); 
+  fprintf(f, "n1 = len(E1.nodes)\n");
   fprintf(f, "fid.write('NODES ')\n");
   fprintf(f, "fid.write(str(n1))\n");
   fprintf(f, "fid.write('\\n')\n");
 
   fprintf(f, "for node in E1.nodes:  \n");
   fprintf(f, "    fid.write(str(node.label)),\n");
-  fprintf(f, "    fid.write(' ')\n");  
+  fprintf(f, "    fid.write(' ')\n");
   fprintf(f, "    for coords in node.coordinates: \n");
   fprintf(f, "        fid.write(str(coords)),\n");
   fprintf(f, "        fid.write(' ')\n");
-  fprintf(f, "    fid.write('\\n')\n"); 	   
+  fprintf(f, "    fid.write('\\n')\n");
 
-  fprintf(f, "fieldOut = odb.steps[step].frames[frameNum].fieldOutputs[outputVar].values\n\n"); 
+  fprintf(f, "fieldOut = odb.steps[step].frames[frameNum].fieldOutputs[outputVar].values\n\n");
 
   fprintf(f, "fid.write(outputVar)\n");
-  fprintf(f, "fid.write('\\n')\n"); 	   
+  fprintf(f, "fid.write('\\n')\n");
   fprintf(f, "for j in fieldOut:\n");
   fprintf(f, "    fid.write(str(j.elementLabel) + '  ' + str(j.data[0]) + '  ' + str(j.data[1]) + '  ' + str(j.data[2]) + '  ' + str(j.data[3]) + '  ' + str(j.data[4]) + '  ' + str(j.data[5]))\n");
-  fprintf(f, "    fid.write('\\n')\n"); 	   
+  fprintf(f, "    fid.write('\\n')\n");
 
-  fprintf(f,"fid.close()");
+  fprintf(f, "fid.close()");
   notifyStatusMessage(getHumanLabel(), "Finished writing ABAQUS python script");
   fclose(f);
 
   return err;
-
 }
 
 //
 //
 //
 
-void ImportFEAData::runABQpyscr(const QString& file) 
+void ImportFEAData::runABQpyscr(const QString& file)
 {
-  //cmd to run: "abaqus python filename.py
+  // cmd to run: "abaqus python filename.py
 
   QString program = "abaqus";
   QStringList arguments;
@@ -726,7 +721,6 @@ void ImportFEAData::runABQpyscr(const QString& file)
   m_ProcessPtr->waitForFinished();
 
   notifyStatusMessage(getHumanLabel(), "Finished running ABAQUS python script");
-
 }
 
 //
@@ -854,7 +848,7 @@ void ImportFEAData::sendStandardOutput()
 void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContainer, AttributeMatrix* vertexAttrMat, AttributeMatrix* cellAttrMat)
 {
   bool allocate = true;
-  
+
   QFile inStream(file);
 
   if(!inStream.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -904,73 +898,73 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
       word = tokens.at(0);
     }
 
-      // Set the number of vertices and then create vertices array and resize vertex attr mat.
+    // Set the number of vertices and then create vertices array and resize vertex attr mat.
     size_t numVerts = tokens.at(1).toULongLong(&ok);
     tDims[0] = numVerts;
     //      QVector<size_t> tDims(1, numVerts);
     vertexAttrMat->resizeAttributeArrays(tDims);
-    
+
     SharedVertexList::Pointer vertexPtr = QuadGeom::CreateSharedVertexList(static_cast<int64_t>(numVerts), allocate);
     float* vertex = vertexPtr->getPointer(0);
-      
+
     // Read or Skip past all the vertex data
     for(size_t i = 0; i < numVerts; i++)
+    {
+      buf = inStream.readLine();
+      if(allocate)
       {
-	buf = inStream.readLine();
-	if(allocate)
-	  {
-	    buf = buf.trimmed();
-	    buf = buf.simplified();
-	    tokens = buf.split(' ');
-	    vertex[3 * i] = tokens[1].toFloat(&ok);
-	    vertex[3 * i + 1] = tokens[2].toFloat(&ok);
-	    vertex[3 * i + 2] = 0.0;
-	  }
+        buf = buf.trimmed();
+        buf = buf.simplified();
+        tokens = buf.split(' ');
+        vertex[3 * i] = tokens[1].toFloat(&ok);
+        vertex[3 * i + 1] = tokens[2].toFloat(&ok);
+        vertex[3 * i + 2] = 0.0;
       }
-    
+    }
+
     inStream.seek(dataOffset);
-    
+
     while(word.compare("ELEMENTS") != 0)
-      {
-	buf = inStream.readLine();
-	buf = buf.trimmed();
-	buf = buf.simplified();
-	tokens = buf.split(' ');
-	word = tokens.at(0);
-      }
-  
+    {
+      buf = inStream.readLine();
+      buf = buf.trimmed();
+      buf = buf.simplified();
+      tokens = buf.split(' ');
+      word = tokens.at(0);
+    }
+
     QuadGeom::Pointer quadGeomPtr = QuadGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::QuadGeometry, allocate);
     quadGeomPtr->setSpatialDimensionality(2);
     dataContainer->setGeometry(quadGeomPtr);
     int64_t* quads = quadGeomPtr->getQuadPointer(0);
-    
+
     for(size_t i = 0; i < numCells; i++)
+    {
+      buf = inStream.readLine();
+      if(allocate)
       {
-	buf = inStream.readLine();
-	if(allocate)
-	  {
-	    buf = buf.trimmed();
-	    buf = buf.simplified();
-	    tokens = buf.split(' ');
-	    // Subtract one from the node number because ABAQUS starts at node 1 and we start at node 0
-	    quads[4 * i] = tokens[1].toInt(&ok) - 1;
-	    quads[4 * i + 1] = tokens[2].toInt(&ok) - 1;
-	    quads[4 * i + 2] = tokens[3].toInt(&ok) - 1;
-	    quads[4 * i + 3] = tokens[4].toInt(&ok) - 1;
-	  }
+        buf = buf.trimmed();
+        buf = buf.simplified();
+        tokens = buf.split(' ');
+        // Subtract one from the node number because ABAQUS starts at node 1 and we start at node 0
+        quads[4 * i] = tokens[1].toInt(&ok) - 1;
+        quads[4 * i + 1] = tokens[2].toInt(&ok) - 1;
+        quads[4 * i + 2] = tokens[3].toInt(&ok) - 1;
+        quads[4 * i + 3] = tokens[4].toInt(&ok) - 1;
       }
+    }
     // End reading of the connectivity
     FloatArrayType::Pointer data = FloatArrayType::NullPointer();
     size_t count = numCells;
 
     while(word.compare("S") != 0)
-      {
-	buf = inStream.readLine();
-	buf = buf.trimmed();
-	buf = buf.simplified();
-	tokens = buf.split(' ');
-	word = tokens.at(0);
-      }
+    {
+      buf = inStream.readLine();
+      buf = buf.trimmed();
+      buf = buf.simplified();
+      tokens = buf.split(' ');
+      word = tokens.at(0);
+    }
 
     int32_t numComp = 4;
     QVector<size_t> cDims(1, static_cast<size_t>(numComp));
@@ -978,23 +972,23 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
     cellAttrMat->insertOrAssign(data);
 
     for(size_t i = 0; i < count; i++)
-      {
-	buf = inStream.readLine();
-	buf = buf.trimmed();
-	buf = buf.simplified();
-	tokens = buf.split(' ');
-	for(int32_t c = 0; c < numComp; c++)
-	  {
-	    float value = tokens[c + 1].toFloat(&ok);
-	    data->setComponent(i, c, value);
-	  } 
-      }    
-  }
-  
-  if(eleType == "C3D8R")
     {
+      buf = inStream.readLine();
+      buf = buf.trimmed();
+      buf = buf.simplified();
+      tokens = buf.split(' ');
+      for(int32_t c = 0; c < numComp; c++)
+      {
+        float value = tokens[c + 1].toFloat(&ok);
+        data->setComponent(i, c, value);
+      }
+    }
+  }
+
+  if(eleType == "C3D8R")
+  {
     inStream.seek(dataOffset);
-      // Read until you get to the vertex block
+    // Read until you get to the vertex block
     while(word.compare("NODES") != 0)
     {
       buf = inStream.readLine();
@@ -1004,95 +998,95 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
       word = tokens.at(0);
     }
 
-      // Set the number of vertices and then create vertices array and resize vertex attr mat.
+    // Set the number of vertices and then create vertices array and resize vertex attr mat.
     size_t numVerts = tokens.at(1).toULongLong(&ok);
     tDims[0] = numVerts;
     vertexAttrMat->resizeAttributeArrays(tDims);
-      
-      SharedVertexList::Pointer vertexPtr = HexahedralGeom::CreateSharedVertexList(static_cast<int64_t>(numVerts), allocate);
-      float* vertex = vertexPtr->getPointer(0);
-      
-      // Read or Skip past all the vertex data
-      for(size_t i = 0; i < numVerts; i++)
-	{
-	  buf = inStream.readLine();
-	  if(allocate)
-	    {
-	      buf = buf.trimmed();
-	      buf = buf.simplified();
-	      tokens = buf.split(' ');
-	      vertex[3 * i] = tokens[1].toFloat(&ok);
-	      vertex[3 * i + 1] = tokens[2].toFloat(&ok);
-	      vertex[3 * i + 2] = tokens[3].toFloat(&ok);
-	    }
-	}
-      
-      inStream.seek(dataOffset);
 
-      while(word.compare("ELEMENTS") != 0)
-	{
-	  buf = inStream.readLine();
-	  buf = buf.trimmed();
-	  buf = buf.simplified();
-	  tokens = buf.split(' ');
-	  word = tokens.at(0);
-	}
+    SharedVertexList::Pointer vertexPtr = HexahedralGeom::CreateSharedVertexList(static_cast<int64_t>(numVerts), allocate);
+    float* vertex = vertexPtr->getPointer(0);
 
-      HexahedralGeom::Pointer hexGeomPtr = HexahedralGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::HexahedralGeometry, allocate);
-      hexGeomPtr->setSpatialDimensionality(3);
-      dataContainer->setGeometry(hexGeomPtr);
-      int64_t* hexs = hexGeomPtr->getHexPointer(0);
-
-      for(size_t i = 0; i < numCells; i++)
-	{
-	  buf = inStream.readLine();
-	  if(allocate)
-	    {
-	      buf = buf.trimmed();
-	      buf = buf.simplified();
-	      tokens = buf.split(' ');
-	      // Subtract one from the node number because ABAQUS starts at node 1 and we start at node 0
-	      hexs[8 * i] = tokens[1].toInt(&ok) - 1;
-	      hexs[8 * i + 1] = tokens[2].toInt(&ok) - 1;
-	      hexs[8 * i + 2] = tokens[3].toInt(&ok) - 1;
-	      hexs[8 * i + 3] = tokens[4].toInt(&ok) - 1;
-	      hexs[8 * i + 4] = tokens[5].toInt(&ok) - 1;
-	      hexs[8 * i + 5] = tokens[6].toInt(&ok) - 1;
-	      hexs[8 * i + 6] = tokens[7].toInt(&ok) - 1;
-	      hexs[8 * i + 7] = tokens[8].toInt(&ok) - 1;
-	    }
-	}
-      // End reading of the connectivity
-      FloatArrayType::Pointer data = FloatArrayType::NullPointer();
-      size_t count = numCells;
-
-      while(word.compare("S") != 0)
-	{
-	  buf = inStream.readLine();
-	  buf = buf.trimmed();
-	  buf = buf.simplified();
-	  tokens = buf.split(' ');
-	  word = tokens.at(0);
-	}
-
-      int32_t numComp = 6;
-      QVector<size_t> cDims(1, static_cast<size_t>(numComp));
-      data = FloatArrayType::CreateArray(count, cDims, word, allocate);
-      cellAttrMat->insertOrAssign(data);
-
-      for(size_t i = 0; i < count; i++)
-	{
-	  buf = inStream.readLine();
-	  buf = buf.trimmed();
-	  buf = buf.simplified();
-	  tokens = buf.split(' ');
-	  for(int32_t c = 0; c < numComp; c++)
-	    {
-	      float value = tokens[c + 1].toFloat(&ok);
-	      data->setComponent(i, c, value);
-	    } 
-	}
+    // Read or Skip past all the vertex data
+    for(size_t i = 0; i < numVerts; i++)
+    {
+      buf = inStream.readLine();
+      if(allocate)
+      {
+        buf = buf.trimmed();
+        buf = buf.simplified();
+        tokens = buf.split(' ');
+        vertex[3 * i] = tokens[1].toFloat(&ok);
+        vertex[3 * i + 1] = tokens[2].toFloat(&ok);
+        vertex[3 * i + 2] = tokens[3].toFloat(&ok);
+      }
     }
+
+    inStream.seek(dataOffset);
+
+    while(word.compare("ELEMENTS") != 0)
+    {
+      buf = inStream.readLine();
+      buf = buf.trimmed();
+      buf = buf.simplified();
+      tokens = buf.split(' ');
+      word = tokens.at(0);
+    }
+
+    HexahedralGeom::Pointer hexGeomPtr = HexahedralGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::HexahedralGeometry, allocate);
+    hexGeomPtr->setSpatialDimensionality(3);
+    dataContainer->setGeometry(hexGeomPtr);
+    int64_t* hexs = hexGeomPtr->getHexPointer(0);
+
+    for(size_t i = 0; i < numCells; i++)
+    {
+      buf = inStream.readLine();
+      if(allocate)
+      {
+        buf = buf.trimmed();
+        buf = buf.simplified();
+        tokens = buf.split(' ');
+        // Subtract one from the node number because ABAQUS starts at node 1 and we start at node 0
+        hexs[8 * i] = tokens[1].toInt(&ok) - 1;
+        hexs[8 * i + 1] = tokens[2].toInt(&ok) - 1;
+        hexs[8 * i + 2] = tokens[3].toInt(&ok) - 1;
+        hexs[8 * i + 3] = tokens[4].toInt(&ok) - 1;
+        hexs[8 * i + 4] = tokens[5].toInt(&ok) - 1;
+        hexs[8 * i + 5] = tokens[6].toInt(&ok) - 1;
+        hexs[8 * i + 6] = tokens[7].toInt(&ok) - 1;
+        hexs[8 * i + 7] = tokens[8].toInt(&ok) - 1;
+      }
+    }
+    // End reading of the connectivity
+    FloatArrayType::Pointer data = FloatArrayType::NullPointer();
+    size_t count = numCells;
+
+    while(word.compare("S") != 0)
+    {
+      buf = inStream.readLine();
+      buf = buf.trimmed();
+      buf = buf.simplified();
+      tokens = buf.split(' ');
+      word = tokens.at(0);
+    }
+
+    int32_t numComp = 6;
+    QVector<size_t> cDims(1, static_cast<size_t>(numComp));
+    data = FloatArrayType::CreateArray(count, cDims, word, allocate);
+    cellAttrMat->insertOrAssign(data);
+
+    for(size_t i = 0; i < count; i++)
+    {
+      buf = inStream.readLine();
+      buf = buf.trimmed();
+      buf = buf.simplified();
+      tokens = buf.split(' ');
+      for(int32_t c = 0; c < numComp; c++)
+      {
+        float value = tokens[c + 1].toFloat(&ok);
+        data->setComponent(i, c, value);
+      }
+    }
+  }
 }
 
 //
@@ -1378,58 +1372,56 @@ void ImportFEAData::scanBSAMFile(DataContainer* dataContainer, AttributeMatrix* 
       vertex[3 * i + 2] = tokens[2].toFloat(&ok);
 
       for(int32_t c = 0; c < numDispComp; c++)
-        {
-          float value = tokens[c + 3].toFloat(&ok);
-          dispdata->setComponent(i, c, value);
-        }
-	
-      for(int32_t c = 0; c < numStrComp; c++)
-        {
-          float value = tokens[c + 6].toFloat(&ok);
-          stressdata->setComponent(i, c, value);
-        }
+      {
+        float value = tokens[c + 3].toFloat(&ok);
+        dispdata->setComponent(i, c, value);
+      }
 
       for(int32_t c = 0; c < numStrComp; c++)
-        {
-          float value = tokens[c + 12].toFloat(&ok);
-          straindata->setComponent(i, c, value);
-        }
+      {
+        float value = tokens[c + 6].toFloat(&ok);
+        stressdata->setComponent(i, c, value);
+      }
+
+      for(int32_t c = 0; c < numStrComp; c++)
+      {
+        float value = tokens[c + 12].toFloat(&ok);
+        straindata->setComponent(i, c, value);
+      }
 
       for(int32_t c = 0; c < numClusterComp; c++)
-        {
-          int32_t cvalue = tokens[c + 18].toInt(&ok);
-          clusterdata->setComponent(i, c, cvalue);
-        }
+      {
+        int32_t cvalue = tokens[c + 18].toInt(&ok);
+        clusterdata->setComponent(i, c, cvalue);
+      }
 
       for(int32_t c = 0; c < numVaComp; c++)
-        {
-          float value = tokens[c + 20].toFloat(&ok);
-          vadata->setComponent(i, c, value);
-        }
-
+      {
+        float value = tokens[c + 20].toFloat(&ok);
+        vadata->setComponent(i, c, value);
+      }
     }
   }
 
   for(size_t i = 0; i < numCells; i++)
+  {
+    buf = inStream.readLine();
+    if(allocate)
     {
-      buf = inStream.readLine();
-      if(allocate)
-	{
-	  buf = buf.trimmed();
-	  buf = buf.simplified();
-	  tokens = buf.split(' ');
-	  // Subtract one from the node number because BSAM starts at node 1 and we start at node 0
-	  hexs[8 * i] = tokens[0].toInt(&ok) - 1;
-	  hexs[8 * i + 1] = tokens[1].toInt(&ok) - 1;
-	  hexs[8 * i + 2] = tokens[2].toInt(&ok) - 1;
-	  hexs[8 * i + 3] = tokens[3].toInt(&ok) - 1;
-	  hexs[8 * i + 4] = tokens[4].toInt(&ok) - 1;
-	  hexs[8 * i + 5] = tokens[5].toInt(&ok) - 1;
-	  hexs[8 * i + 6] = tokens[6].toInt(&ok) - 1;
-	  hexs[8 * i + 7] = tokens[7].toInt(&ok) - 1;
-	}
+      buf = buf.trimmed();
+      buf = buf.simplified();
+      tokens = buf.split(' ');
+      // Subtract one from the node number because BSAM starts at node 1 and we start at node 0
+      hexs[8 * i] = tokens[0].toInt(&ok) - 1;
+      hexs[8 * i + 1] = tokens[1].toInt(&ok) - 1;
+      hexs[8 * i + 2] = tokens[2].toInt(&ok) - 1;
+      hexs[8 * i + 3] = tokens[3].toInt(&ok) - 1;
+      hexs[8 * i + 4] = tokens[4].toInt(&ok) - 1;
+      hexs[8 * i + 5] = tokens[5].toInt(&ok) - 1;
+      hexs[8 * i + 6] = tokens[6].toInt(&ok) - 1;
+      hexs[8 * i + 7] = tokens[7].toInt(&ok) - 1;
     }
-
+  }
 }
 
 void ImportFEAData::readHeader(QFile& reader)
@@ -1652,7 +1644,7 @@ void ImportFEAData::readTimeStep(QFile& reader, qint32 t)
   {
     QString ss = QObject::tr("Skipping time step %1 of %2").arg(t).arg(m_NumTimeSteps);
     notifyStatusMessage(getMessagePrefix(), getHumanLabel(), ss);
-    for(size_t nodeIdx = 0; nodeIdx < m_NumPoints*m_LinesPerBlock; ++nodeIdx)
+    for(size_t nodeIdx = 0; nodeIdx < m_NumPoints * m_LinesPerBlock; ++nodeIdx)
     {
       QByteArray line = reader.readLine();
     }
@@ -1821,7 +1813,7 @@ AbstractFilter::Pointer ImportFEAData::newFilterInstance(bool copyFilterParamete
 //
 // -----------------------------------------------------------------------------
 const QString ImportFEAData::getCompiledLibraryName() const
-{ 
+{
   return SimulationIOConstants::SimulationIOBaseName;
 }
 
@@ -1840,7 +1832,7 @@ const QString ImportFEAData::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
-  vStream <<  SimulationIO::Version::Major() << "." << SimulationIO::Version::Minor() << "." << SimulationIO::Version::Patch();
+  vStream << SimulationIO::Version::Major() << "." << SimulationIO::Version::Minor() << "." << SimulationIO::Version::Patch();
   return version;
 }
 
@@ -1848,26 +1840,25 @@ const QString ImportFEAData::getFilterVersion() const
 //
 // -----------------------------------------------------------------------------
 const QString ImportFEAData::getGroupName() const
-{ 
-  return SIMPL::FilterGroups::Unsupported; 
+{
+  return SIMPL::FilterGroups::Unsupported;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 const QString ImportFEAData::getSubGroupName() const
-{ 
-  return "SimulationIO"; 
+{
+  return "SimulationIO";
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 const QString ImportFEAData::getHumanLabel() const
-{ 
-  return "Import FEA Data"; 
+{
+  return "Import FEA Data";
 }
-
 
 // -----------------------------------------------------------------------------
 //
@@ -1876,4 +1867,3 @@ const QUuid ImportFEAData::getUuid()
 {
   return QUuid("{248fdae8-a623-511b-8d09-5368c793c04d}");
 }
-

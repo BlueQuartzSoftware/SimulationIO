@@ -13,12 +13,12 @@
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/DataArrays/IDataArray.h"
 #include "SIMPLib/DataContainers/DataContainer.h"
+#include "SIMPLib/FilterParameters/DynamicTableData.h"
 #include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
 #include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/Geometry/MeshStructs.h"
 #include "SIMPLib/SIMPLib.h"
-#include "SIMPLib/FilterParameters/DynamicTableData.h"
 
 #include "SimulationIO/SimulationIODLLExport.h"
 
@@ -220,4 +220,3 @@ public:
   CreateFEAInputFiles& operator=(const CreateFEAInputFiles&) = delete; // Copy Assignment Not Implemented
   CreateFEAInputFiles& operator=(CreateFEAInputFiles&&) = delete;      // Move Assignment Not Implemented
 };
-

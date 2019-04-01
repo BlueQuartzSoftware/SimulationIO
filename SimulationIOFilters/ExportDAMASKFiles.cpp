@@ -31,7 +31,7 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ExportDAMASKFiles::ExportDAMASKFiles() 
+ExportDAMASKFiles::ExportDAMASKFiles()
 : m_OutputPath("")
 , m_GeometryFileName("")
 , m_HomogenizationIndex(1)
@@ -65,25 +65,22 @@ void ExportDAMASKFiles::setupFilterParameters()
 {
   FilterParameterVectorType parameters;
 
-  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Parameter, ExportDAMASKFiles,"*" ,"*" ));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Parameter, ExportDAMASKFiles, "*", "*"));
   parameters.push_back(SIMPL_NEW_STRING_FP("Geometry File Name", GeometryFileName, FilterParameter::Parameter, ExportDAMASKFiles));
 
   parameters.push_back(SIMPL_NEW_INTEGER_FP("Homogenization Index", HomogenizationIndex, FilterParameter::Parameter, ExportDAMASKFiles));
 
   parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::RequiredArray));
   {
-    DataArraySelectionFilterParameter::RequirementType req =
-      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
+    DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", FeatureIdsArrayPath, FilterParameter::RequiredArray, ExportDAMASKFiles, req));
   }
   {
-    DataArraySelectionFilterParameter::RequirementType req =
-      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
+    DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", CellEulerAnglesArrayPath, FilterParameter::RequiredArray, ExportDAMASKFiles, req));
   }
   {
-    DataArraySelectionFilterParameter::RequirementType req =
-      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
+    DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phases", CellPhasesArrayPath, FilterParameter::RequiredArray, ExportDAMASKFiles, req));
   }
 
@@ -110,8 +107,7 @@ void ExportDAMASKFiles::readFilterParameters(AbstractFilterParametersReader* rea
 void ExportDAMASKFiles::dataCheck()
 {
   setErrorCondition(0);
-  setWarningCondition(0);  
-
+  setWarningCondition(0);
 
   //  FileSystemPathHelper::CheckOutputFile(this, "Output File Path", getOutputPath(), true);
 
@@ -120,43 +116,42 @@ void ExportDAMASKFiles::dataCheck()
   QVector<DataArrayPath> dataArrayPaths;
 
   QVector<size_t> cDims(1, 1);
-  
+
   m_FeatureIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getFeatureIdsArrayPath(),
                                                                                                         cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
   if(nullptr != m_FeatureIdsPtr.lock())                                                                         /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-    {
-      m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
-    } /* Now assign the raw pointer to data from the DataArray<T> object */
+  {
+    m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
+  } /* Now assign the raw pointer to data from the DataArray<T> object */
   if(getErrorCondition() >= 0)
-    {
-      dataArrayPaths.push_back(getFeatureIdsArrayPath());
-    }
-  
+  {
+    dataArrayPaths.push_back(getFeatureIdsArrayPath());
+  }
+
   m_CellPhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getCellPhasesArrayPath(),
-													cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_CellPhasesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-    {
-      m_CellPhases = m_CellPhasesPtr.lock()->getPointer(0);
-    } /* Now assign the raw pointer to data from the DataArray<T> object */
+                                                                                                        cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+  if(nullptr != m_CellPhasesPtr.lock())                                                                         /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  {
+    m_CellPhases = m_CellPhasesPtr.lock()->getPointer(0);
+  } /* Now assign the raw pointer to data from the DataArray<T> object */
   if(getErrorCondition() >= 0)
-    {
-      dataArrayPaths.push_back(getCellPhasesArrayPath());
-    }
-  
+  {
+    dataArrayPaths.push_back(getCellPhasesArrayPath());
+  }
+
   cDims[0] = 3;
   m_CellEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getCellEulerAnglesArrayPath(),
-													   cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_CellEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-    {
-      m_CellEulerAngles = m_CellEulerAnglesPtr.lock()->getPointer(0);
-    } /* Now assign the raw pointer to data from the DataArray<T> object */
+                                                                                                           cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+  if(nullptr != m_CellEulerAnglesPtr.lock())                                                                       /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  {
+    m_CellEulerAngles = m_CellEulerAnglesPtr.lock()->getPointer(0);
+  } /* Now assign the raw pointer to data from the DataArray<T> object */
   if(getErrorCondition() >= 0)
-    {
-      dataArrayPaths.push_back(getCellEulerAnglesArrayPath());
-    }
-  
+  {
+    dataArrayPaths.push_back(getCellEulerAnglesArrayPath());
+  }
+
   getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
-    
 }
 
 // -----------------------------------------------------------------------------
@@ -165,12 +160,12 @@ void ExportDAMASKFiles::dataCheck()
 void ExportDAMASKFiles::preflight()
 {
   // These are the REQUIRED lines of CODE to make sure the filter behaves correctly
-  setInPreflight(true); // Set the fact that we are preflighting.
-  emit preflightAboutToExecute(); // Emit this signal so that other widgets can do one file update
+  setInPreflight(true);              // Set the fact that we are preflighting.
+  emit preflightAboutToExecute();    // Emit this signal so that other widgets can do one file update
   emit updateFilterParameters(this); // Emit this signal to have the widgets push their values down to the filter
-  dataCheck(); // Run our DataCheck to make sure everthing is setup correctly
-  emit preflightExecuted(); // We are done preflighting this filter
-  setInPreflight(false); // Inform the system this filter is NOT in preflight mode anymore.
+  dataCheck();                       // Run our DataCheck to make sure everthing is setup correctly
+  emit preflightExecuted();          // We are done preflighting this filter
+  setInPreflight(false);             // Inform the system this filter is NOT in preflight mode anymore.
 }
 
 // -----------------------------------------------------------------------------
@@ -184,12 +179,12 @@ void ExportDAMASKFiles::execute()
   // Check Output Path
   QDir dir;
   if(!dir.mkpath(m_OutputPath))
-    {
-      QString ss = QObject::tr("Error creating parent path '%1'").arg(m_OutputPath);
-      setErrorCondition(-1);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-      return;
-    }
+  {
+    QString ss = QObject::tr("Error creating parent path '%1'").arg(m_OutputPath);
+    setErrorCondition(-1);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    return;
+  }
   //
   //
   QString geomFile = m_OutputPath + QDir::separator() + m_GeometryFileName + ".geom";
@@ -199,7 +194,7 @@ void ExportDAMASKFiles::execute()
   //
   //
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getFeatureIdsArrayPath().getDataContainerName());
-  
+
   size_t dims[3] = {0, 0, 0};
   std::tie(dims[0], dims[1], dims[2]) = m->getGeometryAs<ImageGeom>()->getDimensions();
   FloatVec3Type res = {0.0f, 0.0f, 0.0f};
@@ -209,46 +204,47 @@ void ExportDAMASKFiles::execute()
 
   int32_t totalPoints = m->getGeometryAs<ImageGeom>()->getNumberOfElements();
 
-  fprintf(geomf,"6       header\n");
-  fprintf(geomf,"Generted from DREAM.3D\n");
-  fprintf(geomf,"grid    a %zu    b %zu    c %zu\n",dims[0], dims[1], dims[2]);
-  fprintf(geomf,"size    x %.3f    y %.3f    z %.3f\n",res[0], res[1], res[2]);
-  fprintf(geomf,"origin    x %.3f    y %.3f    z %.3f\n",origin[0], origin[1], origin[2]);
-  fprintf(geomf,"homogenization  %d\n", m_HomogenizationIndex);
-  fprintf(geomf,"microstructures 0\n");
+  fprintf(geomf, "6       header\n");
+  fprintf(geomf, "Generted from DREAM.3D\n");
+  fprintf(geomf, "grid    a %zu    b %zu    c %zu\n", dims[0], dims[1], dims[2]);
+  fprintf(geomf, "size    x %.3f    y %.3f    z %.3f\n", res[0], res[1], res[2]);
+  fprintf(geomf, "origin    x %.3f    y %.3f    z %.3f\n", origin[0], origin[1], origin[2]);
+  fprintf(geomf, "homogenization  %d\n", m_HomogenizationIndex);
+  fprintf(geomf, "microstructures 0\n");
 
   int32_t entriesPerLine = 0;
   for(int32_t i = 0; i < totalPoints; i++)
+  {
+    if(entriesPerLine != 0) // no comma at start
     {
-      if(entriesPerLine != 0) // no comma at start
-	{
-	  if((entriesPerLine % 10) != 0) // 10 per line
-	    {
-	      fprintf(geomf, " ");
-	    }
-	  else
-	    {
-	      fprintf(geomf, "\n");
-	      entriesPerLine = 0;
-	    }
-	}
-      fprintf(geomf,"%d", i+1);
-      entriesPerLine++;
+      if((entriesPerLine % 10) != 0) // 10 per line
+      {
+        fprintf(geomf, " ");
+      }
+      else
+      {
+        fprintf(geomf, "\n");
+        entriesPerLine = 0;
+      }
     }
+    fprintf(geomf, "%d", i + 1);
+    entriesPerLine++;
+  }
 
-  fprintf(matf,"<texture>\n");
+  fprintf(matf, "<texture>\n");
   for(int32_t i = 0; i < totalPoints; i++)
-    {
-      fprintf(matf,"[point%d]\n",i+1);
-      fprintf(matf,"(gauss) phi1 %.3f   Phi %.3f    phi2 %.3f \n", m_CellEulerAngles[i * 3] * 180.0 * SIMPLib::Constants::k_1OverPi, m_CellEulerAngles[i * 3 + 1] * 180.0 * SIMPLib::Constants::k_1OverPi, m_CellEulerAngles[i * 3 + 2] * 180.0 * SIMPLib::Constants::k_1OverPi );  
-    }
+  {
+    fprintf(matf, "[point%d]\n", i + 1);
+    fprintf(matf, "(gauss) phi1 %.3f   Phi %.3f    phi2 %.3f \n", m_CellEulerAngles[i * 3] * 180.0 * SIMPLib::Constants::k_1OverPi,
+            m_CellEulerAngles[i * 3 + 1] * 180.0 * SIMPLib::Constants::k_1OverPi, m_CellEulerAngles[i * 3 + 2] * 180.0 * SIMPLib::Constants::k_1OverPi);
+  }
 
-  fprintf(matf,"<microstructure>\n");
+  fprintf(matf, "<microstructure>\n");
   for(int32_t i = 0; i < totalPoints; i++)
-    {
-      fprintf(matf,"[point%d]\n",i+1);
-      fprintf(matf,"(constituent)   phase %d texture %d \n", m_CellPhases[i], i+1);
-    }
+  {
+    fprintf(matf, "[point%d]\n", i + 1);
+    fprintf(matf, "(constituent)   phase %d texture %d \n", m_CellPhases[i], i + 1);
+  }
 
   //
   //
@@ -256,9 +252,15 @@ void ExportDAMASKFiles::execute()
   fclose(matf);
   //
   //
-  if(getErrorCondition() < 0) { return; }
+  if(getErrorCondition() < 0)
+  {
+    return;
+  }
   //
-  if (getCancel()) { return; }
+  if(getCancel())
+  {
+    return;
+  }
   //
 }
 
@@ -279,7 +281,7 @@ AbstractFilter::Pointer ExportDAMASKFiles::newFilterInstance(bool copyFilterPara
 //
 // -----------------------------------------------------------------------------
 const QString ExportDAMASKFiles::getCompiledLibraryName() const
-{ 
+{
   return SimulationIOConstants::SimulationIOBaseName;
 }
 
@@ -298,7 +300,7 @@ const QString ExportDAMASKFiles::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
-  vStream <<  SimulationIO::Version::Major() << "." << SimulationIO::Version::Minor() << "." << SimulationIO::Version::Patch();
+  vStream << SimulationIO::Version::Major() << "." << SimulationIO::Version::Minor() << "." << SimulationIO::Version::Patch();
   return version;
 }
 
@@ -306,26 +308,25 @@ const QString ExportDAMASKFiles::getFilterVersion() const
 //
 // -----------------------------------------------------------------------------
 const QString ExportDAMASKFiles::getGroupName() const
-{ 
-  return SIMPL::FilterGroups::Unsupported; 
+{
+  return SIMPL::FilterGroups::Unsupported;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 const QString ExportDAMASKFiles::getSubGroupName() const
-{ 
-  return "SimulationIO"; 
+{
+  return "SimulationIO";
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 const QString ExportDAMASKFiles::getHumanLabel() const
-{ 
-  return "Export DAMASK Files"; 
+{
+  return "Export DAMASK Files";
 }
-
 
 // -----------------------------------------------------------------------------
 //
@@ -334,4 +335,3 @@ const QUuid ExportDAMASKFiles::getUuid()
 {
   return QUuid("{7c58e612-d7d6-5ec7-806b-cce0c1c211a3}");
 }
-

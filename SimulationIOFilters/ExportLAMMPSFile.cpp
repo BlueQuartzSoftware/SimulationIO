@@ -79,13 +79,11 @@ void ExportLAMMPSFile::setupFilterParameters()
 
   parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::RequiredArray));
   {
-    DataArraySelectionFilterParameter::RequirementType req =
-      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
+    DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", FeatureIdsArrayPath, FilterParameter::RequiredArray, ExportLAMMPSFile, req));
   }
   {
-    DataArraySelectionFilterParameter::RequirementType req =
-      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
+    DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", EulerAnglesArrayPath, FilterParameter::RequiredArray, ExportLAMMPSFile, req));
   }
 
@@ -141,18 +139,17 @@ void ExportLAMMPSFile::dataCheck()
 
   cDims[0] = 3;
   m_EulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getEulerAnglesArrayPath(),
-													   cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_EulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-    {
-      m_EulerAngles = m_EulerAnglesPtr.lock()->getPointer(0);
-    } /* Now assign the raw pointer to data from the DataArray<T> object */
+                                                                                                       cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+  if(nullptr != m_EulerAnglesPtr.lock())                                                                       /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  {
+    m_EulerAngles = m_EulerAnglesPtr.lock()->getPointer(0);
+  } /* Now assign the raw pointer to data from the DataArray<T> object */
   if(getErrorCondition() >= 0)
-    {
-      dataArrayPaths.push_back(getEulerAnglesArrayPath());
-    }
+  {
+    dataArrayPaths.push_back(getEulerAnglesArrayPath());
+  }
 
   getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
-  
 }
 
 // -----------------------------------------------------------------------------
@@ -187,12 +184,12 @@ void ExportLAMMPSFile::execute()
   // find total number of Atom Types
   int32_t numAtomTypes = 0;
   for(int32_t i = 0; i < numAtoms; i++) // find number of grainIds
+  {
+    if(m_FeatureIds[i] > numAtomTypes)
     {
-      if(m_FeatureIds[i] > numAtomTypes)
-	{
-	  numAtomTypes = m_FeatureIds[i];
-	}
+      numAtomTypes = m_FeatureIds[i];
     }
+  }
 
   // Open the output VTK File for writing
   FILE* lammpsFile = nullptr;
@@ -265,32 +262,32 @@ void ExportLAMMPSFile::execute()
 
   fprintf(lammpsFile, "\n");
 
-  //	
   //
-  FloatArrayType::Pointer m_orientLengthPtr = FloatArrayType::CreateArray(numAtomTypes*3, "ORIENTATION_INTERNAL_USE_ONLY");
+  //
+  FloatArrayType::Pointer m_orientLengthPtr = FloatArrayType::CreateArray(numAtomTypes * 3, "ORIENTATION_INTERNAL_USE_ONLY");
   float* m_orient = m_orientLengthPtr->getPointer(0);
-  
+
   int32_t grainId = 1;
   while(grainId <= numAtomTypes)
+  {
+    for(int32_t i = 0; i < numAtoms; i++)
     {
-      for(int32_t i = 0; i < numAtoms; i++)
-	{
-	  if(m_FeatureIds[i] == grainId)
-	    {
-	      m_orient[(grainId - 1)*3] = m_EulerAngles[i * 3] * 180.0 * SIMPLib::Constants::k_1OverPi;
-	      m_orient[(grainId - 1)*3 + 1] = m_EulerAngles[i * 3 + 1] * 180.0 * SIMPLib::Constants::k_1OverPi;
-	      m_orient[(grainId - 1)*3 + 2] = m_EulerAngles[i * 3 + 2] * 180.0 * SIMPLib::Constants::k_1OverPi;
-	    }
-	}
-      grainId++;
+      if(m_FeatureIds[i] == grainId)
+      {
+        m_orient[(grainId - 1) * 3] = m_EulerAngles[i * 3] * 180.0 * SIMPLib::Constants::k_1OverPi;
+        m_orient[(grainId - 1) * 3 + 1] = m_EulerAngles[i * 3 + 1] * 180.0 * SIMPLib::Constants::k_1OverPi;
+        m_orient[(grainId - 1) * 3 + 2] = m_EulerAngles[i * 3 + 2] * 180.0 * SIMPLib::Constants::k_1OverPi;
+      }
     }
+    grainId++;
+  }
 
   for(int32_t i = 1; i < numAtomTypes; i++)
-    {
-      fprintf(lammpsFile, "# %d, %.3f, %.3f, %.3f\n", i, m_orient[(i - 1) * 3], m_orient[(i - 1) * 3 + 1], m_orient[(i - 1) * 3 + 2]);
-    }
+  {
+    fprintf(lammpsFile, "# %d, %.3f, %.3f, %.3f\n", i, m_orient[(i - 1) * 3], m_orient[(i - 1) * 3 + 1], m_orient[(i - 1) * 3 + 2]);
+  }
 
-    // Free the memory
+  // Free the memory
   // Close the input and output files
   fclose(lammpsFile);
 

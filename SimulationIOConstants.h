@@ -8,13 +8,13 @@
 #define DREAM3D_STRING QString
 
 /**
-* @brief This namespace is used to define some Constants for the plugin itself.
-*/
+ * @brief This namespace is used to define some Constants for the plugin itself.
+ */
 namespace SimulationIOConstants
 {
-  const QString SimulationIOPluginFile("SimulationIOPlugin");
-  const QString SimulationIOPluginDisplayName("SimulationIO");
-  const QString SimulationIOBaseName("SimulationIO");
+const QString SimulationIOPluginFile("SimulationIOPlugin");
+const QString SimulationIOPluginDisplayName("SimulationIO");
+const QString SimulationIOBaseName("SimulationIO");
 
 namespace FilterGroups
 {
@@ -52,15 +52,14 @@ const DREAM3D_STRING Time("Time");
 const DREAM3D_STRING RXCoord("R_X Coord.");
 const DREAM3D_STRING ZYCoord("Z_Y Coord.");
 const DREAM3D_STRING PointNum("Point #");
-}
+} // namespace DEFORMData
 
-
-}
+} // namespace SimulationIOConstants
 
 /**
-* @brief Use this namespace to define any custom GUI widgets that collect FilterParameters
-* for a filter. Do NOT define general reusable widgets here.
-*/
+ * @brief Use this namespace to define any custom GUI widgets that collect FilterParameters
+ * for a filter. Do NOT define general reusable widgets here.
+ */
 namespace FilterParameterWidgetType
 {
 /* const QString SomeCustomWidget("SomeCustomWidget"); */

@@ -6,14 +6,14 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
 
-#include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
-#include "SIMPLib/Filtering/FilterPipeline.h"
-#include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/Filtering/FilterFactory.hpp"
+#include "SIMPLib/Filtering/FilterManager.h"
+#include "SIMPLib/Filtering/FilterPipeline.h"
 #include "SIMPLib/Plugin/ISIMPLibPlugin.h"
 #include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
+#include "SIMPLib/SIMPLib.h"
 
 #include "SIMPLib/Filtering/QMetaObjectUtilities.h"
 
@@ -24,23 +24,23 @@
 class CreateFEAInputFilesTest
 {
 
-  public:
-    CreateFEAInputFilesTest() = default;
-    ~CreateFEAInputFilesTest() = default;
-    CreateFEAInputFilesTest(const CreateFEAInputFilesTest&) = delete;            // Copy Constructor
-    CreateFEAInputFilesTest(CreateFEAInputFilesTest&&) = delete;                 // Move Constructor
-    CreateFEAInputFilesTest& operator=(const CreateFEAInputFilesTest&) = delete; // Copy Assignment
-    CreateFEAInputFilesTest& operator=(CreateFEAInputFilesTest&&) = delete;      // Move Assignment
+public:
+  CreateFEAInputFilesTest() = default;
+  ~CreateFEAInputFilesTest() = default;
+  CreateFEAInputFilesTest(const CreateFEAInputFilesTest&) = delete;            // Copy Constructor
+  CreateFEAInputFilesTest(CreateFEAInputFilesTest&&) = delete;                 // Move Constructor
+  CreateFEAInputFilesTest& operator=(const CreateFEAInputFilesTest&) = delete; // Copy Assignment
+  CreateFEAInputFilesTest& operator=(CreateFEAInputFilesTest&&) = delete;      // Move Assignment
 
   // -----------------------------------------------------------------------------
   //
   // -----------------------------------------------------------------------------
   void RemoveTestFiles()
   {
-  #if REMOVE_TEST_FILES
+#if REMOVE_TEST_FILES
     QFile::remove(UnitTest::CreateFEAInputFilesTest::TestFile1);
     QFile::remove(UnitTest::CreateFEAInputFilesTest::TestFile2);
-  #endif
+#endif
   }
 
   // -----------------------------------------------------------------------------
@@ -52,11 +52,10 @@ class CreateFEAInputFilesTest
     QString filtName = "CreateFEAInputFiles";
     FilterManager* fm = FilterManager::Instance();
     IFilterFactory::Pointer filterFactory = fm->getFactoryFromClassName(filtName);
-    if (nullptr == filterFactory.get())
+    if(nullptr == filterFactory.get())
     {
       std::stringstream ss;
-      ss << "The CreateFEAInputFilesTest Requires the use of the " << filtName.toStdString()
-         << " filter which is found in the SimulationIO Plugin";
+      ss << "The CreateFEAInputFilesTest Requires the use of the " << filtName.toStdString() << " filter which is found in the SimulationIO Plugin";
       DREAM3D_TEST_THROW_EXCEPTION(ss.str())
     }
     return 0;
@@ -68,22 +67,22 @@ class CreateFEAInputFilesTest
   int TestCreateFEAInputFilesTest()
   {
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   /* Please write CreateFEAInputFilesTest test code here.
-    *
-    * Your IO test files are:
-    * UnitTest::CreateFEAInputFilesTest::TestFile1
-    * UnitTest::CreateFEAInputFilesTest::TestFile2
-    *
-    * SIMPLib provides some macros that will throw exceptions when a test fails
-    * and thus report that during testing. These macros are located in the
-    * SIMPLib/Utilities/UnitTestSupport.hpp file. Some examples are:
-    *
-    * SIMPLib_REQUIRE_EQUAL(foo, 0)
-    * This means that if the variable foo is NOT equal to Zero then test will fail
-    * and the current test will exit immediately. If there are more tests registered
-    * with the SIMPLib_REGISTER_TEST() macro, the next test will execute. There are
-    * lots of examples in the SIMPLib/Test folder to look at.
-    */
+    /* Please write CreateFEAInputFilesTest test code here.
+     *
+     * Your IO test files are:
+     * UnitTest::CreateFEAInputFilesTest::TestFile1
+     * UnitTest::CreateFEAInputFilesTest::TestFile2
+     *
+     * SIMPLib provides some macros that will throw exceptions when a test fails
+     * and thus report that during testing. These macros are located in the
+     * SIMPLib/Utilities/UnitTestSupport.hpp file. Some examples are:
+     *
+     * SIMPLib_REQUIRE_EQUAL(foo, 0)
+     * This means that if the variable foo is NOT equal to Zero then test will fail
+     * and the current test will exit immediately. If there are more tests registered
+     * with the SIMPLib_REGISTER_TEST() macro, the next test will execute. There are
+     * lots of examples in the SIMPLib/Test folder to look at.
+     */
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     int foo = 0;
@@ -99,15 +98,12 @@ class CreateFEAInputFilesTest
   {
     int err = EXIT_SUCCESS;
 
-    DREAM3D_REGISTER_TEST( TestFilterAvailability() );
+    DREAM3D_REGISTER_TEST(TestFilterAvailability());
 
-    DREAM3D_REGISTER_TEST( TestCreateFEAInputFilesTest() )
+    DREAM3D_REGISTER_TEST(TestCreateFEAInputFilesTest())
 
-    DREAM3D_REGISTER_TEST( RemoveTestFiles() )
+    DREAM3D_REGISTER_TEST(RemoveTestFiles())
   }
 
-  private:
-
-
+private:
 };
-

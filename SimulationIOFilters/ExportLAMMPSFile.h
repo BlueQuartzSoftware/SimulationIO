@@ -68,7 +68,6 @@ public:
   SIMPL_FILTER_PARAMETER(DataArrayPath, AtomFeatureLabelsPath)
   Q_PROPERTY(DataArrayPath AtomFeatureLabelsPath READ getAtomFeatureLabelsPath WRITE setAtomFeatureLabelsPath)
 
-
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
    */

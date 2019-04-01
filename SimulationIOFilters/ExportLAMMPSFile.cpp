@@ -76,11 +76,10 @@ void ExportLAMMPSFile::setupFilterParameters()
 
   parameters.push_back(SIMPL_NEW_OUTPUT_FILE_FP("LAMMPS File", LammpsFile, FilterParameter::Parameter, ExportLAMMPSFile));
 
-{
-    DataArraySelectionFilterParameter::RequirementType req =
-      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Vertex, IGeometry::Type::Vertex);
+  {
+    DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Vertex, IGeometry::Type::Vertex);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Atom Feature Labels", AtomFeatureLabelsPath, FilterParameter::RequiredArray, ExportLAMMPSFile, req));
-}
+  }
 
   setFilterParameters(parameters);
 }
@@ -140,8 +139,8 @@ void ExportLAMMPSFile::dataCheck()
   QVector<size_t> cDims(1, 1);
 
   m_AtomFeatureLabelsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getAtomFeatureLabelsPath(),
-                                                                                                        cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_AtomFeatureLabelsPtr.lock())                                                                 /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+                                                                                                               cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+  if(nullptr != m_AtomFeatureLabelsPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
     m_AtomFeatureLabels = m_AtomFeatureLabelsPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -150,8 +149,7 @@ void ExportLAMMPSFile::dataCheck()
     dataArrayPaths.push_back(getAtomFeatureLabelsPath());
   }
 
- getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
-
+  getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
 }
 
 // -----------------------------------------------------------------------------
@@ -185,12 +183,12 @@ void ExportLAMMPSFile::execute()
   // find total number of Atom Types
   int32_t numAtomTypes = 0;
   for(int32_t i = 0; i < numAtoms; i++) // find number of grainIds
+  {
+    if(m_AtomFeatureLabels[i] > numAtomTypes)
     {
-      if(m_AtomFeatureLabels[i] > numAtomTypes)
-	{
-	  numAtomTypes = m_AtomFeatureLabels[i];
-	}
+      numAtomTypes = m_AtomFeatureLabels[i];
     }
+  }
 
   FILE* lammpsFile = nullptr;
   lammpsFile = fopen(m_LammpsFile.toLatin1().data(), "wb");
@@ -257,7 +255,7 @@ void ExportLAMMPSFile::execute()
   for(int64_t i = 0; i < numAtoms; i++)
   {
     vertices->getCoords(i, pos);
-    fprintf(lammpsFile, "%lld %d %f %f %f %d %d %d\n", (long long int)(i+1), m_AtomFeatureLabels[i], pos[0], pos[1], pos[2], dummy, dummy, dummy); // Write the positions to the output file
+    fprintf(lammpsFile, "%lld %d %f %f %f %d %d %d\n", (long long int)(i + 1), m_AtomFeatureLabels[i], pos[0], pos[1], pos[2], dummy, dummy, dummy); // Write the positions to the output file
   }
 
   fprintf(lammpsFile, "\n");
@@ -315,7 +313,7 @@ const QString ExportLAMMPSFile::getFilterVersion() const
 // -----------------------------------------------------------------------------
 const QString ExportLAMMPSFile::getGroupName() const
 {
-  return SIMPL::FilterGroups::Unsupported; 
+  return SIMPL::FilterGroups::Unsupported;
 }
 
 // -----------------------------------------------------------------------------
@@ -331,7 +329,7 @@ const QUuid ExportLAMMPSFile::getUuid()
 // -----------------------------------------------------------------------------
 const QString ExportLAMMPSFile::getSubGroupName() const
 {
-  return "SimulationIO"; 
+  return "SimulationIO";
 }
 
 // -----------------------------------------------------------------------------

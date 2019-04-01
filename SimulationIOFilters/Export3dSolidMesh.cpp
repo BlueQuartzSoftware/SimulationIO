@@ -4,9 +4,9 @@
 
 #include "Export3dSolidMesh.h"
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QDateTime>
 #include <QtCore/QDir>
-#include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QString>
@@ -47,27 +47,27 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-Export3dSolidMesh::Export3dSolidMesh()  
+Export3dSolidMesh::Export3dSolidMesh()
 : m_MeshingPackage(0)
-  , m_outputPath("")
-  , m_PackageLocation("")
-  , m_SurfaceMeshFaceLabelsArrayPath(SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::FaceAttributeMatrixName, SIMPL::FaceData::SurfaceMeshFaceLabels)
-  , m_FeaturePhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Phases)
-  , m_FeatureEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::EulerAngles)
-  , m_FeatureCentroidArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Centroids)
-  , m_RefineMesh(true)
-  , m_MaxRadiusEdgeRatio(2.0f)
-  , m_MinDihedralAngle(0.0f)
-  , m_LimitTetrahedraVolume(false)
-  , m_MaxTetrahedraVolume(0.1f)
-  , m_OptimizationLevel(2)
-  , m_TetDataContainerName(SIMPL::Defaults::TetrahedralDataContainerName)
-  , m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
-  , m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
-  , m_GmshSTLFileName("")
-  , m_NetgenSTLFileName("")
-  , m_MeshSize(0)
-  , m_MeshFileFormat(0)
+, m_outputPath("")
+, m_PackageLocation("")
+, m_SurfaceMeshFaceLabelsArrayPath(SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::FaceAttributeMatrixName, SIMPL::FaceData::SurfaceMeshFaceLabels)
+, m_FeaturePhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Phases)
+, m_FeatureEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::EulerAngles)
+, m_FeatureCentroidArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Centroids)
+, m_RefineMesh(true)
+, m_MaxRadiusEdgeRatio(2.0f)
+, m_MinDihedralAngle(0.0f)
+, m_LimitTetrahedraVolume(false)
+, m_MaxTetrahedraVolume(0.1f)
+, m_OptimizationLevel(2)
+, m_TetDataContainerName(SIMPL::Defaults::TetrahedralDataContainerName)
+, m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
+, m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
+, m_GmshSTLFileName("")
+, m_NetgenSTLFileName("")
+, m_MeshSize(0)
+, m_MeshFileFormat(0)
 {
   initialize();
 }
@@ -104,7 +104,22 @@ void Export3dSolidMesh::setupFilterParameters()
     choices.push_back("Netgen");
     choices.push_back("Gmsh");
     parameter->setChoices(choices);
-    QStringList linkedProps = {"SurfaceMeshFaceLabelsArrayPath", "FeaturePhasesArrayPath", "FeatureCentroidArrayPath", "RefineMesh", "MaxRadiusEdgeRatio", "MinDihedralAngle", "OptimizationLevel", "LimitTetrahedraVolume", "MaxTetrahedraVolume", "TetDataContainerName", "VertexAttributeMatrixName", "CellAttributeMatrixName", "GmshSTLFileName", "NetgenSTLFileName", "MeshSize", "MeshFileFormat"};
+    QStringList linkedProps = {"SurfaceMeshFaceLabelsArrayPath",
+                               "FeaturePhasesArrayPath",
+                               "FeatureCentroidArrayPath",
+                               "RefineMesh",
+                               "MaxRadiusEdgeRatio",
+                               "MinDihedralAngle",
+                               "OptimizationLevel",
+                               "LimitTetrahedraVolume",
+                               "MaxTetrahedraVolume",
+                               "TetDataContainerName",
+                               "VertexAttributeMatrixName",
+                               "CellAttributeMatrixName",
+                               "GmshSTLFileName",
+                               "NetgenSTLFileName",
+                               "MeshSize",
+                               "MeshFileFormat"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -112,38 +127,37 @@ void Export3dSolidMesh::setupFilterParameters()
     linkedProps.clear();
   }
 
-  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Path", outputPath, FilterParameter::Parameter, Export3dSolidMesh,"*" ,"*"));
-  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Package Location", PackageLocation, FilterParameter::Parameter, Export3dSolidMesh,"*" ,"*"));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Path", outputPath, FilterParameter::Parameter, Export3dSolidMesh, "*", "*"));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Package Location", PackageLocation, FilterParameter::Parameter, Export3dSolidMesh, "*", "*"));
 
   {
-    parameters.push_back(SIMPL_NEW_STRING_FP("STL File Prefix", NetgenSTLFileName, FilterParameter::Parameter, Export3dSolidMesh,1));
+    parameters.push_back(SIMPL_NEW_STRING_FP("STL File Prefix", NetgenSTLFileName, FilterParameter::Parameter, Export3dSolidMesh, 1));
   }
 
   {
-    parameters.push_back(SIMPL_NEW_STRING_FP("STL File Prefix", GmshSTLFileName, FilterParameter::Parameter, Export3dSolidMesh,2));
+    parameters.push_back(SIMPL_NEW_STRING_FP("STL File Prefix", GmshSTLFileName, FilterParameter::Parameter, Export3dSolidMesh, 2));
   }
 
   parameters.push_back(SeparatorFilterParameter::New("Face Data", FilterParameter::RequiredArray));
   {
-    DataArraySelectionFilterParameter::RequirementType req =
-      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 2, AttributeMatrix::Type::Face, IGeometry::Type::Triangle);
+    DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 2, AttributeMatrix::Type::Face, IGeometry::Type::Triangle);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Face Labels", SurfaceMeshFaceLabelsArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
   }
 
   parameters.push_back(SeparatorFilterParameter::New("Feature Data", FilterParameter::RequiredArray));
   {
     DataArraySelectionFilterParameter::RequirementType req =
-      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
+        DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", FeatureEulerAnglesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req =
-      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
+        DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phases", FeaturePhasesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req =
-      DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
+        DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Centroids", FeatureCentroidArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
   }
 
@@ -202,7 +216,7 @@ void Export3dSolidMesh::setupFilterParameters()
   {
     parameters.push_back(SeparatorFilterParameter::New("", FilterParameter::CreatedArray));
     parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Name", TetDataContainerName, FilterParameter::CreatedArray, Export3dSolidMesh, 0));
-    parameters.push_back(SIMPL_NEW_STRING_FP("Vertex Attribute Matrix Name", VertexAttributeMatrixName, FilterParameter::CreatedArray, Export3dSolidMesh, 0));    
+    parameters.push_back(SIMPL_NEW_STRING_FP("Vertex Attribute Matrix Name", VertexAttributeMatrixName, FilterParameter::CreatedArray, Export3dSolidMesh, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Cell Attribute Matrix Name", CellAttributeMatrixName, FilterParameter::CreatedArray, Export3dSolidMesh, 0));
   }
 
@@ -238,148 +252,148 @@ void Export3dSolidMesh::readFilterParameters(AbstractFilterParametersReader* rea
 void Export3dSolidMesh::dataCheck()
 {
   setErrorCondition(0);
-  setWarningCondition(0); 
+  setWarningCondition(0);
 
   m_Pause = false;
   m_ProcessPtr.reset();
 
   switch(m_MeshingPackage)
+  {
+  case 0: // TetGen
+  {
+    if(getRefineMesh())
     {
-    case 0: // TetGen
+      if(getMaxRadiusEdgeRatio() <= 0)
       {
-	if(getRefineMesh())
-	  {
-	    if(getMaxRadiusEdgeRatio() <= 0)
-	      {
-		setErrorCondition(-1);
-		notifyErrorMessage(getHumanLabel(), "Maximum radius-edge ratio must be greater than 0", getErrorCondition());
-	      }
-	    if(getMinDihedralAngle() < 0)
-	      {
-		setErrorCondition(-1);
-		notifyErrorMessage(getHumanLabel(), "Minimum dihedral angle must be 0 or greater", getErrorCondition());
-	      }
-	  }
-  
-	if(getLimitTetrahedraVolume())
-	  {
-	    if(getMaxTetrahedraVolume() <= 0)
-	      {
-		setErrorCondition(-1);
-		notifyErrorMessage(getHumanLabel(), "Maximum tetrahedron volume must be greater than 0", getErrorCondition());
-	      }
-	  }
-  
-	if(getOptimizationLevel() < 0 || getOptimizationLevel() > 10)
-	  {
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), "Optimization level must be on the interval [0, 10]", getErrorCondition());
-	  }
-  
-	QVector<DataArrayPath> dataArrayPaths;
-	QVector<size_t> cDims(1, 1);
-	
-	m_FeaturePhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getFeaturePhasesArrayPath(),
-														 cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-	if(nullptr != m_FeaturePhasesPtr.lock())                                                                         /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-	  {
-	    m_FeaturePhases = m_FeaturePhasesPtr.lock()->getPointer(0);
-	  } /* Now assign the raw pointer to data from the DataArray<T> object */
-	if(getErrorCondition() >= 0)
-	  {
-	    dataArrayPaths.push_back(getFeaturePhasesArrayPath());
-	  }
-	
-	cDims[0] = 3;
-	m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureEulerAnglesArrayPath(),
-														    cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-	if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-	  {
-	    m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
-	  } /* Now assign the raw pointer to data from the DataArray<T> object */
-	if(getErrorCondition() >= 0)
-	  {
-	    dataArrayPaths.push_back(getFeatureEulerAnglesArrayPath());
-	  }
-	
-	cDims[0] = 3;
-	m_FeatureCentroidPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureCentroidArrayPath(),
-														 cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-	if(nullptr != m_FeatureCentroidPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-	  {
-	    m_FeatureCentroid = m_FeatureCentroidPtr.lock()->getPointer(0);
-	  } /* Now assign the raw pointer to data from the DataArray<T> object */
-	if(getErrorCondition() >= 0)
-	  {
-	    dataArrayPaths.push_back(getFeatureCentroidArrayPath());
-	  }
-	
-	getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
-	
-	// Create the output Data Container
-	DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getTetDataContainerName());
-	if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
-	
-	// Create our output Vertex and Cell Matrix objects
-	QVector<size_t> tDims(1, 0);
-	AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
-	if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
-	AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
-	if(getErrorCondition() < 0)
-	  {
-	    return;
-	  }
-
-	SharedVertexList::Pointer tetvertexPtr = TetrahedralGeom::CreateSharedVertexList(0);
-	TetrahedralGeom::Pointer tetGeomPtr = TetrahedralGeom::CreateGeometry(0, tetvertexPtr, SIMPL::Geometry::TetrahedralGeometry, !getInPreflight());
-	m->setGeometry(tetGeomPtr);
-
-	break;
+        setErrorCondition(-1);
+        notifyErrorMessage(getHumanLabel(), "Maximum radius-edge ratio must be greater than 0", getErrorCondition());
       }
-
-    case 1:
+      if(getMinDihedralAngle() < 0)
       {
-	QVector<DataArrayPath> dataArrayPaths;
-	QVector<size_t> cDims(1, 1);
-	cDims[0] = 3;
-	m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureEulerAnglesArrayPath(),
-														    cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-	if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-	  {
-	    m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
-	  } /* Now assign the raw pointer to data from the DataArray<T> object */
-	if(getErrorCondition() >= 0)
-	  {
-	    dataArrayPaths.push_back(getFeatureEulerAnglesArrayPath());
-	  }
-	
-	break;
-      }
-    case 2:
-      {
-	QVector<DataArrayPath> dataArrayPaths;
-	QVector<size_t> cDims(1, 1);
-	cDims[0] = 3;
-	m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureEulerAnglesArrayPath(),
-														    cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-	if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
-	  {
-	    m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
-	  } /* Now assign the raw pointer to data from the DataArray<T> object */
-	if(getErrorCondition() >= 0)
-	  {
-	    dataArrayPaths.push_back(getFeatureEulerAnglesArrayPath());
-	  }
-	
-	break;
+        setErrorCondition(-1);
+        notifyErrorMessage(getHumanLabel(), "Minimum dihedral angle must be 0 or greater", getErrorCondition());
       }
     }
+
+    if(getLimitTetrahedraVolume())
+    {
+      if(getMaxTetrahedraVolume() <= 0)
+      {
+        setErrorCondition(-1);
+        notifyErrorMessage(getHumanLabel(), "Maximum tetrahedron volume must be greater than 0", getErrorCondition());
+      }
+    }
+
+    if(getOptimizationLevel() < 0 || getOptimizationLevel() > 10)
+    {
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), "Optimization level must be on the interval [0, 10]", getErrorCondition());
+    }
+
+    QVector<DataArrayPath> dataArrayPaths;
+    QVector<size_t> cDims(1, 1);
+
+    m_FeaturePhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getFeaturePhasesArrayPath(),
+                                                                                                             cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+    if(nullptr != m_FeaturePhasesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+    {
+      m_FeaturePhases = m_FeaturePhasesPtr.lock()->getPointer(0);
+    } /* Now assign the raw pointer to data from the DataArray<T> object */
+    if(getErrorCondition() >= 0)
+    {
+      dataArrayPaths.push_back(getFeaturePhasesArrayPath());
+    }
+
+    cDims[0] = 3;
+    m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureEulerAnglesArrayPath(),
+                                                                                                                cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+    if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+    {
+      m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
+    } /* Now assign the raw pointer to data from the DataArray<T> object */
+    if(getErrorCondition() >= 0)
+    {
+      dataArrayPaths.push_back(getFeatureEulerAnglesArrayPath());
+    }
+
+    cDims[0] = 3;
+    m_FeatureCentroidPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureCentroidArrayPath(),
+                                                                                                             cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+    if(nullptr != m_FeatureCentroidPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+    {
+      m_FeatureCentroid = m_FeatureCentroidPtr.lock()->getPointer(0);
+    } /* Now assign the raw pointer to data from the DataArray<T> object */
+    if(getErrorCondition() >= 0)
+    {
+      dataArrayPaths.push_back(getFeatureCentroidArrayPath());
+    }
+
+    getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
+
+    // Create the output Data Container
+    DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getTetDataContainerName());
+    if(getErrorCondition() < 0)
+    {
+      return;
+    }
+
+    // Create our output Vertex and Cell Matrix objects
+    QVector<size_t> tDims(1, 0);
+    AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
+    if(getErrorCondition() < 0)
+    {
+      return;
+    }
+    AttributeMatrix::Pointer cellAttrMat = m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
+    if(getErrorCondition() < 0)
+    {
+      return;
+    }
+
+    SharedVertexList::Pointer tetvertexPtr = TetrahedralGeom::CreateSharedVertexList(0);
+    TetrahedralGeom::Pointer tetGeomPtr = TetrahedralGeom::CreateGeometry(0, tetvertexPtr, SIMPL::Geometry::TetrahedralGeometry, !getInPreflight());
+    m->setGeometry(tetGeomPtr);
+
+    break;
+  }
+
+  case 1:
+  {
+    QVector<DataArrayPath> dataArrayPaths;
+    QVector<size_t> cDims(1, 1);
+    cDims[0] = 3;
+    m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureEulerAnglesArrayPath(),
+                                                                                                                cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+    if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+    {
+      m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
+    } /* Now assign the raw pointer to data from the DataArray<T> object */
+    if(getErrorCondition() >= 0)
+    {
+      dataArrayPaths.push_back(getFeatureEulerAnglesArrayPath());
+    }
+
+    break;
+  }
+  case 2:
+  {
+    QVector<DataArrayPath> dataArrayPaths;
+    QVector<size_t> cDims(1, 1);
+    cDims[0] = 3;
+    m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureEulerAnglesArrayPath(),
+                                                                                                                cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+    if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+    {
+      m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
+    } /* Now assign the raw pointer to data from the DataArray<T> object */
+    if(getErrorCondition() >= 0)
+    {
+      dataArrayPaths.push_back(getFeatureEulerAnglesArrayPath());
+    }
+
+    break;
+  }
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -388,12 +402,12 @@ void Export3dSolidMesh::dataCheck()
 void Export3dSolidMesh::preflight()
 {
   // These are the REQUIRED lines of CODE to make sure the filter behaves correctly
-  setInPreflight(true); // Set the fact that we are preflighting.
-  emit preflightAboutToExecute(); // Emit this signal so that other widgets can do one file update
+  setInPreflight(true);              // Set the fact that we are preflighting.
+  emit preflightAboutToExecute();    // Emit this signal so that other widgets can do one file update
   emit updateFilterParameters(this); // Emit this signal to have the widgets push their values down to the filter
-  dataCheck(); // Run our DataCheck to make sure everthing is setup correctly
-  emit preflightExecuted(); // We are done preflighting this filter
-  setInPreflight(false); // Inform the system this filter is NOT in preflight mode anymore.
+  dataCheck();                       // Run our DataCheck to make sure everthing is setup correctly
+  emit preflightExecuted();          // We are done preflighting this filter
+  setInPreflight(false);             // Inform the system this filter is NOT in preflight mode anymore.
 }
 
 // -----------------------------------------------------------------------------
@@ -404,143 +418,146 @@ void Export3dSolidMesh::execute()
 {
   initialize();
   dataCheck();
-  if(getErrorCondition() < 0) { return; }
+  if(getErrorCondition() < 0)
+  {
+    return;
+  }
 
   QDir dir;
   if(!dir.mkpath(m_outputPath))
-    {
-      QString ss = QObject::tr("Output directory does not exist '%1'").arg(m_outputPath);
-      setErrorCondition(-1);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-      return;
-    }
+  {
+    QString ss = QObject::tr("Output directory does not exist '%1'").arg(m_outputPath);
+    setErrorCondition(-1);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    return;
+  }
 
   switch(m_MeshingPackage)
+  {
+  case 0: // TetGen
+  {
+    DataContainer::Pointer sm = getDataContainerArray()->getDataContainer(getSurfaceMeshFaceLabelsArrayPath().getDataContainerName());
+    TriangleGeom::Pointer triangleGeom = sm->getGeometryAs<TriangleGeom>();
+
+    int64_t numNodes = triangleGeom->getNumberOfVertices();
+    float* nodes = triangleGeom->getVertexPointer(0);
+
+    int64_t numTri = triangleGeom->getNumberOfTris();
+    int64_t* triangles = triangleGeom->getTriPointer(0);
+
+    size_t numfeatures = m_FeatureEulerAnglesPtr.lock()->getNumberOfTuples();
+
+    // creating TetGen input file
+    QString tetgenInpFile = m_outputPath + QDir::separator() + "tetgenInp.smesh";
+
+    createTetgenInpFile(tetgenInpFile, numNodes, nodes, numTri, triangles, numfeatures, m_FeatureCentroid);
+
+    // running TetGen
+    runPackage(tetgenInpFile, tetgenInpFile);
+
+    DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getTetDataContainerName());
+    AttributeMatrix::Pointer vertexAttrMat = m->getAttributeMatrix(getVertexAttributeMatrixName());
+    AttributeMatrix::Pointer cellAttrMat = m->getAttributeMatrix(getCellAttributeMatrixName());
+
+    QString tetgenEleFile = m_outputPath + QDir::separator() + "tetgenInp.1.ele";
+    QString tetgenNodeFile = m_outputPath + QDir::separator() + "tetgenInp.1.node";
+    scanTetGenFile(tetgenEleFile, tetgenNodeFile, m.get(), vertexAttrMat.get(), cellAttrMat.get());
+
+    break;
+  }
+  case 1: // Netgen
+  {
+
+    size_t numfeatures = m_FeatureEulerAnglesPtr.lock()->getNumberOfTuples();
+    QString netgenMeshFile;
+    QString mergedMesh = m_NetgenSTLFileName + "MergedMesh.vol";
+    QString workPath = m_outputPath;
+    QString asciiSTLFile;
+    QString binSTLFile;
+
+    for(size_t i = 1; i < numfeatures; i++)
     {
-    case 0: // TetGen
-      {
-	DataContainer::Pointer sm = getDataContainerArray()->getDataContainer(getSurfaceMeshFaceLabelsArrayPath().getDataContainerName());
-	TriangleGeom::Pointer triangleGeom = sm->getGeometryAs<TriangleGeom>();  
-	
-	int64_t numNodes = triangleGeom->getNumberOfVertices();
-	float* nodes = triangleGeom->getVertexPointer(0);
-	
-	int64_t numTri = triangleGeom->getNumberOfTris();
-	int64_t* triangles = triangleGeom->getTriPointer(0);
-	
-	size_t numfeatures = m_FeatureEulerAnglesPtr.lock()->getNumberOfTuples();
-	
-	//creating TetGen input file
-	QString tetgenInpFile = m_outputPath + QDir::separator() + "tetgenInp.smesh";
-	
-	createTetgenInpFile(tetgenInpFile, numNodes, nodes, numTri, triangles, numfeatures, m_FeatureCentroid); 
-	
-	//running TetGen
-	runPackage(tetgenInpFile,tetgenInpFile); 
-	
-	DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getTetDataContainerName()); 
-	AttributeMatrix::Pointer vertexAttrMat = m->getAttributeMatrix(getVertexAttributeMatrixName());
-	AttributeMatrix::Pointer cellAttrMat = m->getAttributeMatrix(getCellAttributeMatrixName());
-	
-	QString tetgenEleFile = m_outputPath + QDir::separator() + "tetgenInp.1.ele";
-	QString tetgenNodeFile = m_outputPath + QDir::separator() + "tetgenInp.1.node";
-	scanTetGenFile(tetgenEleFile, tetgenNodeFile, m.get(), vertexAttrMat.get(), cellAttrMat.get());
+      asciiSTLFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(i) + ".stl";
+      binSTLFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(i) + ".stlb";
 
-	break;
-      }
-    case 1: // Netgen
+      QDir::setCurrent(workPath);
+      QFile::copy(asciiSTLFile, binSTLFile);
+    }
+
+    for(size_t i = 1; i < numfeatures; i++)
+    {
+
+      binSTLFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(i) + ".stlb";
+      netgenMeshFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(i) + ".vol";
+
+      // running Netgen
+      runPackage(binSTLFile, netgenMeshFile);
+    }
+
+    netgenMeshFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(1) + ".vol";
+    QDir::setCurrent(workPath);
+    QFile::copy(netgenMeshFile, mergedMesh);
+
+    if(numfeatures > 2)
+    {
+      for(size_t i = 2; i < numfeatures; i++)
       {
 
-	size_t numfeatures = m_FeatureEulerAnglesPtr.lock()->getNumberOfTuples();
-	QString netgenMeshFile;
-	QString mergedMesh = m_NetgenSTLFileName + "MergedMesh.vol";
-	QString workPath = m_outputPath;
-	QString asciiSTLFile;
-	QString binSTLFile;
+        netgenMeshFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(i) + ".vol";
 
-	for(size_t i = 1; i < numfeatures; i++)
-	  {
-	    asciiSTLFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(i) + ".stl";
-	    binSTLFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(i) + ".stlb";
-
-	    QDir::setCurrent(workPath);
-	    QFile::copy(asciiSTLFile,binSTLFile);
-	   
-	  }
-
-	for(size_t i = 1; i < numfeatures; i++)
-	  {
-
-	    binSTLFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(i) + ".stlb";
-	    netgenMeshFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(i) + ".vol";
-  
-	    //running Netgen
-	    runPackage(binSTLFile,netgenMeshFile); 
-	  }
-
-	netgenMeshFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(1) + ".vol";
-	QDir::setCurrent(workPath);
-	QFile::copy(netgenMeshFile,mergedMesh);
-
-	if (numfeatures > 2)
-	  {
-	    for(size_t i = 2; i < numfeatures; i++)
-	      {
-		
-		netgenMeshFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(i) + ".vol";
-		
-		//running Netgen
-		mergeMesh(mergedMesh,netgenMeshFile); 
-	      }
-	  }
-
-
-	for(size_t i = 1; i < numfeatures; i++)
-	  {
-	    binSTLFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(i) + ".stlb";
-
-	    QDir::setCurrent(workPath);
-	    QFile::remove(binSTLFile);
-	   
-	  }
-
-	break;
-      }
-    case 2: //Gmsh
-      {
-
-	size_t numfeatures = m_FeatureEulerAnglesPtr.lock()->getNumberOfTuples();
-	//creating Gmsh .geo file
-	QString gmshGeoFile = m_outputPath + QDir::separator() + "gmsh.geo";
-	QString STLFileNamewExt;
-
-	FILE* f1 = fopen(gmshGeoFile.toLatin1().data(), "wb");
-	if(nullptr == f1)
-	  {
-	    QString ss = QObject::tr("Error creating Gmsh geo file '%1'").arg(gmshGeoFile);
-	    setErrorCondition(-1);
-	    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-	  }
-
-	for(size_t i = 1; i < numfeatures; i++)
-	  {
-
-	    STLFileNamewExt = m_GmshSTLFileName + QString("Feature_") + QString::number(i) + ".stl";
-	    fprintf(f1,"Merge \"%s\";\n", STLFileNamewExt.toLatin1().data());
-	    fprintf(f1,"Surface Loop(%zu) = {%zu};\n",i,i);
-	    fprintf(f1,"Volume(%zu) = {%zu};\n",i,i);
-	  }
-
-	fclose(f1);
-
-	//running Gmsh
-	runPackage(gmshGeoFile,gmshGeoFile); 
-
-	break;
+        // running Netgen
+        mergeMesh(mergedMesh, netgenMeshFile);
       }
     }
 
-  if (getCancel()) { return; }
+    for(size_t i = 1; i < numfeatures; i++)
+    {
+      binSTLFile = m_NetgenSTLFileName + QString("Feature_") + QString::number(i) + ".stlb";
+
+      QDir::setCurrent(workPath);
+      QFile::remove(binSTLFile);
+    }
+
+    break;
+  }
+  case 2: // Gmsh
+  {
+
+    size_t numfeatures = m_FeatureEulerAnglesPtr.lock()->getNumberOfTuples();
+    // creating Gmsh .geo file
+    QString gmshGeoFile = m_outputPath + QDir::separator() + "gmsh.geo";
+    QString STLFileNamewExt;
+
+    FILE* f1 = fopen(gmshGeoFile.toLatin1().data(), "wb");
+    if(nullptr == f1)
+    {
+      QString ss = QObject::tr("Error creating Gmsh geo file '%1'").arg(gmshGeoFile);
+      setErrorCondition(-1);
+      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    }
+
+    for(size_t i = 1; i < numfeatures; i++)
+    {
+
+      STLFileNamewExt = m_GmshSTLFileName + QString("Feature_") + QString::number(i) + ".stl";
+      fprintf(f1, "Merge \"%s\";\n", STLFileNamewExt.toLatin1().data());
+      fprintf(f1, "Surface Loop(%zu) = {%zu};\n", i, i);
+      fprintf(f1, "Volume(%zu) = {%zu};\n", i, i);
+    }
+
+    fclose(f1);
+
+    // running Gmsh
+    runPackage(gmshGeoFile, gmshGeoFile);
+
+    break;
+  }
+  }
+
+  if(getCancel())
+  {
+    return;
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -551,35 +568,35 @@ void Export3dSolidMesh::createTetgenInpFile(const QString& file, int64_t numNode
 {
   FILE* f1 = fopen(file.toLatin1().data(), "wb");
   if(nullptr == f1)
-    {
-      QString ss = QObject::tr("Error writing tetGen input file '%1'").arg(file);
-      setErrorCondition(-1);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-    }
+  {
+    QString ss = QObject::tr("Error writing tetGen input file '%1'").arg(file);
+    setErrorCondition(-1);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
 
-  fprintf(f1,"# Part 1 - node list\n");
-  fprintf(f1,"%lld 3 0 0\n",numNodes);
+  fprintf(f1, "# Part 1 - node list\n");
+  fprintf(f1, "%lld 3 0 0\n", numNodes);
   for(int64_t k = 0; k < numNodes; k++)
-    {
-      fprintf(f1,"%lld %.3f %.3f %.3f\n",(k+1), nodes[k*3], nodes[k*3+1], nodes[k*3+2]);
-    }
+  {
+    fprintf(f1, "%lld %.3f %.3f %.3f\n", (k + 1), nodes[k * 3], nodes[k * 3 + 1], nodes[k * 3 + 2]);
+  }
 
-  fprintf(f1,"# Part 2 - element list\n");
-  fprintf(f1,"%lld 0\n",numTri);
+  fprintf(f1, "# Part 2 - element list\n");
+  fprintf(f1, "%lld 0\n", numTri);
   for(int64_t k = 0; k < numTri; k++)
-    {
-      fprintf(f1,"3 %lld %lld %lld\n",triangles[k*3]+1, triangles[k*3+1]+1, triangles[k*3+2]+1);
-    }
+  {
+    fprintf(f1, "3 %lld %lld %lld\n", triangles[k * 3] + 1, triangles[k * 3 + 1] + 1, triangles[k * 3 + 2] + 1);
+  }
 
-  fprintf(f1,"# Part 3 - hole list\n");
-  fprintf(f1,"0\n");
+  fprintf(f1, "# Part 3 - hole list\n");
+  fprintf(f1, "0\n");
 
-  fprintf(f1,"# Part 4 - region list\n");
-  fprintf(f1,"%zu 0\n",numfeatures-1);
+  fprintf(f1, "# Part 4 - region list\n");
+  fprintf(f1, "%zu 0\n", numfeatures - 1);
   for(size_t i = 1; i < numfeatures; i++)
-    {
-      fprintf(f1,"%zu %.3f %.3f %.3f %zu\n",i, centroid[i*3], centroid[i*3+1], centroid[i*3+2] , i);
-    }
+  {
+    fprintf(f1, "%zu %.3f %.3f %.3f %zu\n", i, centroid[i * 3], centroid[i * 3 + 1], centroid[i * 3 + 2], i);
+  }
 
   fclose(f1);
 }
@@ -588,7 +605,7 @@ void Export3dSolidMesh::createTetgenInpFile(const QString& file, int64_t numNode
 //
 // -----------------------------------------------------------------------------
 
-void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile) 
+void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
 {
 
   QString program;
@@ -598,115 +615,115 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
   program = m_PackageLocation + QDir::separator();
 
   switch(m_MeshingPackage)
+  {
+  case 0: // TetGen
+  {
+    // cmd to run: "tetgen -pYAqOa file
+
+    switches = "-pYAO" + QString::number(m_OptimizationLevel);
+
+    if(m_RefineMesh)
     {
-    case 0: // TetGen
-      {
-	//cmd to run: "tetgen -pYAqOa file
-	
-	switches = "-pYAO" + QString::number(m_OptimizationLevel);
-	
-	if(m_RefineMesh)
-	  {
-	    QString tmp = "q" + QString::number(m_MaxRadiusEdgeRatio) + "/" + QString::number(m_MinDihedralAngle);
-	    switches += tmp;
-	  }
-
-	if(m_LimitTetrahedraVolume)
-	  {
-	    QString tmp = "a" + QString::number(m_MaxTetrahedraVolume);
-	    switches += tmp;
-	  }
-	
-	program += "tetgen";
-	
-	arguments << switches << file;
-
-	break;
-      } 
-    case 1:
-      {
-
-	//cmd to run: "netgen file.stlb -batchmode -verycoarse/coarse/moderate/fine/veryfine -meshfile=output filename
-	
-	switches = "-";
-	if (m_MeshSize == 0)
-	  {
-	    switches += "verycoarse";    
-	  }
-	else if (m_MeshSize == 1)
-	  {
-	    switches += "coarse";    
-	  }
-	else if (m_MeshSize == 2)
-	  {
-	    switches += "moderate";    
-	  }
-	else if (m_MeshSize == 3)
-	  {
-	    switches += "fine";    
-	  }
-	else if (m_MeshSize == 4)
-	  {
-	    switches += "veryfine";    
-	  }
-	
-	program += "netgen";
-	
-	QString switchMeshFile;
-
-	switchMeshFile = "-meshfile=";
-	switchMeshFile += meshFile;
-
-	arguments << file <<"-batchmode"<< switchMeshFile << "-V" <<switches;
-
-	break;
-      }
-    case 2:
-      {
-	QString switch1;
-	QString switch2;
-
-	switch1 = "-format";
-	
-	//cmd to run: "gmsh file -3
-	if (m_MeshFileFormat == 1)
-	  {
-	    switch2 = "inp";    
-	  }
-	else 
-	  {
-	    switch2 = "auto";    
-	  }
-	
-	switches = "-3";
-	program += "gmsh";
-	arguments << file << switches<<switch1<<switch2;
-
-	break;
-      }
+      QString tmp = "q" + QString::number(m_MaxRadiusEdgeRatio) + "/" + QString::number(m_MinDihedralAngle);
+      switches += tmp;
     }
-  
+
+    if(m_LimitTetrahedraVolume)
+    {
+      QString tmp = "a" + QString::number(m_MaxTetrahedraVolume);
+      switches += tmp;
+    }
+
+    program += "tetgen";
+
+    arguments << switches << file;
+
+    break;
+  }
+  case 1:
+  {
+
+    // cmd to run: "netgen file.stlb -batchmode -verycoarse/coarse/moderate/fine/veryfine -meshfile=output filename
+
+    switches = "-";
+    if(m_MeshSize == 0)
+    {
+      switches += "verycoarse";
+    }
+    else if(m_MeshSize == 1)
+    {
+      switches += "coarse";
+    }
+    else if(m_MeshSize == 2)
+    {
+      switches += "moderate";
+    }
+    else if(m_MeshSize == 3)
+    {
+      switches += "fine";
+    }
+    else if(m_MeshSize == 4)
+    {
+      switches += "veryfine";
+    }
+
+    program += "netgen";
+
+    QString switchMeshFile;
+
+    switchMeshFile = "-meshfile=";
+    switchMeshFile += meshFile;
+
+    arguments << file << "-batchmode" << switchMeshFile << "-V" << switches;
+
+    break;
+  }
+  case 2:
+  {
+    QString switch1;
+    QString switch2;
+
+    switch1 = "-format";
+
+    // cmd to run: "gmsh file -3
+    if(m_MeshFileFormat == 1)
+    {
+      switch2 = "inp";
+    }
+    else
+    {
+      switch2 = "auto";
+    }
+
+    switches = "-3";
+    program += "gmsh";
+    arguments << file << switches << switch1 << switch2;
+
+    break;
+  }
+  }
+
   m_ProcessPtr = QSharedPointer<QProcess>(new QProcess(nullptr));
 
   QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 
 #if defined(Q_OS_MAC)
-  if (m_MeshingPackage == 1)
-    {
-      QString env_PYTHONPATH = m_PackageLocation + QDir::separator() + QString("..") + QDir::separator() + QString("Resources") + QDir::separator() + QString("lib") + QDir::separator() + QString("python3.7") + QDir::separator() + QString("site-packages");
-      QString env_NETGENDIR = m_PackageLocation;
-      QString env_DYLD_LIBRARYPATH = m_PackageLocation;
-      
-      env.insert("PYTHONPATH", env_PYTHONPATH);
-      env.insert("NETGENDIR", env_NETGENDIR);
-      env.insert("DYLD_LIBRARY_PATH", env_DYLD_LIBRARYPATH);
+  if(m_MeshingPackage == 1)
+  {
+    QString env_PYTHONPATH = m_PackageLocation + QDir::separator() + QString("..") + QDir::separator() + QString("Resources") + QDir::separator() + QString("lib") + QDir::separator() +
+                             QString("python3.7") + QDir::separator() + QString("site-packages");
+    QString env_NETGENDIR = m_PackageLocation;
+    QString env_DYLD_LIBRARYPATH = m_PackageLocation;
 
+    env.insert("PYTHONPATH", env_PYTHONPATH);
+    env.insert("NETGENDIR", env_NETGENDIR);
+    env.insert("DYLD_LIBRARY_PATH", env_DYLD_LIBRARYPATH);
 
-      //      env.insert("PYTHONPATH", "/Applications/Netgen.app/Contents/Resources/lib/python3.7/site-packages:.");
-      //  env.insert("NETGENDIR", "/Applications/Netgen.app/Contents/MacOS");
-      //env.insert("DYLD_LIBRARY_PATH", "/Applications/Netgen.app/Contents/MacOS");
-      //env.insert("PATH", "$NETGENDIR:$PATH");
-    }
+    //      env.insert("PYTHONPATH", "/Applications/Netgen.app/Contents/Resources/lib/python3.7/site-packages:.");
+    //  env.insert("NETGENDIR", "/Applications/Netgen.app/Contents/MacOS");
+    // env.insert("DYLD_LIBRARY_PATH", "/Applications/Netgen.app/Contents/MacOS");
+    // env.insert("PATH", "$NETGENDIR:$PATH");
+  }
 #endif
   m_ProcessPtr->setProcessEnvironment(env);
 
@@ -723,14 +740,13 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
   m_ProcessPtr->waitForFinished(10000000);
 
   notifyStatusMessage(getHumanLabel(), "Finished running Package");
-
 }
 
 //
 //
 //
 
-void Export3dSolidMesh::mergeMesh(const QString& mergeFile, const QString& meshFile) 
+void Export3dSolidMesh::mergeMesh(const QString& mergeFile, const QString& meshFile)
 {
 
   QString program;
@@ -750,19 +766,20 @@ void Export3dSolidMesh::mergeMesh(const QString& mergeFile, const QString& meshF
 
   program = m_PackageLocation + QDir::separator() + "netgen";
 
-  //cmd to run: netgen -inputmeshfile=m.vol -mergefile=c.vol -batchmode -meshfile=m.vol
-  
+  // cmd to run: netgen -inputmeshfile=m.vol -mergefile=c.vol -batchmode -meshfile=m.vol
+
   arguments << "-batchmode" << switch1 << switch2 << switch3 << "-V";
-  
+
   m_ProcessPtr = QSharedPointer<QProcess>(new QProcess(nullptr));
 
   QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 
 #if defined(Q_OS_MAC)
-  QString env_PYTHONPATH = m_PackageLocation + QDir::separator() + QString("..") + QDir::separator() + QString("Resources") + QDir::separator() + QString("lib") + QDir::separator() + QString("python3.7") + QDir::separator() + QString("site-packages");
+  QString env_PYTHONPATH = m_PackageLocation + QDir::separator() + QString("..") + QDir::separator() + QString("Resources") + QDir::separator() + QString("lib") + QDir::separator() +
+                           QString("python3.7") + QDir::separator() + QString("site-packages");
   QString env_NETGENDIR = m_PackageLocation;
   QString env_DYLD_LIBRARYPATH = m_PackageLocation;
-  
+
   env.insert("PYTHONPATH", env_PYTHONPATH);
   env.insert("NETGENDIR", env_NETGENDIR);
   env.insert("DYLD_LIBRARY_PATH", env_DYLD_LIBRARYPATH);
@@ -788,31 +805,28 @@ void Export3dSolidMesh::mergeMesh(const QString& mergeFile, const QString& meshF
   m_ProcessPtr->waitForFinished();
 
   notifyStatusMessage(getHumanLabel(), "Merging individual volume meshes");
-
 }
-
-
 
 void Export3dSolidMesh::processHasFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
   if(getCancel())
-    {
-    }
+  {
+  }
   else if(exitStatus == QProcess::CrashExit)
-    {
-      QString ss = QObject::tr("The process crashed during its exit.");
-      setErrorCondition(-4003);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-    }
+  {
+    QString ss = QObject::tr("The process crashed during its exit.");
+    setErrorCondition(-4003);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
   else if(exitCode < 0)
-    {
-      QString ss = QObject::tr("The process finished with exit code %1.").arg(QString::number(exitCode));
-      setErrorCondition(-4004);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-    }
+  {
+    QString ss = QObject::tr("The process finished with exit code %1.").arg(QString::number(exitCode));
+    setErrorCondition(-4004);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
   else if(getErrorCondition() >= 0)
-    {
-    }
+  {
+  }
 
   m_Pause = false;
   m_WaitCondition.wakeAll();
@@ -825,52 +839,52 @@ void Export3dSolidMesh::processHasFinished(int exitCode, QProcess::ExitStatus ex
 void Export3dSolidMesh::processHasErroredOut(QProcess::ProcessError error)
 {
   if(getCancel())
-    {
-      QString ss = QObject::tr("The process was killed by the user.");
-      setWarningCondition(-4004);
-      notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
-    }
+  {
+    QString ss = QObject::tr("The process was killed by the user.");
+    setWarningCondition(-4004);
+    notifyWarningMessage(getHumanLabel(), ss, getWarningCondition());
+  }
   else if(error == QProcess::FailedToStart)
-    {
-      QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-      QString pathEnv = env.value("PATH");
+  {
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    QString pathEnv = env.value("PATH");
 
-      QString ss = QObject::tr("The package failed to start. Either the package is missing, or you may have insufficient permissions \
+    QString ss = QObject::tr("The package failed to start. Either the package is missing, or you may have insufficient permissions \
 or the path containing the executble is not in the system's environment path. PATH=%1.\n Try using the absolute path to the executable.")
-	.arg(pathEnv);
-      setErrorCondition(-4005);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-    }
+                     .arg(pathEnv);
+    setErrorCondition(-4005);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
   else if(error == QProcess::Crashed)
-    {
-      QString ss = QObject::tr("The process crashed some time after starting successfully.");
-      setErrorCondition(-4006);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-    }
+  {
+    QString ss = QObject::tr("The process crashed some time after starting successfully.");
+    setErrorCondition(-4006);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
   else if(error == QProcess::Timedout)
-    {
-      QString ss = QObject::tr("The process timed out.");
-      setErrorCondition(-4007);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-    }
+  {
+    QString ss = QObject::tr("The process timed out.");
+    setErrorCondition(-4007);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
   else if(error == QProcess::WriteError)
-    {
-      QString ss = QObject::tr("An error occurred when attempting to write to the process.");
-      setErrorCondition(-4008);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-    }
+  {
+    QString ss = QObject::tr("An error occurred when attempting to write to the process.");
+    setErrorCondition(-4008);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
   else if(error == QProcess::ReadError)
-    {
-      QString ss = QObject::tr("An error occurred when attempting to read from the process.");
-      setErrorCondition(-4009);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-    }
+  {
+    QString ss = QObject::tr("An error occurred when attempting to read from the process.");
+    setErrorCondition(-4009);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
   else
-    {
-      QString ss = QObject::tr("An unknown error occurred.");
-      setErrorCondition(-4010);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-    }
+  {
+    QString ss = QObject::tr("An unknown error occurred.");
+    setErrorCondition(-4010);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+  }
 
   m_Pause = false;
   m_WaitCondition.wakeAll();
@@ -883,15 +897,15 @@ or the path containing the executble is not in the system's environment path. PA
 void Export3dSolidMesh::sendErrorOutput()
 {
   if(m_ProcessPtr.data() != nullptr)
+  {
+    QString error = m_ProcessPtr->readAllStandardError();
+    if(error[error.size() - 1] == '\n')
     {
-      QString error = m_ProcessPtr->readAllStandardError();
-      if(error[error.size() - 1] == '\n')
-	{
-	  error.chop(1);
-	}
-      notifyStandardOutputMessage(getHumanLabel(), getPipelineIndex() + 1, error);
-      m_WaitCondition.wakeAll();
+      error.chop(1);
     }
+    notifyStandardOutputMessage(getHumanLabel(), getPipelineIndex() + 1, error);
+    m_WaitCondition.wakeAll();
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -901,10 +915,10 @@ void Export3dSolidMesh::sendErrorOutput()
 void Export3dSolidMesh::sendStandardOutput()
 {
   if(m_ProcessPtr.data() != nullptr)
-    {
-      notifyStandardOutputMessage(getHumanLabel(), getPipelineIndex() + 1, m_ProcessPtr->readAllStandardOutput());
-      m_WaitCondition.wakeAll();
-    }
+  {
+    notifyStandardOutputMessage(getHumanLabel(), getPipelineIndex() + 1, m_ProcessPtr->readAllStandardOutput());
+    m_WaitCondition.wakeAll();
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -914,31 +928,31 @@ void Export3dSolidMesh::sendStandardOutput()
 void Export3dSolidMesh::scanTetGenFile(const QString& fileEle, const QString& fileNode, DataContainer* dataContainer, AttributeMatrix* vertexAttrMat, AttributeMatrix* cellAttrMat)
 {
 
-  bool allocate = true;  
-  bool ok = false;  
+  bool allocate = true;
+  bool ok = false;
   QFile inStreamNode(fileNode);
   QFile inStreamEle(fileEle);
 
   if(!inStreamEle.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-      QString ss = QObject::tr("Input file could not be opened: %1").arg(fileEle);
-      setErrorCondition(-100);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-      return;
-    }
-  
+  {
+    QString ss = QObject::tr("Input file could not be opened: %1").arg(fileEle);
+    setErrorCondition(-100);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    return;
+  }
+
   if(!inStreamNode.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-      QString ss = QObject::tr("Input file could not be opened: %1").arg(fileNode);
-      setErrorCondition(-100);
-      notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
-      return;
-    }
+  {
+    QString ss = QObject::tr("Input file could not be opened: %1").arg(fileNode);
+    setErrorCondition(-100);
+    notifyErrorMessage(getHumanLabel(), ss, getErrorCondition());
+    return;
+  }
 
   QByteArray bufNode;
   QByteArray bufEle;
-  QList<QByteArray> tokensNode; 
-  QList<QByteArray> tokensEle; 
+  QList<QByteArray> tokensNode;
+  QList<QByteArray> tokensEle;
 
   bufEle = inStreamEle.readLine();
   bufEle = bufEle.trimmed();
@@ -963,20 +977,20 @@ void Export3dSolidMesh::scanTetGenFile(const QString& fileEle, const QString& fi
   //  SharedVertexList::Pointer tetvertexPtr = TetrahedralGeom::CreateSharedVertexList(static_cast<int64_t>(numVerts), allocate);
   float* tetvertex = tetGeomPtr->getVertexPointer(0);
   for(size_t i = 0; i < numVerts; i++)
-    {
-      bufNode = inStreamNode.readLine();
-      bufNode = bufNode.trimmed();
-      bufNode = bufNode.simplified();
-      tokensNode = bufNode.split(' ');
-      tetvertex[3 * i] = tokensNode[1].toFloat(&ok);
-      tetvertex[3 * i + 1] = tokensNode[2].toFloat(&ok);
-      tetvertex[3 * i + 2] = tokensNode[3].toFloat(&ok);
-    }
+  {
+    bufNode = inStreamNode.readLine();
+    bufNode = bufNode.trimmed();
+    bufNode = bufNode.simplified();
+    tokensNode = bufNode.split(' ');
+    tetvertex[3 * i] = tokensNode[1].toFloat(&ok);
+    tetvertex[3 * i + 1] = tokensNode[2].toFloat(&ok);
+    tetvertex[3 * i + 2] = tokensNode[3].toFloat(&ok);
+  }
 
   //  SharedVertexList::Pointer tetvertexPtr = TetrahedralGeom::CreateSharedVertexList(static_cast<int64_t>(numVerts), allocate);
   // TetrahedralGeom::Pointer tetGeomPtr = TetrahedralGeom::CreateGeometry(static_cast<int64_t>(numCells), tetvertexPtr, SIMPL::Geometry::TetrahedralGeometry, allocate);
   //  tetGeomPtr->setSpatialDimensionality(3);
-  
+
   int64_t* tets = tetGeomPtr->getTetPointer(0);
 
   QString dataArrayName = "FeatureIDs";
@@ -1001,28 +1015,28 @@ void Export3dSolidMesh::scanTetGenFile(const QString& fileEle, const QString& fi
   cellAttrMat->addAttributeArray(phasesdata->getName(), phasesdata);
 
   for(size_t i = 0; i < numCells; i++)
+  {
+    bufEle = inStreamEle.readLine();
+    bufEle = bufEle.trimmed();
+    bufEle = bufEle.simplified();
+    tokensEle = bufEle.split(' ');
+    tets[4 * i] = tokensEle[1].toInt(&ok) - 1;
+    tets[4 * i + 1] = tokensEle[2].toInt(&ok) - 1;
+    tets[4 * i + 2] = tokensEle[3].toInt(&ok) - 1;
+    tets[4 * i + 3] = tokensEle[4].toInt(&ok) - 1;
+
+    int32_t value = tokensEle[5].toInt(&ok);
+    featureIDsdata->setComponent(i, 0, value);
+
+    int32_t pvalue = m_FeaturePhases[value];
+    phasesdata->setComponent(i, 0, pvalue);
+
+    for(size_t j = 0; j < 3; j++)
     {
-      bufEle = inStreamEle.readLine();
-      bufEle = bufEle.trimmed();
-      bufEle = bufEle.simplified();
-      tokensEle = bufEle.split(' ');
-      tets[4 * i] = tokensEle[1].toInt(&ok) - 1;
-      tets[4 * i + 1] = tokensEle[2].toInt(&ok) - 1;
-      tets[4 * i + 2] = tokensEle[3].toInt(&ok) - 1;
-      tets[4 * i + 3] = tokensEle[4].toInt(&ok) - 1;
-
-      int32_t value = tokensEle[5].toInt(&ok);
-      featureIDsdata->setComponent(i, 0, value);
-
-      int32_t pvalue = m_FeaturePhases[value];
-      phasesdata->setComponent(i, 0, pvalue);
-
-      for(size_t j = 0; j < 3; j++)
-	{
-	  float evalue = m_FeatureEulerAngles[3*value+j];
-          eulerangles->setComponent(i, j, evalue);
-	}
+      float evalue = m_FeatureEulerAngles[3 * value + j];
+      eulerangles->setComponent(i, j, evalue);
     }
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -1033,9 +1047,9 @@ AbstractFilter::Pointer Export3dSolidMesh::newFilterInstance(bool copyFilterPara
 {
   Export3dSolidMesh::Pointer filter = Export3dSolidMesh::New();
   if(copyFilterParameters)
-    {
-      copyFilterParameterInstanceVariables(filter.get());
-    }
+  {
+    copyFilterParameterInstanceVariables(filter.get());
+  }
   return filter;
 }
 
@@ -1043,7 +1057,7 @@ AbstractFilter::Pointer Export3dSolidMesh::newFilterInstance(bool copyFilterPara
 //
 // -----------------------------------------------------------------------------
 const QString Export3dSolidMesh::getCompiledLibraryName() const
-{ 
+{
   return SimulationIOConstants::SimulationIOBaseName;
 }
 
@@ -1062,7 +1076,7 @@ const QString Export3dSolidMesh::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
-  vStream <<  SimulationIO::Version::Major() << "." << SimulationIO::Version::Minor() << "." << SimulationIO::Version::Patch();
+  vStream << SimulationIO::Version::Major() << "." << SimulationIO::Version::Minor() << "." << SimulationIO::Version::Patch();
   return version;
 }
 
@@ -1070,26 +1084,25 @@ const QString Export3dSolidMesh::getFilterVersion() const
 //
 // -----------------------------------------------------------------------------
 const QString Export3dSolidMesh::getGroupName() const
-{ 
-  return SIMPL::FilterGroups::Unsupported; 
+{
+  return SIMPL::FilterGroups::Unsupported;
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 const QString Export3dSolidMesh::getSubGroupName() const
-{ 
-  return "SimulationIO"; 
+{
+  return "SimulationIO";
 }
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
 const QString Export3dSolidMesh::getHumanLabel() const
-{ 
-  return "Export 3d Solid Mesh"; 
+{
+  return "Export 3d Solid Mesh";
 }
-
 
 // -----------------------------------------------------------------------------
 //
@@ -1098,4 +1111,3 @@ const QUuid Export3dSolidMesh::getUuid()
 {
   return QUuid("{fcff3b03-bff6-5511-bc65-5e558d12f0a6}");
 }
-

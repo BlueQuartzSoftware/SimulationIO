@@ -163,7 +163,7 @@
         "CellPhasesArrayName": "Phases",
         "FeatureGeneration": 0,
         "FeatureIdsArrayName": "FeatureIds",
-        "FeatureInputFile": "/Users/saurabhpuri",
+        "FeatureInputFile": "",
         "FeaturePhasesArrayName": "Phases",
         "FilterVersion": "6.5.111",
         "Filter_Enabled": true,
@@ -358,7 +358,7 @@
         "Filter_Human_Label": "Export STL Files from Triangle Geometry",
         "Filter_Name": "WriteStlFile",
         "Filter_Uuid": "{b9134758-d5e5-59dd-9907-28d23e0e0143}",
-        "OutputStlDirectory": "/Users/saurabhpuri/Desktop/Gmsh",
+        "OutputStlDirectory": "Data/Output/Gmsh",
         "OutputStlPrefix": "test",
         "SurfaceMeshFaceLabelsArrayPath": {
             "Attribute Matrix Name": "FaceData",
@@ -411,10 +411,10 @@
         },
         "TetDataContainerName": "TetrahedralDataContainer",
         "VertexAttributeMatrixName": "VertexData",
-        "outputPath": "/Users/saurabhpuri/Desktop/Gmsh"
+        "outputPath": "Data/Output/Gmsh"
     },
     "PipelineBuilder": {
-        "Name": "GmshPipeline",
+        "Name": "Gmesh Example Pipeline",
         "Number_Filters": 10,
         "Version": 6
     }

@@ -254,7 +254,7 @@
         "CellPhasesArrayName": "Phases",
         "FeatureGeneration": 0,
         "FeatureIdsArrayName": "FeatureIds",
-        "FeatureInputFile": "/Users/saurabhpuri",
+        "FeatureInputFile": "",
         "FeaturePhasesArrayName": "Phases",
         "FilterVersion": "6.5.111",
         "Filter_Enabled": true,
@@ -382,7 +382,7 @@
             "Data Container Name": "SyntheticVolumeDataContainer"
         },
         "PeriodicBoundaries": 0,
-        "PrecipInputFile": "/Users/saurabhpuri",
+        "PrecipInputFile": "",
         "SaveGeometricDescriptions": 0,
         "SelectedAttributeMatrixPath": {
             "Attribute Matrix Name": "",
@@ -529,10 +529,10 @@
         "Filter_Uuid": "{7c58e612-d7d6-5ec7-806b-cce0c1c211a3}",
         "GeometryFileName": "two_phase_equiaxed",
         "HomogenizationIndex": 1,
-        "OutputPath": "/Users/saurabhpuri/damask"
+        "OutputPath": "Data/Output/DAMASK/"
     },
     "PipelineBuilder": {
-        "Name": "DAMASKPipeline",
+        "Name": "DAMASK Example Pipeline",
         "Number_Filters": 10,
         "Version": 6
     }

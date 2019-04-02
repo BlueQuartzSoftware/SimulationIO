@@ -163,7 +163,7 @@
         "CellPhasesArrayName": "Phases",
         "FeatureGeneration": 0,
         "FeatureIdsArrayName": "FeatureIds",
-        "FeatureInputFile": "/Users/saurabhpuri",
+        "FeatureInputFile": "",
         "FeaturePhasesArrayName": "Phases",
         "FilterVersion": "6.5.111",
         "Filter_Enabled": true,
@@ -366,7 +366,7 @@
         "Filter_Human_Label": "Export STL Files from Triangle Geometry",
         "Filter_Name": "WriteStlFile",
         "Filter_Uuid": "{b9134758-d5e5-59dd-9907-28d23e0e0143}",
-        "OutputStlDirectory": "/Users/saurabhpuri/Desktop/Netgen",
+        "OutputStlDirectory": "Data/Output/Netgen",
         "OutputStlPrefix": "test",
         "SurfaceMeshFaceLabelsArrayPath": {
             "Attribute Matrix Name": "FaceData",
@@ -410,7 +410,7 @@
         "MinDihedralAngle": 0,
         "NetgenSTLFileName": "test",
         "OptimizationLevel": 2,
-        "PackageLocation": "/Applications/Netgen.app/Contents/MacOS",
+        "PackageLocation": "/Path/To/Directory/Of/NetGen/",
         "RefineMesh": 1,
         "SurfaceMeshFaceLabelsArrayPath": {
             "Attribute Matrix Name": "FaceData",
@@ -419,10 +419,10 @@
         },
         "TetDataContainerName": "TetrahedralDataContainer",
         "VertexAttributeMatrixName": "VertexData",
-        "outputPath": "/Users/saurabhpuri/Desktop/Netgen"
+        "outputPath": "Data/Output/Netgen"
     },
     "PipelineBuilder": {
-        "Name": "NetgenPipeline",
+        "Name": "Netgen Example Pipeline",
         "Number_Filters": 11,
         "Version": 6
     }

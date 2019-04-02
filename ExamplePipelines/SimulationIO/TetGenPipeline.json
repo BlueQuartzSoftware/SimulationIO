@@ -163,7 +163,7 @@
         "CellPhasesArrayName": "Phases",
         "FeatureGeneration": 0,
         "FeatureIdsArrayName": "FeatureIds",
-        "FeatureInputFile": "/Users/saurabhpuri",
+        "FeatureInputFile": "",
         "FeaturePhasesArrayName": "Phases",
         "FilterVersion": "6.5.111",
         "Filter_Enabled": true,
@@ -400,7 +400,7 @@
         "MinDihedralAngle": 0,
         "NetgenSTLFileName": "test",
         "OptimizationLevel": 2,
-        "PackageLocation": "/Users/saurabhpuri/Documents/Work/computation/tetgen/tetgen1.5.1-beta1/build/",
+        "PackageLocation": "/Path/To/Location/Of/TetGen",
         "RefineMesh": 1,
         "SurfaceMeshFaceLabelsArrayPath": {
             "Attribute Matrix Name": "FaceData",
@@ -409,10 +409,10 @@
         },
         "TetDataContainerName": "TetrahedralDataContainer",
         "VertexAttributeMatrixName": "VertexData",
-        "outputPath": "/Users/saurabhpuri/Desktop/Tetgen"
+        "outputPath": "Data/Output/Tetgen"
     },
     "PipelineBuilder": {
-        "Name": "TetGenPipeline",
+        "Name": "TetGen Example Pipeline",
         "Number_Filters": 10,
         "Version": 6
     }

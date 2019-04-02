@@ -13,12 +13,12 @@
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/DataArrays/IDataArray.h"
 #include "SIMPLib/DataContainers/DataContainer.h"
+#include "SIMPLib/FilterParameters/DynamicTableData.h"
 #include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
 #include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/Geometry/MeshStructs.h"
 #include "SIMPLib/SIMPLib.h"
-#include "SIMPLib/FilterParameters/DynamicTableData.h"
 
 #include "SimulationIO/SimulationIODLLExport.h"
 
@@ -33,7 +33,6 @@ class SimulationIO_EXPORT CreateFEAInputFiles : public AbstractFilter
   PYB11_PROPERTY(QString JobName READ getJobName WRITE setJobName)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
   PYB11_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
-    //  PYB11_PROPERTY(IntVec3_t NumElem READ getNumElem WRITE setNumElem)
   PYB11_PROPERTY(int NumDepvar READ getNumDepvar WRITE setNumDepvar)
   PYB11_PROPERTY(int NumMatConst READ getNumMatConst WRITE setNumMatConst)
   PYB11_PROPERTY(int NumUserOutVar READ getNumUserOutVar WRITE setNumUserOutVar)
@@ -41,13 +40,10 @@ class SimulationIO_EXPORT CreateFEAInputFiles : public AbstractFilter
   PYB11_PROPERTY(DataArrayPath PzflexFeatureIdsArrayPath READ getPzflexFeatureIdsArrayPath WRITE setPzflexFeatureIdsArrayPath)
   PYB11_PROPERTY(DataArrayPath CellPhasesArrayPath READ getCellPhasesArrayPath WRITE setCellPhasesArrayPath)
   PYB11_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
-  PYB11_PROPERTY(IntVec3_t NumKeypoints READ getNumKeypoints WRITE setNumKeypoints)
+  PYB11_PROPERTY(IntVec3Type NumKeypoints READ getNumKeypoints WRITE setNumKeypoints)
   PYB11_PROPERTY(QString DelamMat READ getDelamMat WRITE setDelamMat)
   PYB11_PROPERTY(int NumClusters READ getNumClusters WRITE setNumClusters)
-    // PYB11_PROPERTY(DynamicTableData ClusterData READ getClusterData WRITE setClusterData)
   PYB11_PROPERTY(DynamicTableData MatConst READ getMatConst WRITE setMatConst)
-
-    //  PYB11_PROPERTY(bool UseMeshCreatedByDREAM3D READ getUseMeshCreatedByDREAM3D WRITE setUseMeshCreatedByDREAM3D)
 
 public:
   SIMPL_SHARED_POINTERS(CreateFEAInputFiles)
@@ -67,9 +63,6 @@ public:
 
   SIMPL_FILTER_PARAMETER(QString, OutputFilePrefix)
   Q_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
-
-  // SIMPL_FILTER_PARAMETER(IntVec3_t, NumElem)
-  // Q_PROPERTY(IntVec3_t NumElem READ getNumElem WRITE setNumElem)
 
   SIMPL_FILTER_PARAMETER(int, NumDepvar)
   Q_PROPERTY(int NumDepvar READ getNumDepvar WRITE setNumDepvar)
@@ -92,8 +85,8 @@ public:
   SIMPL_FILTER_PARAMETER(DataArrayPath, CellEulerAnglesArrayPath)
   Q_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
 
-  SIMPL_FILTER_PARAMETER(IntVec3_t, NumKeypoints)
-  Q_PROPERTY(IntVec3_t NumKeypoints READ getNumKeypoints WRITE setNumKeypoints)
+  SIMPL_FILTER_PARAMETER(IntVec3Type, NumKeypoints)
+  Q_PROPERTY(IntVec3Type NumKeypoints READ getNumKeypoints WRITE setNumKeypoints)
 
   SIMPL_FILTER_PARAMETER(QString, DelamMat)
   Q_PROPERTY(QString DelamMat READ getDelamMat WRITE setDelamMat)
@@ -101,14 +94,8 @@ public:
   SIMPL_FILTER_PARAMETER(int, NumClusters)
   Q_PROPERTY(int NumClusters READ getNumClusters WRITE setNumClusters)
 
-  // SIMPL_FILTER_PARAMETER(DynamicTableData, ClusterData)
-  //  Q_PROPERTY(DynamicTableData ClusterData READ getClusterData WRITE setClusterData)
-
   SIMPL_FILTER_PARAMETER(DynamicTableData, MatConst)
   Q_PROPERTY(DynamicTableData MatConst READ getMatConst WRITE setMatConst)
-
-  //  SIMPL_FILTER_PARAMETER(bool, UseMeshCreatedByDREAM3D)
-  //  Q_PROPERTY(bool UseMeshCreatedByDREAM3D READ getUseMeshCreatedByDREAM3D WRITE setUseMeshCreatedByDREAM3D)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
@@ -224,4 +211,3 @@ public:
   CreateFEAInputFiles& operator=(const CreateFEAInputFiles&) = delete; // Copy Assignment Not Implemented
   CreateFEAInputFiles& operator=(CreateFEAInputFiles&&) = delete;      // Move Assignment Not Implemented
 };
-

@@ -593,7 +593,7 @@ void ImportFEAData::execute()
 	for(size_t i = 0; i < m_NumTimeSteps; i++)
 	  {
 	    QString ss = QObject::tr("Starting to read time step %1 of %2").arg(i).arg(m_NumTimeSteps-1);
-      notifyStatusMessageWithPrefix(getMessagePrefix(), ss);
+      notifyStatusMessage(ss);
       readTimeStep(m_InStream, i);
 	  }
 	
@@ -1959,7 +1959,7 @@ void ImportFEAData::readTimeStep(QFile& reader, qint32 t)
   if(m_selectedTimeStep && t != m_selectedTimeStepValue)
     {
       QString ss = QObject::tr("Skipping time step %1 of %2").arg(t).arg(m_NumTimeSteps-1);
-      notifyStatusMessageWithPrefix(getMessagePrefix(), ss);
+      notifyStatusMessage(ss);
       for(size_t nodeIdx = 0; nodeIdx < m_NumPoints*m_LinesPerBlock; ++nodeIdx)
 	{
 	  QByteArray line = reader.readLine();

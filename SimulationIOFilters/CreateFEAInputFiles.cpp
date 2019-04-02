@@ -72,8 +72,8 @@ CreateFEAInputFiles::~CreateFEAInputFiles() = default;
 // -----------------------------------------------------------------------------
 void CreateFEAInputFiles::initialize()
 {
-  clearErrorCondition();
-  clearWarningCondition();
+  clearErrorCode();
+  clearWarningCode();
   setCancel(false);
 }
 
@@ -183,8 +183,8 @@ void CreateFEAInputFiles::readFilterParameters(AbstractFilterParametersReader* r
 // -----------------------------------------------------------------------------
 void CreateFEAInputFiles::dataCheck()
 {
-  clearErrorCondition();
-  clearWarningCondition();
+  clearErrorCode();
+  clearWarningCode();
 
   if(m_OutputPath.isEmpty())
   {

@@ -234,8 +234,8 @@ void ImportFEAData::readFilterParameters(AbstractFilterParametersReader* reader,
 
 void ImportFEAData::dataCheck()
 {
-  clearErrorCondition();
-  clearWarningCondition();
+  clearErrorCode();
+  clearWarningCode();
   setCancel(false);
 
   m_Pause = false;
@@ -502,8 +502,8 @@ void ImportFEAData::preflight()
 // -----------------------------------------------------------------------------
 void ImportFEAData::execute()
 {
-  clearErrorCondition();
-  clearWarningCondition();
+  clearErrorCode();
+  clearWarningCode();
 
   dataCheck();
   if(getErrorCode() < 0)
@@ -1726,8 +1726,8 @@ void ImportFEAData::scanBSAMFile(DataContainer* dataContainer, AttributeMatrix* 
 
 void ImportFEAData::readHeader(QFile& reader)
 {
-  clearErrorCondition();
-  clearWarningCondition();
+  clearErrorCode();
+  clearWarningCode();
 
   if(!reader.open(QIODevice::ReadOnly | QIODevice::Text))
   {

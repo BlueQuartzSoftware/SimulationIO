@@ -5,7 +5,7 @@ Export3dSolidMesh {#export3dsolidmesh}
 SimulationIO (SimulationIO)
 
 ## Description ##
-This **Filter** can be used to create a volume mesh of the sample using three different packages: TegGen, Netgen, and Gmsh. 
+This **Filter** can be used to create a volume mesh of the sample using three different packages: TetGen, Netgen, and Gmsh. 
 
 There are two ways to create a volume mesh using this filter. One of the ways is to use the surface mesh created by the filter **Quick Surface Mesh**. TetGen is used for this purpose. Another way is to use the STL files of individual grains. Gmsh or Netgen can be used for this purpose. 
 

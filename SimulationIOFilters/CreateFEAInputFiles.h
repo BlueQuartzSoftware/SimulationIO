@@ -12,6 +12,7 @@
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/DataArrays/IDataArray.h"
+#include "SIMPLib/DataArrays/StringDataArray.h"
 #include "SIMPLib/DataContainers/DataContainer.h"
 #include "SIMPLib/FilterParameters/DynamicTableData.h"
 #include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
@@ -41,9 +42,9 @@ class SimulationIO_EXPORT CreateFEAInputFiles : public AbstractFilter
   PYB11_PROPERTY(DataArrayPath CellPhasesArrayPath READ getCellPhasesArrayPath WRITE setCellPhasesArrayPath)
   PYB11_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
   PYB11_PROPERTY(IntVec3Type NumKeypoints READ getNumKeypoints WRITE setNumKeypoints)
-  PYB11_PROPERTY(QString DelamMat READ getDelamMat WRITE setDelamMat)
   PYB11_PROPERTY(int NumClusters READ getNumClusters WRITE setNumClusters)
   PYB11_PROPERTY(DynamicTableData MatConst READ getMatConst WRITE setMatConst)
+  PYB11_PROPERTY(DataArrayPath PhaseNamesArrayPath READ getPhaseNamesArrayPath WRITE setPhaseNamesArrayPath)
 
 public:
   SIMPL_SHARED_POINTERS(CreateFEAInputFiles)
@@ -88,14 +89,14 @@ public:
   SIMPL_FILTER_PARAMETER(IntVec3Type, NumKeypoints)
   Q_PROPERTY(IntVec3Type NumKeypoints READ getNumKeypoints WRITE setNumKeypoints)
 
-  SIMPL_FILTER_PARAMETER(QString, DelamMat)
-  Q_PROPERTY(QString DelamMat READ getDelamMat WRITE setDelamMat)
-
   SIMPL_FILTER_PARAMETER(int, NumClusters)
   Q_PROPERTY(int NumClusters READ getNumClusters WRITE setNumClusters)
 
   SIMPL_FILTER_PARAMETER(DynamicTableData, MatConst)
   Q_PROPERTY(DynamicTableData MatConst READ getMatConst WRITE setMatConst)
+
+  SIMPL_FILTER_PARAMETER(DataArrayPath, PhaseNamesArrayPath)
+  Q_PROPERTY(DataArrayPath PhaseNamesArrayPath READ getPhaseNamesArrayPath WRITE setPhaseNamesArrayPath)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
@@ -204,6 +205,9 @@ private:
   DEFINE_DATAARRAY_VARIABLE(int32_t, FeatureIds)
   DEFINE_DATAARRAY_VARIABLE(int32_t, CellPhases)
   DEFINE_DATAARRAY_VARIABLE(float, CellEulerAngles)
+    //DEFINE_DATAARRAY_VARIABLE(QString, PhaseNames)
+
+  StringDataArray::WeakPointer m_PhaseNamesPtr;
 
 public:
   CreateFEAInputFiles(const CreateFEAInputFiles&) = delete;            // Copy Constructor Not Implemented

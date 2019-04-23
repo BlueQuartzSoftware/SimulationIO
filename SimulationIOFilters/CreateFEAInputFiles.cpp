@@ -50,8 +50,8 @@ CreateFEAInputFiles::CreateFEAInputFiles()
 , m_PzflexFeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
 , m_CellPhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Phases)
 , m_CellEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles)
-, m_DelamMat("")
 , m_NumClusters(1)
+, m_PhaseNamesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::EnsembleAttributeMatrixName, SIMPL::EnsembleData::PhaseName)
 {
   initialize();
 
@@ -75,6 +75,9 @@ void CreateFEAInputFiles::initialize()
   clearErrorCode();
   clearWarningCode();
   setCancel(false);
+
+  m_PhaseNamesPtr = StringDataArray::NullPointer();
+
 }
 
 // -----------------------------------------------------------------------------
@@ -96,7 +99,7 @@ void CreateFEAInputFiles::setupFilterParameters()
     parameter->setChoices(choices);
     QStringList linkedProps = {
         "JobName",  "NumDepvar",    "NumMatConst", "NumUserOutVar", "MatConst", "AbqFeatureIdsArrayPath", "PzflexFeatureIdsArrayPath", "CellEulerAnglesArrayPath", "CellPhasesArrayPath",
-        "DelamMat", "NumKeypoints", "NumClusters"};
+        "NumKeypoints", "NumClusters", "PhaseNamesArrayPath"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Parameter);
@@ -124,8 +127,13 @@ void CreateFEAInputFiles::setupFilterParameters()
   }
 
   {
-    parameters.push_back(SIMPL_NEW_STRING_FP("Delamination material", DelamMat, FilterParameter::Parameter, CreateFEAInputFiles, 1));
     parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Keypoints", NumKeypoints, FilterParameter::Parameter, CreateFEAInputFiles, 1));
+    parameters.push_back(SeparatorFilterParameter::New("Ensemble Data", FilterParameter::RequiredArray));
+    {
+      DataArraySelectionFilterParameter::RequirementType req =
+	DataArraySelectionFilterParameter::CreateRequirement(SIMPL::Defaults::AnyPrimitive, 1, AttributeMatrix::Type::CellEnsemble, IGeometry::Type::Image);
+      parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phase Names", PhaseNamesArrayPath, FilterParameter::RequiredArray, CreateFEAInputFiles, req, 1));
+    }
   }
 
   parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::RequiredArray));
@@ -168,13 +176,13 @@ void CreateFEAInputFiles::readFilterParameters(AbstractFilterParametersReader* r
   setNumMatConst(reader->readValue("NumMatConst", getNumMatConst()));
   setNumUserOutVar(reader->readValue("NumUserOutVar", getNumUserOutVar()));
   setMatConst(reader->readDynamicTableData("MatConst", getMatConst()));
-  setDelamMat(reader->readString("DelamMat", getDelamMat()));
   setNumKeypoints(reader->readIntVec3("NumKeypoints", getNumKeypoints()));
   setAbqFeatureIdsArrayPath(reader->readDataArrayPath("AbqFeatureIdsArrayPath", getAbqFeatureIdsArrayPath()));
   setCellEulerAnglesArrayPath(reader->readDataArrayPath("CellEulerAnglesArrayPath", getCellEulerAnglesArrayPath()));
   setCellPhasesArrayPath(reader->readDataArrayPath("CellPhasesArrayPath", getCellPhasesArrayPath()));
   setPzflexFeatureIdsArrayPath(reader->readDataArrayPath("PzflexFeatureIdsArrayPath", getPzflexFeatureIdsArrayPath()));
   setNumClusters(reader->readValue("NumClusters", getNumClusters()));
+  setPhaseNamesArrayPath(reader->readDataArrayPath("PhaseNamesArrayPath", getPhaseNamesArrayPath()));
   reader->closeFilterGroup();
 }
 
@@ -267,7 +275,17 @@ void CreateFEAInputFiles::dataCheck()
     {
       dataArrayPaths.push_back(getPzflexFeatureIdsArrayPath());
     }
-
+    
+    m_PhaseNamesPtr = getDataContainerArray()->getPrereqArrayFromPath<StringDataArray,AbstractFilter>(this, getPhaseNamesArrayPath(),cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+    //    if(nullptr != m_PhaseNamesPtr.lock())                                                                         /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+    //  {
+    //	m_PhaseNames = m_PhaseNamesPtr.lock()->getPointer(0);
+    //  } /* Now assign the raw pointer to data from the DataArray<T> object */
+    if(getErrorCode() >= 0)
+      {
+	dataArrayPaths.push_back(getPhaseNamesArrayPath());
+      }
+    
     break;
   }
   }
@@ -613,6 +631,12 @@ void CreateFEAInputFiles::execute()
     FloatVec3Type origin;
     m->getGeometryAs<ImageGeom>()->getOrigin(origin);
     //
+    //
+
+    StringDataArray* phaseNames = m_PhaseNamesPtr.lock().get();
+    int32_t count = static_cast<int32_t>(phaseNames->getNumberOfTuples());
+ 
+    //
     // find total number of Grain Ids
     int32_t maxGrainId = 0;
     int32_t totalPoints = m->getGeometryAs<ImageGeom>()->getNumberOfElements();
@@ -723,8 +747,29 @@ void CreateFEAInputFiles::execute()
     //
     fprintf(f, "name %d\n", maxGrainId);
     //
-    fprintf(f, "void %s\n", m_DelamMat.toLatin1().data());
+    if (count-1 >= maxGrainId)
+      {
+	for(int32_t i = 1; i <= maxGrainId; ++i)
+	  {
+	    QString pName = phaseNames->getValue(i);
+	    fprintf(f, "%s ", pName.toLatin1().data());
+	  }
+      }
+    else
+      {
+	for(int32_t i = 1; i <= count-1; ++i)
+	  {
+	    QString pName = phaseNames->getValue(i);
+	    fprintf(f, "%s ", pName.toLatin1().data());
+	  }
+	for(int32_t i = count; i <= maxGrainId; ++i)
+	  {
+	    fprintf(f, "Phase_%d ", i);
+	  }
+      }
+
     //
+    fprintf(f, "\n");
     fprintf(f, "matr %d\n", ne_x * ne_y * ne_z);
     //
     entriesPerLine = 0;

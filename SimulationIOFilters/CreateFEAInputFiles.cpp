@@ -128,11 +128,10 @@ void CreateFEAInputFiles::setupFilterParameters()
 
   {
     parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Keypoints", NumKeypoints, FilterParameter::Parameter, CreateFEAInputFiles, 1));
-    parameters.push_back(SeparatorFilterParameter::New("Ensemble Data", FilterParameter::RequiredArray));
     {
       DataArraySelectionFilterParameter::RequirementType req =
 	DataArraySelectionFilterParameter::CreateRequirement(SIMPL::Defaults::AnyPrimitive, 1, AttributeMatrix::Type::CellEnsemble, IGeometry::Type::Image);
-      parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phase Names", PhaseNamesArrayPath, FilterParameter::RequiredArray, CreateFEAInputFiles, req, 1));
+      parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Names", PhaseNamesArrayPath, FilterParameter::RequiredArray, CreateFEAInputFiles, req, 1));
     }
   }
 

@@ -339,12 +339,9 @@ void CreateFEAInputFiles::execute()
 
     DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getAbqFeatureIdsArrayPath().getDataContainerName());
 
-    size_t dims[3] = {0, 0, 0};
-    std::tie(dims[0], dims[1], dims[2]) = m->getGeometryAs<ImageGeom>()->getDimensions();
-    FloatVec3Type spacing;
-    m->getGeometryAs<ImageGeom>()->getSpacing(spacing);
-    FloatVec3Type origin;
-    m->getGeometryAs<ImageGeom>()->getOrigin(origin);
+    SizeVec3Type dims = m->getGeometryAs<ImageGeom>()->getDimensions();
+    FloatVec3Type spacing = m->getGeometryAs<ImageGeom>()->getSpacing();
+    FloatVec3Type origin = m->getGeometryAs<ImageGeom>()->getOrigin();
     //
     // find total number of Grain Ids
     int32_t maxGrainId = 0;
@@ -623,12 +620,9 @@ void CreateFEAInputFiles::execute()
 
     DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getPzflexFeatureIdsArrayPath().getDataContainerName());
 
-    size_t dims[3] = {0, 0, 0};
-    std::tie(dims[0], dims[1], dims[2]) = m->getGeometryAs<ImageGeom>()->getDimensions();
-    FloatVec3Type spacing;
-    m->getGeometryAs<ImageGeom>()->getSpacing(spacing);
-    FloatVec3Type origin;
-    m->getGeometryAs<ImageGeom>()->getOrigin(origin);
+    SizeVec3Type dims = m->getGeometryAs<ImageGeom>()->getDimensions();
+    FloatVec3Type spacing = m->getGeometryAs<ImageGeom>()->getSpacing();
+    FloatVec3Type origin = m->getGeometryAs<ImageGeom>()->getOrigin();
     //
     //
 

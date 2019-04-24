@@ -220,12 +220,9 @@ void ExportDAMASKFiles::execute()
   //
   DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getFeatureIdsArrayPath().getDataContainerName());
 
-  size_t dims[3] = {0, 0, 0};
-  std::tie(dims[0], dims[1], dims[2]) = m->getGeometryAs<ImageGeom>()->getDimensions();
-  FloatVec3Type spacing;
-  m->getGeometryAs<ImageGeom>()->getSpacing(spacing);
-  FloatVec3Type origin;
-  m->getGeometryAs<ImageGeom>()->getOrigin(origin);
+  SizeVec3Type dims = m->getGeometryAs<ImageGeom>()->getDimensions();
+  FloatVec3Type spacing = m->getGeometryAs<ImageGeom>()->getSpacing();
+  FloatVec3Type origin = m->getGeometryAs<ImageGeom>()->getOrigin();
   float size[3] = {0.0f, 0.0f, 0.0f};
 
   for(int32_t i = 0; i < 3; i++)

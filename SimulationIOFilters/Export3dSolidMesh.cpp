@@ -566,17 +566,17 @@ void Export3dSolidMesh::createTetgenInpFile(const QString& file, int64_t numNode
   }
 
   fprintf(f1, "# Part 1 - node list\n");
-  fprintf(f1, "%lld 3 0 0\n", numNodes);
+  fprintf(f1, "%lld 3 0 0\n", static_cast<long long int>(numNodes));
   for(int64_t k = 0; k < numNodes; k++)
   {
-    fprintf(f1, "%lld %.3f %.3f %.3f\n", (k + 1), nodes[k * 3], nodes[k * 3 + 1], nodes[k * 3 + 2]);
+    fprintf(f1, "%lld %.3f %.3f %.3f\n", static_cast<long long int>(k + 1), nodes[k * 3], nodes[k * 3 + 1], nodes[k * 3 + 2]);
   }
 
   fprintf(f1, "# Part 2 - element list\n");
-  fprintf(f1, "%lld 0\n", numTri);
+  fprintf(f1, "%lld 0\n", static_cast<long long int>(numTri));
   for(int64_t k = 0; k < numTri; k++)
   {
-    fprintf(f1, "3 %lld %lld %lld\n", triangles[k * 3] + 1, triangles[k * 3 + 1] + 1, triangles[k * 3 + 2] + 1);
+    fprintf(f1, "3 %lld %lld %lld\n", static_cast<long long int>(triangles[k * 3] + 1), static_cast<long long int>(triangles[k * 3 + 1] + 1), static_cast<long long int>(triangles[k * 3 + 2] + 1));
   }
 
   fprintf(f1, "# Part 3 - hole list\n");

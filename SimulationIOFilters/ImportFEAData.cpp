@@ -987,7 +987,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
     TriangleGeom::Pointer triGeomPtr = TriangleGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::TriangleGeometry, allocate);
     triGeomPtr->setSpatialDimensionality(2);
     dataContainer->setGeometry(triGeomPtr);
-    int64_t* triangles = triGeomPtr->getTriPointer(0);
+    MeshIndexType* triangles = triGeomPtr->getTriPointer(0);
 
     for(size_t i = 0; i < numCells; i++)
     {
@@ -1060,7 +1060,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
     TetrahedralGeom::Pointer tetGeomPtr = TetrahedralGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::TetrahedralGeometry, allocate);
     tetGeomPtr->setSpatialDimensionality(3);
     dataContainer->setGeometry(tetGeomPtr);
-    int64_t* tets = tetGeomPtr->getTetPointer(0);
+    MeshIndexType* tets = tetGeomPtr->getTetPointer(0);
 
     for(size_t i = 0; i < numCells; i++)
     {
@@ -1137,7 +1137,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
     QuadGeom::Pointer quadGeomPtr = QuadGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::QuadGeometry, allocate);
     quadGeomPtr->setSpatialDimensionality(2);
     dataContainer->setGeometry(quadGeomPtr);
-    int64_t* quads = quadGeomPtr->getQuadPointer(0);
+    MeshIndexType* quads = quadGeomPtr->getQuadPointer(0);
 
     for(size_t i = 0; i < numCells; i++)
     {
@@ -1213,7 +1213,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
     HexahedralGeom::Pointer hexGeomPtr = HexahedralGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::HexahedralGeometry, allocate);
     hexGeomPtr->setSpatialDimensionality(3);
     dataContainer->setGeometry(hexGeomPtr);
-    int64_t* hexs = hexGeomPtr->getHexPointer(0);
+    MeshIndexType* hexs = hexGeomPtr->getHexPointer(0);
 
     for(size_t i = 0; i < numCells; i++)
     {
@@ -1471,7 +1471,7 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
   QuadGeom::Pointer quadGeomPtr = QuadGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::QuadGeometry, allocate);
   quadGeomPtr->setSpatialDimensionality(2);
   dataContainer->setGeometry(quadGeomPtr);
-  int64_t* quads = quadGeomPtr->getQuadPointer(0);
+  MeshIndexType* quads = quadGeomPtr->getQuadPointer(0);
 
   for(size_t i = 0; i < numCells; i++)
   {
@@ -1623,7 +1623,7 @@ void ImportFEAData::scanBSAMFile(DataContainer* dataContainer, AttributeMatrix* 
   HexahedralGeom::Pointer hexGeomPtr = HexahedralGeom::CreateGeometry(static_cast<int64_t>(numCells), vertexPtr, SIMPL::Geometry::HexahedralGeometry, allocate);
   hexGeomPtr->setSpatialDimensionality(3);
   dataContainer->setGeometry(hexGeomPtr);
-  int64_t* hexs = hexGeomPtr->getHexPointer(0);
+  MeshIndexType* hexs = hexGeomPtr->getHexPointer(0);
 
   QString dataArrayName = "DISPLACEMENT";
   FloatArrayType::Pointer dispdata = FloatArrayType::NullPointer();

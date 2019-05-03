@@ -237,7 +237,7 @@ private:
   void runPackage(const QString& file, const QString& meshFile);
   void mergeMesh(const QString& mergefile, const QString& indivFile);
 
-  void createTetgenInpFile(const QString& file, int64_t numNodes, float* nodes, int64_t numTri, int64_t* triangles, size_t numfeatures, float* centroid);
+  void createTetgenInpFile(const QString& file, MeshIndexType numNodes, float* nodes, MeshIndexType numTri, MeshIndexType* triangles, size_t numfeatures, float* centroid);
 
   QWaitCondition m_WaitCondition;
   QMutex m_Mutex;

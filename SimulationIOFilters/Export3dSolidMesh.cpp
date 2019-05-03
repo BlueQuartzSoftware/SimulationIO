@@ -433,11 +433,11 @@ void Export3dSolidMesh::execute()
     DataContainer::Pointer sm = getDataContainerArray()->getDataContainer(getSurfaceMeshFaceLabelsArrayPath().getDataContainerName());
     TriangleGeom::Pointer triangleGeom = sm->getGeometryAs<TriangleGeom>();
 
-    int64_t numNodes = triangleGeom->getNumberOfVertices();
+    MeshIndexType numNodes = triangleGeom->getNumberOfVertices();
     float* nodes = triangleGeom->getVertexPointer(0);
 
-    int64_t numTri = triangleGeom->getNumberOfTris();
-    int64_t* triangles = triangleGeom->getTriPointer(0);
+    MeshIndexType numTri = triangleGeom->getNumberOfTris();
+    MeshIndexType* triangles = triangleGeom->getTriPointer(0);
 
     size_t numfeatures = m_FeatureEulerAnglesPtr.lock()->getNumberOfTuples();
 
@@ -556,7 +556,7 @@ void Export3dSolidMesh::execute()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void Export3dSolidMesh::createTetgenInpFile(const QString& file, int64_t numNodes, float* nodes, int64_t numTri, int64_t* triangles, size_t numfeatures, float* centroid)
+void Export3dSolidMesh::createTetgenInpFile(const QString& file, MeshIndexType numNodes, float* nodes, MeshIndexType numTri, MeshIndexType* triangles, size_t numfeatures, float* centroid)
 {
   FILE* f1 = fopen(file.toLatin1().data(), "wb");
   if(nullptr == f1)
@@ -968,7 +968,7 @@ void Export3dSolidMesh::scanTetGenFile(const QString& fileEle, const QString& fi
   // TetrahedralGeom::Pointer tetGeomPtr = TetrahedralGeom::CreateGeometry(static_cast<int64_t>(numCells), tetvertexPtr, SIMPL::Geometry::TetrahedralGeometry, allocate);
   //  tetGeomPtr->setSpatialDimensionality(3);
 
-  int64_t* tets = tetGeomPtr->getTetPointer(0);
+  MeshIndexType* tets = tetGeomPtr->getTetPointer(0);
 
   QString dataArrayName = "FeatureIDs";
   Int32ArrayType::Pointer featureIDsdata = Int32ArrayType::NullPointer();

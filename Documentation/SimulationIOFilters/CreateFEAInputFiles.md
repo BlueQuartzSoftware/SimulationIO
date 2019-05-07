@@ -9,7 +9,7 @@ SimulationIO (SimulationIO)
 
 This **Filter** writes the input files for different simulation packages. The currently supported packages are ABAQUS, PZFLEX and BSAM. 
 
-This **filter** assumes that the finite element discretization is equal to the discretization of image. Thus, the number of finite elements in each direction are equal to the number of cells. Please try **Export 3D Solid Mesh** filter to make mesh that is different from the distribution of cells in an image.
+This **filter** assumes that the finite element discretization is equal to the discretization of the image. Thus, the number of finite elements in each direction are equal to the number of cells. Please try **Export 3D Solid Mesh** filter to make mesh that is different from the distribution of cells in an image.
 
 #### Packages ####
 
@@ -30,7 +30,7 @@ grainID, phaseID, Euler1, Euler2, Euler3, materialConstant1, materialConstant2, 
 Currently, this **filter** is valid only for cuboidal geometries and creates brick elements (C3D8/C3D8R) only.
 
 ##### PZFLEX #####
-The **PZFLEX** option of this **filter** writes out PZFLEX's input file (*.flxtbl). The required input for this option is *Feature IDs* and the output consists of a header, nodal coordinates and a description of spatial distribution of features.
+The **PZFLEX** option of this **filter** writes out PZFLEX's input file (*.flxtbl). The required input for this option is *Feature IDs* and the names of different features, and the output consists of a header, nodal coordinates and a description of spatial distribution of features. Feature Names can be created using **Create Ensemble Info** **filter**. 
 
 ##### BSAM #####
 The **BSAM** option of this **filter** writes out the mesh related data in BSAM's input file. It will read in the mesh files provided by the user, and write their content to the input (*.in) file. User should specify the number of clusters and also provide a mesh file in *.ele format for each cluster. The mesh files should be named as <OutputFilePrefix_Cluster#.ele>, where # corresponds to the cluster number and placed in the directory specified in **Output Path**.
@@ -47,7 +47,6 @@ The **BSAM** option of this **filter** writes out the mesh related data in BSAM'
 | Number of Material Constants | int | number of material constants, if _ABAQUS_ is chosen |
 | Number of User Output Variables | int | number of usev output variables, if _ABAQUS_ is chosen |
 | Material Constants | DynamicTableData | values of material constants, if _ABAQUS_ is chosen |
-| Delamination Material | String | Name of the delamination material, if _PZFLEX_ is chosen |
 | Number of Keypoints | Int | keypoints in x, y, and z dimension, if _PZFLEX_ is chosen |
 | Number of Clusters | Int | number of clusters, if _BSAM_ is chosen |
 
@@ -62,10 +61,12 @@ The **BSAM** option of this **filter** writes out the mesh related data in BSAM'
 | **Feature Attribute Array** | FeatureIds | int32_t | (1) |  Specifies to which **Feature** each **Cell** belongs, if _ABAQUS_ or _PZFLEX_ is chosen |
 | **Feature Attribute Array** | Euler Angles | float | (3) | Three angles defining the orientation of the **Feature**, if _ABAQUS_ is chosen |
 | **Feature Attribute Array** | Phases | int32_t | (1) |  Specifies to which **Ensemble** each **Cell** belongs, if _ABAQUS_ is chosen |
+| **Ensemble Attribute Array** | Phase Names | String | (1) |  Specifies names of different features, if _PZFLEX_ is chosen |
 
 ## Created Objects ##
 
 ## Example Pipelines ##
++pzflexPipeline
 
 ## License & Copyright ##
 

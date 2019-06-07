@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <QtCore/QFile>
 #include <QtCore/QMutex>
 #include <QtCore/QProcess>
 #include <QtCore/QSharedPointer>

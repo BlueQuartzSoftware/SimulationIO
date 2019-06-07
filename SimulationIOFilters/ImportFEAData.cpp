@@ -4,8 +4,6 @@
 
 #include "ImportFEAData.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDateTime>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>

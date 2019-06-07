@@ -4,11 +4,8 @@
 
 #include "Export3dSolidMesh.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDateTime>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
-#include <QtCore/QFileInfo>
 #include <QtCore/QString>
 
 #include "SIMPLib/Common/Constants.h"

@@ -284,7 +284,7 @@ void Export3dSolidMesh::dataCheck()
     }
 
     QVector<DataArrayPath> dataArrayPaths;
-    QVector<size_t> cDims(1, 1);
+    std::vector<size_t> cDims(1, 1);
 
     m_FeaturePhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getFeaturePhasesArrayPath(),
                                                                                                              cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
@@ -331,7 +331,7 @@ void Export3dSolidMesh::dataCheck()
     }
 
     // Create our output Vertex and Cell Matrix objects
-    QVector<size_t> tDims(1, 0);
+    std::vector<size_t> tDims(1, 0);
     AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
     if(getErrorCode() < 0)
     {
@@ -353,7 +353,7 @@ void Export3dSolidMesh::dataCheck()
   case 1:
   {
     QVector<DataArrayPath> dataArrayPaths;
-    QVector<size_t> cDims(1, 1);
+    std::vector<size_t> cDims(1, 1);
     cDims[0] = 3;
     m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureEulerAnglesArrayPath(),
                                                                                                                 cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
@@ -371,7 +371,7 @@ void Export3dSolidMesh::dataCheck()
   case 2:
   {
     QVector<DataArrayPath> dataArrayPaths;
-    QVector<size_t> cDims(1, 1);
+    std::vector<size_t> cDims(1, 1);
     cDims[0] = 3;
     m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureEulerAnglesArrayPath(),
                                                                                                                 cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
@@ -933,7 +933,7 @@ void Export3dSolidMesh::scanTetGenFile(const QString& fileEle, const QString& fi
   bufEle = bufEle.simplified();
   tokensEle = bufEle.split(' ');
   size_t numCells = tokensEle.at(0).toULongLong(&ok);
-  QVector<size_t> tDims(1, numCells);
+  std::vector<size_t> tDims(1, numCells);
   cellAttrMat->resizeAttributeArrays(tDims);
 
   bufNode = inStreamNode.readLine();
@@ -970,7 +970,7 @@ void Export3dSolidMesh::scanTetGenFile(const QString& fileEle, const QString& fi
   QString dataArrayName = "FeatureIDs";
   Int32ArrayType::Pointer featureIDsdata = Int32ArrayType::NullPointer();
   int32_t numComp = 1;
-  QVector<size_t> cDims(1, static_cast<size_t>(numComp));
+  std::vector<size_t> cDims(1, static_cast<size_t>(numComp));
   featureIDsdata = Int32ArrayType::CreateArray(numCells, cDims, dataArrayName, allocate);
   cellAttrMat->insertOrAssign(featureIDsdata);
 

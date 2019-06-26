@@ -260,7 +260,7 @@ void ImportFEAData::dataCheck()
     }
 
     // Create our output Vertex and Cell Matrix objects
-    QVector<size_t> tDims(1, 0);
+    std::vector<size_t> tDims(1, 0);
     AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
     if(getErrorCode() < 0)
     {
@@ -296,7 +296,7 @@ void ImportFEAData::dataCheck()
     }
 
     // Create our output Vertex and Cell Matrix objects
-    QVector<size_t> tDims(1, 0);
+    std::vector<size_t> tDims(1, 0);
     AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
     if(getErrorCode() < 0)
     {
@@ -334,7 +334,7 @@ void ImportFEAData::dataCheck()
     }
 
     // Create our output Vertex and Cell Matrix objects
-    QVector<size_t> tDims(1, 0);
+    std::vector<size_t> tDims(1, 0);
     AttributeMatrix::Pointer vertexAttrMat = m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
     if(getErrorCode() < 0)
     {
@@ -432,7 +432,7 @@ void ImportFEAData::dataCheck()
       VertexGeom::Pointer vertices = VertexGeom::CreateGeometry(m_NumPoints, SIMPL::Geometry::VertexGeometry, !getInPreflight());
       v->setGeometry(vertices);
 
-      QVector<size_t> tDims(1, m_NumPoints);
+      std::vector<size_t> tDims(1, m_NumPoints);
       AttributeMatrix::Pointer vertexAttrMat = v->createNonPrereqAttributeMatrix(this, SIMPL::Defaults::VertexAttributeMatrixName, tDims, AttributeMatrix::Type::Vertex);
       if(getErrorCode() < 0)
       {
@@ -464,13 +464,13 @@ void ImportFEAData::dataCheck()
       }
 
       // Generate the AttributeMatrix that will serve as the Meta-Data information for the DataContainerBundle
-      QVector<size_t> bundleAttrDims(1, 1);
+      std::vector<size_t> bundleAttrDims(1, 1);
       AttributeMatrix::Pointer metaData = v->createNonPrereqAttributeMatrix(this, m_BundleMetaDataAMName, bundleAttrDims, AttributeMatrix::Type::MetaData);
       if(getErrorCode() < 0)
       {
       }
 
-      QVector<size_t> cDims(1, 1);
+      std::vector<size_t> cDims(1, 1);
       metaData->createNonPrereqArray<FloatArrayType, AbstractFilter, float>(this, getSelectedTimeArrayName(), 0.0f, cDims);
       metaData->createNonPrereqArray<Int32ArrayType, AbstractFilter, int32_t>(this, getSelectedTimeStepArrayName(), 0, cDims);
       metaData->createNonPrereqArray<Int32ArrayType, AbstractFilter, int32_t>(this, READ_DEF_PT_TRACKING_TIME_INDEX, 0, cDims);
@@ -925,7 +925,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
 
   // Set the number of cells and then create cells array and resize cell attr mat.
   size_t numCells = tokens.at(1).toULongLong(&ok);
-  QVector<size_t> tDims(1, numCells);
+  std::vector<size_t> tDims(1, numCells);
   cellAttrMat->resizeAttributeArrays(tDims);
   QString eleType = tokens.at(2);
   QString eleDim = "3D";
@@ -1325,7 +1325,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
 
         if(i == 0)
         {
-          QVector<size_t> cDims(1, static_cast<size_t>(numComp));
+          std::vector<size_t> cDims(1, static_cast<size_t>(numComp));
           data = FloatArrayType::CreateArray(count, cDims, dataArrayName, allocate);
           if(count == numVerts)
           {
@@ -1362,7 +1362,7 @@ void ImportFEAData::scanABQFile(const QString& file, DataContainer* dataContaine
 
           if(i == 0 && k == 0)
           {
-            QVector<size_t> cDims(1, static_cast<size_t>(numComp * numIntPoints));
+            std::vector<size_t> cDims(1, static_cast<size_t>(numComp * numIntPoints));
             data = FloatArrayType::CreateArray(count, cDims, dataArrayName, allocate);
             if(count == numVerts)
             {
@@ -1425,7 +1425,7 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
 
   // Set the number of vertices and then create vertices array and resize vertex attr mat.
   size_t numVerts = tokens.at(2).toULongLong(&ok);
-  QVector<size_t> tDims(1, numVerts);
+  std::vector<size_t> tDims(1, numVerts);
   vertexAttrMat->resizeAttributeArrays(tDims);
 
   SharedVertexList::Pointer vertexPtr = QuadGeom::CreateSharedVertexList(static_cast<int64_t>(numVerts), allocate);
@@ -1538,7 +1538,7 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
       numComp = tokens.count() - 1;
       if(i == 0)
       {
-        QVector<size_t> cDims(1, static_cast<size_t>(numComp));
+        std::vector<size_t> cDims(1, static_cast<size_t>(numComp));
         data = FloatArrayType::CreateArray(count, cDims, dataArrayName, allocate);
         if(count == numVerts)
         {
@@ -1602,7 +1602,7 @@ void ImportFEAData::scanBSAMFile(DataContainer* dataContainer, AttributeMatrix* 
 
   // Set the number of vertices and then create vertices array and resize vertex attr mat.
   size_t numVerts = tokens.at(1).toULongLong(&ok);
-  QVector<size_t> tDims(1, numVerts);
+  std::vector<size_t> tDims(1, numVerts);
   vertexAttrMat->resizeAttributeArrays(tDims);
   QString status;
   QTextStream ss(&status);
@@ -1626,7 +1626,7 @@ void ImportFEAData::scanBSAMFile(DataContainer* dataContainer, AttributeMatrix* 
   QString dataArrayName = "DISPLACEMENT";
   FloatArrayType::Pointer dispdata = FloatArrayType::NullPointer();
   int32_t numDispComp = 3;
-  QVector<size_t> cDims(1, static_cast<size_t>(numDispComp));
+  std::vector<size_t> cDims(1, static_cast<size_t>(numDispComp));
   dispdata = FloatArrayType::CreateArray(numVerts, cDims, dataArrayName, allocate);
   vertexAttrMat->insertOrAssign(dispdata);
 
@@ -2042,7 +2042,7 @@ void ImportFEAData::readTimeStep(QFile& reader, qint32 t)
   tsbAttrMat->insertOrAssign(timeValuePtr);
   tsbAttrMat->insertOrAssign(timeStepPtr);
 
-  QVector<size_t> cDims(1, 1);
+  std::vector<size_t> cDims(1, 1);
   Int32ArrayType::Pointer timeIndexArray = Int32ArrayType::CreateArray(1, cDims, READ_DEF_PT_TRACKING_TIME_INDEX, true);
   timeIndexArray->setValue(0, t);
   tsbAttrMat->insertOrAssign(timeIndexArray);

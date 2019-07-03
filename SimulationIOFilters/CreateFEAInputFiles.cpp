@@ -426,7 +426,7 @@ void CreateFEAInputFiles::execute()
     nnode_z = ne_z + 1;
     //
 
-    FloatArrayType::Pointer m_coordLengthPtr = FloatArrayType::CreateArray(3 * nnode_x * nnode_y * nnode_z, "NODAL_COORDINATES_INTERNAL_USE_ONLY");
+    FloatArrayType::Pointer m_coordLengthPtr = FloatArrayType::CreateArray(3 * nnode_x * nnode_y * nnode_z, "NODAL_COORDINATES_INTERNAL_USE_ONLY", true);
     float* m_coord = m_coordLengthPtr->getPointer(0);
 
     fprintf(f1, "*NODE, NSET=ALLNODES\n");
@@ -463,7 +463,7 @@ void CreateFEAInputFiles::execute()
     notifyStatusMessage("Finished Writing ABAQUS Nodes File");
     //
     //
-    Int32ArrayType::Pointer m_connLengthPtr = Int32ArrayType::CreateArray(8 * ne_x * ne_y * ne_z, "CONNECTIVITY_INTERNAL_USE_ONLY");
+    Int32ArrayType::Pointer m_connLengthPtr = Int32ArrayType::CreateArray(8 * ne_x * ne_y * ne_z, "CONNECTIVITY_INTERNAL_USE_ONLY", true);
     int32_t* m_conn = m_connLengthPtr->getPointer(0);
 
     fprintf(f2, "*ELEMENT, TYPE=C3D8R, ELSET=ALLELEMENTS\n");
@@ -504,10 +504,10 @@ void CreateFEAInputFiles::execute()
     notifyStatusMessage("Finished Writing ABAQUS Elements Connectivity File");
     //
     //
-    Int32ArrayType::Pointer m_phaseIdLengthPtr = Int32ArrayType::CreateArray(maxGrainId, "PHASEID_INTERNAL_USE_ONLY");
+    Int32ArrayType::Pointer m_phaseIdLengthPtr = Int32ArrayType::CreateArray(maxGrainId, "PHASEID_INTERNAL_USE_ONLY", true);
     int32_t* m_phaseId = m_phaseIdLengthPtr->getPointer(0);
 
-    FloatArrayType::Pointer m_orientLengthPtr = FloatArrayType::CreateArray(maxGrainId * 3, "ORIENTATION_INTERNAL_USE_ONLY");
+    FloatArrayType::Pointer m_orientLengthPtr = FloatArrayType::CreateArray(maxGrainId * 3, "ORIENTATION_INTERNAL_USE_ONLY", true);
     float* m_orient = m_orientLengthPtr->getPointer(0);
 
     int32_t grainId = 1;

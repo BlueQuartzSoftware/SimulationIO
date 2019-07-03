@@ -346,10 +346,10 @@ void ExportDAMASKFiles::execute()
   case 1: // grainwise
   {
     //
-    Int32ArrayType::Pointer m_phaseIdLengthPtr = Int32ArrayType::CreateArray(maxGrainId, "PHASEID_INTERNAL_USE_ONLY");
+    Int32ArrayType::Pointer m_phaseIdLengthPtr = Int32ArrayType::CreateArray(maxGrainId, "PHASEID_INTERNAL_USE_ONLY", true);
     int32_t* m_phaseId = m_phaseIdLengthPtr->getPointer(0);
 
-    FloatArrayType::Pointer m_orientLengthPtr = FloatArrayType::CreateArray(maxGrainId * 3, "ORIENTATION_INTERNAL_USE_ONLY");
+    FloatArrayType::Pointer m_orientLengthPtr = FloatArrayType::CreateArray(maxGrainId * 3, "ORIENTATION_INTERNAL_USE_ONLY", true);
     float* m_orient = m_orientLengthPtr->getPointer(0);
 
     int32_t grainId = 1;

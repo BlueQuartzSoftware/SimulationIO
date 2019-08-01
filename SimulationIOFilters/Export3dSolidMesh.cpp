@@ -724,7 +724,7 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
   m_ProcessPtr->setWorkingDirectory(m_outputPath);
   m_ProcessPtr->start(program, arguments);
   m_ProcessPtr->waitForStarted(2000);
-  m_ProcessPtr->waitForFinished(10000000);
+  m_ProcessPtr->waitForFinished(-1);
 
   notifyStatusMessage("Finished running Package");
 }

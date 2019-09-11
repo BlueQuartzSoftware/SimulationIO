@@ -731,7 +731,7 @@ void ImportFEAData::runABQpyscr(const QString& file)
   m_ProcessPtr->setWorkingDirectory(m_odbFilePath);
   m_ProcessPtr->start(program, arguments);
   m_ProcessPtr->waitForStarted(2000);
-  m_ProcessPtr->waitForFinished(100000);
+  m_ProcessPtr->waitForFinished(-1);
 
   notifyStatusMessage("Finished running ABAQUS python script");
 }

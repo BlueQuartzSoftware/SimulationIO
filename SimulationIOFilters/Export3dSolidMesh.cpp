@@ -788,7 +788,7 @@ void Export3dSolidMesh::mergeMesh(const QString& mergeFile, const QString& meshF
   m_ProcessPtr->setWorkingDirectory(m_outputPath);
   m_ProcessPtr->start(program, arguments);
   m_ProcessPtr->waitForStarted(2000);
-  m_ProcessPtr->waitForFinished();
+  m_ProcessPtr->waitForFinished(-1);
 
   notifyStatusMessage("Merging individual volume meshes");
 }

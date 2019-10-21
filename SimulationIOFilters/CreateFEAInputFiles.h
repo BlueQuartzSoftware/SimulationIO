@@ -202,12 +202,8 @@ protected:
   void initialize();
 
 private:
-  DEFINE_DATAARRAY_VARIABLE(int32_t, FeatureIds)
-  DEFINE_DATAARRAY_VARIABLE(int32_t, CellPhases)
-  DEFINE_DATAARRAY_VARIABLE(float, CellEulerAngles)
-    //DEFINE_DATAARRAY_VARIABLE(QString, PhaseNames)
-
-  StringDataArray::WeakPointer m_PhaseNamesPtr;
+  struct Impl;
+  std::unique_ptr<Impl> p_Impl;
 
 public:
   CreateFEAInputFiles(const CreateFEAInputFiles&) = delete;            // Copy Constructor Not Implemented

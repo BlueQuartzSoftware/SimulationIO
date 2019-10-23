@@ -4,41 +4,20 @@
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
 
+#include "SimulationIO/SimulationIOFilters/Utility/EntriesHelper.h"
+
 namespace
 {
-void writeEntries(QTextStream& stream, std::function<QString(int32_t)> func, int32_t maxIndex, size_t maxEntriesPerLine, const QString& delimiter = " ", size_t startingNumEntries = 0)
-{
-  size_t entriesPerLine = startingNumEntries;
-  for(int32_t i = 0; i < maxIndex; i++)
-  {
-    if(entriesPerLine != 0)
-    {
-      if((entriesPerLine % maxEntriesPerLine) != 0)
-      {
-        stream << delimiter;
-      }
-      else
-      {
-        stream << '\n';
-        entriesPerLine = 0;
-      }
-    }
-    stream << func(i);
-    entriesPerLine++;
-  }
-}
-
 void writeCoords(QTextStream& stream, const QString& text, int32_t maxIndex, float origin, float spacing)
 {
   stream << QString("%1 %2\n").arg(text).arg(maxIndex);
 
   auto func = [origin, spacing](int32_t i) { return QString::number(origin + (i * spacing), 'f', 3); };
 
-  writeEntries(stream, func, maxIndex, 6);
+  EntriesHelper::writeEntries(stream, func, maxIndex, 6);
 
   stream << "\n";
 }
-
 } // namespace
 
 bool OnScaleTableFileWriter::write(const ImageGeom& imageGeom, const StringDataArray& phaseNames, const DataArray<int32_t>& featureIds, const QString& outputPath, const QString& filePrefix,
@@ -125,7 +104,7 @@ bool OnScaleTableFileWriter::write(const ImageGeom& imageGeom, const StringDataA
 
   auto func = [&featureIds](int32_t i) { return QString::number(featureIds.at(i)); };
 
-  writeEntries(masterStream, func, totalPoints, 40);
+  EntriesHelper::writeEntries(masterStream, func, totalPoints, 40);
 
   return true;
 }

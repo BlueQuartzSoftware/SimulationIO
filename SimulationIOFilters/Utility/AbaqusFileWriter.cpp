@@ -5,6 +5,8 @@
 
 #include "SIMPLib/Math/SIMPLibMath.h"
 
+#include "SimulationIO/SimulationIOFilters/Utility/EntriesHelper.h"
+
 bool AbaqusFileWriter::write(const ImageGeom& imageGeom, const DataArray<int32_t>& featureIds, const DataArray<int32_t>& cellPhases, const DataArray<float>& cellEulerAngles,
                              const DynamicTableData& matConst, const QString& outputPath, const QString& filePrefix, const QString& jobName, int32_t numDepvar, int32_t numMatConst,
                              int32_t numUserOutVar)
@@ -225,24 +227,10 @@ bool AbaqusFileWriter::write(const ImageGeom& imageGeom, const DataArray<int32_t
     masterStream << QString("*User Material, constants = %1\n").arg(numMatConst + 5);
     masterStream << QString("%1, %2, %3, %4, %5").arg(i).arg(phaseId[i - 1]).arg(orient[(i - 1) * 3], 0, 'f', 3).arg(orient[(i - 1) * 3 + 1], 0, 'f', 3).arg(orient[(i - 1) * 3 + 2], 0, 'f', 3);
 
-    size_t entriesPerLine = 5;
-    for(int32_t j = 0; j < numMatConst; j++)
-    {
-      if(entriesPerLine != 0) // no comma at start
-      {
-        if((entriesPerLine % 8) != 0u) // 8 per line
-        {
-          masterStream << ",  ";
-        }
-        else
-        {
-          masterStream << "\n";
-          entriesPerLine = 0;
-        }
-      }
-      masterStream << MatConst[j][0];
-      entriesPerLine++;
-    }
+    auto func = [&MatConst](int32_t i) { return QString::number(MatConst[i][0], 'f', 3); };
+
+    EntriesHelper::writeEntries(masterStream, func, numMatConst, 8, ", ", "\n", 5);
+
     masterStream << "\n";
     masterStream << "*User Output Variables\n";
     masterStream << numUserOutVar << "\n";

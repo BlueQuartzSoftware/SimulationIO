@@ -23,6 +23,7 @@ set(_PublicFilters
   ExportLAMMPSFile
   ExportDAMASKFiles
   CreateOnScaleTableFile
+  CreateAbaqusFile
 )
 
 list(LENGTH _PublicFilters PluginNumFilters)

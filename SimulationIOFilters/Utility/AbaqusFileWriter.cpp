@@ -103,12 +103,12 @@ bool AbaqusFileWriter::write(const ImageGeom& imageGeom, const DataArray<int32_t
   int32_t nnode_y = ne_y + 1;
   int32_t nnode_z = ne_z + 1;
 
-  QTextStream elemsStream(&elemsFile);
+  QTextStream nodesStream(&nodesFile);
 
-  elemsStream << "*NODE, NSET=ALLNODES\n";
+  nodesStream << "*NODE, NSET=ALLNODES\n";
 
-  elemsStream.setRealNumberNotation(QTextStream::RealNumberNotation::FixedNotation);
-  elemsStream.setRealNumberPrecision(3);
+  nodesStream.setRealNumberNotation(QTextStream::RealNumberNotation::FixedNotation);
+  nodesStream.setRealNumberPrecision(3);
 
   for(int32_t k = 0; k < nnode_z; k++)
   {
@@ -122,12 +122,17 @@ bool AbaqusFileWriter::write(const ImageGeom& imageGeom, const DataArray<int32_t
         float value2 = origin[1] + (j * spacing[1]);
         float value3 = origin[2] + (k * spacing[2]);
 
-        elemsStream << QString("%1, %2, %3, %4\n").arg(index + 1).arg(value1, 0, 'f', 3).arg(value2, 0, 'f', 3).arg(value3, 0, 'f', 3);
+        nodesStream << QString("%1, %2, %3, %4\n").arg(index + 1).arg(value1, 0, 'f', 3).arg(value2, 0, 'f', 3).arg(value3, 0, 'f', 3);
       }
     }
   }
 
   // notifyStatusMessage("Finished Writing ABAQUS Nodes File");
+
+  QTextStream elemsStream(&elemsFile);
+
+  elemsStream.setRealNumberNotation(QTextStream::RealNumberNotation::FixedNotation);
+  elemsStream.setRealNumberPrecision(3);
 
   elemsStream << "*ELEMENT, TYPE=C3D8R, ELSET=ALLELEMENTS\n";
 
@@ -137,6 +142,7 @@ bool AbaqusFileWriter::write(const ImageGeom& imageGeom, const DataArray<int32_t
     {
       for(int32_t i = 0; i < ne_x; i++)
       {
+        int32_t eindex = k * ne_x * ne_y + j * ne_x + i;
         int32_t index = k * nnode_x * nnode_y + j * nnode_x + i + 1;
 
         int32_t value1 = index;
@@ -148,7 +154,7 @@ bool AbaqusFileWriter::write(const ImageGeom& imageGeom, const DataArray<int32_t
         int32_t value7 = index + nnode_x + nnode_x * nnode_y + 1;
         int32_t value8 = index + nnode_x + nnode_x * nnode_y;
 
-        elemsStream << QString("%1, %2, %3, %4, %5, %6, %7, %8, %9\n").arg(index + 1).arg(value1).arg(value2).arg(value3).arg(value4).arg(value5).arg(value6).arg(value7).arg(value8);
+        elemsStream << QString("%1, %2, %3, %4, %5, %6, %7, %8, %9\n").arg(eindex + 1).arg(value1).arg(value2).arg(value3).arg(value4).arg(value5).arg(value6).arg(value7).arg(value8);
       }
     }
   }
@@ -180,7 +186,7 @@ bool AbaqusFileWriter::write(const ImageGeom& imageGeom, const DataArray<int32_t
   for(int32_t voxelId = 1; voxelId <= maxGrainId; voxelId++)
   {
     size_t elementPerLine = 0;
-    elsetStream << QString("*Elset, elset=Grain%d_Phase%d_set\n").arg(voxelId).arg(phaseId[voxelId - 1]);
+    elsetStream << QString("*Elset, elset=Grain%1_Phase%2_set\n").arg(voxelId).arg(phaseId[voxelId - 1]);
 
     for(int32_t i = 0; i < totalPoints; i++)
     {
@@ -213,10 +219,10 @@ bool AbaqusFileWriter::write(const ImageGeom& imageGeom, const DataArray<int32_t
 
   for(int32_t i = 1; i <= maxGrainId; i++)
   {
-    masterStream << QString("*Material, name = Grain%d_Phase%d_set\n").arg(i).arg(phaseId[i - 1]);
+    masterStream << QString("*Material, name = Grain%1_Phase%2_set\n").arg(i).arg(phaseId[i - 1]);
     masterStream << "*Depvar\n";
     masterStream << numDepvar << "\n";
-    masterStream << QString("*User Material, constants = %d\n").arg(numMatConst + 5);
+    masterStream << QString("*User Material, constants = %1\n").arg(numMatConst + 5);
     masterStream << QString("%1, %2, %3, %4, %5").arg(i).arg(phaseId[i - 1]).arg(orient[(i - 1) * 3], 0, 'f', 3).arg(orient[(i - 1) * 3 + 1], 0, 'f', 3).arg(orient[(i - 1) * 3 + 2], 0, 'f', 3);
 
     size_t entriesPerLine = 5;

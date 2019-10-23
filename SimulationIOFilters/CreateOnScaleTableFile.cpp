@@ -37,8 +37,6 @@ struct CreateOnScaleTableFile::Impl
 // -----------------------------------------------------------------------------
 CreateOnScaleTableFile::CreateOnScaleTableFile()
 : p_Impl(std::make_unique<Impl>())
-, m_OutputPath("")
-, m_OutputFilePrefix("")
 , m_PzflexFeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
 , m_PhaseNamesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::EnsembleAttributeMatrixName, SIMPL::EnsembleData::PhaseName)
 , m_NumKeypoints({2, 2, 2})
@@ -73,14 +71,13 @@ void CreateOnScaleTableFile::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Parameter, CreateOnScaleTableFile, "*", "*"));
   parameters.push_back(SIMPL_NEW_STRING_FP("Output File Prefix", OutputFilePrefix, FilterParameter::Parameter, CreateOnScaleTableFile));
 
+  parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Keypoints", NumKeypoints, FilterParameter::Parameter, CreateOnScaleTableFile));
+  parameters.push_back(SeparatorFilterParameter::New("Ensemble Data", FilterParameter::RequiredArray));
+
   {
-    parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Keypoints", NumKeypoints, FilterParameter::Parameter, CreateOnScaleTableFile));
-    parameters.push_back(SeparatorFilterParameter::New("Ensemble Data", FilterParameter::RequiredArray));
-    {
-      DataArraySelectionFilterParameter::RequirementType req =
-          DataArraySelectionFilterParameter::CreateRequirement(SIMPL::Defaults::AnyPrimitive, 1, AttributeMatrix::Type::CellEnsemble, IGeometry::Type::Image);
-      parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phase Names", PhaseNamesArrayPath, FilterParameter::RequiredArray, CreateOnScaleTableFile, req));
-    }
+    DataArraySelectionFilterParameter::RequirementType req =
+        DataArraySelectionFilterParameter::CreateRequirement(SIMPL::Defaults::AnyPrimitive, 1, AttributeMatrix::Type::CellEnsemble, IGeometry::Type::Image);
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phase Names", PhaseNamesArrayPath, FilterParameter::RequiredArray, CreateOnScaleTableFile, req));
   }
 
   parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::RequiredArray));
@@ -205,7 +202,7 @@ void CreateOnScaleTableFile::execute()
   auto featureIds = p_Impl->m_FeatureIdsPtr.lock();
   if(featureIds == nullptr)
   {
-    QString ss = QObject::tr("Error obtaining feature ids data array'%1'").arg(m_PhaseNamesArrayPath.serialize());
+    QString ss = QObject::tr("Error obtaining feature ids data array'%1'").arg(m_PzflexFeatureIdsArrayPath.serialize());
     setErrorCondition(-10105, ss);
     return;
   }

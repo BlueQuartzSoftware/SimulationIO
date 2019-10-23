@@ -342,10 +342,10 @@ void CreateFEAInputFiles::execute()
   {
   case 0: // ABAQUS
   {
-    DataContainer::Pointer dc = getDataContainerArray()->getDataContainer(getPzflexFeatureIdsArrayPath().getDataContainerName());
+    DataContainer::Pointer dc = getDataContainerArray()->getDataContainer(getAbqFeatureIdsArrayPath().getDataContainerName());
     if(dc == nullptr)
     {
-      QString ss = QObject::tr("The data cannot be read from file");
+      QString ss = QObject::tr("The data container cannot be found");
       setErrorCondition(-95009, ss);
       return;
     }

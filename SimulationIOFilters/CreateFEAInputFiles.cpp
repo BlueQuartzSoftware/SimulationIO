@@ -44,6 +44,14 @@ struct CreateFEAInputFiles::Impl
   DataArray<float>::WeakPointer m_CellEulerAnglesPtr;
 
   StringDataArray::WeakPointer m_PhaseNamesPtr;
+
+  void reset()
+  {
+    m_FeatureIdsPtr.reset();
+    m_CellPhasesPtr.reset();
+    m_CellEulerAnglesPtr.reset();
+    m_PhaseNamesPtr.reset();
+  }
 };
 
 // -----------------------------------------------------------------------------
@@ -199,6 +207,8 @@ void CreateFEAInputFiles::dataCheck()
 {
   clearErrorCode();
   clearWarningCode();
+
+  p_Impl->reset();
 
   if(m_OutputPath.isEmpty())
   {

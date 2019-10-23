@@ -32,7 +32,7 @@ void writeCoords(QTextStream& stream, const QString& text, int32_t maxIndex, flo
 {
   stream << QString("%1 %2\n").arg(text).arg(maxIndex);
 
-  auto func = [origin, spacing](int32_t i) { return QString::number(origin + (i * spacing), 'e', 3); };
+  auto func = [origin, spacing](int32_t i) { return QString::number(origin + (i * spacing), 'f', 3); };
 
   writeEntries(stream, func, maxIndex, 6);
 
@@ -123,7 +123,7 @@ bool OnScaleTableFileWriter::write(const ImageGeom& imageGeom, const StringDataA
   masterStream << "\n";
   masterStream << QString("matr %1\n").arg(ne_x * ne_y * ne_z);
 
-  auto func = [&featureIds](int32_t i) { return QString::number(featureIds.at(i), 'f', 3); };
+  auto func = [&featureIds](int32_t i) { return QString::number(featureIds.at(i)); };
 
   writeEntries(masterStream, func, totalPoints, 40);
 

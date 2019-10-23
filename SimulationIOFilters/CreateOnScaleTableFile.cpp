@@ -123,9 +123,8 @@ void CreateOnScaleTableFile::dataCheck()
     setErrorCondition(-12001, ss);
   }
 
-  QFileInfo fi(m_OutputPath);
-  QDir parentPath = fi.path();
-  if(!parentPath.exists())
+  QDir dir(m_OutputPath);
+  if(!dir.exists())
   {
     QString ss = QObject::tr("The directory path for the output file does not exist. DREAM.3D will attempt to create this path during execution of the filter");
     setWarningCondition(-10100, ss);
@@ -133,25 +132,11 @@ void CreateOnScaleTableFile::dataCheck()
 
   getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom, AbstractFilter>(this, getPzflexFeatureIdsArrayPath().getDataContainerName());
 
-  QVector<DataArrayPath> dataArrayPaths;
-
-  std::vector<size_t> cDims(1, 1);
+  std::vector<size_t> cDims{1};
 
   p_Impl->m_FeatureIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getPzflexFeatureIdsArrayPath(), cDims);
-  if(nullptr != p_Impl->m_FeatureIdsPtr.lock())
-  {
-  }
-  if(getErrorCode() >= 0)
-  {
-    dataArrayPaths.push_back(getPzflexFeatureIdsArrayPath());
-  }
 
   p_Impl->m_PhaseNamesPtr = getDataContainerArray()->getPrereqArrayFromPath<StringDataArray, AbstractFilter>(this, getPhaseNamesArrayPath(), cDims);
-
-  if(getErrorCode() >= 0)
-  {
-    dataArrayPaths.push_back(getPhaseNamesArrayPath());
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -185,42 +170,50 @@ void CreateOnScaleTableFile::execute()
     return;
   }
 
-  // Check Output Path
-
   QDir dir;
   if(!dir.mkpath(m_OutputPath))
   {
-    QString ss = QObject::tr("Error creating parent path '%1'").arg(m_OutputPath);
-    setErrorCondition(-1, ss);
+    QString ss = QObject::tr("Error creating path '%1'").arg(m_OutputPath);
+    setErrorCondition(-10101, ss);
     return;
   }
 
   DataContainer::Pointer dc = getDataContainerArray()->getDataContainer(getPzflexFeatureIdsArrayPath().getDataContainerName());
   if(dc == nullptr)
   {
+    QString ss = QObject::tr("Error obtaining data container '%1'").arg(m_PzflexFeatureIdsArrayPath.getDataContainerName());
+    setErrorCondition(-10102, ss);
     return;
   }
 
   auto imageGeom = dc->getGeometryAs<ImageGeom>();
   if(imageGeom == nullptr)
   {
+    QString ss = QObject::tr("Error obtaining image geometry from data container '%1'").arg(m_PzflexFeatureIdsArrayPath.getDataContainerName());
+    setErrorCondition(-10103, ss);
     return;
   }
 
   auto phaseNames = p_Impl->m_PhaseNamesPtr.lock();
   if(phaseNames == nullptr)
   {
+    QString ss = QObject::tr("Error obtaining phase names data array '%1'").arg(m_PhaseNamesArrayPath.serialize());
+    setErrorCondition(-10104, ss);
     return;
   }
 
   auto featureIds = p_Impl->m_FeatureIdsPtr.lock();
   if(featureIds == nullptr)
   {
+    QString ss = QObject::tr("Error obtaining feature ids data array'%1'").arg(m_PhaseNamesArrayPath.serialize());
+    setErrorCondition(-10105, ss);
     return;
   }
 
   if(!OnScaleTableFileWriter::write(*imageGeom, *phaseNames, *featureIds, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints))
   {
+    QString ss = QObject::tr("Error writing file at '%1'").arg(m_OutputPath);
+    setErrorCondition(-10106, ss);
     return;
   }
 }

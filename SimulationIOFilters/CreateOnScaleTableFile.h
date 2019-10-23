@@ -16,7 +16,7 @@
 class SimulationIO_EXPORT CreateOnScaleTableFile : public AbstractFilter
 {
   Q_OBJECT
-  PYB11_CREATE_BINDINGS(CreateFEAInputFiles SUPERCLASS AbstractFilter)
+  PYB11_CREATE_BINDINGS(CreateOnScaleTableFile SUPERCLASS AbstractFilter)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
   PYB11_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
   PYB11_PROPERTY(DataArrayPath PzflexFeatureIdsArrayPath READ getPzflexFeatureIdsArrayPath WRITE setPzflexFeatureIdsArrayPath)

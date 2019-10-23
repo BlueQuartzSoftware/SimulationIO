@@ -24,6 +24,7 @@ set(_PublicFilters
   ExportDAMASKFiles
   CreateOnScaleTableFile
   CreateAbaqusFile
+  CreateBsamFile
 )
 
 list(LENGTH _PublicFilters PluginNumFilters)

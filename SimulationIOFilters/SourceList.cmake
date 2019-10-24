@@ -25,6 +25,7 @@ set(_PublicFilters
   CreateOnScaleTableFile
   CreateAbaqusFile
   CreateBsamFile
+  CreateMultiOnScaleTableFile
 )
 
 list(LENGTH _PublicFilters PluginNumFilters)

@@ -124,7 +124,7 @@ void CreateMultiOnScaleTableFile::dataCheck()
   if(!dir.exists())
   {
     QString ss = QObject::tr("The directory path for the output file does not exist. DREAM.3D will attempt to create this path during execution of the filter");
-    setWarningCondition(-10100, ss);
+    setWarningCondition(-10400, ss);
   }
 
   auto dca = getDataContainerArray();
@@ -227,7 +227,7 @@ void CreateMultiOnScaleTableFile::execute()
   if(!dir.mkpath(m_OutputPath))
   {
     QString ss = QObject::tr("Error creating path '%1'").arg(m_OutputPath);
-    setErrorCondition(-10101, ss);
+    setErrorCondition(-10401, ss);
     return;
   }
 
@@ -235,7 +235,7 @@ void CreateMultiOnScaleTableFile::execute()
   if(phaseNames == nullptr)
   {
     QString ss = QObject::tr("Error obtaining phase names data array '%1'").arg(m_PhaseNamesArrayPath.serialize());
-    setErrorCondition(-10104, ss);
+    setErrorCondition(-10402, ss);
     return;
   }
 
@@ -247,7 +247,7 @@ void CreateMultiOnScaleTableFile::execute()
     if(featureIds == nullptr)
     {
       QString ss = QObject::tr("Error obtaining feature ids data array '%1'").arg(path.serialize());
-      setErrorCondition(-10105, ss);
+      setErrorCondition(-10403, ss);
       return;
     }
 
@@ -257,7 +257,7 @@ void CreateMultiOnScaleTableFile::execute()
     if(dc == nullptr)
     {
       QString ss = QObject::tr("Error obtaining data container '%1'").arg(dcName);
-      setErrorCondition(-10102, ss);
+      setErrorCondition(-10404, ss);
       return;
     }
 
@@ -265,14 +265,14 @@ void CreateMultiOnScaleTableFile::execute()
     if(imageGeom == nullptr)
     {
       QString ss = QObject::tr("Error obtaining image geometry from data container '%1'").arg(dcName);
-      setErrorCondition(-10103, ss);
+      setErrorCondition(-10406, ss);
       return;
     }
 
     if(!OnScaleTableFileWriter::write(*imageGeom, *phaseNames, *featureIds, m_OutputPath, dcName, m_NumKeypoints))
     {
       QString ss = QObject::tr("Error writing file at '%1' for DataContainer '%2'").arg(m_OutputPath, dcName);
-      setErrorCondition(-10106, ss);
+      setErrorCondition(-10407, ss);
       return;
     }
   }

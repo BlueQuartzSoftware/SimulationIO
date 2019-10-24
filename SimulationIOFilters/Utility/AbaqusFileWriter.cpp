@@ -8,8 +8,7 @@
 #include "SimulationIO/SimulationIOFilters/Utility/EntriesHelper.h"
 
 bool AbaqusFileWriter::write(const ImageGeom& imageGeom, const DataArray<int32_t>& featureIds, const DataArray<int32_t>& cellPhases, const DataArray<float>& cellEulerAngles,
-                             const DynamicTableData& matConst, const QString& outputPath, const QString& filePrefix, const QString& jobName, int32_t numDepvar, int32_t numMatConst,
-                             int32_t numUserOutVar)
+                             const DynamicTableData& matConst, const QString& outputPath, const QString& filePrefix, const QString& jobName, int32_t numDepvar, int32_t numUserOutVar)
 {
   SizeVec3Type dims = imageGeom.getDimensions();
   FloatVec3Type spacing = imageGeom.getSpacing();
@@ -218,6 +217,8 @@ bool AbaqusFileWriter::write(const ImageGeom& imageGeom, const DataArray<int32_t
   masterStream.setRealNumberPrecision(3);
 
   std::vector<std::vector<double>> MatConst = matConst.getTableData();
+
+  int32_t numMatConst = static_cast<int32_t>(MatConst.size());
 
   for(int32_t i = 1; i <= maxGrainId; i++)
   {

@@ -41,7 +41,6 @@ struct CreateAbaqusFile::Impl
 CreateAbaqusFile::CreateAbaqusFile()
 : p_Impl(std::make_unique<Impl>())
 , m_NumDepvar(1)
-, m_NumMatConst(6)
 , m_NumUserOutVar(1)
 , m_AbqFeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
 , m_CellEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles)
@@ -79,14 +78,13 @@ void CreateAbaqusFile::setupFilterParameters()
 
   parameters.push_back(SIMPL_NEW_STRING_FP("Job Name", JobName, FilterParameter::Parameter, CreateAbaqusFile));
   parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Solution Dependent State Variables", NumDepvar, FilterParameter::Parameter, CreateAbaqusFile));
-  parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Material Constants", NumMatConst, FilterParameter::Parameter, CreateAbaqusFile));
   parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of User Output Variables", NumUserOutVar, FilterParameter::Parameter, CreateAbaqusFile));
 
   // Table - Dynamic rows and fixed columns
   {
     QStringList cHeaders;
     cHeaders << "Values";
-    std::vector<std::vector<double>> defaultTable(1, std::vector<double>(1, 0.0));
+    std::vector<std::vector<double>> defaultTable(6, std::vector<double>(1, 0.0));
     m_MatConst.setColHeaders(cHeaders);
     m_MatConst.setTableData(defaultTable);
     m_MatConst.setDynamicRows(true);
@@ -121,7 +119,6 @@ void CreateAbaqusFile::readFilterParameters(AbstractFilterParametersReader* read
   setOutputFilePrefix(reader->readString("OutputFilePrefix", getOutputFilePrefix()));
   setJobName(reader->readString("JobName", getJobName()));
   setNumDepvar(reader->readValue("NumDepvar", getNumDepvar()));
-  setNumMatConst(reader->readValue("NumMatConst", getNumMatConst()));
   setNumUserOutVar(reader->readValue("NumUserOutVar", getNumUserOutVar()));
   setMatConst(reader->readDynamicTableData("MatConst", getMatConst()));
   setAbqFeatureIdsArrayPath(reader->readDataArrayPath("AbqFeatureIdsArrayPath", getAbqFeatureIdsArrayPath()));
@@ -261,7 +258,7 @@ void CreateAbaqusFile::execute()
     return;
   }
 
-  if(!AbaqusFileWriter::write(*imageGeom, *featureIds, *cellPhases, *cellEulerAngles, m_MatConst, m_OutputPath, m_OutputFilePrefix, m_JobName, m_NumDepvar, m_NumMatConst, m_NumUserOutVar))
+  if(!AbaqusFileWriter::write(*imageGeom, *featureIds, *cellPhases, *cellEulerAngles, m_MatConst, m_OutputPath, m_OutputFilePrefix, m_JobName, m_NumDepvar, m_NumUserOutVar))
   {
     QString ss = QObject::tr("Error writing file at '%1'").arg(m_OutputPath);
     setErrorCondition(-10207, ss);

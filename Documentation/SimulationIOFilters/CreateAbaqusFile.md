@@ -12,7 +12,7 @@ This **filter** assumes that the finite element discretization is equal to the d
 
 This **filter** writes out five files for input into the Abaqus analysis tool. The files created are: xxx.inp (the master file), xxx_nodes.inp, xxx_elems.inp, xxx_elset.inp and xxx_sects.inp. 
 
-The material information is written in the master file (xxx.inp). There is a table to enter the values of material constants. Number of values in the table should be equal to the number entered in "Number of Material Contants" field. However, the total number of material constants that will be written in the *.inp file will be (5 + "Number of Material Constants"). The first five values under *User Material are grainID, phaseID, Euler1, Euler2, and Euler3. The user provided material constants are written after these five values. A format of material data that is written to *.inp file is shown below:
+The material information is written in the master file (xxx.inp). There is a table to enter the values of material constants. However, the total number of material constants that will be written in the *.inp file will be (5 + "Number of Material Constants"). The first five values under *User Material are grainID, phaseID, Euler1, Euler2, and Euler3. The user provided material constants are written after these five values. A format of material data that is written to *.inp file is shown below:
 
 *Material, name = GrainId#_PhaseID#_set
 *Depvar
@@ -33,7 +33,6 @@ Currently, this **filter** is valid only for cuboidal geometries and creates bri
 | Output File Prefix | String | output file prefix |
 | Job Name | String | job name |
 | Number of Solution Dependent Variables | int | number of solution dependent variables |
-| Number of Material Constants | int | number of material constants |
 | Number of User Output Variables | int | number of usev output variables |
 | Material Constants | DynamicTableData | values of material constants |
 

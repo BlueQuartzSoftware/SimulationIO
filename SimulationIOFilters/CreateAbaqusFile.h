@@ -48,9 +48,6 @@ public:
   SIMPL_FILTER_PARAMETER(int, NumDepvar)
   Q_PROPERTY(int NumDepvar READ getNumDepvar WRITE setNumDepvar)
 
-  SIMPL_FILTER_PARAMETER(int, NumMatConst)
-  Q_PROPERTY(int NumMatConst READ getNumMatConst WRITE setNumMatConst)
-
   SIMPL_FILTER_PARAMETER(int, NumUserOutVar)
   Q_PROPERTY(int NumUserOutVar READ getNumUserOutVar WRITE setNumUserOutVar)
 

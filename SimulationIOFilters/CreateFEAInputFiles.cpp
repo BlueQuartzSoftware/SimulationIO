@@ -132,7 +132,7 @@ void CreateFEAInputFiles::setupFilterParameters()
     {
       QStringList cHeaders;
       cHeaders << "Values";
-      std::vector<std::vector<double>> defaultTable(1, std::vector<double>(1, 0.0));
+      std::vector<std::vector<double>> defaultTable(m_NumMatConst, std::vector<double>(1, 0.0));
       m_MatConst.setColHeaders(cHeaders);
       m_MatConst.setTableData(defaultTable);
       m_MatConst.setDynamicRows(true);
@@ -228,6 +228,16 @@ void CreateFEAInputFiles::dataCheck()
   {
   case 0: // ABAQUS
   {
+    auto tableData = m_MatConst.getTableData();
+
+    int32_t numRows = static_cast<int32_t>(tableData.size());
+
+    if(numRows != m_NumMatConst)
+    {
+      QString ss = QObject::tr("'Number of Material Constants' must match number of entries in 'Material Constants'");
+      setErrorCondition(-10101, ss);
+    }
+
     getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom, AbstractFilter>(this, getAbqFeatureIdsArrayPath().getDataContainerName());
 
     QVector<DataArrayPath> dataArrayPaths;
@@ -266,7 +276,7 @@ void CreateFEAInputFiles::dataCheck()
 
     break;
   }
-  case 1:
+  case 1: // PZFLEX
   {
     getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom, AbstractFilter>(this, getPzflexFeatureIdsArrayPath().getDataContainerName());
 
@@ -374,7 +384,7 @@ void CreateFEAInputFiles::execute()
       return;
     }
 
-    if(!AbaqusFileWriter::write(*imageGeom, *featureIds, *cellPhases, *cellEulerAngles, m_MatConst, m_OutputPath, m_OutputFilePrefix, m_JobName, m_NumDepvar, m_NumMatConst, m_NumUserOutVar))
+    if(!AbaqusFileWriter::write(*imageGeom, *featureIds, *cellPhases, *cellEulerAngles, m_MatConst, m_OutputPath, m_OutputFilePrefix, m_JobName, m_NumDepvar, m_NumUserOutVar))
     {
       return;
     }

@@ -208,5 +208,5 @@ const QString CreateBsamFile::getHumanLabel() const
 // -----------------------------------------------------------------------------
 const QUuid CreateBsamFile::getUuid()
 {
-  return QUuid("{3ea75b4c-d437-59aa-aab0-a255467e02f2}");
+  return QUuid("{542c2417-1685-54e5-9322-f60792e9176c}");
 }

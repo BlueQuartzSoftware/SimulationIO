@@ -18,7 +18,7 @@ This **filter** writes out PZFLEX's input file (*.flxtbl). The required input fo
 |------|------|------|
 | Output Path | Path | path of the directory where files will be created |
 | Output File Prefix | String | output file prefix |
-| Number of Keypoints | Int | keypoints in x, y, and z dimension, if _PZFLEX_ is chosen |
+| Number of Keypoints | Int | keypoints in x, y, and z dimension |
 
 
 ## Required Geometry ##

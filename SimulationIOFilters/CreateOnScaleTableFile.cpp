@@ -202,7 +202,7 @@ void CreateOnScaleTableFile::execute()
   auto featureIds = p_Impl->m_FeatureIdsPtr.lock();
   if(featureIds == nullptr)
   {
-    QString ss = QObject::tr("Error obtaining feature ids data array'%1'").arg(m_PzflexFeatureIdsArrayPath.serialize());
+    QString ss = QObject::tr("Error obtaining feature ids data array '%1'").arg(m_PzflexFeatureIdsArrayPath.serialize());
     setErrorCondition(-10105, ss);
     return;
   }

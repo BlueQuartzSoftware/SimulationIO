@@ -44,7 +44,7 @@ CreateFEAInputFiles::CreateFEAInputFiles()
 , m_OutputPath("")
 , m_OutputFilePrefix("")
 , m_NumDepvar(1)
-, m_NumMatConst(6)
+, m_NumMatConst(1)
 , m_NumUserOutVar(1)
 , m_AbqFeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
 , m_PzflexFeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
@@ -223,7 +223,7 @@ void CreateFEAInputFiles::dataCheck()
                                                                                                           cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
     if(nullptr != m_FeatureIdsPtr.lock())                                                                         /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
     {
-      m_CellPhases = m_CellPhasesPtr.lock()->getPointer(0);
+      m_FeatureIds = m_FeatureIdsPtr.lock()->getPointer(0);
     } /* Now assign the raw pointer to data from the DataArray<T> object */
     if(getErrorCode() >= 0)
     {
@@ -254,6 +254,12 @@ void CreateFEAInputFiles::dataCheck()
     }
 
     getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
+
+    std::vector<std::vector<double>> MatConst = m_MatConst.getTableData();
+    if (MatConst.size() != m_NumMatConst)
+      {
+	setErrorCondition(-1, "Number of rows in the table for 'Material Constants' should be equal to the number entered in 'Number of Material Contants' field");
+      }
 
     break;
   }

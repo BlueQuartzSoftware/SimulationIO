@@ -163,26 +163,15 @@ void CreateMultiOnScaleTableFile::dataCheck()
     {
       continue;
     }
-    auto dataArray = matrix->getAttributeArray(m_ArrayName);
+    auto dataArray = matrix->getAttributeArrayAs<Int32ArrayType>(m_ArrayName);
     if(dataArray == nullptr)
     {
       continue;
     }
-    if(dataArray->getTypeAsString() != "int32_t")
-    {
-      continue;
-    }
 
-    auto intArray = std::dynamic_pointer_cast<DataArray<int32_t>>(dataArray);
+    auto path = dataArray->getDataArrayPath();
 
-    if(intArray == nullptr)
-    {
-      continue;
-    }
-
-    auto path = intArray->getDataArrayPath();
-
-    p_Impl->m_FeatureIdsList.push_back({path, intArray});
+    p_Impl->m_FeatureIdsList.push_back({path, dataArray});
 
     m_SelectedArrays += path.serialize() + "\n";
   }

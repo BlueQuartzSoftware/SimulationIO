@@ -18,6 +18,8 @@ DREAM.3D needs the exact location of these packages to be specified in the "Pack
 ##### TetGen #####
 Tetgen creates the volume mesh using the surface mesh created by the **Quick Surface Mesh** filter. It also needs the centroids of features which can be calculated using the "Find Feature Centroid" filter. The quality of the mesh can be controlled using the options available in the filter. The mesh files created by this filter are saved in the directory mentioned in the "Path" field. Tetgen creates a tetrahedral mesh and all the mesh related data is saved in a newly created **Data Container**. 
 
+Tetgen can also be used to create a finite element mesh with holes. User needs to specify the phaseID that corresponds to holes.
+
 ##### Netgen #####
 Netgen is used to create a volume mesh from STL files of individual grains. All the STL files should be present in the directory mentioned in the "Path" field. "STL File Prefix" should be the same that was used for creating the STL files. First, volume mesh of each **feature** is created, followed by merging of individual meshes. File names of individual mesh files is STLFilePrefixFeature_#.vol and the file name of the merged mesh is STLFilePrefixMergedMesh.vol. All the mesh files are present in the directory mentioned in "Path" Field. User has the option of chosing the mesh quality from very coarse, coarse, moderate, fine, and very fine. 
 
@@ -38,6 +40,8 @@ Gmsh is used to create a volume mesh from STL files of individual grains. All th
 | Optimization Level | int | optimization level, if _TetGen_ is chosen|
 | Limit Tetrahedra Volume | bool | Option to limit the volume of tetrahedrons, if _TetGen_ is chosen|
 | Maximum Tetrahedron Volume | float | Maximum volume of tetrahedrons, if _TetGen_ is chosen|
+| Include Holes Using PhaseID | bool | Option to create holes using PhaseID, if _TetGen_ is chosen|
+| PhaseID | int | ID of the phase that corresponds to holes, if _TetGen_ is chosen|
 | STL File Prefix | File Prefix | Prefix of STL filenames (xxxFeature_#.stl), if _Netgen_ or _Gmsh_ is chosen |
 | Mesh Size | Enumeration | verycoarse/coarse/moderate/fine/veryfine, if _Netgen_ is chosen |
 | Mesh File Format | Enumeration | mesh file format: msh or inp, if _Gmsh_ is chosen |

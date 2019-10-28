@@ -58,6 +58,8 @@ Export3dSolidMesh::Export3dSolidMesh()
 , m_LimitTetrahedraVolume(false)
 , m_MaxTetrahedraVolume(0.1f)
 , m_OptimizationLevel(2)
+, m_IncludeHolesUsingPhaseID(false)
+, m_PhaseID(2)
 , m_TetDataContainerName(SIMPL::Defaults::TetrahedralDataContainerName)
 , m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
 , m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
@@ -110,6 +112,8 @@ void Export3dSolidMesh::setupFilterParameters()
                                "OptimizationLevel",
                                "LimitTetrahedraVolume",
                                "MaxTetrahedraVolume",
+			       "IncludeHolesUsingPhaseID",
+			       "PhaseID",
                                "TetDataContainerName",
                                "VertexAttributeMatrixName",
                                "CellAttributeMatrixName",
@@ -208,6 +212,14 @@ void Export3dSolidMesh::setupFilterParameters()
     parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Limit Tetrahedra Volume (a)", LimitTetrahedraVolume, FilterParameter::Parameter, Export3dSolidMesh, linkedProps, 0));
     linkedProps.clear();
     parameters.push_back(SIMPL_NEW_FLOAT_FP("Maximum Tetrahedron Volume", MaxTetrahedraVolume, FilterParameter::Parameter, Export3dSolidMesh, 0));
+  }
+
+  {
+    parameters.push_back(SeparatorFilterParameter::New("Holes in the Mesh", FilterParameter::Parameter));
+    QStringList linkedProps = {"PhaseID"};
+    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Include Holes Using PhaseID", IncludeHolesUsingPhaseID, FilterParameter::Parameter, Export3dSolidMesh, linkedProps, 0));
+    linkedProps.clear();
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("PhaseID", PhaseID, FilterParameter::Parameter, Export3dSolidMesh, 0));
   }
 
   {
@@ -577,7 +589,36 @@ void Export3dSolidMesh::createTetgenInpFile(const QString& file, MeshIndexType n
   }
 
   fprintf(f1, "# Part 3 - hole list\n");
-  fprintf(f1, "0\n");
+  if(m_IncludeHolesUsingPhaseID)
+    {
+      size_t numHoles = 0;
+      size_t jj = 0;
+      //      Int32ArrayType::Pointer m_HolesIDPtr = Int32ArrayType::CreateArray(numfeatures, "HOLESID_INTERNAL_USE_ONLY", true);
+      // int32_t* m_HolesID = m_HolesIDPtr->getPointer(0);
+      
+      for(size_t ii = 1; ii < numfeatures; ii++)
+	{
+	  if (m_FeaturePhases[ii] == m_PhaseID )
+	    {
+	      numHoles = numHoles + 1;
+	      //      m_HolesID[ii] = 1;
+	    }
+	}
+      fprintf(f1, "%zu\n",numHoles);
+      for(size_t ii = 1; ii < numfeatures; ii++)
+	{
+	  //	  if (m_HolesID[ii] == 1 )
+	  if (m_FeaturePhases[ii] == m_PhaseID )
+	    {
+	      fprintf(f1, "%zu %.3f %.3f %.3f\n", jj+1, centroid[ii * 3], centroid[ii * 3 + 1], centroid[ii * 3 + 2]);
+	    }
+	}
+    }
+  else
+    {
+      fprintf(f1, "0\n");
+    }
+  
 
   fprintf(f1, "# Part 4 - region list\n");
   fprintf(f1, "%zu 0\n", numfeatures - 1);

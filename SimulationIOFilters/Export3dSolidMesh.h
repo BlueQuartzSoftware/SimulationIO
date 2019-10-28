@@ -42,6 +42,8 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
   PYB11_PROPERTY(bool LimitTetrahedraVolume READ getLimitTetrahedraVolume WRITE setLimitTetrahedraVolume)
   PYB11_PROPERTY(float MaxTetrahedraVolume READ getMaxTetrahedraVolume WRITE setMaxTetrahedraVolume)
   PYB11_PROPERTY(int OptimizationLevel READ getOptimizationLevel WRITE setOptimizationLevel)
+  PYB11_PROPERTY(bool IncludeHolesUsingPhaseID READ getIncludeHolesUsingPhaseID WRITE setIncludeHolesUsingPhaseID)
+  PYB11_PROPERTY(int PhaseID READ getPhaseID WRITE setPhaseID)
 
   PYB11_PROPERTY(QString TetDataContainerName READ getTetDataContainerName WRITE setTetDataContainerName)
   PYB11_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
@@ -98,6 +100,12 @@ public:
 
   SIMPL_FILTER_PARAMETER(int, OptimizationLevel)
   Q_PROPERTY(int OptimizationLevel READ getOptimizationLevel WRITE setOptimizationLevel)
+
+  SIMPL_FILTER_PARAMETER(bool, IncludeHolesUsingPhaseID)
+  Q_PROPERTY(bool IncludeHolesUsingPhaseID READ getIncludeHolesUsingPhaseID WRITE setIncludeHolesUsingPhaseID)
+
+  SIMPL_FILTER_PARAMETER(int, PhaseID)
+  Q_PROPERTY(int PhaseID READ getPhaseID WRITE setPhaseID)
 
   SIMPL_FILTER_PARAMETER(QString, TetDataContainerName)
   Q_PROPERTY(QString TetDataContainerName READ getTetDataContainerName WRITE setTetDataContainerName)

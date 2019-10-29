@@ -22,7 +22,6 @@ class SimulationIO_EXPORT CreateAbaqusFile : public AbstractFilter
   PYB11_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
   PYB11_PROPERTY(QString JobName READ getJobName WRITE setJobName)
   PYB11_PROPERTY(int NumDepvar READ getNumDepvar WRITE setNumDepvar)
-  PYB11_PROPERTY(int NumMatConst READ getNumMatConst WRITE setNumMatConst)
   PYB11_PROPERTY(int NumUserOutVar READ getNumUserOutVar WRITE setNumUserOutVar)
   PYB11_PROPERTY(DynamicTableData MatConst READ getMatConst WRITE setMatConst)
   PYB11_PROPERTY(DataArrayPath AbqFeatureIdsArrayPath READ getAbqFeatureIdsArrayPath WRITE setAbqFeatureIdsArrayPath)

@@ -33,10 +33,14 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+#include <memory>
+
 #include "ExportLAMMPSFile.h"
 
+#include <QtCore/QTextStream>
 
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
+
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/OutputFileFilterParameter.h"
@@ -46,6 +50,8 @@
 #include "SIMPLib/Geometry/VertexGeom.h"
 #include "SIMPLib/Utilities/FileSystemPathHelper.h"
 #include "SIMPLib/Utilities/SIMPLibEndian.h"
+#include "SIMPLib/DataContainers/DataContainerArray.h"
+#include "SIMPLib/DataContainers/DataContainer.h"
 
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"
@@ -278,7 +284,7 @@ AbstractFilter::Pointer ExportLAMMPSFile::newFilterInstance(bool copyFilterParam
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ExportLAMMPSFile::getCompiledLibraryName() const
+QString ExportLAMMPSFile::getCompiledLibraryName() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
@@ -286,7 +292,7 @@ const QString ExportLAMMPSFile::getCompiledLibraryName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ExportLAMMPSFile::getBrandingString() const
+QString ExportLAMMPSFile::getBrandingString() const
 {
   return "SimulationIO";
 }
@@ -294,7 +300,7 @@ const QString ExportLAMMPSFile::getBrandingString() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ExportLAMMPSFile::getFilterVersion() const
+QString ExportLAMMPSFile::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
@@ -305,7 +311,7 @@ const QString ExportLAMMPSFile::getFilterVersion() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ExportLAMMPSFile::getGroupName() const
+QString ExportLAMMPSFile::getGroupName() const
 {
   return SIMPL::FilterGroups::Unsupported;
 }
@@ -313,7 +319,7 @@ const QString ExportLAMMPSFile::getGroupName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QUuid ExportLAMMPSFile::getUuid()
+QUuid ExportLAMMPSFile::getUuid() const
 {
   return QUuid("{33c10889-4cdc-5992-ae00-1795e9bee022}");
 }
@@ -321,7 +327,7 @@ const QUuid ExportLAMMPSFile::getUuid()
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ExportLAMMPSFile::getSubGroupName() const
+QString ExportLAMMPSFile::getSubGroupName() const
 {
   return "SimulationIO";
 }
@@ -329,7 +335,60 @@ const QString ExportLAMMPSFile::getSubGroupName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ExportLAMMPSFile::getHumanLabel() const
+QString ExportLAMMPSFile::getHumanLabel() const
 {
   return "Export LAMMPS Data File";
+}
+
+// -----------------------------------------------------------------------------
+ExportLAMMPSFile::Pointer ExportLAMMPSFile::NullPointer()
+{
+  return Pointer(static_cast<Self*>(nullptr));
+}
+
+// -----------------------------------------------------------------------------
+std::shared_ptr<ExportLAMMPSFile> ExportLAMMPSFile::New()
+{
+  struct make_shared_enabler : public ExportLAMMPSFile
+  {
+  };
+  std::shared_ptr<make_shared_enabler> val = std::make_shared<make_shared_enabler>();
+  val->setupFilterParameters();
+  return val;
+}
+
+// -----------------------------------------------------------------------------
+QString ExportLAMMPSFile::getNameOfClass() const
+{
+  return QString("ExportLAMMPSFile");
+}
+
+// -----------------------------------------------------------------------------
+QString ExportLAMMPSFile::ClassName()
+{
+  return QString("ExportLAMMPSFile");
+}
+
+// -----------------------------------------------------------------------------
+void ExportLAMMPSFile::setLammpsFile(const QString& value)
+{
+  m_LammpsFile = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ExportLAMMPSFile::getLammpsFile() const
+{
+  return m_LammpsFile;
+}
+
+// -----------------------------------------------------------------------------
+void ExportLAMMPSFile::setAtomFeatureLabelsPath(const DataArrayPath& value)
+{
+  m_AtomFeatureLabelsPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath ExportLAMMPSFile::getAtomFeatureLabelsPath() const
+{
+  return m_AtomFeatureLabelsPath;
 }

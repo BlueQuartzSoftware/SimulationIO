@@ -32,7 +32,7 @@
 #include <QtCore/QString>
 
 #include "SIMPLib/SIMPLib.h"
-#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
+
 #include "SIMPLib/DataArrays/DataArray.hpp"
 
 namespace SimulationIO
@@ -40,35 +40,79 @@ namespace SimulationIO
 
 class DeformDataParser
 {
-  public:
-    SIMPL_SHARED_POINTERS(DeformDataParser)
-    SIMPL_TYPE_MACRO(DeformDataParser)
+public:
+  using Self = DeformDataParser;
+  using Pointer = std::shared_ptr<Self>;
+  using ConstPointer = std::shared_ptr<const Self>;
+  using WeakPointer = std::weak_ptr<Self>;
+  using ConstWeakPointer = std::weak_ptr<Self>;
+  static Pointer NullPointer()
+  {
+    return Pointer(static_cast<Self*>(nullptr));
+  }
+  /**
+   * @brief Returns the name of the class for AbstractMessage
+   */
+  virtual QString getNameOfClass() const
+  {
+    return QString("DeformDataParser");
+  }
+  /**
+   * @brief Returns the name of the class for AbstractMessage
+   */
+  static QString ClassName()
+  {
+    return QString("DeformDataParser");
+  }
 
-    virtual ~DeformDataParser() {}
+  virtual ~DeformDataParser() = default;
 
-    SIMPL_INSTANCE_STRING_PROPERTY(ColumnName)
-    SIMPL_INSTANCE_PROPERTY(int, ColumnIndex)
-    virtual void setDataArray(IDataArray::Pointer value)
-    {
-      m_DataArray = value;
-    }
-    
-    IDataArray::Pointer getDataArray()
-    {
-      return m_DataArray;
-    }
-    virtual IDataArray::Pointer initializeNewDataArray(size_t numTuples, const QString &name, bool allocate){ return IDataArray::NullPointer(); }
+  void setColumnName(const QString& value)
+  {
+    m_ColumnName = value;
+  }
+  QString getColumnName()
+  {
+    return m_ColumnName;
+  }
 
-    virtual void parse(const QByteArray& token, size_t index) {}
+  void setColumnIndex(int32_t value)
+  {
+    m_ColumnIndex = value;
+  }
+  int32_t getColumnIndex()
+  {
+    return m_ColumnIndex;
+  }
 
-  protected:
-    DeformDataParser() {}
+  virtual void setDataArray(IDataArray::Pointer value)
+  {
+    m_DataArray = value;
+  }
 
-  private:
-    IDataArray::Pointer m_DataArray;
-    
-    DeformDataParser(const DeformDataParser&); // Copy Constructor Not Implemented
-    void operator=(const DeformDataParser&);   // Move assignment Not Implemented
+  IDataArray::Pointer getDataArray()
+  {
+    return m_DataArray;
+  }
+  virtual IDataArray::Pointer initializeNewDataArray(size_t numTuples, const QString& name, bool allocate)
+  {
+    return IDataArray::NullPointer();
+  }
+
+  virtual void parse(const QByteArray& token, size_t index)
+  {
+  }
+
+protected:
+  DeformDataParser() = default;
+
+private:
+  IDataArray::Pointer m_DataArray;
+  int32_t m_ColumnIndex = 0;
+  QString m_ColumnName = QString("");
+
+  DeformDataParser(const DeformDataParser&); // Copy Constructor Not Implemented
+  void operator=(const DeformDataParser&);   // Move assignment Not Implemented
 };
 
 // -----------------------------------------------------------------------------
@@ -76,52 +120,75 @@ class DeformDataParser
 // -----------------------------------------------------------------------------
 class Int32Parser : public DeformDataParser
 {
-  public:
-    SIMPL_SHARED_POINTERS(Int32Parser)
-    SIMPL_TYPE_MACRO(Int32Parser)
-    static Pointer New(Int32ArrayType::Pointer ptr, const QString& name, int colIndex)
+public:
+  using Self = Int32Parser;
+  using Pointer = std::shared_ptr<Self>;
+  using ConstPointer = std::shared_ptr<const Self>;
+  using WeakPointer = std::weak_ptr<Self>;
+  using ConstWeakPointer = std::weak_ptr<Self>;
+  static Pointer NullPointer()
+  {
+    return Pointer(static_cast<Self*>(nullptr));
+  }
+  /**
+   * @brief Returns the name of the class for AbstractMessage
+   */
+  virtual QString getNameOfClass() const override
+  {
+    return QString("Int32Parser");
+  }
+  /**
+   * @brief Returns the name of the class for AbstractMessage
+   */
+  static QString ClassName()
+  {
+    return QString("Int32Parser");
+  }
+
+  virtual ~Int32Parser() = default;
+
+  static Pointer New(Int32ArrayType::Pointer ptr, const QString& name, int colIndex)
+  {
+    Pointer sharedPtr(new Int32Parser(ptr, name, colIndex));
+    return sharedPtr;
+  }
+
+  void setDataArray(IDataArray::Pointer value) override
+  {
+    DeformDataParser::setDataArray(value);
+    m_Ptr = std::dynamic_pointer_cast<Int32ArrayType>(value);
+  }
+
+  IDataArray::Pointer initializeNewDataArray(size_t numTuples, const QString& name, bool allocate) override
+  {
+    Int32ArrayType::Pointer array = Int32ArrayType::CreateArray(numTuples, name, allocate);
+    if(allocate)
     {
-      Pointer sharedPtr (new Int32Parser(ptr, name, colIndex));
-      return sharedPtr;
+      array->initializeWithZeros();
     }
+    return array;
+  }
 
-    virtual ~Int32Parser()
-    {
-    }
+  virtual void parse(const QByteArray& token, size_t index) override
+  {
+    bool ok = false;
+    (*m_Ptr)[index] = token.toInt(&ok, 10);
+  }
 
-    void setDataArray(IDataArray::Pointer value)
-    {
-      DeformDataParser::setDataArray(value);
-      m_Ptr = std::dynamic_pointer_cast<Int32ArrayType>(value);
-    }
+protected:
+  Int32Parser(Int32ArrayType::Pointer ptr, const QString& name, int index)
+  {
+    setColumnName(name);
+    setColumnIndex(index);
+    setDataArray(ptr);
+    m_Ptr = ptr;
+  }
 
-    IDataArray::Pointer initializeNewDataArray(size_t numTuples, const QString &name, bool allocate)
-    {
-      Int32ArrayType::Pointer array = Int32ArrayType::CreateArray(numTuples, name, allocate);
-      if (allocate) { array->initializeWithZeros(); }
-      return array;
-    }
+private:
+  Int32ArrayType::Pointer m_Ptr;
 
-    virtual void parse(const QByteArray& token, size_t index)
-    {
-      bool ok = false;
-      (*m_Ptr)[index] = token.toInt(&ok, 10);
-    }
-
-  protected:
-    Int32Parser(Int32ArrayType::Pointer ptr, const QString& name, int index)
-    {
-      setColumnName(name);
-      setColumnIndex(index);
-      setDataArray(ptr);
-      m_Ptr = ptr;
-    }
-
-  private:
-    Int32ArrayType::Pointer m_Ptr;
-
-    Int32Parser(const Int32Parser&); // Copy Constructor Not Implemented
-    void operator=(const Int32Parser&); // Move assignment Not Implemented
+  Int32Parser(const Int32Parser&);    // Copy Constructor Not Implemented
+  void operator=(const Int32Parser&); // Move assignment Not Implemented
 };
 
 // -----------------------------------------------------------------------------
@@ -130,32 +197,52 @@ class Int32Parser : public DeformDataParser
 class FloatParser : public DeformDataParser
 {
   public:
-    SIMPL_SHARED_POINTERS(FloatParser)
-    SIMPL_TYPE_MACRO(FloatParser)
+    using Self = FloatParser;
+    using Pointer = std::shared_ptr<Self>;
+    using ConstPointer = std::shared_ptr<const Self>;
+    using WeakPointer = std::weak_ptr<Self>;
+    using ConstWeakPointer = std::weak_ptr<Self>;
+    static Pointer NullPointer()
+    {
+      return Pointer(static_cast<Self*>(nullptr));
+    }
+    /**
+     * @brief Returns the name of the class for AbstractMessage
+     */
+    virtual QString getNameOfClass() const override
+    {
+      return QString("FloatParser");
+    }
+    /**
+     * @brief Returns the name of the class for AbstractMessage
+     */
+    static QString ClassName()
+    {
+      return QString("FloatParser");
+    }
+
+    virtual ~FloatParser() = default;
+
     static Pointer New(FloatArrayType::Pointer ptr, const QString& name, int colIndex)
     {
-      Pointer sharedPtr (new FloatParser(ptr, name, colIndex));
+      Pointer sharedPtr(new FloatParser(ptr, name, colIndex));
       return sharedPtr;
     }
 
-    virtual ~FloatParser()
-    {
-    }
-
-    void setDataArray(IDataArray::Pointer value)
+    void setDataArray(IDataArray::Pointer value) override
     {
       DeformDataParser::setDataArray(value);
       m_Ptr = std::dynamic_pointer_cast<FloatArrayType>(value);
     }
 
-    IDataArray::Pointer initializeNewDataArray(size_t numTuples, const QString &name, bool allocate)
+    IDataArray::Pointer initializeNewDataArray(size_t numTuples, const QString& name, bool allocate) override
     {
       FloatArrayType::Pointer array = FloatArrayType::CreateArray(numTuples, name, allocate);
       if (allocate) { array->initializeWithZeros(); }
       return array;
     }
 
-    virtual void parse(const QByteArray& token, size_t index)
+    virtual void parse(const QByteArray& token, size_t index) override
     {
       bool ok = false;
       (*m_Ptr)[index] = token.toFloat(&ok);

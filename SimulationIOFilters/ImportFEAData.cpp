@@ -2,6 +2,8 @@
  * Your License or Copyright can go here
  */
 
+#include <memory>
+
 #include "ImportFEAData.h"
 
 #include <QtCore/QDir>
@@ -9,7 +11,12 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QString>
 
+#include <QtCore/QTextStream>
+
+#include <QtCore/QDebug>
+
 #include "SIMPLib/Common/Constants.h"
+
 #include "SIMPLib/Common/TemplateHelpers.h"
 #include "SIMPLib/DataContainers/DataContainerBundle.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
@@ -35,6 +42,8 @@
 #include "SIMPLib/Geometry/VertexGeom.h"
 #include "SIMPLib/SIMPLibVersion.h"
 #include "SIMPLib/Utilities/TimeUtilities.h"
+#include "SIMPLib/DataContainers/DataContainerArray.h"
+#include "SIMPLib/DataContainers/DataContainer.h"
 
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"
@@ -2108,7 +2117,7 @@ AbstractFilter::Pointer ImportFEAData::newFilterInstance(bool copyFilterParamete
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ImportFEAData::getCompiledLibraryName() const
+QString ImportFEAData::getCompiledLibraryName() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
@@ -2116,7 +2125,7 @@ const QString ImportFEAData::getCompiledLibraryName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ImportFEAData::getBrandingString() const
+QString ImportFEAData::getBrandingString() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
@@ -2124,7 +2133,7 @@ const QString ImportFEAData::getBrandingString() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ImportFEAData::getFilterVersion() const
+QString ImportFEAData::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
@@ -2135,7 +2144,7 @@ const QString ImportFEAData::getFilterVersion() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ImportFEAData::getGroupName() const
+QString ImportFEAData::getGroupName() const
 {
   return SIMPL::FilterGroups::Unsupported;
 }
@@ -2143,7 +2152,7 @@ const QString ImportFEAData::getGroupName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ImportFEAData::getSubGroupName() const
+QString ImportFEAData::getSubGroupName() const
 {
   return "SimulationIO";
 }
@@ -2151,7 +2160,7 @@ const QString ImportFEAData::getSubGroupName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ImportFEAData::getHumanLabel() const
+QString ImportFEAData::getHumanLabel() const
 {
   return "Import FEA Data";
 }
@@ -2159,7 +2168,300 @@ const QString ImportFEAData::getHumanLabel() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QUuid ImportFEAData::getUuid()
+QUuid ImportFEAData::getUuid() const
 {
   return QUuid("{248fdae8-a623-511b-8d09-5368c793c04d}");
+}
+
+// -----------------------------------------------------------------------------
+ImportFEAData::Pointer ImportFEAData::NullPointer()
+{
+  return Pointer(static_cast<Self*>(nullptr));
+}
+
+// -----------------------------------------------------------------------------
+std::shared_ptr<ImportFEAData> ImportFEAData::New()
+{
+  struct make_shared_enabler : public ImportFEAData
+  {
+  };
+  std::shared_ptr<make_shared_enabler> val = std::make_shared<make_shared_enabler>();
+  val->setupFilterParameters();
+  return val;
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::getNameOfClass() const
+{
+  return QString("_SUPERImportFEAData");
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::ClassName()
+{
+  return QString("_SUPERImportFEAData");
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setFEAPackage(int value)
+{
+  m_FEAPackage = value;
+}
+
+// -----------------------------------------------------------------------------
+int ImportFEAData::getFEAPackage() const
+{
+  return m_FEAPackage;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setodbName(const QString& value)
+{
+  m_odbName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::getodbName() const
+{
+  return m_odbName;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setodbFilePath(const QString& value)
+{
+  m_odbFilePath = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::getodbFilePath() const
+{
+  return m_odbFilePath;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setABQPythonCommand(const QString& value)
+{
+  m_ABQPythonCommand = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::getABQPythonCommand() const
+{
+  return m_ABQPythonCommand;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setInstanceName(const QString& value)
+{
+  m_InstanceName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::getInstanceName() const
+{
+  return m_InstanceName;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setStep(const QString& value)
+{
+  m_Step = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::getStep() const
+{
+  return m_Step;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setFrameNumber(int value)
+{
+  m_FrameNumber = value;
+}
+
+// -----------------------------------------------------------------------------
+int ImportFEAData::getFrameNumber() const
+{
+  return m_FrameNumber;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setDEFORMInputFile(const QString& value)
+{
+  m_DEFORMInputFile = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::getDEFORMInputFile() const
+{
+  return m_DEFORMInputFile;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setBSAMInputFile(const QString& value)
+{
+  m_BSAMInputFile = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::getBSAMInputFile() const
+{
+  return m_BSAMInputFile;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setDEFORMPointTrackInputFile(const QString& value)
+{
+  m_DEFORMPointTrackInputFile = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::getDEFORMPointTrackInputFile() const
+{
+  return m_DEFORMPointTrackInputFile;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setTimeSeriesBundleName(const QString& value)
+{
+  m_TimeSeriesBundleName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::getTimeSeriesBundleName() const
+{
+  return m_TimeSeriesBundleName;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setImportSingleTimeStep(bool value)
+{
+  m_ImportSingleTimeStep = value;
+}
+
+// -----------------------------------------------------------------------------
+bool ImportFEAData::getImportSingleTimeStep() const
+{
+  return m_ImportSingleTimeStep;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setSingleTimeStepValue(int value)
+{
+  m_SingleTimeStepValue = value;
+}
+
+// -----------------------------------------------------------------------------
+int ImportFEAData::getSingleTimeStepValue() const
+{
+  return m_SingleTimeStepValue;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setSelectedTimeArrayName(const QString& value)
+{
+  m_SelectedTimeArrayName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::getSelectedTimeArrayName() const
+{
+  return m_SelectedTimeArrayName;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setSelectedTimeStepArrayName(const QString& value)
+{
+  m_SelectedTimeStepArrayName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::getSelectedTimeStepArrayName() const
+{
+  return m_SelectedTimeStepArrayName;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setSelectedPointNumArrayName(const QString& value)
+{
+  m_SelectedPointNumArrayName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::getSelectedPointNumArrayName() const
+{
+  return m_SelectedPointNumArrayName;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setSelectedXCoordArrayName(const QString& value)
+{
+  m_SelectedXCoordArrayName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::getSelectedXCoordArrayName() const
+{
+  return m_SelectedXCoordArrayName;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setSelectedYCoordArrayName(const QString& value)
+{
+  m_SelectedYCoordArrayName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::getSelectedYCoordArrayName() const
+{
+  return m_SelectedYCoordArrayName;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setDataArrayList(const QStringList& value)
+{
+  m_DataArrayList = value;
+}
+
+// -----------------------------------------------------------------------------
+QStringList ImportFEAData::getDataArrayList() const
+{
+  return m_DataArrayList;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setDataContainerName(const QString& value)
+{
+  m_DataContainerName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::getDataContainerName() const
+{
+  return m_DataContainerName;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setVertexAttributeMatrixName(const QString& value)
+{
+  m_VertexAttributeMatrixName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::getVertexAttributeMatrixName() const
+{
+  return m_VertexAttributeMatrixName;
+}
+
+// -----------------------------------------------------------------------------
+void ImportFEAData::setCellAttributeMatrixName(const QString& value)
+{
+  m_CellAttributeMatrixName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ImportFEAData::getCellAttributeMatrixName() const
+{
+  return m_CellAttributeMatrixName;
 }

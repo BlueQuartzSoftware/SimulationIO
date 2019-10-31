@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/FilterParameters/DynamicTableData.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/SIMPLib.h"
@@ -17,6 +16,8 @@
 class SimulationIO_EXPORT CreateAbaqusFile : public AbstractFilter
 {
   Q_OBJECT
+
+#ifdef SIMPL_ENABLE_PYTHON
   PYB11_CREATE_BINDINGS(CreateAbaqusFile SUPERCLASS AbstractFilter)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
   PYB11_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
@@ -27,59 +28,174 @@ class SimulationIO_EXPORT CreateAbaqusFile : public AbstractFilter
   PYB11_PROPERTY(DataArrayPath AbqFeatureIdsArrayPath READ getAbqFeatureIdsArrayPath WRITE setAbqFeatureIdsArrayPath)
   PYB11_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
   PYB11_PROPERTY(DataArrayPath CellPhasesArrayPath READ getCellPhasesArrayPath WRITE setCellPhasesArrayPath)
+#endif
 
 public:
-  SIMPL_SHARED_POINTERS(CreateAbaqusFile)
-  SIMPL_STATIC_NEW_MACRO(CreateAbaqusFile)
-  SIMPL_TYPE_MACRO_SUPER(CreateAbaqusFile, AbstractFilter)
+  using Self = CreateAbaqusFile;
+  using Pointer = std::shared_ptr<Self>;
+  using ConstPointer = std::shared_ptr<const Self>;
+  using WeakPointer = std::weak_ptr<Self>;
+  using ConstWeakPointer = std::weak_ptr<const Self>;
+  static Pointer NullPointer();
 
-  virtual ~CreateAbaqusFile();
+  static Pointer New();
 
-  SIMPL_FILTER_PARAMETER(QString, OutputPath)
+  /**
+   * @brief Returns the name of the class for CreateDataArray
+   */
+  QString getNameOfClass() const override;
+
+  /**
+   * @brief Returns the name of the class for CreateDataArray
+   */
+  static QString ClassName();
+
+  ~CreateAbaqusFile() override;
+
+  /**
+   * @brief Getter property for OutputPath
+   * @return
+   */
+  QString getOutputPath() const;
+
+  /**
+   * @brief Setter property for OutputPath
+   * @param value
+   */
+  void setOutputPath(const QString& value);
+
   Q_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
 
-  SIMPL_FILTER_PARAMETER(QString, OutputFilePrefix)
+  /**
+   * @brief Getter property for OutputFilePrefix
+   * @return
+   */
+  QString getOutputFilePrefix() const;
+
+  /**
+   * @brief Setter property for OutputFilePrefix
+   * @param value
+   */
+  void setOutputFilePrefix(const QString& value);
+
   Q_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
 
-  SIMPL_FILTER_PARAMETER(QString, JobName)
+  /**
+   * @brief Getter property for JobName
+   * @return
+   */
+  QString getJobName() const;
+
+  /**
+   * @brief Setter property for JobName
+   * @param value
+   */
+  void setJobName(const QString& value);
+
   Q_PROPERTY(QString JobName READ getJobName WRITE setJobName)
 
-  SIMPL_FILTER_PARAMETER(int, NumDepvar)
+  /**
+   * @brief Getter property for NumDepvar
+   * @return
+   */
+  int getNumDepvar() const;
+
+  /**
+   * @brief Setter property for NumDepvar
+   * @param value
+   */
+  void setNumDepvar(int value);
+
   Q_PROPERTY(int NumDepvar READ getNumDepvar WRITE setNumDepvar)
 
-  SIMPL_FILTER_PARAMETER(int, NumUserOutVar)
+  /**
+   * @brief Getter property for NumUserOutVar
+   * @return
+   */
+  int getNumUserOutVar() const;
+
+  /**
+   * @brief Setter property for NumUserOutVar
+   * @param value
+   */
+  void setNumUserOutVar(int value);
+
   Q_PROPERTY(int NumUserOutVar READ getNumUserOutVar WRITE setNumUserOutVar)
 
-  SIMPL_FILTER_PARAMETER(DynamicTableData, MatConst)
+  /**
+   * @brief Getter property for MatConst
+   * @return
+   */
+  DynamicTableData getMatConst() const;
+
+  /**
+   * @brief Setter property for MatConst
+   * @param value
+   */
+  void setMatConst(const DynamicTableData& value);
+
   Q_PROPERTY(DynamicTableData MatConst READ getMatConst WRITE setMatConst)
 
-  SIMPL_FILTER_PARAMETER(DataArrayPath, AbqFeatureIdsArrayPath)
+  /**
+   * @brief Getter property for AbqFeatureIdsArrayPath
+   * @return
+   */
+  DataArrayPath getAbqFeatureIdsArrayPath() const;
+
+  /**
+   * @brief Setter property for AbqFeatureIdsArrayPath
+   * @param value
+   */
+  void setAbqFeatureIdsArrayPath(const DataArrayPath& value);
+
   Q_PROPERTY(DataArrayPath AbqFeatureIdsArrayPath READ getAbqFeatureIdsArrayPath WRITE setAbqFeatureIdsArrayPath)
 
-  SIMPL_FILTER_PARAMETER(DataArrayPath, CellEulerAnglesArrayPath)
+  /**
+   * @brief Getter property for CellEulerAnglesArrayPath
+   * @return
+   */
+  DataArrayPath getCellEulerAnglesArrayPath() const;
+
+  /**
+   * @brief Setter property for CellEulerAnglesArrayPath
+   * @param value
+   */
+  void setCellEulerAnglesArrayPath(const DataArrayPath& value);
+
   Q_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
 
-  SIMPL_FILTER_PARAMETER(DataArrayPath, CellPhasesArrayPath)
+  /**
+   * @brief Getter property for CellPhasesArrayPath
+   * @return
+   */
+  DataArrayPath getCellPhasesArrayPath() const;
+
+  /**
+   * @brief Setter property for CellPhasesArrayPath
+   * @param value
+   */
+  void setCellPhasesArrayPath(const DataArrayPath& value);
+
   Q_PROPERTY(DataArrayPath CellPhasesArrayPath READ getCellPhasesArrayPath WRITE setCellPhasesArrayPath)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
    */
-  const QString getCompiledLibraryName() const override;
+  QString getCompiledLibraryName() const override;
 
   /**
    * @brief getBrandingString Returns the branding string for the filter, which is a tag
    * used to denote the filter's association with specific plugins
    * @return Branding string
    */
-  const QString getBrandingString() const override;
+  QString getBrandingString() const override;
 
   /**
    * @brief getFilterVersion Returns a version string for this filter. Default
    * value is an empty string.
    * @return
    */
-  const QString getFilterVersion() const override;
+  QString getFilterVersion() const override;
 
   /**
    * @brief newFilterInstance Reimplemented from @see AbstractFilter class
@@ -89,23 +205,23 @@ public:
   /**
    * @brief getGroupName Reimplemented from @see AbstractFilter class
    */
-  const QString getGroupName() const override;
+  QString getGroupName() const override;
 
   /**
    * @brief getSubGroupName Reimplemented from @see AbstractFilter class
    */
-  const QString getSubGroupName() const override;
+  QString getSubGroupName() const override;
 
   /**
    * @brief getUuid Return the unique identifier for this filter.
    * @return A QUuid object.
    */
-  const QUuid getUuid() override;
+  QUuid getUuid() const override;
 
   /**
    * @brief getHumanLabel Reimplemented from @see AbstractFilter class
    */
-  const QString getHumanLabel() const override;
+  QString getHumanLabel() const override;
   /**
    * @brief This method will instantiate all the end user settable options/parameters
    * for this filter
@@ -168,6 +284,16 @@ protected:
 private:
   struct Impl;
   std::unique_ptr<Impl> p_Impl;
+
+  QString m_OutputPath;
+  QString m_OutputFilePrefix;
+  QString m_JobName;
+  int m_NumDepvar;
+  int m_NumUserOutVar;
+  DynamicTableData m_MatConst;
+  DataArrayPath m_AbqFeatureIdsArrayPath;
+  DataArrayPath m_CellEulerAnglesArrayPath;
+  DataArrayPath m_CellPhasesArrayPath;
 
 public:
   CreateAbaqusFile(const CreateAbaqusFile&) = delete;            // Copy Constructor Not Implemented

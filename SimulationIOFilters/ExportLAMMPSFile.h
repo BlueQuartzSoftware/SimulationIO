@@ -35,14 +35,16 @@
 
 #pragma once
 
+#include <memory>
+
 #include <QtCore/QString>
 
+#include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Common/Constants.h"
-#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/DataArrays/IDataArray.h"
 #include "SIMPLib/DataContainers/DataContainer.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
-#include "SIMPLib/SIMPLib.h"
+#include "SIMPLib/DataArrays/DataArray.hpp"
 
 #include "SimulationIO/SimulationIOPlugin.h"
 
@@ -52,40 +54,80 @@
 class SimulationIO_EXPORT ExportLAMMPSFile : public AbstractFilter
 {
   Q_OBJECT
+
+#ifdef SIMPL_ENABLE_PYTHON
   PYB11_CREATE_BINDINGS(ExportLAMMPSFile SUPERCLASS AbstractFilter)
+  PYB11_SHARED_POINTERS(ExportLAMMPSFile)
+  PYB11_FILTER_NEW_MACRO(ExportLAMMPSFile)
+  PYB11_FILTER_PARAMETER(QString, LammpsFile)
+  PYB11_FILTER_PARAMETER(DataArrayPath, AtomFeatureLabelsPath)
   PYB11_PROPERTY(QString LammpsFile READ getLammpsFile WRITE setLammpsFile)
   PYB11_PROPERTY(DataArrayPath AtomFeatureLabelsPath READ getAtomFeatureLabelspath WRITE setAtomFeatureLabelsPath)
+#endif
+
 public:
-  SIMPL_SHARED_POINTERS(ExportLAMMPSFile)
-  SIMPL_FILTER_NEW_MACRO(ExportLAMMPSFile)
-  SIMPL_TYPE_MACRO_SUPER_OVERRIDE(ExportLAMMPSFile, AbstractFilter)
+  using Self = ExportLAMMPSFile;
+  using Pointer = std::shared_ptr<Self>;
+  using ConstPointer = std::shared_ptr<const Self>;
+  using WeakPointer = std::weak_ptr<Self>;
+  using ConstWeakPointer = std::weak_ptr<Self>;
+  static Pointer NullPointer();
+
+  static std::shared_ptr<ExportLAMMPSFile> New();
+
+  /**
+   * @brief Returns the name of the class for ExportLAMMPSFile
+   */
+  QString getNameOfClass() const override;
+  /**
+   * @brief Returns the name of the class for ExportLAMMPSFile
+   */
+  static QString ClassName();
 
   ~ExportLAMMPSFile() override;
 
-  SIMPL_FILTER_PARAMETER(QString, LammpsFile)
+  /**
+   * @brief Setter property for LammpsFile
+   */
+  void setLammpsFile(const QString& value);
+  /**
+   * @brief Getter property for LammpsFile
+   * @return Value of LammpsFile
+   */
+  QString getLammpsFile() const;
+
   Q_PROPERTY(QString LammpsFile READ getLammpsFile WRITE setLammpsFile)
 
-  SIMPL_FILTER_PARAMETER(DataArrayPath, AtomFeatureLabelsPath)
+  /**
+   * @brief Setter property for AtomFeatureLabelsPath
+   */
+  void setAtomFeatureLabelsPath(const DataArrayPath& value);
+  /**
+   * @brief Getter property for AtomFeatureLabelsPath
+   * @return Value of AtomFeatureLabelsPath
+   */
+  DataArrayPath getAtomFeatureLabelsPath() const;
+
   Q_PROPERTY(DataArrayPath AtomFeatureLabelsPath READ getAtomFeatureLabelsPath WRITE setAtomFeatureLabelsPath)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
    */
-  const QString getCompiledLibraryName() const override;
+  QString getCompiledLibraryName() const override;
 
   /**
    * @brief getBrandingString Returns the branding string for the filter, which is a tag
    * used to denote the filter's association with specific plugins
    * @return Branding string
    */
-  const QString getBrandingString() const override;
+  QString getBrandingString() const override;
 
   /**
    * @brief getFilterVersion Returns a version string for this filter. Default
    * value is an empty string.
    * @return
    */
-  const QString getFilterVersion() const override;
+  QString getFilterVersion() const override;
 
   /**
    * @brief newFilterInstance Reimplemented from @see AbstractFilter class
@@ -95,23 +137,23 @@ public:
   /**
    * @brief getGroupName Reimplemented from @see AbstractFilter class
    */
-  const QString getGroupName() const override;
+  QString getGroupName() const override;
 
   /**
    * @brief getSubGroupName Reimplemented from @see AbstractFilter class
    */
-  const QString getSubGroupName() const override;
+  QString getSubGroupName() const override;
 
   /**
    * @brief getUuid Return the unique identifier for this filter.
    * @return A QUuid object.
    */
-  const QUuid getUuid() override;
+  QUuid getUuid() const override;
 
   /**
    * @brief getHumanLabel Reimplemented from @see AbstractFilter class
    */
-  const QString getHumanLabel() const override;
+  QString getHumanLabel() const override;
 
   /**
    * @brief setupFilterParameters Reimplemented from @see AbstractFilter class
@@ -170,7 +212,11 @@ protected:
   void initialize();
 
 private:
-  DEFINE_DATAARRAY_VARIABLE(int32_t, AtomFeatureLabels)
+  std::weak_ptr<DataArray<int32_t>> m_AtomFeatureLabelsPtr;
+  int32_t* m_AtomFeatureLabels = nullptr;
+
+  QString m_LammpsFile = {};
+  DataArrayPath m_AtomFeatureLabelsPath = {};
 
 public:
   ExportLAMMPSFile(const ExportLAMMPSFile&) = delete;            // Copy Constructor Not Implemented

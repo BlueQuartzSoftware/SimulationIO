@@ -7,6 +7,7 @@
 #include <QtCore/QDir>
 
 #include "SIMPLib/Common/Constants.h"
+#include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
@@ -26,7 +27,16 @@ struct CreateMultiOnScaleTableFile::Impl
   StringDataArray::WeakPointer m_PhaseNamesPtr;
   std::vector<std::pair<DataArrayPath, DataArray<int32_t>::WeakPointer>> m_FeatureIdsList;
 
-  void reset()
+  Impl() = default;
+
+  ~Impl() = default;
+
+  Impl(const Impl&) = delete;
+  Impl(Impl&&) = delete;
+  Impl& operator=(const Impl&) = delete;
+  Impl& operator=(Impl&&) = delete;
+
+  void resetDataArrays()
   {
     m_PhaseNamesPtr.reset();
     m_FeatureIdsList.clear();
@@ -34,12 +44,10 @@ struct CreateMultiOnScaleTableFile::Impl
 };
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 CreateMultiOnScaleTableFile::CreateMultiOnScaleTableFile()
 : p_Impl(std::make_unique<Impl>())
-, m_PhaseNamesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::EnsembleAttributeMatrixName, SIMPL::EnsembleData::PhaseName)
 , m_NumKeypoints({2, 2, 2})
+, m_PhaseNamesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::EnsembleAttributeMatrixName, SIMPL::EnsembleData::PhaseName)
 {
   initialize();
 
@@ -47,12 +55,8 @@ CreateMultiOnScaleTableFile::CreateMultiOnScaleTableFile()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 CreateMultiOnScaleTableFile::~CreateMultiOnScaleTableFile() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CreateMultiOnScaleTableFile::initialize()
 {
@@ -61,8 +65,6 @@ void CreateMultiOnScaleTableFile::initialize()
   setCancel(false);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CreateMultiOnScaleTableFile::setupFilterParameters()
 {
@@ -88,8 +90,6 @@ void CreateMultiOnScaleTableFile::setupFilterParameters()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void CreateMultiOnScaleTableFile::readFilterParameters(AbstractFilterParametersReader* reader, int index)
 {
   reader->openFilterGroup(this, index);
@@ -104,14 +104,12 @@ void CreateMultiOnScaleTableFile::readFilterParameters(AbstractFilterParametersR
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void CreateMultiOnScaleTableFile::dataCheck()
 {
   clearErrorCode();
   clearWarningCode();
 
-  p_Impl->reset();
+  p_Impl->resetDataArrays();
   m_SelectedArrays.clear();
 
   if(m_OutputPath.isEmpty())
@@ -182,8 +180,6 @@ void CreateMultiOnScaleTableFile::dataCheck()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void CreateMultiOnScaleTableFile::preflight()
 {
   // These are the REQUIRED lines of CODE to make sure the filter behaves correctly
@@ -195,8 +191,6 @@ void CreateMultiOnScaleTableFile::preflight()
   setInPreflight(false);             // Inform the system this filter is NOT in preflight mode anymore.
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CreateMultiOnScaleTableFile::execute()
 {
@@ -268,8 +262,6 @@ void CreateMultiOnScaleTableFile::execute()
 }
 //
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 AbstractFilter::Pointer CreateMultiOnScaleTableFile::newFilterInstance(bool copyFilterParameters) const
 {
   CreateMultiOnScaleTableFile::Pointer filter = CreateMultiOnScaleTableFile::New();
@@ -281,25 +273,19 @@ AbstractFilter::Pointer CreateMultiOnScaleTableFile::newFilterInstance(bool copy
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateMultiOnScaleTableFile::getCompiledLibraryName() const
+QString CreateMultiOnScaleTableFile::getCompiledLibraryName() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateMultiOnScaleTableFile::getBrandingString() const
+QString CreateMultiOnScaleTableFile::getBrandingString() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateMultiOnScaleTableFile::getFilterVersion() const
+QString CreateMultiOnScaleTableFile::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
@@ -308,33 +294,136 @@ const QString CreateMultiOnScaleTableFile::getFilterVersion() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateMultiOnScaleTableFile::getGroupName() const
+QString CreateMultiOnScaleTableFile::getGroupName() const
 {
   return SIMPL::FilterGroups::Unsupported;
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateMultiOnScaleTableFile::getSubGroupName() const
+QString CreateMultiOnScaleTableFile::getSubGroupName() const
 {
   return "SimulationIO";
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateMultiOnScaleTableFile::getHumanLabel() const
+QString CreateMultiOnScaleTableFile::getHumanLabel() const
 {
   return "Create Multi OnScale Table File";
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QUuid CreateMultiOnScaleTableFile::getUuid()
+QUuid CreateMultiOnScaleTableFile::getUuid() const
 {
   return QUuid("{d5873836-f150-5fc9-9bc8-0bc837bd8dd4}");
+}
+
+// -----------------------------------------------------------------------------
+CreateMultiOnScaleTableFile::Pointer CreateMultiOnScaleTableFile::NullPointer()
+{
+  return Pointer(static_cast<Self*>(nullptr));
+}
+
+// -----------------------------------------------------------------------------
+CreateMultiOnScaleTableFile::Pointer CreateMultiOnScaleTableFile::New()
+{
+  struct make_shared_enabler : public CreateMultiOnScaleTableFile
+  {
+  };
+  return std::make_shared<make_shared_enabler>();
+}
+
+// -----------------------------------------------------------------------------
+QString CreateMultiOnScaleTableFile::getNameOfClass() const
+{
+  return ClassName();
+}
+
+// -----------------------------------------------------------------------------
+QString CreateMultiOnScaleTableFile::ClassName()
+{
+  return QString("CreateMultiOnScaleTableFile");
+}
+
+// -----------------------------------------------------------------------------
+void CreateMultiOnScaleTableFile::setOutputPath(const QString& value)
+{
+  m_OutputPath = value;
+}
+
+// -----------------------------------------------------------------------------
+QString CreateMultiOnScaleTableFile::getOutputPath() const
+{
+  return m_OutputPath;
+}
+
+// -----------------------------------------------------------------------------
+void CreateMultiOnScaleTableFile::setDataContainerPrefix(const QString& value)
+{
+  m_DataContainerPrefix = value;
+}
+
+// -----------------------------------------------------------------------------
+QString CreateMultiOnScaleTableFile::getDataContainerPrefix() const
+{
+  return m_DataContainerPrefix;
+}
+
+// -----------------------------------------------------------------------------
+void CreateMultiOnScaleTableFile::setMatrixName(const QString& value)
+{
+  m_MatrixName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString CreateMultiOnScaleTableFile::getMatrixName() const
+{
+  return m_MatrixName;
+}
+
+// -----------------------------------------------------------------------------
+void CreateMultiOnScaleTableFile::setArrayName(const QString& value)
+{
+  m_ArrayName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString CreateMultiOnScaleTableFile::getArrayName() const
+{
+  return m_ArrayName;
+}
+
+// -----------------------------------------------------------------------------
+void CreateMultiOnScaleTableFile::setSelectedArrays(const QString& value)
+{
+  m_SelectedArrays = value;
+}
+
+// -----------------------------------------------------------------------------
+QString CreateMultiOnScaleTableFile::getSelectedArrays() const
+{
+  return m_SelectedArrays;
+}
+
+// -----------------------------------------------------------------------------
+void CreateMultiOnScaleTableFile::setNumKeypoints(const IntVec3Type& value)
+{
+  m_NumKeypoints = value;
+}
+
+// -----------------------------------------------------------------------------
+IntVec3Type CreateMultiOnScaleTableFile::getNumKeypoints() const
+{
+  return m_NumKeypoints;
+}
+
+// -----------------------------------------------------------------------------
+void CreateMultiOnScaleTableFile::setPhaseNamesArrayPath(const DataArrayPath& value)
+{
+  m_PhaseNamesArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath CreateMultiOnScaleTableFile::getPhaseNamesArrayPath() const
+{
+  return m_PhaseNamesArrayPath;
 }

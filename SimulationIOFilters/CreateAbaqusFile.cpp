@@ -7,6 +7,7 @@
 #include <QtCore/QDir>
 
 #include "SIMPLib/Common/Constants.h"
+#include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DynamicTableFilterParameter.h"
@@ -27,7 +28,16 @@ struct CreateAbaqusFile::Impl
   DataArray<int32_t>::WeakPointer m_CellPhasesPtr;
   DataArray<float>::WeakPointer m_CellEulerAnglesPtr;
 
-  void reset()
+  Impl() = default;
+
+  ~Impl() = default;
+
+  Impl(const Impl&) = delete;
+  Impl(Impl&&) = delete;
+  Impl& operator=(const Impl&) = delete;
+  Impl& operator=(Impl&&) = delete;
+
+  void resetDataArrays()
   {
     m_FeatureIdsPtr.reset();
     m_CellPhasesPtr.reset();
@@ -35,8 +45,6 @@ struct CreateAbaqusFile::Impl
   }
 };
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 CreateAbaqusFile::CreateAbaqusFile()
 : p_Impl(std::make_unique<Impl>())
@@ -52,12 +60,8 @@ CreateAbaqusFile::CreateAbaqusFile()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 CreateAbaqusFile::~CreateAbaqusFile() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CreateAbaqusFile::initialize()
 {
@@ -66,8 +70,6 @@ void CreateAbaqusFile::initialize()
   setCancel(false);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CreateAbaqusFile::setupFilterParameters()
 {
@@ -110,8 +112,6 @@ void CreateAbaqusFile::setupFilterParameters()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void CreateAbaqusFile::readFilterParameters(AbstractFilterParametersReader* reader, int index)
 {
   reader->openFilterGroup(this, index);
@@ -128,14 +128,12 @@ void CreateAbaqusFile::readFilterParameters(AbstractFilterParametersReader* read
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void CreateAbaqusFile::dataCheck()
 {
   clearErrorCode();
   clearWarningCode();
 
-  p_Impl->reset();
+  p_Impl->resetDataArrays();
 
   if(m_OutputPath.isEmpty())
   {
@@ -180,8 +178,6 @@ void CreateAbaqusFile::dataCheck()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void CreateAbaqusFile::preflight()
 {
   // These are the REQUIRED lines of CODE to make sure the filter behaves correctly
@@ -193,8 +189,6 @@ void CreateAbaqusFile::preflight()
   setInPreflight(false);             // Inform the system this filter is NOT in preflight mode anymore.
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CreateAbaqusFile::execute()
 {
@@ -267,8 +261,6 @@ void CreateAbaqusFile::execute()
 }
 //
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 AbstractFilter::Pointer CreateAbaqusFile::newFilterInstance(bool copyFilterParameters) const
 {
   CreateAbaqusFile::Pointer filter = CreateAbaqusFile::New();
@@ -280,25 +272,19 @@ AbstractFilter::Pointer CreateAbaqusFile::newFilterInstance(bool copyFilterParam
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateAbaqusFile::getCompiledLibraryName() const
+QString CreateAbaqusFile::getCompiledLibraryName() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateAbaqusFile::getBrandingString() const
+QString CreateAbaqusFile::getBrandingString() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateAbaqusFile::getFilterVersion() const
+QString CreateAbaqusFile::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
@@ -307,33 +293,160 @@ const QString CreateAbaqusFile::getFilterVersion() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateAbaqusFile::getGroupName() const
+QString CreateAbaqusFile::getGroupName() const
 {
   return SIMPL::FilterGroups::Unsupported;
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateAbaqusFile::getSubGroupName() const
+QString CreateAbaqusFile::getSubGroupName() const
 {
   return "SimulationIO";
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateAbaqusFile::getHumanLabel() const
+QString CreateAbaqusFile::getHumanLabel() const
 {
   return "Create Abaqus File";
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QUuid CreateAbaqusFile::getUuid()
+QUuid CreateAbaqusFile::getUuid() const
 {
   return QUuid("{d702beff-eb02-5ee1-a76a-79d5b56ec730}");
+}
+
+// -----------------------------------------------------------------------------
+CreateAbaqusFile::Pointer CreateAbaqusFile::NullPointer()
+{
+  return Pointer(static_cast<Self*>(nullptr));
+}
+
+// -----------------------------------------------------------------------------
+CreateAbaqusFile::Pointer CreateAbaqusFile::New()
+{
+  struct make_shared_enabler : public CreateAbaqusFile
+  {
+  };
+  return std::make_shared<make_shared_enabler>();
+}
+
+// -----------------------------------------------------------------------------
+QString CreateAbaqusFile::getNameOfClass() const
+{
+  return ClassName();
+}
+
+// -----------------------------------------------------------------------------
+QString CreateAbaqusFile::ClassName()
+{
+  return QString("CreateAbaqusFile");
+}
+
+// -----------------------------------------------------------------------------
+void CreateAbaqusFile::setOutputPath(const QString& value)
+{
+  m_OutputPath = value;
+}
+
+// -----------------------------------------------------------------------------
+QString CreateAbaqusFile::getOutputPath() const
+{
+  return m_OutputPath;
+}
+
+// -----------------------------------------------------------------------------
+void CreateAbaqusFile::setOutputFilePrefix(const QString& value)
+{
+  m_OutputFilePrefix = value;
+}
+
+// -----------------------------------------------------------------------------
+QString CreateAbaqusFile::getOutputFilePrefix() const
+{
+  return m_OutputFilePrefix;
+}
+
+// -----------------------------------------------------------------------------
+void CreateAbaqusFile::setJobName(const QString& value)
+{
+  m_JobName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString CreateAbaqusFile::getJobName() const
+{
+  return m_JobName;
+}
+
+// -----------------------------------------------------------------------------
+void CreateAbaqusFile::setNumDepvar(int value)
+{
+  m_NumDepvar = value;
+}
+
+// -----------------------------------------------------------------------------
+int CreateAbaqusFile::getNumDepvar() const
+{
+  return m_NumDepvar;
+}
+
+// -----------------------------------------------------------------------------
+void CreateAbaqusFile::setNumUserOutVar(int value)
+{
+  m_NumUserOutVar = value;
+}
+
+// -----------------------------------------------------------------------------
+int CreateAbaqusFile::getNumUserOutVar() const
+{
+  return m_NumUserOutVar;
+}
+
+// -----------------------------------------------------------------------------
+void CreateAbaqusFile::setMatConst(const DynamicTableData& value)
+{
+  m_MatConst = value;
+}
+
+// -----------------------------------------------------------------------------
+DynamicTableData CreateAbaqusFile::getMatConst() const
+{
+  return m_MatConst;
+}
+
+// -----------------------------------------------------------------------------
+void CreateAbaqusFile::setAbqFeatureIdsArrayPath(const DataArrayPath& value)
+{
+  m_AbqFeatureIdsArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath CreateAbaqusFile::getAbqFeatureIdsArrayPath() const
+{
+  return m_AbqFeatureIdsArrayPath;
+}
+
+// -----------------------------------------------------------------------------
+void CreateAbaqusFile::setCellEulerAnglesArrayPath(const DataArrayPath& value)
+{
+  m_CellEulerAnglesArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath CreateAbaqusFile::getCellEulerAnglesArrayPath() const
+{
+  return m_CellEulerAnglesArrayPath;
+}
+
+// -----------------------------------------------------------------------------
+void CreateAbaqusFile::setCellPhasesArrayPath(const DataArrayPath& value)
+{
+  m_CellPhasesArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath CreateAbaqusFile::getCellPhasesArrayPath() const
+{
+  return m_CellPhasesArrayPath;
 }

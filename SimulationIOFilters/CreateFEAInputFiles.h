@@ -4,13 +4,14 @@
 
 #pragma once
 
+#include <memory>
+
 #include <QtCore/QString>
 
+#include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/CoreFilters/FileWriter.h"
 #include "SIMPLib/DataArrays/StringDataArray.h"
-
 #include "SIMPLib/Common/Constants.h"
-#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
 #include "SIMPLib/DataArrays/IDataArray.h"
 #include "SIMPLib/DataArrays/StringDataArray.h"
 #include "SIMPLib/DataContainers/DataContainer.h"
@@ -19,7 +20,7 @@
 #include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/Geometry/MeshStructs.h"
-#include "SIMPLib/SIMPLib.h"
+#include "SIMPLib/DataArrays/DataArray.hpp"
 
 #include "SimulationIO/SimulationIODLLExport.h"
 
@@ -29,7 +30,26 @@
 class SimulationIO_EXPORT CreateFEAInputFiles : public AbstractFilter
 {
   Q_OBJECT
+
+#ifdef SIMPL_ENABLE_PYTHON
   PYB11_CREATE_BINDINGS(CreateFEAInputFiles SUPERCLASS AbstractFilter)
+  PYB11_SHARED_POINTERS(CreateFEAInputFiles)
+  PYB11_STATIC_NEW_MACRO(CreateFEAInputFiles)
+  PYB11_FILTER_PARAMETER(int, FEAPackage)
+  PYB11_FILTER_PARAMETER(QString, JobName)
+  PYB11_FILTER_PARAMETER(QString, OutputPath)
+  PYB11_FILTER_PARAMETER(QString, OutputFilePrefix)
+  PYB11_FILTER_PARAMETER(int, NumDepvar)
+  PYB11_FILTER_PARAMETER(int, NumMatConst)
+  PYB11_FILTER_PARAMETER(int, NumUserOutVar)
+  PYB11_FILTER_PARAMETER(DataArrayPath, AbqFeatureIdsArrayPath)
+  PYB11_FILTER_PARAMETER(DataArrayPath, PzflexFeatureIdsArrayPath)
+  PYB11_FILTER_PARAMETER(DataArrayPath, CellPhasesArrayPath)
+  PYB11_FILTER_PARAMETER(DataArrayPath, CellEulerAnglesArrayPath)
+  PYB11_FILTER_PARAMETER(IntVec3Type, NumKeypoints)
+  PYB11_FILTER_PARAMETER(int, NumClusters)
+  PYB11_FILTER_PARAMETER(DynamicTableData, MatConst)
+  PYB11_FILTER_PARAMETER(DataArrayPath, PhaseNamesArrayPath)
   PYB11_PROPERTY(int FEAPackage READ getFEAPackage WRITE setFEAPackage)
   PYB11_PROPERTY(QString JobName READ getJobName WRITE setJobName)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
@@ -45,77 +65,243 @@ class SimulationIO_EXPORT CreateFEAInputFiles : public AbstractFilter
   PYB11_PROPERTY(int NumClusters READ getNumClusters WRITE setNumClusters)
   PYB11_PROPERTY(DynamicTableData MatConst READ getMatConst WRITE setMatConst)
   PYB11_PROPERTY(DataArrayPath PhaseNamesArrayPath READ getPhaseNamesArrayPath WRITE setPhaseNamesArrayPath)
+#endif
 
 public:
-  SIMPL_SHARED_POINTERS(CreateFEAInputFiles)
-  SIMPL_STATIC_NEW_MACRO(CreateFEAInputFiles)
-  SIMPL_TYPE_MACRO_SUPER(CreateFEAInputFiles, AbstractFilter)
+  using Self = CreateFEAInputFiles;
+  using Pointer = std::shared_ptr<Self>;
+  using ConstPointer = std::shared_ptr<const Self>;
+  using WeakPointer = std::weak_ptr<Self>;
+  using ConstWeakPointer = std::weak_ptr<Self>;
+  static Pointer NullPointer();
+
+  static Pointer New();
+
+  /**
+   * @brief Returns the name of the class for CreateFEAInputFiles
+   */
+  QString getNameOfClass() const override;
+
+  /**
+   * @brief Returns the name of the class for CreateFEAInputFiles
+   */
+  static QString ClassName();
 
   virtual ~CreateFEAInputFiles();
 
-  SIMPL_FILTER_PARAMETER(int, FEAPackage)
+  /**
+   * @brief Setter property for FEAPackage
+   */
+  void setFEAPackage(int value);
+
+  /**
+   * @brief Getter property for FEAPackage
+   * @return Value of FEAPackage
+   */
+  int getFEAPackage() const;
+
   Q_PROPERTY(int FEAPackage READ getFEAPackage WRITE setFEAPackage)
 
-  SIMPL_FILTER_PARAMETER(QString, JobName)
+  /**
+   * @brief Setter property for JobName
+   */
+  void setJobName(const QString& value);
+
+  /**
+   * @brief Getter property for JobName
+   * @return Value of JobName
+   */
+  QString getJobName() const;
+
   Q_PROPERTY(QString JobName READ getJobName WRITE setJobName)
 
-  SIMPL_FILTER_PARAMETER(QString, OutputPath)
+  /**
+   * @brief Setter property for OutputPath
+   */
+  void setOutputPath(const QString& value);
+
+  /**
+   * @brief Getter property for OutputPath
+   * @return Value of OutputPath
+   */
+  QString getOutputPath() const;
+
   Q_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
 
-  SIMPL_FILTER_PARAMETER(QString, OutputFilePrefix)
+  /**
+   * @brief Setter property for OutputFilePrefix
+   */
+  void setOutputFilePrefix(const QString& value);
+
+  /**
+   * @brief Getter property for OutputFilePrefix
+   * @return Value of OutputFilePrefix
+   */
+  QString getOutputFilePrefix() const;
+
   Q_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
 
-  SIMPL_FILTER_PARAMETER(int, NumDepvar)
+  /**
+   * @brief Setter property for NumDepvar
+   */
+  void setNumDepvar(int value);
+
+  /**
+   * @brief Getter property for NumDepvar
+   * @return Value of NumDepvar
+   */
+  int getNumDepvar() const;
+
   Q_PROPERTY(int NumDepvar READ getNumDepvar WRITE setNumDepvar)
 
-  SIMPL_FILTER_PARAMETER(int, NumMatConst)
+  /**
+   * @brief Setter property for NumMatConst
+   */
+  void setNumMatConst(int value);
+
+  /**
+   * @brief Getter property for NumMatConst
+   * @return Value of NumMatConst
+   */
+  int getNumMatConst() const;
+
   Q_PROPERTY(int NumMatConst READ getNumMatConst WRITE setNumMatConst)
 
-  SIMPL_FILTER_PARAMETER(int, NumUserOutVar)
+  /**
+   * @brief Setter property for NumUserOutVar
+   */
+  void setNumUserOutVar(int value);
+
+  /**
+   * @brief Getter property for NumUserOutVar
+   * @return Value of NumUserOutVar
+   */
+  int getNumUserOutVar() const;
+
   Q_PROPERTY(int NumUserOutVar READ getNumUserOutVar WRITE setNumUserOutVar)
 
-  SIMPL_FILTER_PARAMETER(DataArrayPath, AbqFeatureIdsArrayPath)
+  /**
+   * @brief Setter property for AbqFeatureIdsArrayPath
+   */
+  void setAbqFeatureIdsArrayPath(const DataArrayPath& value);
+
+  /**
+   * @brief Getter property for AbqFeatureIdsArrayPath
+   * @return Value of AbqFeatureIdsArrayPath
+   */
+  DataArrayPath getAbqFeatureIdsArrayPath() const;
+
   Q_PROPERTY(DataArrayPath AbqFeatureIdsArrayPath READ getAbqFeatureIdsArrayPath WRITE setAbqFeatureIdsArrayPath)
 
-  SIMPL_FILTER_PARAMETER(DataArrayPath, PzflexFeatureIdsArrayPath)
+  /**
+   * @brief Setter property for PzflexFeatureIdsArrayPath
+   */
+  void setPzflexFeatureIdsArrayPath(const DataArrayPath& value);
+
+  /**
+   * @brief Getter property for PzflexFeatureIdsArrayPath
+   * @return Value of PzflexFeatureIdsArrayPath
+   */
+  DataArrayPath getPzflexFeatureIdsArrayPath() const;
+
   Q_PROPERTY(DataArrayPath PzflexFeatureIdsArrayPath READ getPzflexFeatureIdsArrayPath WRITE setPzflexFeatureIdsArrayPath)
 
-  SIMPL_FILTER_PARAMETER(DataArrayPath, CellPhasesArrayPath)
+  /**
+   * @brief Setter property for CellPhasesArrayPath
+   */
+  void setCellPhasesArrayPath(const DataArrayPath& value);
+
+  /**
+   * @brief Getter property for CellPhasesArrayPath
+   * @return Value of CellPhasesArrayPath
+   */
+  DataArrayPath getCellPhasesArrayPath() const;
+
   Q_PROPERTY(DataArrayPath CellPhasesArrayPath READ getCellPhasesArrayPath WRITE setCellPhasesArrayPath)
 
-  SIMPL_FILTER_PARAMETER(DataArrayPath, CellEulerAnglesArrayPath)
+  /**
+   * @brief Setter property for CellEulerAnglesArrayPath
+   */
+  void setCellEulerAnglesArrayPath(const DataArrayPath& value);
+
+  /**
+   * @brief Getter property for CellEulerAnglesArrayPath
+   * @return Value of CellEulerAnglesArrayPath
+   */
+  DataArrayPath getCellEulerAnglesArrayPath() const;
+
   Q_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
 
-  SIMPL_FILTER_PARAMETER(IntVec3Type, NumKeypoints)
+  /**
+   * @brief Setter property for NumKeypoints
+   */
+  void setNumKeypoints(const IntVec3Type& value);
+
+  /**
+   * @brief Getter property for NumKeypoints
+   * @return Value of NumKeypoints
+   */
+  IntVec3Type getNumKeypoints() const;
+
   Q_PROPERTY(IntVec3Type NumKeypoints READ getNumKeypoints WRITE setNumKeypoints)
 
-  SIMPL_FILTER_PARAMETER(int, NumClusters)
+  /**
+   * @brief Setter property for NumClusters
+   */
+  void setNumClusters(int value);
+
+  /**
+   * @brief Getter property for NumClusters
+   * @return Value of NumClusters
+   */
+  int getNumClusters() const;
+
   Q_PROPERTY(int NumClusters READ getNumClusters WRITE setNumClusters)
 
-  SIMPL_FILTER_PARAMETER(DynamicTableData, MatConst)
+  /**
+   * @brief Setter property for MatConst
+   */
+  void setMatConst(const DynamicTableData& value);
+
+  /**
+   * @brief Getter property for MatConst
+   * @return Value of MatConst
+   */
+  DynamicTableData getMatConst() const;
+
   Q_PROPERTY(DynamicTableData MatConst READ getMatConst WRITE setMatConst)
 
-  SIMPL_FILTER_PARAMETER(DataArrayPath, PhaseNamesArrayPath)
+  /**
+   * @brief Setter property for PhaseNamesArrayPath
+   */
+  void setPhaseNamesArrayPath(const DataArrayPath& value);
+
+  /**
+   * @brief Getter property for PhaseNamesArrayPath
+   * @return Value of PhaseNamesArrayPath
+   */
+  DataArrayPath getPhaseNamesArrayPath() const;
+
   Q_PROPERTY(DataArrayPath PhaseNamesArrayPath READ getPhaseNamesArrayPath WRITE setPhaseNamesArrayPath)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
    */
-  const QString getCompiledLibraryName() const override;
+  QString getCompiledLibraryName() const override;
 
   /**
    * @brief getBrandingString Returns the branding string for the filter, which is a tag
    * used to denote the filter's association with specific plugins
    * @return Branding string
    */
-  const QString getBrandingString() const override;
+  QString getBrandingString() const override;
 
   /**
    * @brief getFilterVersion Returns a version string for this filter. Default
    * value is an empty string.
    * @return
    */
-  const QString getFilterVersion() const override;
+  QString getFilterVersion() const override;
 
   /**
    * @brief newFilterInstance Reimplemented from @see AbstractFilter class
@@ -125,23 +311,23 @@ public:
   /**
    * @brief getGroupName Reimplemented from @see AbstractFilter class
    */
-  const QString getGroupName() const override;
+  QString getGroupName() const override;
 
   /**
    * @brief getSubGroupName Reimplemented from @see AbstractFilter class
    */
-  const QString getSubGroupName() const override;
+  QString getSubGroupName() const override;
 
   /**
    * @brief getUuid Return the unique identifier for this filter.
    * @return A QUuid object.
    */
-  const QUuid getUuid() override;
+  QUuid getUuid() const override;
 
   /**
    * @brief getHumanLabel Reimplemented from @see AbstractFilter class
    */
-  const QString getHumanLabel() const override;
+  QString getHumanLabel() const override;
   /**
    * @brief This method will instantiate all the end user settable options/parameters
    * for this filter
@@ -204,6 +390,32 @@ protected:
 private:
   struct Impl;
   std::unique_ptr<Impl> p_Impl;
+  std::weak_ptr<DataArray<int32_t>> m_FeatureIdsPtr;
+  int32_t* m_FeatureIds = nullptr;
+  std::weak_ptr<DataArray<int32_t>> m_CellPhasesPtr;
+  int32_t* m_CellPhases = nullptr;
+  std::weak_ptr<DataArray<float>> m_CellEulerAnglesPtr;
+  float* m_CellEulerAngles = nullptr;
+
+  int m_FEAPackage = {};
+  QString m_JobName = {};
+  QString m_OutputPath = {};
+  QString m_OutputFilePrefix = {};
+  int m_NumDepvar = {};
+  int m_NumMatConst = {};
+  int m_NumUserOutVar = {};
+  DataArrayPath m_AbqFeatureIdsArrayPath = {};
+  DataArrayPath m_PzflexFeatureIdsArrayPath = {};
+  DataArrayPath m_CellPhasesArrayPath = {};
+  DataArrayPath m_CellEulerAnglesArrayPath = {};
+  IntVec3Type m_NumKeypoints = {};
+  int m_NumClusters = {};
+  DynamicTableData m_MatConst = {};
+  DataArrayPath m_PhaseNamesArrayPath = {};
+
+  // DEFINE_DATAARRAY_VARIABLE(QString, PhaseNames)
+
+  StringDataArray::WeakPointer m_PhaseNamesPtr;
 
 public:
   CreateFEAInputFiles(const CreateFEAInputFiles&) = delete;            // Copy Constructor Not Implemented

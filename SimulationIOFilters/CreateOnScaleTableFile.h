@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "SIMPLib/Common/SIMPLibSetGetMacros.h"
+#include "SIMPLib/Common/SIMPLArray.hpp"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/SIMPLib.h"
 
@@ -16,53 +16,126 @@
 class SimulationIO_EXPORT CreateOnScaleTableFile : public AbstractFilter
 {
   Q_OBJECT
+
+#ifdef SIMPL_ENABLE_PYTHON
   PYB11_CREATE_BINDINGS(CreateOnScaleTableFile SUPERCLASS AbstractFilter)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
   PYB11_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
   PYB11_PROPERTY(DataArrayPath PzflexFeatureIdsArrayPath READ getPzflexFeatureIdsArrayPath WRITE setPzflexFeatureIdsArrayPath)
   PYB11_PROPERTY(IntVec3Type NumKeypoints READ getNumKeypoints WRITE setNumKeypoints)
   PYB11_PROPERTY(DataArrayPath PhaseNamesArrayPath READ getPhaseNamesArrayPath WRITE setPhaseNamesArrayPath)
+#endif
 
 public:
-  SIMPL_SHARED_POINTERS(CreateOnScaleTableFile)
-  SIMPL_STATIC_NEW_MACRO(CreateOnScaleTableFile)
-  SIMPL_TYPE_MACRO_SUPER(CreateOnScaleTableFile, AbstractFilter)
+  using Self = CreateOnScaleTableFile;
+  using Pointer = std::shared_ptr<Self>;
+  using ConstPointer = std::shared_ptr<const Self>;
+  using WeakPointer = std::weak_ptr<Self>;
+  using ConstWeakPointer = std::weak_ptr<const Self>;
+  static Pointer NullPointer();
 
-  virtual ~CreateOnScaleTableFile();
+  static Pointer New();
 
-  SIMPL_FILTER_PARAMETER(QString, OutputPath)
+  /**
+   * @brief Returns the name of the class for CreateDataArray
+   */
+  QString getNameOfClass() const override;
+
+  /**
+   * @brief Returns the name of the class for CreateDataArray
+   */
+  static QString ClassName();
+
+  ~CreateOnScaleTableFile() override;
+
+  /**
+   * @brief Getter property for OutputPath
+   * @return
+   */
+  QString getOutputPath() const;
+
+  /**
+   * @brief Setter property for OutputPath
+   * @param value
+   */
+  void setOutputPath(const QString& value);
+
   Q_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
 
-  SIMPL_FILTER_PARAMETER(QString, OutputFilePrefix)
+  /**
+   * @brief Getter property for OutputFilePrefix
+   * @return
+   */
+  QString getOutputFilePrefix() const;
+
+  /**
+   * @brief Setter property for OutputFilePrefix
+   * @param value
+   */
+  void setOutputFilePrefix(const QString& value);
+
   Q_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
 
-  SIMPL_FILTER_PARAMETER(DataArrayPath, PzflexFeatureIdsArrayPath)
+  /**
+   * @brief Getter property for PzflexFeatureIdsArrayPath
+   * @return
+   */
+  DataArrayPath getPzflexFeatureIdsArrayPath() const;
+
+  /**
+   * @brief Setter property for PzflexFeatureIdsArrayPath
+   * @param value
+   */
+  void setPzflexFeatureIdsArrayPath(const DataArrayPath& value);
+
   Q_PROPERTY(DataArrayPath PzflexFeatureIdsArrayPath READ getPzflexFeatureIdsArrayPath WRITE setPzflexFeatureIdsArrayPath)
 
-  SIMPL_FILTER_PARAMETER(IntVec3Type, NumKeypoints)
+  /**
+   * @brief Getter property for NumKeypoints
+   * @return
+   */
+  IntVec3Type getNumKeypoints() const;
+
+  /**
+   * @brief Setter property for NumKeypoints
+   * @param value
+   */
+  void setNumKeypoints(const IntVec3Type& value);
+
   Q_PROPERTY(IntVec3Type NumKeypoints READ getNumKeypoints WRITE setNumKeypoints)
 
-  SIMPL_FILTER_PARAMETER(DataArrayPath, PhaseNamesArrayPath)
+  /**
+   * @brief Getter property for PhaseNamesArrayPath
+   * @return
+   */
+  DataArrayPath getPhaseNamesArrayPath() const;
+
+  /**
+   * @brief Setter property for PhaseNamesArrayPath
+   * @param value
+   */
+  void setPhaseNamesArrayPath(const DataArrayPath& value);
+
   Q_PROPERTY(DataArrayPath PhaseNamesArrayPath READ getPhaseNamesArrayPath WRITE setPhaseNamesArrayPath)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
    */
-  const QString getCompiledLibraryName() const override;
+  QString getCompiledLibraryName() const override;
 
   /**
    * @brief getBrandingString Returns the branding string for the filter, which is a tag
    * used to denote the filter's association with specific plugins
    * @return Branding string
    */
-  const QString getBrandingString() const override;
+  QString getBrandingString() const override;
 
   /**
    * @brief getFilterVersion Returns a version string for this filter. Default
    * value is an empty string.
    * @return
    */
-  const QString getFilterVersion() const override;
+  QString getFilterVersion() const override;
 
   /**
    * @brief newFilterInstance Reimplemented from @see AbstractFilter class
@@ -72,23 +145,24 @@ public:
   /**
    * @brief getGroupName Reimplemented from @see AbstractFilter class
    */
-  const QString getGroupName() const override;
+  QString getGroupName() const override;
 
   /**
    * @brief getSubGroupName Reimplemented from @see AbstractFilter class
    */
-  const QString getSubGroupName() const override;
+  QString getSubGroupName() const override;
 
   /**
    * @brief getUuid Return the unique identifier for this filter.
    * @return A QUuid object.
    */
-  const QUuid getUuid() override;
+  QUuid getUuid() const override;
 
   /**
    * @brief getHumanLabel Reimplemented from @see AbstractFilter class
    */
-  const QString getHumanLabel() const override;
+  QString getHumanLabel() const override;
+
   /**
    * @brief This method will instantiate all the end user settable options/parameters
    * for this filter
@@ -151,6 +225,12 @@ protected:
 private:
   struct Impl;
   std::unique_ptr<Impl> p_Impl;
+
+  QString m_OutputPath;
+  QString m_OutputFilePrefix;
+  DataArrayPath m_PzflexFeatureIdsArrayPath;
+  IntVec3Type m_NumKeypoints;
+  DataArrayPath m_PhaseNamesArrayPath;
 
 public:
   CreateOnScaleTableFile(const CreateOnScaleTableFile&) = delete;            // Copy Constructor Not Implemented

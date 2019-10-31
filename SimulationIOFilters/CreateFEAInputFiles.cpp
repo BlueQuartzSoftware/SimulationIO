@@ -6,7 +6,10 @@
 
 #include <QtCore/QDir>
 
+#include <QtCore/QTextStream>
+
 #include "SIMPLib/Common/Constants.h"
+
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/ChoiceFilterParameter.h"
@@ -29,6 +32,8 @@
 #include "SIMPLib/Math/GeometryMath.h"
 #include "SIMPLib/Math/SIMPLibMath.h"
 #include "SIMPLib/Utilities/FileSystemPathHelper.h"
+#include "SIMPLib/DataContainers/DataContainerArray.h"
+#include "SIMPLib/DataContainers/DataContainer.h"
 
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"
@@ -55,8 +60,6 @@ struct CreateFEAInputFiles::Impl
 };
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 CreateFEAInputFiles::CreateFEAInputFiles()
 : p_Impl(std::make_unique<Impl>())
 , m_FEAPackage(0)
@@ -80,12 +83,8 @@ CreateFEAInputFiles::CreateFEAInputFiles()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 CreateFEAInputFiles::~CreateFEAInputFiles() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CreateFEAInputFiles::initialize()
 {
@@ -94,8 +93,6 @@ void CreateFEAInputFiles::initialize()
   setCancel(false);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CreateFEAInputFiles::setupFilterParameters()
 {
@@ -177,8 +174,6 @@ void CreateFEAInputFiles::setupFilterParameters()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void CreateFEAInputFiles::readFilterParameters(AbstractFilterParametersReader* reader, int index)
 {
   reader->openFilterGroup(this, index);
@@ -200,8 +195,6 @@ void CreateFEAInputFiles::readFilterParameters(AbstractFilterParametersReader* r
   reader->closeFilterGroup();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CreateFEAInputFiles::dataCheck()
 {
@@ -308,8 +301,6 @@ void CreateFEAInputFiles::dataCheck()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void CreateFEAInputFiles::preflight()
 {
   // These are the REQUIRED lines of CODE to make sure the filter behaves correctly
@@ -321,8 +312,6 @@ void CreateFEAInputFiles::preflight()
   setInPreflight(false);             // Inform the system this filter is NOT in preflight mode anymore.
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CreateFEAInputFiles::execute()
 {
@@ -434,8 +423,6 @@ void CreateFEAInputFiles::execute()
 }
 //
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 AbstractFilter::Pointer CreateFEAInputFiles::newFilterInstance(bool copyFilterParameters) const
 {
   CreateFEAInputFiles::Pointer filter = CreateFEAInputFiles::New();
@@ -447,25 +434,19 @@ AbstractFilter::Pointer CreateFEAInputFiles::newFilterInstance(bool copyFilterPa
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateFEAInputFiles::getCompiledLibraryName() const
+QString CreateFEAInputFiles::getCompiledLibraryName() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateFEAInputFiles::getBrandingString() const
+QString CreateFEAInputFiles::getBrandingString() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateFEAInputFiles::getFilterVersion() const
+QString CreateFEAInputFiles::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
@@ -474,33 +455,230 @@ const QString CreateFEAInputFiles::getFilterVersion() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateFEAInputFiles::getGroupName() const
+QString CreateFEAInputFiles::getGroupName() const
 {
   return SIMPL::FilterGroups::Unsupported;
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateFEAInputFiles::getSubGroupName() const
+QString CreateFEAInputFiles::getSubGroupName() const
 {
   return "SimulationIO";
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateFEAInputFiles::getHumanLabel() const
+QString CreateFEAInputFiles::getHumanLabel() const
 {
   return "Create FEA Input Files";
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QUuid CreateFEAInputFiles::getUuid()
+QUuid CreateFEAInputFiles::getUuid() const
 {
   return QUuid("{e7f02408-6c01-5b56-b970-7813e64c12e2}");
+}
+
+// -----------------------------------------------------------------------------
+CreateFEAInputFiles::Pointer CreateFEAInputFiles::NullPointer()
+{
+  return Pointer(static_cast<Self*>(nullptr));
+}
+
+// -----------------------------------------------------------------------------
+CreateFEAInputFiles::Pointer CreateFEAInputFiles::New()
+{
+  Pointer sharedPtr(new(CreateFEAInputFiles));
+  return sharedPtr;
+}
+
+// -----------------------------------------------------------------------------
+QString CreateFEAInputFiles::getNameOfClass() const
+{
+  return QString("_SUPERCreateFEAInputFiles");
+}
+
+// -----------------------------------------------------------------------------
+QString CreateFEAInputFiles::ClassName()
+{
+  return QString("_SUPERCreateFEAInputFiles");
+}
+
+// -----------------------------------------------------------------------------
+void CreateFEAInputFiles::setFEAPackage(int value)
+{
+  m_FEAPackage = value;
+}
+
+// -----------------------------------------------------------------------------
+int CreateFEAInputFiles::getFEAPackage() const
+{
+  return m_FEAPackage;
+}
+
+// -----------------------------------------------------------------------------
+void CreateFEAInputFiles::setJobName(const QString& value)
+{
+  m_JobName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString CreateFEAInputFiles::getJobName() const
+{
+  return m_JobName;
+}
+
+// -----------------------------------------------------------------------------
+void CreateFEAInputFiles::setOutputPath(const QString& value)
+{
+  m_OutputPath = value;
+}
+
+// -----------------------------------------------------------------------------
+QString CreateFEAInputFiles::getOutputPath() const
+{
+  return m_OutputPath;
+}
+
+// -----------------------------------------------------------------------------
+void CreateFEAInputFiles::setOutputFilePrefix(const QString& value)
+{
+  m_OutputFilePrefix = value;
+}
+
+// -----------------------------------------------------------------------------
+QString CreateFEAInputFiles::getOutputFilePrefix() const
+{
+  return m_OutputFilePrefix;
+}
+
+// -----------------------------------------------------------------------------
+void CreateFEAInputFiles::setNumDepvar(int value)
+{
+  m_NumDepvar = value;
+}
+
+// -----------------------------------------------------------------------------
+int CreateFEAInputFiles::getNumDepvar() const
+{
+  return m_NumDepvar;
+}
+
+// -----------------------------------------------------------------------------
+void CreateFEAInputFiles::setNumMatConst(int value)
+{
+  m_NumMatConst = value;
+}
+
+// -----------------------------------------------------------------------------
+int CreateFEAInputFiles::getNumMatConst() const
+{
+  return m_NumMatConst;
+}
+
+// -----------------------------------------------------------------------------
+void CreateFEAInputFiles::setNumUserOutVar(int value)
+{
+  m_NumUserOutVar = value;
+}
+
+// -----------------------------------------------------------------------------
+int CreateFEAInputFiles::getNumUserOutVar() const
+{
+  return m_NumUserOutVar;
+}
+
+// -----------------------------------------------------------------------------
+void CreateFEAInputFiles::setAbqFeatureIdsArrayPath(const DataArrayPath& value)
+{
+  m_AbqFeatureIdsArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath CreateFEAInputFiles::getAbqFeatureIdsArrayPath() const
+{
+  return m_AbqFeatureIdsArrayPath;
+}
+
+// -----------------------------------------------------------------------------
+void CreateFEAInputFiles::setPzflexFeatureIdsArrayPath(const DataArrayPath& value)
+{
+  m_PzflexFeatureIdsArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath CreateFEAInputFiles::getPzflexFeatureIdsArrayPath() const
+{
+  return m_PzflexFeatureIdsArrayPath;
+}
+
+// -----------------------------------------------------------------------------
+void CreateFEAInputFiles::setCellPhasesArrayPath(const DataArrayPath& value)
+{
+  m_CellPhasesArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath CreateFEAInputFiles::getCellPhasesArrayPath() const
+{
+  return m_CellPhasesArrayPath;
+}
+
+// -----------------------------------------------------------------------------
+void CreateFEAInputFiles::setCellEulerAnglesArrayPath(const DataArrayPath& value)
+{
+  m_CellEulerAnglesArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath CreateFEAInputFiles::getCellEulerAnglesArrayPath() const
+{
+  return m_CellEulerAnglesArrayPath;
+}
+
+// -----------------------------------------------------------------------------
+void CreateFEAInputFiles::setNumKeypoints(const IntVec3Type& value)
+{
+  m_NumKeypoints = value;
+}
+
+// -----------------------------------------------------------------------------
+IntVec3Type CreateFEAInputFiles::getNumKeypoints() const
+{
+  return m_NumKeypoints;
+}
+
+// -----------------------------------------------------------------------------
+void CreateFEAInputFiles::setNumClusters(int value)
+{
+  m_NumClusters = value;
+}
+
+// -----------------------------------------------------------------------------
+int CreateFEAInputFiles::getNumClusters() const
+{
+  return m_NumClusters;
+}
+
+// -----------------------------------------------------------------------------
+void CreateFEAInputFiles::setMatConst(const DynamicTableData& value)
+{
+  m_MatConst = value;
+}
+
+// -----------------------------------------------------------------------------
+DynamicTableData CreateFEAInputFiles::getMatConst() const
+{
+  return m_MatConst;
+}
+
+// -----------------------------------------------------------------------------
+void CreateFEAInputFiles::setPhaseNamesArrayPath(const DataArrayPath& value)
+{
+  m_PhaseNamesArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath CreateFEAInputFiles::getPhaseNamesArrayPath() const
+{
+  return m_PhaseNamesArrayPath;
 }

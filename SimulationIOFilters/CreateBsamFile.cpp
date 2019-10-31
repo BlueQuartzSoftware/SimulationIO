@@ -18,8 +18,6 @@
 #include "SimulationIO/SimulationIOFilters/Utility/BsamFileWriter.h"
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 CreateBsamFile::CreateBsamFile()
 : m_NumClusters(1)
 {
@@ -29,12 +27,8 @@ CreateBsamFile::CreateBsamFile()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 CreateBsamFile::~CreateBsamFile() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CreateBsamFile::initialize()
 {
@@ -43,8 +37,6 @@ void CreateBsamFile::initialize()
   setCancel(false);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CreateBsamFile::setupFilterParameters()
 {
@@ -59,8 +51,6 @@ void CreateBsamFile::setupFilterParameters()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void CreateBsamFile::readFilterParameters(AbstractFilterParametersReader* reader, int index)
 {
   reader->openFilterGroup(this, index);
@@ -70,8 +60,6 @@ void CreateBsamFile::readFilterParameters(AbstractFilterParametersReader* reader
   reader->closeFilterGroup();
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CreateBsamFile::dataCheck()
 {
@@ -93,8 +81,6 @@ void CreateBsamFile::dataCheck()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void CreateBsamFile::preflight()
 {
   // These are the REQUIRED lines of CODE to make sure the filter behaves correctly
@@ -106,8 +92,6 @@ void CreateBsamFile::preflight()
   setInPreflight(false);             // Inform the system this filter is NOT in preflight mode anymore.
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CreateBsamFile::execute()
 {
@@ -138,9 +122,7 @@ void CreateBsamFile::execute()
     return;
   }
 }
-//
-// -----------------------------------------------------------------------------
-//
+
 // -----------------------------------------------------------------------------
 AbstractFilter::Pointer CreateBsamFile::newFilterInstance(bool copyFilterParameters) const
 {
@@ -153,25 +135,19 @@ AbstractFilter::Pointer CreateBsamFile::newFilterInstance(bool copyFilterParamet
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateBsamFile::getCompiledLibraryName() const
+QString CreateBsamFile::getCompiledLibraryName() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateBsamFile::getBrandingString() const
+QString CreateBsamFile::getBrandingString() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateBsamFile::getFilterVersion() const
+QString CreateBsamFile::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
@@ -180,33 +156,88 @@ const QString CreateBsamFile::getFilterVersion() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateBsamFile::getGroupName() const
+QString CreateBsamFile::getGroupName() const
 {
   return SIMPL::FilterGroups::Unsupported;
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateBsamFile::getSubGroupName() const
+QString CreateBsamFile::getSubGroupName() const
 {
   return "SimulationIO";
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateBsamFile::getHumanLabel() const
+QString CreateBsamFile::getHumanLabel() const
 {
   return "Create BSAM File";
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QUuid CreateBsamFile::getUuid()
+QUuid CreateBsamFile::getUuid() const
 {
   return QUuid("{542c2417-1685-54e5-9322-f60792e9176c}");
+}
+
+// -----------------------------------------------------------------------------
+CreateBsamFile::Pointer CreateBsamFile::NullPointer()
+{
+  return Pointer(static_cast<Self*>(nullptr));
+}
+
+// -----------------------------------------------------------------------------
+CreateBsamFile::Pointer CreateBsamFile::New()
+{
+  struct make_shared_enabler : public CreateBsamFile
+  {
+  };
+  return std::make_shared<make_shared_enabler>();
+}
+
+// -----------------------------------------------------------------------------
+QString CreateBsamFile::getNameOfClass() const
+{
+  return ClassName();
+}
+
+// -----------------------------------------------------------------------------
+QString CreateBsamFile::ClassName()
+{
+  return QString("CreateBsamFile");
+}
+
+// -----------------------------------------------------------------------------
+void CreateBsamFile::setOutputPath(const QString& value)
+{
+  m_OutputPath = value;
+}
+
+// -----------------------------------------------------------------------------
+QString CreateBsamFile::getOutputPath() const
+{
+  return m_OutputPath;
+}
+
+// -----------------------------------------------------------------------------
+void CreateBsamFile::setOutputFilePrefix(const QString& value)
+{
+  m_OutputFilePrefix = value;
+}
+
+// -----------------------------------------------------------------------------
+QString CreateBsamFile::getOutputFilePrefix() const
+{
+  return m_OutputFilePrefix;
+}
+
+// -----------------------------------------------------------------------------
+void CreateBsamFile::setNumClusters(int value)
+{
+  m_NumClusters = value;
+}
+
+// -----------------------------------------------------------------------------
+int CreateBsamFile::getNumClusters() const
+{
+  return m_NumClusters;
 }

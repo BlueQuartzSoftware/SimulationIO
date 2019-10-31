@@ -2,13 +2,18 @@
  * Your License or Copyright can go here
  */
 
+#include <memory>
+
 #include "Export3dSolidMesh.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QString>
 
+#include <QtCore/QTextStream>
+
 #include "SIMPLib/Common/Constants.h"
+
 #include "SIMPLib/Common/TemplateHelpers.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
@@ -37,6 +42,8 @@
 #include "SIMPLib/Math/SIMPLibMath.h"
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Utilities/FileSystemPathHelper.h"
+#include "SIMPLib/DataContainers/DataContainerArray.h"
+#include "SIMPLib/DataContainers/DataContainer.h"
 
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"
@@ -45,26 +52,10 @@
 //
 // -----------------------------------------------------------------------------
 Export3dSolidMesh::Export3dSolidMesh()
-: m_MeshingPackage(0)
-, m_outputPath("")
+: m_outputPath("")
 , m_PackageLocation("")
-, m_SurfaceMeshFaceLabelsArrayPath(SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::FaceAttributeMatrixName, SIMPL::FaceData::SurfaceMeshFaceLabels)
-, m_FeaturePhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Phases)
-, m_FeatureEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::EulerAngles)
-, m_FeatureCentroidArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Centroids)
-, m_RefineMesh(true)
-, m_MaxRadiusEdgeRatio(2.0f)
-, m_MinDihedralAngle(0.0f)
-, m_LimitTetrahedraVolume(false)
-, m_MaxTetrahedraVolume(0.1f)
-, m_OptimizationLevel(2)
-, m_TetDataContainerName(SIMPL::Defaults::TetrahedralDataContainerName)
-, m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
-, m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
 , m_GmshSTLFileName("")
-, m_MeshFileFormat(0)
 , m_NetgenSTLFileName("")
-, m_MeshSize(0)
 {
   initialize();
 }
@@ -110,6 +101,8 @@ void Export3dSolidMesh::setupFilterParameters()
                                "OptimizationLevel",
                                "LimitTetrahedraVolume",
                                "MaxTetrahedraVolume",
+			       "IncludeHolesUsingPhaseID",
+			       "PhaseID",
                                "TetDataContainerName",
                                "VertexAttributeMatrixName",
                                "CellAttributeMatrixName",
@@ -208,6 +201,14 @@ void Export3dSolidMesh::setupFilterParameters()
     parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Limit Tetrahedra Volume (a)", LimitTetrahedraVolume, FilterParameter::Parameter, Export3dSolidMesh, linkedProps, 0));
     linkedProps.clear();
     parameters.push_back(SIMPL_NEW_FLOAT_FP("Maximum Tetrahedron Volume", MaxTetrahedraVolume, FilterParameter::Parameter, Export3dSolidMesh, 0));
+  }
+
+  {
+    parameters.push_back(SeparatorFilterParameter::New("Holes in the Mesh", FilterParameter::Parameter));
+    QStringList linkedProps = {"PhaseID"};
+    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Include Holes Using PhaseID", IncludeHolesUsingPhaseID, FilterParameter::Parameter, Export3dSolidMesh, linkedProps, 0));
+    linkedProps.clear();
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("PhaseID", PhaseID, FilterParameter::Parameter, Export3dSolidMesh, 0));
   }
 
   {
@@ -577,7 +578,36 @@ void Export3dSolidMesh::createTetgenInpFile(const QString& file, MeshIndexType n
   }
 
   fprintf(f1, "# Part 3 - hole list\n");
-  fprintf(f1, "0\n");
+  if(m_IncludeHolesUsingPhaseID)
+    {
+      size_t numHoles = 0;
+      size_t jj = 0;
+      //      Int32ArrayType::Pointer m_HolesIDPtr = Int32ArrayType::CreateArray(numfeatures, "HOLESID_INTERNAL_USE_ONLY", true);
+      // int32_t* m_HolesID = m_HolesIDPtr->getPointer(0);
+      
+      for(size_t ii = 1; ii < numfeatures; ii++)
+	{
+	  if (m_FeaturePhases[ii] == m_PhaseID )
+	    {
+	      numHoles = numHoles + 1;
+	      //      m_HolesID[ii] = 1;
+	    }
+	}
+      fprintf(f1, "%zu\n",numHoles);
+      for(size_t ii = 1; ii < numfeatures; ii++)
+	{
+	  //	  if (m_HolesID[ii] == 1 )
+	  if (m_FeaturePhases[ii] == m_PhaseID )
+	    {
+	      fprintf(f1, "%zu %.3f %.3f %.3f\n", jj+1, centroid[ii * 3], centroid[ii * 3 + 1], centroid[ii * 3 + 2]);
+	    }
+	}
+    }
+  else
+    {
+      fprintf(f1, "0\n");
+    }
+  
 
   fprintf(f1, "# Part 4 - region list\n");
   fprintf(f1, "%zu 0\n", numfeatures - 1);
@@ -1029,7 +1059,7 @@ AbstractFilter::Pointer Export3dSolidMesh::newFilterInstance(bool copyFilterPara
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString Export3dSolidMesh::getCompiledLibraryName() const
+QString Export3dSolidMesh::getCompiledLibraryName() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
@@ -1037,7 +1067,7 @@ const QString Export3dSolidMesh::getCompiledLibraryName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString Export3dSolidMesh::getBrandingString() const
+QString Export3dSolidMesh::getBrandingString() const
 {
   return "SimulationIO";
 }
@@ -1045,7 +1075,7 @@ const QString Export3dSolidMesh::getBrandingString() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString Export3dSolidMesh::getFilterVersion() const
+QString Export3dSolidMesh::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
@@ -1056,7 +1086,7 @@ const QString Export3dSolidMesh::getFilterVersion() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString Export3dSolidMesh::getGroupName() const
+QString Export3dSolidMesh::getGroupName() const
 {
   return SIMPL::FilterGroups::Unsupported;
 }
@@ -1064,7 +1094,7 @@ const QString Export3dSolidMesh::getGroupName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString Export3dSolidMesh::getSubGroupName() const
+QString Export3dSolidMesh::getSubGroupName() const
 {
   return "SimulationIO";
 }
@@ -1072,7 +1102,7 @@ const QString Export3dSolidMesh::getSubGroupName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString Export3dSolidMesh::getHumanLabel() const
+QString Export3dSolidMesh::getHumanLabel() const
 {
   return "Export 3d Solid Mesh";
 }
@@ -1080,7 +1110,301 @@ const QString Export3dSolidMesh::getHumanLabel() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QUuid Export3dSolidMesh::getUuid()
+QUuid Export3dSolidMesh::getUuid() const
 {
   return QUuid("{fcff3b03-bff6-5511-bc65-5e558d12f0a6}");
 }
+
+// -----------------------------------------------------------------------------
+Export3dSolidMesh::Pointer Export3dSolidMesh::NullPointer()
+{
+  return Pointer(static_cast<Self*>(nullptr));
+}
+
+// -----------------------------------------------------------------------------
+std::shared_ptr<Export3dSolidMesh> Export3dSolidMesh::New()
+{
+  struct make_shared_enabler : public Export3dSolidMesh
+  {
+  };
+  std::shared_ptr<make_shared_enabler> val = std::make_shared<make_shared_enabler>();
+  val->setupFilterParameters();
+  return val;
+}
+
+// -----------------------------------------------------------------------------
+QString Export3dSolidMesh::getNameOfClass() const
+{
+  return QString("_SUPERExport3dSolidMesh");
+}
+
+// -----------------------------------------------------------------------------
+QString Export3dSolidMesh::ClassName()
+{
+  return QString("_SUPERExport3dSolidMesh");
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setMeshingPackage(int value)
+{
+  m_MeshingPackage = value;
+}
+
+// -----------------------------------------------------------------------------
+int Export3dSolidMesh::getMeshingPackage() const
+{
+  return m_MeshingPackage;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setoutputPath(const QString& value)
+{
+  m_outputPath = value;
+}
+
+// -----------------------------------------------------------------------------
+QString Export3dSolidMesh::getoutputPath() const
+{
+  return m_outputPath;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setPackageLocation(const QString& value)
+{
+  m_PackageLocation = value;
+}
+
+// -----------------------------------------------------------------------------
+QString Export3dSolidMesh::getPackageLocation() const
+{
+  return m_PackageLocation;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setSurfaceMeshFaceLabelsArrayPath(const DataArrayPath& value)
+{
+  m_SurfaceMeshFaceLabelsArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath Export3dSolidMesh::getSurfaceMeshFaceLabelsArrayPath() const
+{
+  return m_SurfaceMeshFaceLabelsArrayPath;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setFeaturePhasesArrayPath(const DataArrayPath& value)
+{
+  m_FeaturePhasesArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath Export3dSolidMesh::getFeaturePhasesArrayPath() const
+{
+  return m_FeaturePhasesArrayPath;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setFeatureEulerAnglesArrayPath(const DataArrayPath& value)
+{
+  m_FeatureEulerAnglesArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath Export3dSolidMesh::getFeatureEulerAnglesArrayPath() const
+{
+  return m_FeatureEulerAnglesArrayPath;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setFeatureCentroidArrayPath(const DataArrayPath& value)
+{
+  m_FeatureCentroidArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath Export3dSolidMesh::getFeatureCentroidArrayPath() const
+{
+  return m_FeatureCentroidArrayPath;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setRefineMesh(bool value)
+{
+  m_RefineMesh = value;
+}
+
+// -----------------------------------------------------------------------------
+bool Export3dSolidMesh::getRefineMesh() const
+{
+  return m_RefineMesh;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setMaxRadiusEdgeRatio(float value)
+{
+  m_MaxRadiusEdgeRatio = value;
+}
+
+// -----------------------------------------------------------------------------
+float Export3dSolidMesh::getMaxRadiusEdgeRatio() const
+{
+  return m_MaxRadiusEdgeRatio;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setMinDihedralAngle(float value)
+{
+  m_MinDihedralAngle = value;
+}
+
+// -----------------------------------------------------------------------------
+float Export3dSolidMesh::getMinDihedralAngle() const
+{
+  return m_MinDihedralAngle;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setLimitTetrahedraVolume(bool value)
+{
+  m_LimitTetrahedraVolume = value;
+}
+
+// -----------------------------------------------------------------------------
+bool Export3dSolidMesh::getLimitTetrahedraVolume() const
+{
+  return m_LimitTetrahedraVolume;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setMaxTetrahedraVolume(float value)
+{
+  m_MaxTetrahedraVolume = value;
+}
+
+// -----------------------------------------------------------------------------
+float Export3dSolidMesh::getMaxTetrahedraVolume() const
+{
+  return m_MaxTetrahedraVolume;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setOptimizationLevel(int value)
+{
+  m_OptimizationLevel = value;
+}
+
+// -----------------------------------------------------------------------------
+int Export3dSolidMesh::getOptimizationLevel() const
+{
+  return m_OptimizationLevel;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setTetDataContainerName(const QString& value)
+{
+  m_TetDataContainerName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString Export3dSolidMesh::getTetDataContainerName() const
+{
+  return m_TetDataContainerName;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setVertexAttributeMatrixName(const QString& value)
+{
+  m_VertexAttributeMatrixName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString Export3dSolidMesh::getVertexAttributeMatrixName() const
+{
+  return m_VertexAttributeMatrixName;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setCellAttributeMatrixName(const QString& value)
+{
+  m_CellAttributeMatrixName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString Export3dSolidMesh::getCellAttributeMatrixName() const
+{
+  return m_CellAttributeMatrixName;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setGmshSTLFileName(const QString& value)
+{
+  m_GmshSTLFileName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString Export3dSolidMesh::getGmshSTLFileName() const
+{
+  return m_GmshSTLFileName;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setMeshFileFormat(int value)
+{
+  m_MeshFileFormat = value;
+}
+
+// -----------------------------------------------------------------------------
+int Export3dSolidMesh::getMeshFileFormat() const
+{
+  return m_MeshFileFormat;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setNetgenSTLFileName(const QString& value)
+{
+  m_NetgenSTLFileName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString Export3dSolidMesh::getNetgenSTLFileName() const
+{
+  return m_NetgenSTLFileName;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setMeshSize(int value)
+{
+  m_MeshSize = value;
+}
+
+// -----------------------------------------------------------------------------
+int Export3dSolidMesh::getMeshSize() const
+{
+  return m_MeshSize;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setIncludeHolesUsingPhaseID(bool value)
+{
+  m_IncludeHolesUsingPhaseID = value;
+}
+
+// -----------------------------------------------------------------------------
+bool Export3dSolidMesh::getIncludeHolesUsingPhaseID() const
+{
+  return m_IncludeHolesUsingPhaseID;
+}
+
+// -----------------------------------------------------------------------------
+void Export3dSolidMesh::setPhaseID(int value)
+{
+  m_PhaseID = value;
+}
+
+// -----------------------------------------------------------------------------
+int Export3dSolidMesh::getPhaseID() const
+{
+  return m_PhaseID;
+}
+

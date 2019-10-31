@@ -7,6 +7,7 @@
 #include <QtCore/QDir>
 
 #include "SIMPLib/Common/Constants.h"
+#include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
@@ -25,15 +26,22 @@ struct CreateOnScaleTableFile::Impl
   DataArray<int32_t>::WeakPointer m_FeatureIdsPtr;
   StringDataArray::WeakPointer m_PhaseNamesPtr;
 
-  void reset()
+  Impl() = default;
+
+  ~Impl() = default;
+
+  Impl(const Impl&) = delete;
+  Impl(Impl&&) = delete;
+  Impl& operator=(const Impl&) = delete;
+  Impl& operator=(Impl&&) = delete;
+
+  void resetDataArrays()
   {
     m_FeatureIdsPtr.reset();
     m_PhaseNamesPtr.reset();
   }
 };
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 CreateOnScaleTableFile::CreateOnScaleTableFile()
 : p_Impl(std::make_unique<Impl>())
@@ -47,12 +55,8 @@ CreateOnScaleTableFile::CreateOnScaleTableFile()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 CreateOnScaleTableFile::~CreateOnScaleTableFile() = default;
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CreateOnScaleTableFile::initialize()
 {
@@ -61,8 +65,6 @@ void CreateOnScaleTableFile::initialize()
   setCancel(false);
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CreateOnScaleTableFile::setupFilterParameters()
 {
@@ -91,8 +93,6 @@ void CreateOnScaleTableFile::setupFilterParameters()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void CreateOnScaleTableFile::readFilterParameters(AbstractFilterParametersReader* reader, int index)
 {
   reader->openFilterGroup(this, index);
@@ -105,14 +105,12 @@ void CreateOnScaleTableFile::readFilterParameters(AbstractFilterParametersReader
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void CreateOnScaleTableFile::dataCheck()
 {
   clearErrorCode();
   clearWarningCode();
 
-  p_Impl->reset();
+  p_Impl->resetDataArrays();
 
   if(m_OutputPath.isEmpty())
   {
@@ -137,8 +135,6 @@ void CreateOnScaleTableFile::dataCheck()
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
 void CreateOnScaleTableFile::preflight()
 {
   // These are the REQUIRED lines of CODE to make sure the filter behaves correctly
@@ -150,8 +146,6 @@ void CreateOnScaleTableFile::preflight()
   setInPreflight(false);             // Inform the system this filter is NOT in preflight mode anymore.
 }
 
-// -----------------------------------------------------------------------------
-//
 // -----------------------------------------------------------------------------
 void CreateOnScaleTableFile::execute()
 {
@@ -214,9 +208,7 @@ void CreateOnScaleTableFile::execute()
     return;
   }
 }
-//
-// -----------------------------------------------------------------------------
-//
+
 // -----------------------------------------------------------------------------
 AbstractFilter::Pointer CreateOnScaleTableFile::newFilterInstance(bool copyFilterParameters) const
 {
@@ -229,25 +221,19 @@ AbstractFilter::Pointer CreateOnScaleTableFile::newFilterInstance(bool copyFilte
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateOnScaleTableFile::getCompiledLibraryName() const
+QString CreateOnScaleTableFile::getCompiledLibraryName() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateOnScaleTableFile::getBrandingString() const
+QString CreateOnScaleTableFile::getBrandingString() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateOnScaleTableFile::getFilterVersion() const
+QString CreateOnScaleTableFile::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
@@ -256,33 +242,112 @@ const QString CreateOnScaleTableFile::getFilterVersion() const
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateOnScaleTableFile::getGroupName() const
+QString CreateOnScaleTableFile::getGroupName() const
 {
   return SIMPL::FilterGroups::Unsupported;
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateOnScaleTableFile::getSubGroupName() const
+QString CreateOnScaleTableFile::getSubGroupName() const
 {
   return "SimulationIO";
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QString CreateOnScaleTableFile::getHumanLabel() const
+QString CreateOnScaleTableFile::getHumanLabel() const
 {
   return "Create OnScale Table File";
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-const QUuid CreateOnScaleTableFile::getUuid()
+QUuid CreateOnScaleTableFile::getUuid() const
 {
   return QUuid("{8efc447d-1c92-5ec5-885c-60b4a597835c}");
+}
+
+// -----------------------------------------------------------------------------
+CreateOnScaleTableFile::Pointer CreateOnScaleTableFile::NullPointer()
+{
+  return Pointer(static_cast<Self*>(nullptr));
+}
+
+// -----------------------------------------------------------------------------
+CreateOnScaleTableFile::Pointer CreateOnScaleTableFile::New()
+{
+  struct make_shared_enabler : public CreateOnScaleTableFile
+  {
+  };
+  return std::make_shared<make_shared_enabler>();
+}
+
+// -----------------------------------------------------------------------------
+QString CreateOnScaleTableFile::getNameOfClass() const
+{
+  return ClassName();
+}
+
+// -----------------------------------------------------------------------------
+QString CreateOnScaleTableFile::ClassName()
+{
+  return QString("CreateOnScaleTableFile");
+}
+
+// -----------------------------------------------------------------------------
+QString CreateOnScaleTableFile::getOutputPath() const
+{
+  return m_OutputPath;
+}
+
+// -----------------------------------------------------------------------------
+void CreateOnScaleTableFile::setOutputPath(const QString& value)
+{
+  m_OutputPath = value;
+}
+
+// -----------------------------------------------------------------------------
+void CreateOnScaleTableFile::setOutputFilePrefix(const QString& value)
+{
+  m_OutputFilePrefix = value;
+}
+
+// -----------------------------------------------------------------------------
+QString CreateOnScaleTableFile::getOutputFilePrefix() const
+{
+  return m_OutputFilePrefix;
+}
+
+// -----------------------------------------------------------------------------
+void CreateOnScaleTableFile::setPzflexFeatureIdsArrayPath(const DataArrayPath& value)
+{
+  m_PzflexFeatureIdsArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath CreateOnScaleTableFile::getPzflexFeatureIdsArrayPath() const
+{
+  return m_PzflexFeatureIdsArrayPath;
+}
+
+// -----------------------------------------------------------------------------
+void CreateOnScaleTableFile::setNumKeypoints(const IntVec3Type& value)
+{
+  m_NumKeypoints = value;
+}
+
+// -----------------------------------------------------------------------------
+IntVec3Type CreateOnScaleTableFile::getNumKeypoints() const
+{
+  return m_NumKeypoints;
+}
+
+// -----------------------------------------------------------------------------
+void CreateOnScaleTableFile::setPhaseNamesArrayPath(const DataArrayPath& value)
+{
+  m_PhaseNamesArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath CreateOnScaleTableFile::getPhaseNamesArrayPath() const
+{
+  return m_PhaseNamesArrayPath;
 }

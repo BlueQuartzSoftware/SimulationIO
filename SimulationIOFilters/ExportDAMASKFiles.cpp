@@ -2,7 +2,11 @@
  * Your License or Copyright can go here
  */
 
+#include <memory>
+
 #include "ExportDAMASKFiles.h"
+
+#include <QtCore/QTextStream>
 
 #include "SIMPLib/Common/Constants.h"
 
@@ -28,6 +32,8 @@
 #include "SIMPLib/Math/GeometryMath.h"
 #include "SIMPLib/Math/SIMPLibMath.h"
 #include "SIMPLib/Utilities/FileSystemPathHelper.h"
+#include "SIMPLib/DataContainers/DataContainerArray.h"
+#include "SIMPLib/DataContainers/DataContainer.h"
 
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"
@@ -424,7 +430,7 @@ AbstractFilter::Pointer ExportDAMASKFiles::newFilterInstance(bool copyFilterPara
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ExportDAMASKFiles::getCompiledLibraryName() const
+QString ExportDAMASKFiles::getCompiledLibraryName() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
@@ -432,7 +438,7 @@ const QString ExportDAMASKFiles::getCompiledLibraryName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ExportDAMASKFiles::getBrandingString() const
+QString ExportDAMASKFiles::getBrandingString() const
 {
   return "SimulationIO";
 }
@@ -440,7 +446,7 @@ const QString ExportDAMASKFiles::getBrandingString() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ExportDAMASKFiles::getFilterVersion() const
+QString ExportDAMASKFiles::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
@@ -451,7 +457,7 @@ const QString ExportDAMASKFiles::getFilterVersion() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ExportDAMASKFiles::getGroupName() const
+QString ExportDAMASKFiles::getGroupName() const
 {
   return SIMPL::FilterGroups::Unsupported;
 }
@@ -459,7 +465,7 @@ const QString ExportDAMASKFiles::getGroupName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ExportDAMASKFiles::getSubGroupName() const
+QString ExportDAMASKFiles::getSubGroupName() const
 {
   return "SimulationIO";
 }
@@ -467,7 +473,7 @@ const QString ExportDAMASKFiles::getSubGroupName() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QString ExportDAMASKFiles::getHumanLabel() const
+QString ExportDAMASKFiles::getHumanLabel() const
 {
   return "Export DAMASK Files";
 }
@@ -475,7 +481,132 @@ const QString ExportDAMASKFiles::getHumanLabel() const
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-const QUuid ExportDAMASKFiles::getUuid()
+QUuid ExportDAMASKFiles::getUuid() const
 {
   return QUuid("{7c58e612-d7d6-5ec7-806b-cce0c1c211a3}");
+}
+
+// -----------------------------------------------------------------------------
+ExportDAMASKFiles::Pointer ExportDAMASKFiles::NullPointer()
+{
+  return Pointer(static_cast<Self*>(nullptr));
+}
+
+// -----------------------------------------------------------------------------
+std::shared_ptr<ExportDAMASKFiles> ExportDAMASKFiles::New()
+{
+  struct make_shared_enabler : public ExportDAMASKFiles
+  {
+  };
+  std::shared_ptr<make_shared_enabler> val = std::make_shared<make_shared_enabler>();
+  val->setupFilterParameters();
+  return val;
+}
+
+// -----------------------------------------------------------------------------
+QString ExportDAMASKFiles::getNameOfClass() const
+{
+  return QString("_SUPERExportDAMASKFiles");
+}
+
+// -----------------------------------------------------------------------------
+QString ExportDAMASKFiles::ClassName()
+{
+  return QString("_SUPERExportDAMASKFiles");
+}
+
+// -----------------------------------------------------------------------------
+void ExportDAMASKFiles::setDataFormat(int value)
+{
+  m_DataFormat = value;
+}
+
+// -----------------------------------------------------------------------------
+int ExportDAMASKFiles::getDataFormat() const
+{
+  return m_DataFormat;
+}
+
+// -----------------------------------------------------------------------------
+void ExportDAMASKFiles::setOutputPath(const QString& value)
+{
+  m_OutputPath = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ExportDAMASKFiles::getOutputPath() const
+{
+  return m_OutputPath;
+}
+
+// -----------------------------------------------------------------------------
+void ExportDAMASKFiles::setGeometryFileName(const QString& value)
+{
+  m_GeometryFileName = value;
+}
+
+// -----------------------------------------------------------------------------
+QString ExportDAMASKFiles::getGeometryFileName() const
+{
+  return m_GeometryFileName;
+}
+
+// -----------------------------------------------------------------------------
+void ExportDAMASKFiles::setHomogenizationIndex(int value)
+{
+  m_HomogenizationIndex = value;
+}
+
+// -----------------------------------------------------------------------------
+int ExportDAMASKFiles::getHomogenizationIndex() const
+{
+  return m_HomogenizationIndex;
+}
+
+// -----------------------------------------------------------------------------
+void ExportDAMASKFiles::setFeatureIdsArrayPath(const DataArrayPath& value)
+{
+  m_FeatureIdsArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath ExportDAMASKFiles::getFeatureIdsArrayPath() const
+{
+  return m_FeatureIdsArrayPath;
+}
+
+// -----------------------------------------------------------------------------
+void ExportDAMASKFiles::setCellPhasesArrayPath(const DataArrayPath& value)
+{
+  m_CellPhasesArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath ExportDAMASKFiles::getCellPhasesArrayPath() const
+{
+  return m_CellPhasesArrayPath;
+}
+
+// -----------------------------------------------------------------------------
+void ExportDAMASKFiles::setCellEulerAnglesArrayPath(const DataArrayPath& value)
+{
+  m_CellEulerAnglesArrayPath = value;
+}
+
+// -----------------------------------------------------------------------------
+DataArrayPath ExportDAMASKFiles::getCellEulerAnglesArrayPath() const
+{
+  return m_CellEulerAnglesArrayPath;
+}
+
+// -----------------------------------------------------------------------------
+void ExportDAMASKFiles::setCompressGeomFile(bool value)
+{
+  m_CompressGeomFile = value;
+}
+
+// -----------------------------------------------------------------------------
+bool ExportDAMASKFiles::getCompressGeomFile() const
+{
+  return m_CompressGeomFile;
 }

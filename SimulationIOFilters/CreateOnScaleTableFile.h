@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include "SIMPLib/Common/SIMPLArray.hpp"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/SIMPLib.h"

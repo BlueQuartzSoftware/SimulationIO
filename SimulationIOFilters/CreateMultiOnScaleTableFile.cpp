@@ -46,7 +46,7 @@ struct CreateMultiOnScaleTableFile::Impl
 // -----------------------------------------------------------------------------
 CreateMultiOnScaleTableFile::CreateMultiOnScaleTableFile()
 : p_Impl(std::make_unique<Impl>())
-, m_NumKeypoints({2, 2, 2})
+, m_NumKeypoints(2, 2, 2)
 , m_PhaseNamesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::EnsembleAttributeMatrixName, SIMPL::EnsembleData::PhaseName)
 {
   initialize();

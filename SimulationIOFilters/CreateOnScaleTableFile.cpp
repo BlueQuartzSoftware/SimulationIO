@@ -47,7 +47,7 @@ CreateOnScaleTableFile::CreateOnScaleTableFile()
 : p_Impl(std::make_unique<Impl>())
 , m_PzflexFeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
 , m_PhaseNamesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::EnsembleAttributeMatrixName, SIMPL::EnsembleData::PhaseName)
-, m_NumKeypoints({2, 2, 2})
+, m_NumKeypoints(2, 2, 2)
 {
   initialize();
 

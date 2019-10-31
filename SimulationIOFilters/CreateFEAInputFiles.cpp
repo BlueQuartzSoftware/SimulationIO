@@ -238,18 +238,12 @@ void CreateFEAInputFiles::dataCheck()
     std::vector<size_t> cDims{1};
 
     p_Impl->m_FeatureIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getAbqFeatureIdsArrayPath(), cDims);
-    if(!p_Impl->m_FeatureIdsPtr.expired())
-    {
-    }
     if(getErrorCode() >= 0)
     {
       dataArrayPaths.push_back(getAbqFeatureIdsArrayPath());
     }
 
     p_Impl->m_CellPhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getCellPhasesArrayPath(), cDims);
-    if(nullptr != p_Impl->m_CellPhasesPtr.lock())
-    {
-    }
     if(getErrorCode() >= 0)
     {
       dataArrayPaths.push_back(getCellPhasesArrayPath());
@@ -257,9 +251,6 @@ void CreateFEAInputFiles::dataCheck()
 
     cDims[0] = 3;
     p_Impl->m_CellEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getCellEulerAnglesArrayPath(), cDims);
-    if(nullptr != p_Impl->m_CellEulerAnglesPtr.lock())
-    {
-    }
     if(getErrorCode() >= 0)
     {
       dataArrayPaths.push_back(getCellEulerAnglesArrayPath());
@@ -275,19 +266,15 @@ void CreateFEAInputFiles::dataCheck()
 
     QVector<DataArrayPath> dataArrayPaths;
 
-    std::vector<size_t> cDims(1, 1);
+    std::vector<size_t> cDims{1};
 
     p_Impl->m_FeatureIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getPzflexFeatureIdsArrayPath(), cDims);
-    if(nullptr != p_Impl->m_FeatureIdsPtr.lock())
-    {
-    }
     if(getErrorCode() >= 0)
     {
       dataArrayPaths.push_back(getPzflexFeatureIdsArrayPath());
     }
 
     p_Impl->m_PhaseNamesPtr = getDataContainerArray()->getPrereqArrayFromPath<StringDataArray, AbstractFilter>(this, getPhaseNamesArrayPath(), cDims);
-
     if(getErrorCode() >= 0)
     {
       dataArrayPaths.push_back(getPhaseNamesArrayPath());

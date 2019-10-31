@@ -19,6 +19,8 @@ class SimulationIO_EXPORT CreateOnScaleTableFile : public AbstractFilter
 
 #ifdef SIMPL_ENABLE_PYTHON
   PYB11_CREATE_BINDINGS(CreateOnScaleTableFile SUPERCLASS AbstractFilter)
+  PYB11_SHARED_POINTERS(CreateOnScaleTableFile)
+  PYB11_STATIC_NEW_MACRO(CreateOnScaleTableFile)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
   PYB11_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
   PYB11_PROPERTY(DataArrayPath PzflexFeatureIdsArrayPath READ getPzflexFeatureIdsArrayPath WRITE setPzflexFeatureIdsArrayPath)

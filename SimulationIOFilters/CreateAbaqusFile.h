@@ -19,6 +19,8 @@ class SimulationIO_EXPORT CreateAbaqusFile : public AbstractFilter
 
 #ifdef SIMPL_ENABLE_PYTHON
   PYB11_CREATE_BINDINGS(CreateAbaqusFile SUPERCLASS AbstractFilter)
+  PYB11_SHARED_POINTERS(CreateAbaqusFile)
+  PYB11_STATIC_NEW_MACRO(CreateAbaqusFile)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
   PYB11_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
   PYB11_PROPERTY(QString JobName READ getJobName WRITE setJobName)

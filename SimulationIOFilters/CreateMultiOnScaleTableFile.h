@@ -19,6 +19,8 @@ class SimulationIO_EXPORT CreateMultiOnScaleTableFile : public AbstractFilter
 
 #ifdef SIMPL_ENABLE_PYTHON
   PYB11_CREATE_BINDINGS(CreateMultiOnScaleTableFile SUPERCLASS AbstractFilter)
+  PYB11_SHARED_POINTERS(CreateMultiOnScaleTableFile)
+  PYB11_STATIC_NEW_MACRO(CreateMultiOnScaleTableFile)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
   PYB11_PROPERTY(QString DataContainerPrefix READ getDataContainerPrefix WRITE setDataContainerPrefix)
   PYB11_PROPERTY(QString MatrixName READ getMatrixName WRITE setMatrixName)

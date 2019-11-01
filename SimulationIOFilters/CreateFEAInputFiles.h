@@ -397,21 +397,21 @@ private:
   std::weak_ptr<DataArray<float>> m_CellEulerAnglesPtr;
   float* m_CellEulerAngles = nullptr;
 
-  int m_FEAPackage = {};
+  int m_FEAPackage = {0};
   QString m_JobName = {};
   QString m_OutputPath = {};
   QString m_OutputFilePrefix = {};
-  int m_NumDepvar = {};
-  int m_NumMatConst = {};
-  int m_NumUserOutVar = {};
-  DataArrayPath m_AbqFeatureIdsArrayPath = {};
-  DataArrayPath m_PzflexFeatureIdsArrayPath = {};
-  DataArrayPath m_CellPhasesArrayPath = {};
-  DataArrayPath m_CellEulerAnglesArrayPath = {};
-  IntVec3Type m_NumKeypoints = {};
-  int m_NumClusters = {};
+  int m_NumDepvar = {1};
+  int m_NumMatConst = {6};
+  int m_NumUserOutVar = {1};
+  DataArrayPath m_AbqFeatureIdsArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds};
+  DataArrayPath m_PzflexFeatureIdsArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds};
+  DataArrayPath m_CellPhasesArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Phases};
+  DataArrayPath m_CellEulerAnglesArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles};
+  IntVec3Type m_NumKeypoints = {2, 2, 2};
+  int m_NumClusters = {1};
   DynamicTableData m_MatConst = {};
-  DataArrayPath m_PhaseNamesArrayPath = {};
+  DataArrayPath m_PhaseNamesArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::EnsembleAttributeMatrixName, SIMPL::EnsembleData::PhaseName};
 
   // DEFINE_DATAARRAY_VARIABLE(QString, PhaseNames)
 

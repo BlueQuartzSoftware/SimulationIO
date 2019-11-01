@@ -62,19 +62,9 @@ struct CreateFEAInputFiles::Impl
 // -----------------------------------------------------------------------------
 CreateFEAInputFiles::CreateFEAInputFiles()
 : p_Impl(std::make_unique<Impl>())
-, m_FEAPackage(0)
 , m_JobName("")
 , m_OutputPath("")
 , m_OutputFilePrefix("")
-, m_NumDepvar(1)
-, m_NumMatConst(6)
-, m_NumUserOutVar(1)
-, m_AbqFeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
-, m_PzflexFeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
-, m_CellPhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Phases)
-, m_CellEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles)
-, m_NumClusters(1)
-, m_PhaseNamesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::EnsembleAttributeMatrixName, SIMPL::EnsembleData::PhaseName)
 , m_NumKeypoints(2, 2, 2)
 {
   initialize();

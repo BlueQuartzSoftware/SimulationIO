@@ -81,6 +81,7 @@ public:
    * @brief Returns the name of the class for CreateFEAInputFiles
    */
   QString getNameOfClass() const override;
+
   /**
    * @brief Returns the name of the class for CreateFEAInputFiles
    */
@@ -92,6 +93,7 @@ public:
    * @brief Setter property for FEAPackage
    */
   void setFEAPackage(int value);
+
   /**
    * @brief Getter property for FEAPackage
    * @return Value of FEAPackage
@@ -104,6 +106,7 @@ public:
    * @brief Setter property for JobName
    */
   void setJobName(const QString& value);
+
   /**
    * @brief Getter property for JobName
    * @return Value of JobName
@@ -116,6 +119,7 @@ public:
    * @brief Setter property for OutputPath
    */
   void setOutputPath(const QString& value);
+
   /**
    * @brief Getter property for OutputPath
    * @return Value of OutputPath
@@ -128,6 +132,7 @@ public:
    * @brief Setter property for OutputFilePrefix
    */
   void setOutputFilePrefix(const QString& value);
+
   /**
    * @brief Getter property for OutputFilePrefix
    * @return Value of OutputFilePrefix
@@ -140,6 +145,7 @@ public:
    * @brief Setter property for NumDepvar
    */
   void setNumDepvar(int value);
+
   /**
    * @brief Getter property for NumDepvar
    * @return Value of NumDepvar
@@ -152,6 +158,7 @@ public:
    * @brief Setter property for NumMatConst
    */
   void setNumMatConst(int value);
+
   /**
    * @brief Getter property for NumMatConst
    * @return Value of NumMatConst
@@ -164,6 +171,7 @@ public:
    * @brief Setter property for NumUserOutVar
    */
   void setNumUserOutVar(int value);
+
   /**
    * @brief Getter property for NumUserOutVar
    * @return Value of NumUserOutVar
@@ -176,6 +184,7 @@ public:
    * @brief Setter property for AbqFeatureIdsArrayPath
    */
   void setAbqFeatureIdsArrayPath(const DataArrayPath& value);
+
   /**
    * @brief Getter property for AbqFeatureIdsArrayPath
    * @return Value of AbqFeatureIdsArrayPath
@@ -188,6 +197,7 @@ public:
    * @brief Setter property for PzflexFeatureIdsArrayPath
    */
   void setPzflexFeatureIdsArrayPath(const DataArrayPath& value);
+
   /**
    * @brief Getter property for PzflexFeatureIdsArrayPath
    * @return Value of PzflexFeatureIdsArrayPath
@@ -200,6 +210,7 @@ public:
    * @brief Setter property for CellPhasesArrayPath
    */
   void setCellPhasesArrayPath(const DataArrayPath& value);
+
   /**
    * @brief Getter property for CellPhasesArrayPath
    * @return Value of CellPhasesArrayPath
@@ -212,6 +223,7 @@ public:
    * @brief Setter property for CellEulerAnglesArrayPath
    */
   void setCellEulerAnglesArrayPath(const DataArrayPath& value);
+
   /**
    * @brief Getter property for CellEulerAnglesArrayPath
    * @return Value of CellEulerAnglesArrayPath
@@ -224,6 +236,7 @@ public:
    * @brief Setter property for NumKeypoints
    */
   void setNumKeypoints(const IntVec3Type& value);
+
   /**
    * @brief Getter property for NumKeypoints
    * @return Value of NumKeypoints
@@ -236,6 +249,7 @@ public:
    * @brief Setter property for NumClusters
    */
   void setNumClusters(int value);
+
   /**
    * @brief Getter property for NumClusters
    * @return Value of NumClusters
@@ -248,6 +262,7 @@ public:
    * @brief Setter property for MatConst
    */
   void setMatConst(const DynamicTableData& value);
+
   /**
    * @brief Getter property for MatConst
    * @return Value of MatConst
@@ -260,6 +275,7 @@ public:
    * @brief Setter property for PhaseNamesArrayPath
    */
   void setPhaseNamesArrayPath(const DataArrayPath& value);
+
   /**
    * @brief Getter property for PhaseNamesArrayPath
    * @return Value of PhaseNamesArrayPath
@@ -372,6 +388,8 @@ protected:
   void initialize();
 
 private:
+  struct Impl;
+  std::unique_ptr<Impl> p_Impl;
   std::weak_ptr<DataArray<int32_t>> m_FeatureIdsPtr;
   int32_t* m_FeatureIds = nullptr;
   std::weak_ptr<DataArray<int32_t>> m_CellPhasesPtr;
@@ -379,21 +397,21 @@ private:
   std::weak_ptr<DataArray<float>> m_CellEulerAnglesPtr;
   float* m_CellEulerAngles = nullptr;
 
-  int m_FEAPackage = {};
+  int m_FEAPackage = {0};
   QString m_JobName = {};
   QString m_OutputPath = {};
   QString m_OutputFilePrefix = {};
-  int m_NumDepvar = {};
-  int m_NumMatConst = {};
-  int m_NumUserOutVar = {};
-  DataArrayPath m_AbqFeatureIdsArrayPath = {};
-  DataArrayPath m_PzflexFeatureIdsArrayPath = {};
-  DataArrayPath m_CellPhasesArrayPath = {};
-  DataArrayPath m_CellEulerAnglesArrayPath = {};
-  IntVec3Type m_NumKeypoints = {};
-  int m_NumClusters = {};
+  int m_NumDepvar = {1};
+  int m_NumMatConst = {6};
+  int m_NumUserOutVar = {1};
+  DataArrayPath m_AbqFeatureIdsArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds};
+  DataArrayPath m_PzflexFeatureIdsArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds};
+  DataArrayPath m_CellPhasesArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Phases};
+  DataArrayPath m_CellEulerAnglesArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles};
+  IntVec3Type m_NumKeypoints = {2, 2, 2};
+  int m_NumClusters = {1};
   DynamicTableData m_MatConst = {};
-  DataArrayPath m_PhaseNamesArrayPath = {};
+  DataArrayPath m_PhaseNamesArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::EnsembleAttributeMatrixName, SIMPL::EnsembleData::PhaseName};
 
   // DEFINE_DATAARRAY_VARIABLE(QString, PhaseNames)
 

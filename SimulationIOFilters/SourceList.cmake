@@ -18,11 +18,14 @@ SIMPL_START_FILTER_GROUP(
 # List your public filters here
 set(_PublicFilters
   Export3dSolidMesh
-
   ImportFEAData
   CreateFEAInputFiles
   ExportLAMMPSFile
   ExportDAMASKFiles
+  CreateOnScaleTableFile
+  CreateAbaqusFile
+  CreateBsamFile
+  CreateMultiOnScaleTableFile
 )
 
 list(LENGTH _PublicFilters PluginNumFilters)

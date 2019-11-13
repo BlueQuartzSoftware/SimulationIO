@@ -55,6 +55,8 @@ include(${${PLUGIN_NAME}_SOURCE_DIR}/FilterParameters/SourceList.cmake)
 # -- Include all the resources
 include(${${PLUGIN_NAME}_SOURCE_DIR}/Resources/SourceList.cmake)
 
+include(${${PLUGIN_NAME}_SOURCE_DIR}/${PLUGIN_NAME}Filters/Utility/SourceList.cmake)
+
 set(${PLUGIN_NAME}_Project_SRCS ${Project_SRCS})
 
 #-----------------------------------------------------
@@ -165,6 +167,8 @@ target_sources(${plug_target_name}
   # -- Add in the DLL Export Header File
   ${${PLUGIN_NAME}_BINARY_DIR}/${PLUGIN_NAME}DLLExport.h
 
+  ${${PLUGIN_NAME}_UTILITY_HDRS}
+  ${${PLUGIN_NAME}_UTILITY_SRCS}
 )
 
 #------------------------------- 

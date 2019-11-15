@@ -218,7 +218,7 @@ bool AbaqusFileWriter::write(const ImageGeom& imageGeom, const DataArray<int32_t
 
   std::vector<std::vector<double>> MatConst = matConst.getTableData();
 
-  int32_t numMatConst = static_cast<int32_t>(MatConst.size());
+  size_t numMatConst = MatConst.size();
 
   for(int32_t i = 1; i <= maxGrainId; i++)
   {
@@ -228,7 +228,7 @@ bool AbaqusFileWriter::write(const ImageGeom& imageGeom, const DataArray<int32_t
     masterStream << QString("*User Material, constants = %1\n").arg(numMatConst + 5);
     masterStream << QString("%1, %2, %3, %4, %5").arg(i).arg(phaseId[i - 1]).arg(orient[(i - 1) * 3], 0, 'f', 3).arg(orient[(i - 1) * 3 + 1], 0, 'f', 3).arg(orient[(i - 1) * 3 + 2], 0, 'f', 3);
 
-    auto func = [&MatConst](int32_t i) { return QString::number(MatConst[i][0], 'f', 3); };
+    auto func = [&MatConst](size_t i) { return QString::number(MatConst[i][0], 'f', 3); };
 
     EntriesHelper::writeEntries(masterStream, func, numMatConst, 8, ", ", "\n", 5);
 

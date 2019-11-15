@@ -1,9 +1,10 @@
 #include "EntriesHelper.h"
 
-void EntriesHelper::writeEntries(QTextStream& stream, std::function<QString(int32_t)> func, int32_t maxIndex, size_t maxEntriesPerLine, const QString& delimiter, const QString& eol, size_t startingNumEntries)
+void EntriesHelper::writeEntries(QTextStream& stream, std::function<QString(size_t)> func, size_t maxIndex, size_t maxEntriesPerLine, const QString& delimiter, const QString& eol,
+                                 size_t startingNumEntries)
 {
   size_t entriesPerLine = startingNumEntries;
-  for(int32_t i = 0; i < maxIndex; i++)
+  for(size_t i = 0; i < maxIndex; i++)
   {
     if(entriesPerLine != 0)
     {

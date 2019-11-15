@@ -22,10 +22,83 @@
 
 #include "SimulationIO/SimulationIOFilters/Utility/OnScaleTableFileWriter.h"
 
+namespace
+{
+template <class T>
+bool addFeatureIds(IDataArray::ConstPointer dataArray, const DataArrayPath& path, std::vector<std::pair<DataArrayPath, std::weak_ptr<const DataArray<T>>>>& featureIdsList)
+{
+  auto ptr = std::dynamic_pointer_cast<const DataArray<T>>(dataArray);
+  if(ptr == nullptr)
+  {
+    return false;
+  }
+
+  std::weak_ptr<const DataArray<T>> weakPtr = ptr;
+  featureIdsList.push_back({path, weakPtr});
+
+  return true;
+}
+
+template <class T>
+bool writeOnScaleFiles(const StringDataArray& phaseNames, const QString& outputPath, const IntVec3Type& numKeypoints,
+                       std::vector<std::pair<DataArrayPath, std::weak_ptr<const DataArray<T>>>>& featureIdsList, CreateMultiOnScaleTableFile* filter)
+{
+  for(const auto& dataArrayPair : featureIdsList)
+  {
+    DataArrayPath path = dataArrayPair.first;
+    auto dataArrayPtr = dataArrayPair.second;
+    auto featureIds = dataArrayPtr.lock();
+    if(featureIds == nullptr)
+    {
+      QString ss = QObject::tr("Error obtaining feature ids data array '%1'").arg(path.serialize());
+      filter->setErrorCondition(-10403, ss);
+      return false;
+    }
+
+    QString dcName = path.getDataContainerName();
+
+    DataContainer::ConstPointer dc = filter->getDataContainerArray()->getDataContainer(dcName);
+    if(dc == nullptr)
+    {
+      QString ss = QObject::tr("Error obtaining data container '%1'").arg(dcName);
+      filter->setErrorCondition(-10404, ss);
+      return false;
+    }
+
+    ImageGeom::ConstPointer imageGeom = dc->getGeometryAs<ImageGeom>();
+    if(imageGeom == nullptr)
+    {
+      QString ss = QObject::tr("Error obtaining image geometry from data container '%1'").arg(dcName);
+      filter->setErrorCondition(-10406, ss);
+      return false;
+    }
+
+    if(!OnScaleTableFileWriter::write(*imageGeom, phaseNames, *featureIds, outputPath, dcName, numKeypoints))
+    {
+      QString ss = QObject::tr("Error writing file at '%1' for DataContainer '%2'").arg(outputPath, dcName);
+      filter->setErrorCondition(-10407, ss);
+      return false;
+    }
+  }
+
+  return true;
+}
+
+} // namespace
+
 struct CreateMultiOnScaleTableFile::Impl
 {
-  StringDataArray::WeakPointer m_PhaseNamesPtr;
-  std::vector<std::pair<DataArrayPath, DataArray<int32_t>::WeakPointer>> m_FeatureIdsList;
+  std::weak_ptr<const StringDataArray> m_PhaseNamesPtr;
+
+  std::vector<std::pair<DataArrayPath, std::weak_ptr<const Int8ArrayType>>> m_FeatureIds8List;
+  std::vector<std::pair<DataArrayPath, std::weak_ptr<const Int16ArrayType>>> m_FeatureIds16List;
+  std::vector<std::pair<DataArrayPath, std::weak_ptr<const Int32ArrayType>>> m_FeatureIds32List;
+  std::vector<std::pair<DataArrayPath, std::weak_ptr<const Int64ArrayType>>> m_FeatureIds64List;
+
+  std::vector<std::pair<DataArrayPath, std::weak_ptr<const UInt8ArrayType>>> m_FeatureIdsU8List;
+  std::vector<std::pair<DataArrayPath, std::weak_ptr<const UInt16ArrayType>>> m_FeatureIdsU16List;
+  std::vector<std::pair<DataArrayPath, std::weak_ptr<const UInt32ArrayType>>> m_FeatureIdsU32List;
+  std::vector<std::pair<DataArrayPath, std::weak_ptr<const UInt64ArrayType>>> m_FeatureIdsU64List;
 
   Impl() = default;
 
@@ -39,7 +112,54 @@ struct CreateMultiOnScaleTableFile::Impl
   void resetDataArrays()
   {
     m_PhaseNamesPtr.reset();
-    m_FeatureIdsList.clear();
+    m_FeatureIds8List.clear();
+    m_FeatureIds16List.clear();
+    m_FeatureIds32List.clear();
+    m_FeatureIds64List.clear();
+    m_FeatureIdsU8List.clear();
+    m_FeatureIdsU16List.clear();
+    m_FeatureIdsU32List.clear();
+    m_FeatureIdsU64List.clear();
+  }
+
+  bool addFeatureIdArray(IDataArray::ConstPointer dataArray, const DataArrayPath& path)
+  {
+    QString type = dataArray->getTypeAsString();
+
+    if(type == SIMPL::TypeNames::Int8)
+    {
+      return addFeatureIds(dataArray, path, m_FeatureIds8List);
+    }
+    else if(type == SIMPL::TypeNames::Int16)
+    {
+      return addFeatureIds(dataArray, path, m_FeatureIds16List);
+    }
+    else if(type == SIMPL::TypeNames::Int32)
+    {
+      return addFeatureIds(dataArray, path, m_FeatureIds32List);
+    }
+    else if(type == SIMPL::TypeNames::Int64)
+    {
+      return addFeatureIds(dataArray, path, m_FeatureIds64List);
+    }
+    else if(type == SIMPL::TypeNames::UInt8)
+    {
+      return addFeatureIds(dataArray, path, m_FeatureIdsU8List);
+    }
+    else if(type == SIMPL::TypeNames::UInt16)
+    {
+      return addFeatureIds(dataArray, path, m_FeatureIdsU16List);
+    }
+    else if(type == SIMPL::TypeNames::UInt32)
+    {
+      return addFeatureIds(dataArray, path, m_FeatureIdsU32List);
+    }
+    else if(type == SIMPL::TypeNames::UInt64)
+    {
+      return addFeatureIds(dataArray, path, m_FeatureIdsU64List);
+    }
+
+    return false;
   }
 };
 
@@ -151,6 +271,8 @@ void CreateMultiOnScaleTableFile::dataCheck()
     auto matrix = dc->getAttributeMatrix(m_MatrixName);
     if(matrix == nullptr)
     {
+      QString ss = QObject::tr("Unable to obtain AttributeMatrix for '%1'").arg(m_MatrixName);
+      setWarningCondition(-10451, ss);
       continue;
     }
     if(!matrix->doesAttributeArrayExist(m_ArrayName))
@@ -161,15 +283,22 @@ void CreateMultiOnScaleTableFile::dataCheck()
     {
       continue;
     }
-    auto dataArray = matrix->getAttributeArrayAs<Int32ArrayType>(m_ArrayName);
+    auto dataArray = matrix->getAttributeArray(m_ArrayName);
     if(dataArray == nullptr)
     {
+      QString ss = QObject::tr("Unable to obtain DataArray for '%1'").arg(m_ArrayName);
+      setWarningCondition(-10452, ss);
       continue;
     }
 
-    auto path = dataArray->getDataArrayPath();
+    DataArrayPath path = dataArray->getDataArrayPath();
 
-    p_Impl->m_FeatureIdsList.push_back({path, dataArray});
+    if(!p_Impl->addFeatureIdArray(dataArray, path))
+    {
+      QString ss = QObject::tr("Failed to obtain DataArray for '%1' or was not an integer type").arg(m_ArrayName);
+      setWarningCondition(-10453, ss);
+      continue;
+    }
 
     m_SelectedArrays += path.serialize() + "\n";
   }
@@ -222,42 +351,44 @@ void CreateMultiOnScaleTableFile::execute()
     return;
   }
 
-  for(const auto& dataArrayPair : p_Impl->m_FeatureIdsList)
+  if(!writeOnScaleFiles(*phaseNames, m_OutputPath, m_NumKeypoints, p_Impl->m_FeatureIds8List, this))
   {
-    auto path = dataArrayPair.first;
-    auto dataArrayPtr = dataArrayPair.second;
-    auto featureIds = dataArrayPtr.lock();
-    if(featureIds == nullptr)
-    {
-      QString ss = QObject::tr("Error obtaining feature ids data array '%1'").arg(path.serialize());
-      setErrorCondition(-10403, ss);
-      return;
-    }
+    return;
+  }
 
-    QString dcName = path.getDataContainerName();
+  if(!writeOnScaleFiles(*phaseNames, m_OutputPath, m_NumKeypoints, p_Impl->m_FeatureIds16List, this))
+  {
+    return;
+  }
 
-    DataContainer::Pointer dc = getDataContainerArray()->getDataContainer(dcName);
-    if(dc == nullptr)
-    {
-      QString ss = QObject::tr("Error obtaining data container '%1'").arg(dcName);
-      setErrorCondition(-10404, ss);
-      return;
-    }
+  if(!writeOnScaleFiles(*phaseNames, m_OutputPath, m_NumKeypoints, p_Impl->m_FeatureIds32List, this))
+  {
+    return;
+  }
 
-    auto imageGeom = dc->getGeometryAs<ImageGeom>();
-    if(imageGeom == nullptr)
-    {
-      QString ss = QObject::tr("Error obtaining image geometry from data container '%1'").arg(dcName);
-      setErrorCondition(-10406, ss);
-      return;
-    }
+  if(!writeOnScaleFiles(*phaseNames, m_OutputPath, m_NumKeypoints, p_Impl->m_FeatureIds64List, this))
+  {
+    return;
+  }
 
-    if(!OnScaleTableFileWriter::write(*imageGeom, *phaseNames, *featureIds, m_OutputPath, dcName, m_NumKeypoints))
-    {
-      QString ss = QObject::tr("Error writing file at '%1' for DataContainer '%2'").arg(m_OutputPath, dcName);
-      setErrorCondition(-10407, ss);
-      return;
-    }
+  if(!writeOnScaleFiles(*phaseNames, m_OutputPath, m_NumKeypoints, p_Impl->m_FeatureIdsU8List, this))
+  {
+    return;
+  }
+
+  if(!writeOnScaleFiles(*phaseNames, m_OutputPath, m_NumKeypoints, p_Impl->m_FeatureIdsU16List, this))
+  {
+    return;
+  }
+
+  if(!writeOnScaleFiles(*phaseNames, m_OutputPath, m_NumKeypoints, p_Impl->m_FeatureIdsU32List, this))
+  {
+    return;
+  }
+
+  if(!writeOnScaleFiles(*phaseNames, m_OutputPath, m_NumKeypoints, p_Impl->m_FeatureIdsU64List, this))
+  {
+    return;
   }
 }
 //

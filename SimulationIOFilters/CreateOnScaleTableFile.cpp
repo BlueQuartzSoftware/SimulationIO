@@ -85,7 +85,9 @@ void CreateOnScaleTableFile::setupFilterParameters()
   parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::RequiredArray));
 
   {
-    DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
+    QVector<QString> types{SIMPL::TypeNames::Int8, SIMPL::TypeNames::Int16, SIMPL::TypeNames::Int32, SIMPL::TypeNames::Int64,
+                           SIMPL::TypeNames::UInt8, SIMPL::TypeNames::UInt16, SIMPL::TypeNames::UInt32, SIMPL::TypeNames::UInt64};
+    DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(types, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", PzflexFeatureIdsArrayPath, FilterParameter::RequiredArray, CreateOnScaleTableFile, req));
   }
 

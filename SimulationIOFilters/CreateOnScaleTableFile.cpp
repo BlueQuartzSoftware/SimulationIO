@@ -21,10 +21,62 @@
 
 #include "SimulationIO/SimulationIOFilters/Utility/OnScaleTableFileWriter.h"
 
+namespace
+{
+template <class T>
+bool convertDataArrayPtr(IDataArray::ConstPointer dataArray, std::weak_ptr<const DataArray<T>>& weakPtr, CreateOnScaleTableFile* filter)
+{
+  auto ptr = std::dynamic_pointer_cast<const DataArray<T>>(dataArray);
+  if(ptr == nullptr)
+  {
+    QString ss = QObject::tr("Unable to get '%1'").arg(dataArray->getDataArrayPath().serialize());
+    filter->setErrorCondition(-10151, ss);
+    return false;
+  }
+
+  weakPtr = ptr;
+
+  return true;
+}
+
+template <class T>
+bool writeOnScaleFile(std::weak_ptr<const DataArray<T>> featureIdsPtr, const ImageGeom& imageGeom, const StringDataArray& phaseNames, const QString& outputPath, const QString& outputFilePrefix,
+                      const IntVec3Type& numKeypoints, CreateOnScaleTableFile* filter)
+{
+  auto featureIds = featureIdsPtr.lock();
+  if(featureIds == nullptr)
+  {
+    QString ss = QObject::tr("Error obtaining feature ids data array '%1'").arg(featureIds->getDataArrayPath().serialize());
+    filter->setErrorCondition(-10105, ss);
+    return false;
+  }
+
+  if(!OnScaleTableFileWriter::write(imageGeom, phaseNames, *featureIds, outputPath, outputFilePrefix, numKeypoints))
+  {
+    QString ss = QObject::tr("Error writing file at '%1'").arg(outputPath);
+    filter->setErrorCondition(-10106, ss);
+    return false;
+  }
+
+  return true;
+}
+} // namespace
+
 struct CreateOnScaleTableFile::Impl
 {
-  DataArray<int32_t>::WeakPointer m_FeatureIdsPtr;
-  StringDataArray::WeakPointer m_PhaseNamesPtr;
+  std::weak_ptr<const DataArray<int8_t>> m_FeatureIds8Ptr;
+  std::weak_ptr<const DataArray<int16_t>> m_FeatureIds16Ptr;
+  std::weak_ptr<const DataArray<int32_t>> m_FeatureIds32Ptr;
+  std::weak_ptr<const DataArray<int64_t>> m_FeatureIds64Ptr;
+
+  std::weak_ptr<const DataArray<uint8_t>> m_FeatureIdsU8Ptr;
+  std::weak_ptr<const DataArray<uint16_t>> m_FeatureIdsU16Ptr;
+  std::weak_ptr<const DataArray<uint32_t>> m_FeatureIdsU32Ptr;
+  std::weak_ptr<const DataArray<uint64_t>> m_FeatureIdsU64Ptr;
+
+  QString m_Type;
+
+  std::weak_ptr<const StringDataArray> m_PhaseNamesPtr;
 
   Impl() = default;
 
@@ -37,7 +89,18 @@ struct CreateOnScaleTableFile::Impl
 
   void resetDataArrays()
   {
-    m_FeatureIdsPtr.reset();
+    m_Type.clear();
+
+    m_FeatureIds8Ptr.reset();
+    m_FeatureIds16Ptr.reset();
+    m_FeatureIds32Ptr.reset();
+    m_FeatureIds64Ptr.reset();
+
+    m_FeatureIdsU8Ptr.reset();
+    m_FeatureIdsU16Ptr.reset();
+    m_FeatureIdsU32Ptr.reset();
+    m_FeatureIdsU64Ptr.reset();
+
     m_PhaseNamesPtr.reset();
   }
 };
@@ -85,7 +148,7 @@ void CreateOnScaleTableFile::setupFilterParameters()
   parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::RequiredArray));
 
   {
-    QVector<QString> types{SIMPL::TypeNames::Int8, SIMPL::TypeNames::Int16, SIMPL::TypeNames::Int32, SIMPL::TypeNames::Int64,
+    QVector<QString> types{SIMPL::TypeNames::Int8,  SIMPL::TypeNames::Int16,  SIMPL::TypeNames::Int32,  SIMPL::TypeNames::Int64,
                            SIMPL::TypeNames::UInt8, SIMPL::TypeNames::UInt16, SIMPL::TypeNames::UInt32, SIMPL::TypeNames::UInt64};
     DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(types, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", PzflexFeatureIdsArrayPath, FilterParameter::RequiredArray, CreateOnScaleTableFile, req));
@@ -131,9 +194,68 @@ void CreateOnScaleTableFile::dataCheck()
 
   std::vector<size_t> cDims{1};
 
-  p_Impl->m_FeatureIdsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getPzflexFeatureIdsArrayPath(), cDims);
+  StringDataArray::ConstPointer phaseNamesPtr = getDataContainerArray()->getPrereqArrayFromPath<StringDataArray, AbstractFilter>(this, getPhaseNamesArrayPath(), cDims);
 
-  p_Impl->m_PhaseNamesPtr = getDataContainerArray()->getPrereqArrayFromPath<StringDataArray, AbstractFilter>(this, getPhaseNamesArrayPath(), cDims);
+  if(phaseNamesPtr == nullptr)
+  {
+    return;
+  }
+
+  p_Impl->m_PhaseNamesPtr = phaseNamesPtr;
+
+  IDataArray::ConstPointer featureIdsPtr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray, AbstractFilter>(this, getPzflexFeatureIdsArrayPath());
+
+  if(featureIdsPtr == nullptr)
+  {
+    return;
+  }
+
+  if(cDims != featureIdsPtr->getComponentDimensions())
+  {
+    QString ss = QObject::tr("Wrong component dimensions for '%1'").arg(getPzflexFeatureIdsArrayPath().serialize());
+    setErrorCondition(-10152, ss);
+    return;
+  }
+
+  p_Impl->m_Type = featureIdsPtr->getTypeAsString();
+
+  if(p_Impl->m_Type == SIMPL::TypeNames::Int8)
+  {
+    convertDataArrayPtr(featureIdsPtr, p_Impl->m_FeatureIds8Ptr, this);
+  }
+  else if(p_Impl->m_Type == SIMPL::TypeNames::Int16)
+  {
+    convertDataArrayPtr(featureIdsPtr, p_Impl->m_FeatureIds16Ptr, this);
+  }
+  else if(p_Impl->m_Type == SIMPL::TypeNames::Int32)
+  {
+    convertDataArrayPtr(featureIdsPtr, p_Impl->m_FeatureIds32Ptr, this);
+  }
+  else if(p_Impl->m_Type == SIMPL::TypeNames::Int64)
+  {
+    convertDataArrayPtr(featureIdsPtr, p_Impl->m_FeatureIds64Ptr, this);
+  }
+  else if(p_Impl->m_Type == SIMPL::TypeNames::UInt8)
+  {
+    convertDataArrayPtr(featureIdsPtr, p_Impl->m_FeatureIdsU8Ptr, this);
+  }
+  else if(p_Impl->m_Type == SIMPL::TypeNames::UInt16)
+  {
+    convertDataArrayPtr(featureIdsPtr, p_Impl->m_FeatureIdsU16Ptr, this);
+  }
+  else if(p_Impl->m_Type == SIMPL::TypeNames::UInt32)
+  {
+    convertDataArrayPtr(featureIdsPtr, p_Impl->m_FeatureIdsU32Ptr, this);
+  }
+  else if(p_Impl->m_Type == SIMPL::TypeNames::UInt64)
+  {
+    convertDataArrayPtr(featureIdsPtr, p_Impl->m_FeatureIdsU64Ptr, this);
+  }
+  else
+  {
+    QString ss = QObject::tr("Invalid type of '%1' for '%2'. Must be an integer type").arg(p_Impl->m_Type).arg(getPzflexFeatureIdsArrayPath().serialize());
+    setErrorCondition(-10150, ss);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -195,19 +317,66 @@ void CreateOnScaleTableFile::execute()
     return;
   }
 
-  auto featureIds = p_Impl->m_FeatureIdsPtr.lock();
-  if(featureIds == nullptr)
+  if(p_Impl->m_Type == SIMPL::TypeNames::Int8)
   {
-    QString ss = QObject::tr("Error obtaining feature ids data array '%1'").arg(m_PzflexFeatureIdsArrayPath.serialize());
-    setErrorCondition(-10105, ss);
-    return;
+    if(!writeOnScaleFile(p_Impl->m_FeatureIds8Ptr, *imageGeom, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
+    {
+      return;
+    }
   }
-
-  if(!OnScaleTableFileWriter::write(*imageGeom, *phaseNames, *featureIds, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints))
+  else if(p_Impl->m_Type == SIMPL::TypeNames::Int16)
   {
-    QString ss = QObject::tr("Error writing file at '%1'").arg(m_OutputPath);
-    setErrorCondition(-10106, ss);
-    return;
+    if(!writeOnScaleFile(p_Impl->m_FeatureIds16Ptr, *imageGeom, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
+    {
+      return;
+    }
+  }
+  else if(p_Impl->m_Type == SIMPL::TypeNames::Int32)
+  {
+    if(!writeOnScaleFile(p_Impl->m_FeatureIds32Ptr, *imageGeom, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
+    {
+      return;
+    }
+  }
+  else if(p_Impl->m_Type == SIMPL::TypeNames::Int64)
+  {
+    if(!writeOnScaleFile(p_Impl->m_FeatureIds64Ptr, *imageGeom, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
+    {
+      return;
+    }
+  }
+  else if(p_Impl->m_Type == SIMPL::TypeNames::UInt8)
+  {
+    if(!writeOnScaleFile(p_Impl->m_FeatureIdsU8Ptr, *imageGeom, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
+    {
+      return;
+    }
+  }
+  else if(p_Impl->m_Type == SIMPL::TypeNames::UInt16)
+  {
+    if(!writeOnScaleFile(p_Impl->m_FeatureIdsU16Ptr, *imageGeom, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
+    {
+      return;
+    }
+  }
+  else if(p_Impl->m_Type == SIMPL::TypeNames::UInt32)
+  {
+    if(!writeOnScaleFile(p_Impl->m_FeatureIdsU32Ptr, *imageGeom, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
+    {
+      return;
+    }
+  }
+  else if(p_Impl->m_Type == SIMPL::TypeNames::UInt64)
+  {
+    if(!writeOnScaleFile(p_Impl->m_FeatureIdsU64Ptr, *imageGeom, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
+    {
+      return;
+    }
+  }
+  else
+  {
+    QString ss = QObject::tr("Invalid type of '%1' for '%2'. Must be an integer type").arg(p_Impl->m_Type).arg(getPzflexFeatureIdsArrayPath().serialize());
+    setErrorCondition(-10151, ss);
   }
 }
 

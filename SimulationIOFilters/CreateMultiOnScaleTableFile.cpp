@@ -247,6 +247,24 @@ void CreateMultiOnScaleTableFile::dataCheck()
 
   auto dca = getDataContainerArray();
 
+  if(dca == nullptr)
+  {
+    QString ss = QObject::tr("Unable to get DataContainerArray");
+    setErrorCondition(-10455, ss);
+    return;
+  }
+
+  std::vector<size_t> cDims{1};
+
+  StringDataArray::ConstPointer phaseNamesPtr = dca->getPrereqArrayFromPath<StringDataArray, AbstractFilter>(this, getPhaseNamesArrayPath(), cDims);
+
+  if(phaseNamesPtr == nullptr)
+  {
+    return;
+  }
+
+  p_Impl->m_PhaseNamesPtr = phaseNamesPtr;
+
   auto dcList = dca->getDataContainers();
 
   std::vector<DataContainer::Pointer> availableDataContainers;
@@ -291,6 +309,13 @@ void CreateMultiOnScaleTableFile::dataCheck()
       continue;
     }
 
+    if(dataArray->getComponentDimensions() != cDims)
+    {
+      QString ss = QObject::tr("Wrong number of components for '%1'").arg(m_ArrayName);
+      setWarningCondition(-10456, ss);
+      continue;
+    }
+
     DataArrayPath path = dataArray->getDataArrayPath();
 
     if(!p_Impl->addFeatureIdArray(dataArray, path))
@@ -302,10 +327,6 @@ void CreateMultiOnScaleTableFile::dataCheck()
 
     m_SelectedArrays += path.serialize() + "\n";
   }
-
-  std::vector<size_t> cDims{1};
-
-  p_Impl->m_PhaseNamesPtr = getDataContainerArray()->getPrereqArrayFromPath<StringDataArray, AbstractFilter>(this, getPhaseNamesArrayPath(), cDims);
 }
 
 // -----------------------------------------------------------------------------

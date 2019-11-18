@@ -19,7 +19,6 @@ SIMPL_START_FILTER_GROUP(
 set(_PublicFilters
   Export3dSolidMesh
   ImportFEAData
-  CreateFEAInputFiles
   ExportLAMMPSFile
   ExportDAMASKFiles
   CreateOnScaleTableFile

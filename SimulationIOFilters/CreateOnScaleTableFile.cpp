@@ -6,7 +6,6 @@
 
 #include <QtCore/QDir>
 
-#include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
@@ -45,12 +44,8 @@ struct CreateOnScaleTableFile::Impl
 // -----------------------------------------------------------------------------
 CreateOnScaleTableFile::CreateOnScaleTableFile()
 : p_Impl(std::make_unique<Impl>())
-, m_PzflexFeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
-, m_PhaseNamesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::EnsembleAttributeMatrixName, SIMPL::EnsembleData::PhaseName)
-, m_NumKeypoints(2, 2, 2)
 {
   initialize();
-
   setupFilterParameters();
 }
 

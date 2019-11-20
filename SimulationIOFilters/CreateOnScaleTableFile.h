@@ -9,6 +9,7 @@
 #include "SIMPLib/Common/SIMPLArray.hpp"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/SIMPLib.h"
+#include "SIMPLib/Common/Constants.h"
 
 #include "SimulationIO/SimulationIODLLExport.h"
 
@@ -232,9 +233,9 @@ private:
 
   QString m_OutputPath;
   QString m_OutputFilePrefix;
-  DataArrayPath m_PzflexFeatureIdsArrayPath;
-  IntVec3Type m_NumKeypoints;
-  DataArrayPath m_PhaseNamesArrayPath;
+  DataArrayPath m_PzflexFeatureIdsArrayPath = DataArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds);
+  IntVec3Type m_NumKeypoints = {2, 2, 2};
+  DataArrayPath m_PhaseNamesArrayPath = DataArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::EnsembleAttributeMatrixName, SIMPL::EnsembleData::PhaseName);
 
 public:
   CreateOnScaleTableFile(const CreateOnScaleTableFile&) = delete;            // Copy Constructor Not Implemented

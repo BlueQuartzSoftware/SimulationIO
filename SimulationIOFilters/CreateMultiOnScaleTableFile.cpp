@@ -269,7 +269,7 @@ void CreateMultiOnScaleTableFile::dataCheck()
 
   std::vector<DataContainer::Pointer> availableDataContainers;
   QString prefix = m_DataContainerPrefix;
-  std::copy_if(dcList.cbegin(), dcList.cend(), std::back_inserter(availableDataContainers), [prefix](DataContainer::ConstPointer dc) { return dc->getName().startsWith(prefix); });
+  std::copy_if(dcList.cbegin(), dcList.cend(), std::back_inserter(availableDataContainers), [prefix](const DataContainer::ConstPointer& dc) { return dc->getName().startsWith(prefix); });
 
   for(DataContainer::ConstPointer dc : availableDataContainers)
   {

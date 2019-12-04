@@ -63,19 +63,19 @@ bool writeOnScaleFile(std::weak_ptr<const DataArray<T>> featureIdsPtr, const Ima
 
 struct CreateOnScaleTableFile::Impl
 {
-  std::weak_ptr<const DataArray<int8_t>> m_FeatureIds8Ptr;
-  std::weak_ptr<const DataArray<int16_t>> m_FeatureIds16Ptr;
-  std::weak_ptr<const DataArray<int32_t>> m_FeatureIds32Ptr;
-  std::weak_ptr<const DataArray<int64_t>> m_FeatureIds64Ptr;
+  Int8ArrayType::ConstWeakPointer m_FeatureIds8Ptr;
+  Int16ArrayType::ConstWeakPointer m_FeatureIds16Ptr;
+  Int32ArrayType::ConstWeakPointer m_FeatureIds32Ptr;
+  Int64ArrayType::ConstWeakPointer m_FeatureIds64Ptr;
 
-  std::weak_ptr<const DataArray<uint8_t>> m_FeatureIdsU8Ptr;
-  std::weak_ptr<const DataArray<uint16_t>> m_FeatureIdsU16Ptr;
-  std::weak_ptr<const DataArray<uint32_t>> m_FeatureIdsU32Ptr;
-  std::weak_ptr<const DataArray<uint64_t>> m_FeatureIdsU64Ptr;
+  UInt8ArrayType::ConstWeakPointer m_FeatureIdsU8Ptr;
+  UInt16ArrayType::ConstWeakPointer m_FeatureIdsU16Ptr;
+  UInt32ArrayType::ConstWeakPointer m_FeatureIdsU32Ptr;
+  UInt64ArrayType::ConstWeakPointer m_FeatureIdsU64Ptr;
 
   QString m_Type;
 
-  std::weak_ptr<const StringDataArray> m_PhaseNamesPtr;
+  StringDataArray::ConstWeakPointer m_PhaseNamesPtr;
 
   Impl() = default;
 

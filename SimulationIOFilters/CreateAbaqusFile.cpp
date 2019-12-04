@@ -24,9 +24,9 @@
 
 struct CreateAbaqusFile::Impl
 {
-  DataArray<int32_t>::WeakPointer m_FeatureIdsPtr;
-  DataArray<int32_t>::WeakPointer m_CellPhasesPtr;
-  DataArray<float>::WeakPointer m_CellEulerAnglesPtr;
+  Int32ArrayType::ConstWeakPointer m_FeatureIdsPtr;
+  Int32ArrayType::ConstWeakPointer m_CellPhasesPtr;
+  FloatArrayType::ConstWeakPointer m_CellEulerAnglesPtr;
 
   Impl() = default;
 

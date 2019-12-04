@@ -90,15 +90,15 @@ struct CreateMultiOnScaleTableFile::Impl
 {
   std::weak_ptr<const StringDataArray> m_PhaseNamesPtr;
 
-  std::vector<std::pair<DataArrayPath, std::weak_ptr<const Int8ArrayType>>> m_FeatureIds8List;
-  std::vector<std::pair<DataArrayPath, std::weak_ptr<const Int16ArrayType>>> m_FeatureIds16List;
-  std::vector<std::pair<DataArrayPath, std::weak_ptr<const Int32ArrayType>>> m_FeatureIds32List;
-  std::vector<std::pair<DataArrayPath, std::weak_ptr<const Int64ArrayType>>> m_FeatureIds64List;
+  std::vector<std::pair<DataArrayPath, Int8ArrayType::ConstWeakPointer>> m_FeatureIds8List;
+  std::vector<std::pair<DataArrayPath, Int16ArrayType::ConstWeakPointer>> m_FeatureIds16List;
+  std::vector<std::pair<DataArrayPath, Int32ArrayType::ConstWeakPointer>> m_FeatureIds32List;
+  std::vector<std::pair<DataArrayPath, Int64ArrayType::ConstWeakPointer>> m_FeatureIds64List;
 
-  std::vector<std::pair<DataArrayPath, std::weak_ptr<const UInt8ArrayType>>> m_FeatureIdsU8List;
-  std::vector<std::pair<DataArrayPath, std::weak_ptr<const UInt16ArrayType>>> m_FeatureIdsU16List;
-  std::vector<std::pair<DataArrayPath, std::weak_ptr<const UInt32ArrayType>>> m_FeatureIdsU32List;
-  std::vector<std::pair<DataArrayPath, std::weak_ptr<const UInt64ArrayType>>> m_FeatureIdsU64List;
+  std::vector<std::pair<DataArrayPath, UInt8ArrayType::ConstWeakPointer>> m_FeatureIdsU8List;
+  std::vector<std::pair<DataArrayPath, UInt16ArrayType::ConstWeakPointer>> m_FeatureIdsU16List;
+  std::vector<std::pair<DataArrayPath, UInt32ArrayType::ConstWeakPointer>> m_FeatureIdsU32List;
+  std::vector<std::pair<DataArrayPath, UInt64ArrayType::ConstWeakPointer>> m_FeatureIdsU64List;
 
   Impl() = default;
 

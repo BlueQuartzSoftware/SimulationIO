@@ -536,6 +536,17 @@ void Export3dSolidMesh::execute()
       fprintf(f1, "Volume(%zu) = {%zu};\n", i, i);
     }
 
+    fprintf(f1, "Mesh 3;\n");
+    fprintf(f1, "Coherence Mesh;\n");
+    if(m_MeshFileFormat == 1)
+      {
+	fprintf(f1, "Save \"gmsh.inp\";\n");
+      }
+    else
+      {
+	fprintf(f1, "Save \"gmsh.msh\";\n");
+      }
+    
     fclose(f1);
 
     // running Gmsh
@@ -697,24 +708,24 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
   }
   case 2:
   {
-    QString switch1;
-    QString switch2;
+    // QString switch1;
+    // QString switch2;
 
-    switch1 = "-format";
+    // switch1 = "-format";
 
-    // cmd to run: "gmsh file -3
-    if(m_MeshFileFormat == 1)
-    {
-      switch2 = "inp";
-    }
-    else
-    {
-      switch2 = "auto";
-    }
+    // cmd to run: "gmsh file -
+    //    if(m_MeshFileFormat == 1)
+    //  {
+    //  switch2 = "inp";
+    // }
+    // else
+    // {
+    //   switch2 = "auto";
+    // }
 
-    switches = "-3";
+    switches = "-";
     program += "gmsh";
-    arguments << file << switches << switch1 << switch2;
+    arguments << file << switches;
 
     break;
   }

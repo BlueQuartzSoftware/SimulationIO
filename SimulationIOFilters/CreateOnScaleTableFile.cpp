@@ -6,7 +6,11 @@
 
 #include <QtCore/QDir>
 
+#include <Eigen/Dense>
+
 #include "SIMPLib/DataContainers/DataContainerArray.h"
+#include "SIMPLib/Filtering/IFilterFactory.hpp"
+#include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
@@ -14,14 +18,84 @@
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
+#include "SIMPLib/Math/SIMPLibMath.h"
+
+#include "H5Support/H5Utilities.h"
+#include "H5Support/H5Lite.h"
+#include "H5Support/H5ScopedSentinel.h"
 
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"
 
 #include "SimulationIO/SimulationIOFilters/Utility/OnScaleTableFileWriter.h"
 
+#include "SIMPLib/CoreFilters/DataContainerWriter.h"
+
 namespace
 {
+std::vector<std::vector<double>> matrixToTable(const Eigen::Matrix3f& matrix)
+{
+  std::vector<std::vector<double>> tableData;
+
+  for(size_t i = 0; i < 3; i++)
+  {
+    std::vector<double> row;
+    for(size_t j = 0; j < 3; j++)
+    {
+      row.push_back(matrix(i, j));
+    }
+    tableData.emplace_back(row);
+  }
+
+  return tableData;
+}
+
+bool rotateData(DataContainerArray::Pointer dca, const Eigen::Matrix3f& rotationMatrix, const DataArrayPath& cellMatrixPath)
+{
+  const QString filtName = "RotateSampleRefFrame";
+  FilterManager* fm = FilterManager::Instance();
+  IFilterFactory::Pointer filterFactory = fm->getFactoryFromClassName(filtName);
+  if(filterFactory == nullptr)
+  {
+    return false;
+  }
+
+  AbstractFilter::Pointer filter = filterFactory->create();
+
+  if(filter == nullptr)
+  {
+    return false;
+  }
+
+  filter->setDataContainerArray(dca);
+
+  DynamicTableData table(matrixToTable(rotationMatrix));
+
+  QVariant value;
+
+  value.setValue(1);
+  if(!filter->setProperty("RotationRepresentation", value))
+  {
+    return false;
+  }
+
+  value.setValue(table);
+  if(!filter->setProperty("RotationTable", value))
+  {
+    return false;
+  }
+
+  value.setValue(cellMatrixPath);
+  if(!filter->setProperty("CellAttributeMatrixPath", value))
+  {
+    return false;
+  }
+
+  filter->execute();
+
+  return filter->getErrorCode() >= 0;
+}
+
 template <class T>
 bool convertDataArrayPtr(IDataArray::ConstPointer dataArray, std::weak_ptr<const DataArray<T>>& weakPtr, CreateOnScaleTableFile* filter)
 {
@@ -38,6 +112,89 @@ bool convertDataArrayPtr(IDataArray::ConstPointer dataArray, std::weak_ptr<const
   return true;
 }
 
+enum class Axis : int32_t
+{
+  X = 0,
+  Y = 1,
+  Z = 2
+};
+
+// Rotate a given number of radians around the given axis
+Eigen::Matrix3f createRotationMatrix(float angle, Axis axis)
+{
+  float cosA = std::cos(angle);
+  float sinA = std::sin(angle);
+
+  Eigen::Matrix3f matrix;
+
+  switch(axis)
+  {
+  case Axis::X:
+  {
+    matrix << Eigen::Vector3f{1, 0, 0}, Eigen::Vector3f{0, cosA, sinA}, Eigen::Vector3f{0, -sinA, cosA};
+  }
+  break;
+  case Axis::Y:
+  {
+    matrix << Eigen::Vector3f{cosA, 0, -sinA}, Eigen::Vector3f{0, 1, 0}, Eigen::Vector3f{sinA, 0, cosA};
+  }
+  break;
+  case Axis::Z:
+  {
+    matrix << Eigen::Vector3f{cosA, sinA, 0}, Eigen::Vector3f{-sinA, cosA, 0}, Eigen::Vector3f{0, 0, 1};
+  }
+  break;
+  default:
+    break;
+  }
+
+  return matrix;
+}
+
+// Find rotation matrix to order dimensions from largest to smallest
+Eigen::Matrix3f determineRotationMatrix(const std::array<size_t, 3>& dims)
+{
+  std::vector<Eigen::Matrix3f> rotationMatrices;
+
+  auto _dims = dims;
+  auto dimsSorted = dims;
+
+  std::sort(dimsSorted.begin(), dimsSorted.end(), std::greater<size_t>());
+
+  // Compare against sorted array to determine necessary swaps
+
+  if(_dims[0] != dimsSorted[0])
+  {
+    if(_dims[1] == dimsSorted[0])
+    {
+      // Swap x and y
+      std::swap(_dims[0], _dims[1]);
+      rotationMatrices.emplace_back(createRotationMatrix(SIMPLib::Constants::k_PiOver2, Axis::Z));
+    }
+    else
+    {
+      // Swap x and z
+      std::swap(_dims[0], _dims[2]);
+      rotationMatrices.emplace_back(createRotationMatrix(SIMPLib::Constants::k_PiOver2, Axis::Y));
+    }
+  }
+
+  // x is now correct
+
+  if(_dims[1] != dimsSorted[1])
+  {
+    // Swap y and z
+    std::swap(_dims[1], _dims[2]);
+    rotationMatrices.emplace_back(createRotationMatrix(SIMPLib::Constants::k_PiOver2, Axis::X));
+  }
+
+  Eigen::Matrix3f identity = Eigen::Matrix3f::Identity();
+
+  Eigen::Matrix3f matrix = std::accumulate(rotationMatrices.cbegin(), rotationMatrices.cend(), identity, [](const Eigen::Matrix3f& a, const Eigen::Matrix3f& b) -> Eigen::Matrix3f { return b * a; });
+
+  return matrix;
+}
+
 template <class T>
 bool writeOnScaleFile(std::weak_ptr<const DataArray<T>> featureIdsPtr, const ImageGeom& imageGeom, const StringDataArray& phaseNames, const QString& outputPath, const QString& outputFilePrefix,
                       const IntVec3Type& numKeypoints, CreateOnScaleTableFile* filter)
@@ -50,7 +207,102 @@ bool writeOnScaleFile(std::weak_ptr<const DataArray<T>> featureIdsPtr, const Ima
     return false;
   }
 
-  if(!OnScaleTableFileWriter::write(imageGeom, phaseNames, *featureIds, outputPath, outputFilePrefix, numKeypoints))
+  DataArrayPath matrixPath = featureIds->getParentPath();
+
+  DataContainerArray::Pointer dca = filter->getDataContainerArray();
+
+  if(dca == nullptr)
+  {
+    QString ss = QObject::tr("Error obtaining feature ids data array '%1'").arg(featureIds->getDataArrayPath().serialize());
+    filter->setErrorCondition(-10105, ss);
+    return false;
+  }
+
+  AttributeMatrix::Pointer matrix = dca->getAttributeMatrix(matrixPath);
+
+  if(matrix == nullptr)
+  {
+    QString ss = QObject::tr("Error obtaining feature ids data array '%1'").arg(featureIds->getDataArrayPath().serialize());
+    filter->setErrorCondition(-10105, ss);
+    return false;
+  }
+
+  DataArrayPath containerPath = matrix->getParentPath();
+
+  DataContainer::Pointer dc = dca->getDataContainer(containerPath);
+
+  if(dc == nullptr)
+  {
+    QString ss = QObject::tr("Error obtaining feature ids data array '%1'").arg(featureIds->getDataArrayPath().serialize());
+    filter->setErrorCondition(-10105, ss);
+    return false;
+  }
+
+  DataContainerArray::Pointer dcaRotated = DataContainerArray::New();
+
+  DataContainer::Pointer dcRotated = DataContainer::New(dc->getName());
+  dcRotated->setGeometry(dc->getGeometry()->deepCopy());
+
+  AttributeMatrix::Pointer matrixRotated = AttributeMatrix::New(matrix->getTupleDimensions(), matrix->getName(), matrix->getType());
+
+  IDataArray::Pointer featureIdsRotatedPtr = featureIds->deepCopy();
+  matrixRotated->addOrReplaceAttributeArray(featureIdsRotatedPtr);
+
+  dcRotated->addOrReplaceAttributeMatrix(matrixRotated);
+
+  dcaRotated->addOrReplaceDataContainer(dcRotated);
+
+  std::vector<size_t> tupleDims = matrix->getTupleDimensions();
+
+  if(tupleDims.size() != 3)
+  {
+    QString ss = QObject::tr("Invalid matrix dims");
+    filter->setErrorCondition(-10105, ss);
+    return false;
+  }
+
+  std::array<size_t, 3> dims;
+
+  std::copy(tupleDims.cbegin(), tupleDims.cend(), dims.begin());
+
+  if(!std::is_sorted(dims.cbegin(), dims.cend(), std::greater<size_t>()))
+  {
+    Eigen::Matrix3f rotationMatrix = determineRotationMatrix(dims);
+
+    if(!rotateData(dcaRotated, rotationMatrix, matrixPath))
+    {
+      QString ss = QObject::tr("Failed to rotate data");
+      filter->setErrorCondition(-10105, ss);
+      return false;
+    }
+
+    DataContainerWriter::Pointer writer = DataContainerWriter::New();
+
+    writer->setDataContainerArray(dcaRotated);
+    writer->setOutputFile("C:/Users/jduffey/Desktop/test/test.dream3d");
+
+    writer->execute();
+  }
+
+  auto featureIdsRotated = matrixRotated->getAttributeArrayAs<DataArray<T>>(featureIdsRotatedPtr->getName());
+
+  if(featureIdsRotated == nullptr)
+  {
+    QString ss = QObject::tr("Failed to obtain data");
+    filter->setErrorCondition(-10105, ss);
+    return false;
+  }
+
+  ImageGeom::Pointer imageGeomRotated = dcRotated->getGeometryAs<ImageGeom>();
+
+  if(imageGeomRotated == nullptr)
+  {
+    QString ss = QObject::tr("Failed to obtain geometry");
+    filter->setErrorCondition(-10105, ss);
+    return false;
+  }
+
+  if(!OnScaleTableFileWriter::write(*imageGeomRotated, phaseNames, *featureIdsRotated, outputPath, outputFilePrefix, numKeypoints))
   {
     QString ss = QObject::tr("Error writing file at '%1'").arg(outputPath);
     filter->setErrorCondition(-10106, ss);

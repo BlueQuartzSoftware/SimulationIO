@@ -21,84 +21,11 @@
 #include "SimulationIO/SimulationIOVersion.h"
 
 #include "SimulationIO/SimulationIOFilters/Utility/OnScaleTableFileWriter.h"
-
-namespace
-{
-template <class T>
-bool addFeatureIds(IDataArray::ConstPointer dataArray, const DataArrayPath& path, std::vector<std::pair<DataArrayPath, std::weak_ptr<const DataArray<T>>>>& featureIdsList)
-{
-  auto ptr = std::dynamic_pointer_cast<const DataArray<T>>(dataArray);
-  if(ptr == nullptr)
-  {
-    return false;
-  }
-
-  std::weak_ptr<const DataArray<T>> weakPtr = ptr;
-  featureIdsList.push_back({path, weakPtr});
-
-  return true;
-}
-
-template <class T>
-bool writeOnScaleFiles(const StringDataArray& phaseNames, const QString& outputPath, const IntVec3Type& numKeypoints,
-                       std::vector<std::pair<DataArrayPath, std::weak_ptr<const DataArray<T>>>>& featureIdsList, CreateMultiOnScaleTableFile* filter)
-{
-  for(const auto& dataArrayPair : featureIdsList)
-  {
-    DataArrayPath path = dataArrayPair.first;
-    auto dataArrayPtr = dataArrayPair.second;
-    auto featureIds = dataArrayPtr.lock();
-    if(featureIds == nullptr)
-    {
-      QString ss = QObject::tr("Error obtaining feature ids data array '%1'").arg(path.serialize());
-      filter->setErrorCondition(-10403, ss);
-      return false;
-    }
-
-    QString dcName = path.getDataContainerName();
-
-    DataContainer::ConstPointer dc = filter->getDataContainerArray()->getDataContainer(dcName);
-    if(dc == nullptr)
-    {
-      QString ss = QObject::tr("Error obtaining data container '%1'").arg(dcName);
-      filter->setErrorCondition(-10404, ss);
-      return false;
-    }
-
-    ImageGeom::ConstPointer imageGeom = dc->getGeometryAs<ImageGeom>();
-    if(imageGeom == nullptr)
-    {
-      QString ss = QObject::tr("Error obtaining image geometry from data container '%1'").arg(dcName);
-      filter->setErrorCondition(-10406, ss);
-      return false;
-    }
-
-    if(!OnScaleTableFileWriter::write(*imageGeom, phaseNames, *featureIds, outputPath, dcName, numKeypoints))
-    {
-      QString ss = QObject::tr("Error writing file at '%1' for DataContainer '%2'").arg(outputPath, dcName);
-      filter->setErrorCondition(-10407, ss);
-      return false;
-    }
-  }
-
-  return true;
-}
-
-} // namespace
+#include "SimulationIO/SimulationIOFilters/CreateOnScaleTableFile.h"
 
 struct CreateMultiOnScaleTableFile::Impl
 {
-  std::weak_ptr<const StringDataArray> m_PhaseNamesPtr;
-
-  std::vector<std::pair<DataArrayPath, Int8ArrayType::ConstWeakPointer>> m_FeatureIds8List;
-  std::vector<std::pair<DataArrayPath, Int16ArrayType::ConstWeakPointer>> m_FeatureIds16List;
-  std::vector<std::pair<DataArrayPath, Int32ArrayType::ConstWeakPointer>> m_FeatureIds32List;
-  std::vector<std::pair<DataArrayPath, Int64ArrayType::ConstWeakPointer>> m_FeatureIds64List;
-
-  std::vector<std::pair<DataArrayPath, UInt8ArrayType::ConstWeakPointer>> m_FeatureIdsU8List;
-  std::vector<std::pair<DataArrayPath, UInt16ArrayType::ConstWeakPointer>> m_FeatureIdsU16List;
-  std::vector<std::pair<DataArrayPath, UInt32ArrayType::ConstWeakPointer>> m_FeatureIdsU32List;
-  std::vector<std::pair<DataArrayPath, UInt64ArrayType::ConstWeakPointer>> m_FeatureIdsU64List;
+  std::vector<DataArrayPath> m_FeatureIdsList;
 
   Impl() = default;
 
@@ -109,57 +36,9 @@ struct CreateMultiOnScaleTableFile::Impl
   Impl& operator=(const Impl&) = delete;
   Impl& operator=(Impl&&) = delete;
 
-  void resetDataArrays()
+  void reset()
   {
-    m_PhaseNamesPtr.reset();
-    m_FeatureIds8List.clear();
-    m_FeatureIds16List.clear();
-    m_FeatureIds32List.clear();
-    m_FeatureIds64List.clear();
-    m_FeatureIdsU8List.clear();
-    m_FeatureIdsU16List.clear();
-    m_FeatureIdsU32List.clear();
-    m_FeatureIdsU64List.clear();
-  }
-
-  bool addFeatureIdArray(IDataArray::ConstPointer dataArray, const DataArrayPath& path)
-  {
-    QString type = dataArray->getTypeAsString();
-
-    if(type == SIMPL::TypeNames::Int8)
-    {
-      return addFeatureIds(dataArray, path, m_FeatureIds8List);
-    }
-    else if(type == SIMPL::TypeNames::Int16)
-    {
-      return addFeatureIds(dataArray, path, m_FeatureIds16List);
-    }
-    else if(type == SIMPL::TypeNames::Int32)
-    {
-      return addFeatureIds(dataArray, path, m_FeatureIds32List);
-    }
-    else if(type == SIMPL::TypeNames::Int64)
-    {
-      return addFeatureIds(dataArray, path, m_FeatureIds64List);
-    }
-    else if(type == SIMPL::TypeNames::UInt8)
-    {
-      return addFeatureIds(dataArray, path, m_FeatureIdsU8List);
-    }
-    else if(type == SIMPL::TypeNames::UInt16)
-    {
-      return addFeatureIds(dataArray, path, m_FeatureIdsU16List);
-    }
-    else if(type == SIMPL::TypeNames::UInt32)
-    {
-      return addFeatureIds(dataArray, path, m_FeatureIdsU32List);
-    }
-    else if(type == SIMPL::TypeNames::UInt64)
-    {
-      return addFeatureIds(dataArray, path, m_FeatureIdsU64List);
-    }
-
-    return false;
+    m_FeatureIdsList.clear();
   }
 };
 
@@ -229,20 +108,20 @@ void CreateMultiOnScaleTableFile::dataCheck()
   clearErrorCode();
   clearWarningCode();
 
-  p_Impl->resetDataArrays();
+  p_Impl->reset();
   m_SelectedArrays.clear();
 
   if(m_OutputPath.isEmpty())
   {
     QString ss = QObject::tr("The output path must be set");
-    setErrorCondition(-12001, ss);
+    setErrorCondition(-10400, ss);
   }
 
   QDir dir(m_OutputPath);
   if(!dir.exists())
   {
     QString ss = QObject::tr("The directory path for the output file does not exist. DREAM.3D will attempt to create this path during execution of the filter");
-    setWarningCondition(-10400, ss);
+    setWarningCondition(-10401, ss);
   }
 
   auto dca = getDataContainerArray();
@@ -250,7 +129,7 @@ void CreateMultiOnScaleTableFile::dataCheck()
   if(dca == nullptr)
   {
     QString ss = QObject::tr("Unable to get DataContainerArray");
-    setErrorCondition(-10455, ss);
+    setErrorCondition(-10402, ss);
     return;
   }
 
@@ -262,8 +141,6 @@ void CreateMultiOnScaleTableFile::dataCheck()
   {
     return;
   }
-
-  p_Impl->m_PhaseNamesPtr = phaseNamesPtr;
 
   auto dcList = dca->getDataContainers();
 
@@ -290,7 +167,7 @@ void CreateMultiOnScaleTableFile::dataCheck()
     if(matrix == nullptr)
     {
       QString ss = QObject::tr("Unable to obtain AttributeMatrix for '%1'").arg(m_MatrixName);
-      setWarningCondition(-10451, ss);
+      setWarningCondition(-10403, ss);
       continue;
     }
     if(!matrix->doesAttributeArrayExist(m_ArrayName))
@@ -305,25 +182,20 @@ void CreateMultiOnScaleTableFile::dataCheck()
     if(dataArray == nullptr)
     {
       QString ss = QObject::tr("Unable to obtain DataArray for '%1'").arg(m_ArrayName);
-      setWarningCondition(-10452, ss);
+      setWarningCondition(-10404, ss);
       continue;
     }
 
     if(dataArray->getComponentDimensions() != cDims)
     {
       QString ss = QObject::tr("Wrong number of components for '%1'").arg(m_ArrayName);
-      setWarningCondition(-10456, ss);
+      setWarningCondition(-10405, ss);
       continue;
     }
 
     DataArrayPath path = dataArray->getDataArrayPath();
 
-    if(!p_Impl->addFeatureIdArray(dataArray, path))
-    {
-      QString ss = QObject::tr("Failed to obtain DataArray for '%1' or was not an integer type").arg(m_ArrayName);
-      setWarningCondition(-10453, ss);
-      continue;
-    }
+    p_Impl->m_FeatureIdsList.push_back(path);
 
     m_SelectedArrays += path.serialize() + "\n";
   }
@@ -360,56 +232,32 @@ void CreateMultiOnScaleTableFile::execute()
   if(!dir.mkpath(m_OutputPath))
   {
     QString ss = QObject::tr("Error creating path '%1'").arg(m_OutputPath);
-    setErrorCondition(-10401, ss);
+    setErrorCondition(-10406, ss);
     return;
   }
 
-  auto phaseNames = p_Impl->m_PhaseNamesPtr.lock();
-  if(phaseNames == nullptr)
-  {
-    QString ss = QObject::tr("Error obtaining phase names data array '%1'").arg(m_PhaseNamesArrayPath.serialize());
-    setErrorCondition(-10402, ss);
-    return;
-  }
+  CreateOnScaleTableFile::Pointer createOnScaleFilter = CreateOnScaleTableFile::New();
+  createOnScaleFilter->setDataContainerArray(getDataContainerArray());
 
-  if(!writeOnScaleFiles(*phaseNames, m_OutputPath, m_NumKeypoints, p_Impl->m_FeatureIds8List, this))
-  {
-    return;
-  }
+  createOnScaleFilter->setOutputPath(m_OutputPath);
+  createOnScaleFilter->setNumKeypoints(m_NumKeypoints);
+  createOnScaleFilter->setPhaseNamesArrayPath(m_PhaseNamesArrayPath);
 
-  if(!writeOnScaleFiles(*phaseNames, m_OutputPath, m_NumKeypoints, p_Impl->m_FeatureIds16List, this))
+  for(const auto& featureIdsPath : p_Impl->m_FeatureIdsList)
   {
-    return;
-  }
+    QString dcName = featureIdsPath.getDataContainerName();
 
-  if(!writeOnScaleFiles(*phaseNames, m_OutputPath, m_NumKeypoints, p_Impl->m_FeatureIds32List, this))
-  {
-    return;
-  }
+    createOnScaleFilter->setOutputFilePrefix(dcName);
+    createOnScaleFilter->setPzflexFeatureIdsArrayPath(featureIdsPath);
 
-  if(!writeOnScaleFiles(*phaseNames, m_OutputPath, m_NumKeypoints, p_Impl->m_FeatureIds64List, this))
-  {
-    return;
-  }
+    createOnScaleFilter->execute();
 
-  if(!writeOnScaleFiles(*phaseNames, m_OutputPath, m_NumKeypoints, p_Impl->m_FeatureIdsU8List, this))
-  {
-    return;
-  }
-
-  if(!writeOnScaleFiles(*phaseNames, m_OutputPath, m_NumKeypoints, p_Impl->m_FeatureIdsU16List, this))
-  {
-    return;
-  }
-
-  if(!writeOnScaleFiles(*phaseNames, m_OutputPath, m_NumKeypoints, p_Impl->m_FeatureIdsU32List, this))
-  {
-    return;
-  }
-
-  if(!writeOnScaleFiles(*phaseNames, m_OutputPath, m_NumKeypoints, p_Impl->m_FeatureIdsU64List, this))
-  {
-    return;
+    int error = createOnScaleFilter->getErrorCode();
+    if(error < 0)
+    {
+      setErrorCondition(10407, QObject::tr("CreateOnScaleTableFile sub-filter failed with error code %1").arg(error));
+      return;
+    }
   }
 }
 //

@@ -20,16 +20,10 @@
 #include "SIMPLib/Geometry/ImageGeom.h"
 #include "SIMPLib/Math/SIMPLibMath.h"
 
-#include "H5Support/H5Utilities.h"
-#include "H5Support/H5Lite.h"
-#include "H5Support/H5ScopedSentinel.h"
-
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"
 
 #include "SimulationIO/SimulationIOFilters/Utility/OnScaleTableFileWriter.h"
-
-#include "SIMPLib/CoreFilters/DataContainerWriter.h"
 
 namespace
 {
@@ -50,7 +44,7 @@ std::vector<std::vector<double>> matrixToTable(const Eigen::Matrix3f& matrix)
   return tableData;
 }
 
-bool rotateData(DataContainerArray::Pointer dca, const Eigen::Matrix3f& rotationMatrix, const DataArrayPath& cellMatrixPath)
+int rotateData(DataContainerArray::Pointer dca, const Eigen::Matrix3f& rotationMatrix, const DataArrayPath& cellMatrixPath)
 {
   const QString filtName = "RotateSampleRefFrame";
   FilterManager* fm = FilterManager::Instance();
@@ -74,7 +68,7 @@ bool rotateData(DataContainerArray::Pointer dca, const Eigen::Matrix3f& rotation
   QVariant value;
 
   value.setValue(1);
-  if(!filter->setProperty("RotationRepresentation", value))
+  if(!filter->setProperty("RotationRepresentationChoice", value))
   {
     return false;
   }
@@ -93,7 +87,7 @@ bool rotateData(DataContainerArray::Pointer dca, const Eigen::Matrix3f& rotation
 
   filter->execute();
 
-  return filter->getErrorCode() >= 0;
+  return filter->getErrorCode();
 }
 
 template <class T>
@@ -103,7 +97,7 @@ bool convertDataArrayPtr(IDataArray::ConstPointer dataArray, std::weak_ptr<const
   if(ptr == nullptr)
   {
     QString ss = QObject::tr("Unable to get '%1'").arg(dataArray->getDataArrayPath().serialize());
-    filter->setErrorCondition(-10151, ss);
+    filter->setErrorCondition(-10109, ss);
     return false;
   }
 
@@ -203,7 +197,7 @@ bool writeOnScaleFile(std::weak_ptr<const DataArray<T>> featureIdsPtr, const Ima
   if(featureIds == nullptr)
   {
     QString ss = QObject::tr("Error obtaining feature ids data array '%1'").arg(featureIds->getDataArrayPath().serialize());
-    filter->setErrorCondition(-10105, ss);
+    filter->setErrorCondition(-10110, ss);
     return false;
   }
 
@@ -214,7 +208,7 @@ bool writeOnScaleFile(std::weak_ptr<const DataArray<T>> featureIdsPtr, const Ima
   if(dca == nullptr)
   {
     QString ss = QObject::tr("Error obtaining feature ids data array '%1'").arg(featureIds->getDataArrayPath().serialize());
-    filter->setErrorCondition(-10105, ss);
+    filter->setErrorCondition(-10111, ss);
     return false;
   }
 
@@ -223,7 +217,7 @@ bool writeOnScaleFile(std::weak_ptr<const DataArray<T>> featureIdsPtr, const Ima
   if(matrix == nullptr)
   {
     QString ss = QObject::tr("Error obtaining feature ids data array '%1'").arg(featureIds->getDataArrayPath().serialize());
-    filter->setErrorCondition(-10105, ss);
+    filter->setErrorCondition(-10112, ss);
     return false;
   }
 
@@ -234,7 +228,7 @@ bool writeOnScaleFile(std::weak_ptr<const DataArray<T>> featureIdsPtr, const Ima
   if(dc == nullptr)
   {
     QString ss = QObject::tr("Error obtaining feature ids data array '%1'").arg(featureIds->getDataArrayPath().serialize());
-    filter->setErrorCondition(-10105, ss);
+    filter->setErrorCondition(-10113, ss);
     return false;
   }
 
@@ -257,7 +251,7 @@ bool writeOnScaleFile(std::weak_ptr<const DataArray<T>> featureIdsPtr, const Ima
   if(tupleDims.size() != 3)
   {
     QString ss = QObject::tr("Invalid matrix dims");
-    filter->setErrorCondition(-10105, ss);
+    filter->setErrorCondition(-10114, ss);
     return false;
   }
 
@@ -269,19 +263,14 @@ bool writeOnScaleFile(std::weak_ptr<const DataArray<T>> featureIdsPtr, const Ima
   {
     Eigen::Matrix3f rotationMatrix = determineRotationMatrix(dims);
 
-    if(!rotateData(dcaRotated, rotationMatrix, matrixPath))
+    int error = rotateData(dcaRotated, rotationMatrix, matrixPath);
+
+    if(error < 0)
     {
-      QString ss = QObject::tr("Failed to rotate data");
-      filter->setErrorCondition(-10105, ss);
+      QString ss = QObject::tr("Data rotation with RotateSampleRefFrame sub-filter failed with error code %1").arg(error);
+      filter->setErrorCondition(-10115, ss);
       return false;
     }
-
-    DataContainerWriter::Pointer writer = DataContainerWriter::New();
-
-    writer->setDataContainerArray(dcaRotated);
-    writer->setOutputFile("C:/Users/jduffey/Desktop/test/test.dream3d");
-
-    writer->execute();
   }
 
   auto featureIdsRotated = matrixRotated->getAttributeArrayAs<DataArray<T>>(featureIdsRotatedPtr->getName());
@@ -289,7 +278,7 @@ bool writeOnScaleFile(std::weak_ptr<const DataArray<T>> featureIdsPtr, const Ima
   if(featureIdsRotated == nullptr)
   {
     QString ss = QObject::tr("Failed to obtain data");
-    filter->setErrorCondition(-10105, ss);
+    filter->setErrorCondition(-10116, ss);
     return false;
   }
 
@@ -298,14 +287,14 @@ bool writeOnScaleFile(std::weak_ptr<const DataArray<T>> featureIdsPtr, const Ima
   if(imageGeomRotated == nullptr)
   {
     QString ss = QObject::tr("Failed to obtain geometry");
-    filter->setErrorCondition(-10105, ss);
+    filter->setErrorCondition(-10117, ss);
     return false;
   }
 
   if(!OnScaleTableFileWriter::write(*imageGeomRotated, phaseNames, *featureIdsRotated, outputPath, outputFilePrefix, numKeypoints))
   {
     QString ss = QObject::tr("Error writing file at '%1'").arg(outputPath);
-    filter->setErrorCondition(-10106, ss);
+    filter->setErrorCondition(-10118, ss);
     return false;
   }
 
@@ -427,14 +416,14 @@ void CreateOnScaleTableFile::dataCheck()
   if(m_OutputPath.isEmpty())
   {
     QString ss = QObject::tr("The output path must be set");
-    setErrorCondition(-12001, ss);
+    setErrorCondition(-10100, ss);
   }
 
   QDir dir(m_OutputPath);
   if(!dir.exists())
   {
     QString ss = QObject::tr("The directory path for the output file does not exist. DREAM.3D will attempt to create this path during execution of the filter");
-    setWarningCondition(-10100, ss);
+    setWarningCondition(-10101, ss);
   }
 
   getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom, AbstractFilter>(this, getPzflexFeatureIdsArrayPath().getDataContainerName());
@@ -460,7 +449,7 @@ void CreateOnScaleTableFile::dataCheck()
   if(cDims != featureIdsPtr->getComponentDimensions())
   {
     QString ss = QObject::tr("Wrong component dimensions for '%1'").arg(getPzflexFeatureIdsArrayPath().serialize());
-    setErrorCondition(-10152, ss);
+    setErrorCondition(-10102, ss);
     return;
   }
 
@@ -501,7 +490,7 @@ void CreateOnScaleTableFile::dataCheck()
   else
   {
     QString ss = QObject::tr("Invalid type of '%1' for '%2'. Must be an integer type").arg(p_Impl->m_Type).arg(getPzflexFeatureIdsArrayPath().serialize());
-    setErrorCondition(-10150, ss);
+    setErrorCondition(-10103, ss);
   }
 }
 
@@ -536,7 +525,7 @@ void CreateOnScaleTableFile::execute()
   if(!dir.mkpath(m_OutputPath))
   {
     QString ss = QObject::tr("Error creating path '%1'").arg(m_OutputPath);
-    setErrorCondition(-10101, ss);
+    setErrorCondition(-10104, ss);
     return;
   }
 
@@ -544,7 +533,7 @@ void CreateOnScaleTableFile::execute()
   if(dc == nullptr)
   {
     QString ss = QObject::tr("Error obtaining data container '%1'").arg(m_PzflexFeatureIdsArrayPath.getDataContainerName());
-    setErrorCondition(-10102, ss);
+    setErrorCondition(-10105, ss);
     return;
   }
 
@@ -552,7 +541,7 @@ void CreateOnScaleTableFile::execute()
   if(imageGeom == nullptr)
   {
     QString ss = QObject::tr("Error obtaining image geometry from data container '%1'").arg(m_PzflexFeatureIdsArrayPath.getDataContainerName());
-    setErrorCondition(-10103, ss);
+    setErrorCondition(-10106, ss);
     return;
   }
 
@@ -560,7 +549,7 @@ void CreateOnScaleTableFile::execute()
   if(phaseNames == nullptr)
   {
     QString ss = QObject::tr("Error obtaining phase names data array '%1'").arg(m_PhaseNamesArrayPath.serialize());
-    setErrorCondition(-10104, ss);
+    setErrorCondition(-10107, ss);
     return;
   }
 
@@ -623,7 +612,7 @@ void CreateOnScaleTableFile::execute()
   else
   {
     QString ss = QObject::tr("Invalid type of '%1' for '%2'. Must be an integer type").arg(p_Impl->m_Type).arg(getPzflexFeatureIdsArrayPath().serialize());
-    setErrorCondition(-10151, ss);
+    setErrorCondition(-10108, ss);
   }
 }
 

@@ -320,9 +320,14 @@ bool writeOnScaleFile(std::weak_ptr<const DataArray<T>> featureIdsPtr, const Ima
     return false;
   }
 
-  if(!OnScaleTableFileWriter::write(*imageGeomRotated, phaseNames, *featureIdsRotated, outputPath, outputFilePrefix, numKeypoints))
+  auto result = OnScaleTableFileWriter::write(*imageGeomRotated, phaseNames, *featureIdsRotated, outputPath, outputFilePrefix, numKeypoints);
+
+  int error = result.first;
+  QString errorString = result.second;
+
+  if(error < 0)
   {
-    QString ss = QObject::tr("Error writing file at '%1'").arg(outputPath);
+    QString ss = QObject::tr("Error writing file at '%1'| %2").arg(outputPath, errorString);
     filter->setErrorCondition(-10118, ss);
     return false;
   }

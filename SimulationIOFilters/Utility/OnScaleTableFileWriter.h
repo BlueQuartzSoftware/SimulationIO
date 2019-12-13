@@ -60,7 +60,7 @@ void writeCoords(QTextStream& stream, const QString& text, size_t maxIndex, floa
  * @return
  */
 template <class T>
-bool write(const ImageGeom& imageGeom, const StringDataArray& phaseNames, const DataArray<T>& featureIds, const QString& outputPath, const QString& filePrefix, const IntVec3Type& numKeypoints)
+std::pair<int, QString> write(const ImageGeom& imageGeom, const StringDataArray& phaseNames, const DataArray<T>& featureIds, const QString& outputPath, const QString& filePrefix, const IntVec3Type& numKeypoints)
 {
   SizeVec3Type dims = imageGeom.getDimensions();
   FloatVec3Type spacing = imageGeom.getSpacing();
@@ -74,7 +74,8 @@ bool write(const ImageGeom& imageGeom, const StringDataArray& phaseNames, const 
 
   if(maxElement == featureIds.end())
   {
-    return false;
+    QString ss = QObject::tr("Could not find max feature id");
+    return {-1, ss};
   }
 
   size_t maxGrainId = static_cast<size_t>(*maxElement);
@@ -88,7 +89,7 @@ bool write(const ImageGeom& imageGeom, const StringDataArray& phaseNames, const 
   if(!masterFile.open(QIODevice::OpenModeFlag::WriteOnly))
   {
     QString ss = QObject::tr("Error writing PZFLEX input file '%1'").arg(masterFilePath);
-    return false;
+    return {-2, ss};
   }
 
   QTextStream masterStream(&masterFile);
@@ -145,6 +146,6 @@ bool write(const ImageGeom& imageGeom, const StringDataArray& phaseNames, const 
 
   EntriesHelper::writeEntries(masterStream, func, totalPoints, 40);
 
-  return true;
+  return {0, QObject::tr("")};
 }
 } // namespace OnScaleTableFileWriter

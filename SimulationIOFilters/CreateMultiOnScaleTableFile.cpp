@@ -284,7 +284,7 @@ void CreateMultiOnScaleTableFile::execute()
     int error = createOnScaleFilter->getErrorCode();
     if(error < 0)
     {
-      setErrorCondition(10407, QObject::tr("CreateOnScaleTableFile sub-filter failed with error code %1").arg(error));
+      setErrorCondition(-10407, QObject::tr("CreateOnScaleTableFile sub-filter failed with error code %1").arg(error));
       return;
     }
   }

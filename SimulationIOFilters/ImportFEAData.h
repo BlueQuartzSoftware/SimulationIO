@@ -25,7 +25,7 @@ class QProcess;
 #include "SimulationIO/SimulationIODLLExport.h"
 
 #include "SimulationIO/SimulationIOConstants.h"
-#include "SimulationIO/SimulationIOFilters/util/DeformDataParser.hpp"
+#include "SimulationIO/SimulationIOFilters/Utility/DeformDataParser.hpp"
 
 /**
  * @brief The ImportFEAData class. See [Filter documentation](@ref importfeadata) for details.

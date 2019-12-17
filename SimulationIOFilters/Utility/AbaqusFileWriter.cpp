@@ -1,3 +1,36 @@
+/* ============================================================================
+ * Copyright (c) 2019-2019 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-15-D-5231
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 #include "AbaqusFileWriter.h"
 
 #include <QtCore/QDir>
@@ -218,7 +251,7 @@ bool AbaqusFileWriter::write(const ImageGeom& imageGeom, const DataArray<int32_t
 
   std::vector<std::vector<double>> MatConst = matConst.getTableData();
 
-  int32_t numMatConst = static_cast<int32_t>(MatConst.size());
+  size_t numMatConst = MatConst.size();
 
   for(int32_t i = 1; i <= maxGrainId; i++)
   {
@@ -228,7 +261,7 @@ bool AbaqusFileWriter::write(const ImageGeom& imageGeom, const DataArray<int32_t
     masterStream << QString("*User Material, constants = %1\n").arg(numMatConst + 5);
     masterStream << QString("%1, %2, %3, %4, %5").arg(i).arg(phaseId[i - 1]).arg(orient[(i - 1) * 3], 0, 'f', 3).arg(orient[(i - 1) * 3 + 1], 0, 'f', 3).arg(orient[(i - 1) * 3 + 2], 0, 'f', 3);
 
-    auto func = [&MatConst](int32_t i) { return QString::number(MatConst[i][0], 'f', 3); };
+    auto func = [&MatConst](size_t i) { return QString::number(MatConst[i][0], 'f', 3); };
 
     EntriesHelper::writeEntries(masterStream, func, numMatConst, 8, ", ", "\n", 5);
 

@@ -374,68 +374,28 @@
         "PhaseTypesArrayName": "PhaseTypes"
     },
     "8": {
-        "AbqFeatureIdsArrayPath": {
-            "Attribute Matrix Name": "CellData",
-            "Data Array Name": "FeatureIds",
-            "Data Container Name": "ImageDataContainer"
-        },
-        "CellEulerAnglesArrayPath": {
-            "Attribute Matrix Name": "CellData",
-            "Data Array Name": "EulerAngles",
-            "Data Container Name": "ImageDataContainer"
-        },
-        "CellPhasesArrayPath": {
-            "Attribute Matrix Name": "CellData",
-            "Data Array Name": "Phases",
-            "Data Container Name": "ImageDataContainer"
-        },
-        "FEAPackage": 1,
-        "FilterVersion": "1.0.146",
-        "Filter_Enabled": true,
-        "Filter_Human_Label": "Create FEA Input Files",
-        "Filter_Name": "CreateFEAInputFiles",
-        "Filter_Uuid": "{e7f02408-6c01-5b56-b970-7813e64c12e2}",
-        "JobName": "",
-        "MatConst": {
-            "Column Headers": [
-                "Values"
-            ],
-            "DefaultColCount": 0,
-            "DefaultRowCount": 0,
-            "HasDynamicCols": false,
-            "HasDynamicRows": true,
-            "MinColCount": 0,
-            "MinRowCount": 0,
-            "Row Headers": [
-                "0"
-            ],
-            "Table Data": [
-                [
-                    0
-                ]
-            ]
-        },
-        "NumClusters": 1,
-        "NumDepvar": 1,
-        "NumKeypoints": {
-            "x": 2,
-            "y": 2,
-            "z": 2
-        },
-        "NumMatConst": 6,
-        "NumUserOutVar": 1,
-        "OutputFilePrefix": "pzflexTest",
-        "OutputPath": "/Users/saurabhpuri/Desktop/pzflex",
-        "PhaseNamesArrayPath": {
-            "Attribute Matrix Name": "EnsembleAttributeMatrix",
-            "Data Array Name": "PhaseNames",
-            "Data Container Name": "SyntheticVolumeDataContainer"
-        },
-        "PzflexFeatureIdsArrayPath": {
-            "Attribute Matrix Name": "CellData",
-            "Data Array Name": "FeatureIds",
-            "Data Container Name": "SyntheticVolumeDataContainer"
-        }
+      "FilterVersion": "1.0.186",
+      "Filter_Enabled": true,
+      "Filter_Human_Label": "Create OnScale Table File",
+      "Filter_Name": "CreateOnScaleTableFile",
+      "Filter_Uuid": "{8efc447d-1c92-5ec5-885c-60b4a597835c}",
+      "NumKeypoints": {
+          "x": 2,
+          "y": 2,
+          "z": 2
+      },
+      "OutputFilePrefix": "pzflexTest",
+      "OutputPath": "/Users/saurabhpuri/Desktop/pzflex",
+      "PhaseNamesArrayPath": {
+          "Attribute Matrix Name": "EnsembleAttributeMatrix",
+          "Data Array Name": "PhaseNames",
+          "Data Container Name": "SyntheticVolumeDataContainer"
+      },
+      "PzflexFeatureIdsArrayPath": {
+          "Attribute Matrix Name": "CellData",
+          "Data Array Name": "FeatureIds",
+          "Data Container Name": "SyntheticVolumeDataContainer"
+      }
     },
     "9": {
         "FilterVersion": "2.0.66",

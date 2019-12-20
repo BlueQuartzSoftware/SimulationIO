@@ -10,7 +10,6 @@ set(${PLUGIN_NAME}Test_BINARY_DIR ${${PLUGIN_NAME}_BINARY_DIR}/Test)
 set(TEST_NAMES
   ExportDAMASKFilesTest
   ExportLAMMPSFileTest
-  CreateFEAInputFilesTest
   ImportFEADataTest
   Export3dSolidMeshTest
 

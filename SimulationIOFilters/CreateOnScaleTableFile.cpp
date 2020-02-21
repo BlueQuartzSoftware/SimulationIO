@@ -460,11 +460,11 @@ void CreateOnScaleTableFile::dataCheck()
     setWarningCondition(-10101, ss);
   }
 
-  getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom, AbstractFilter>(this, getPzflexFeatureIdsArrayPath().getDataContainerName());
+  getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom>(this, getPzflexFeatureIdsArrayPath().getDataContainerName());
 
   std::vector<size_t> cDims{1};
 
-  StringDataArray::ConstPointer phaseNamesPtr = getDataContainerArray()->getPrereqArrayFromPath<StringDataArray, AbstractFilter>(this, getPhaseNamesArrayPath(), cDims);
+  StringDataArray::ConstPointer phaseNamesPtr = getDataContainerArray()->getPrereqArrayFromPath<StringDataArray>(this, getPhaseNamesArrayPath(), cDims);
 
   if(phaseNamesPtr == nullptr)
   {
@@ -473,7 +473,7 @@ void CreateOnScaleTableFile::dataCheck()
 
   p_Impl->m_PhaseNamesPtr = phaseNamesPtr;
 
-  IDataArray::ConstPointer featureIdsPtr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray, AbstractFilter>(this, getPzflexFeatureIdsArrayPath());
+  IDataArray::ConstPointer featureIdsPtr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray>(this, getPzflexFeatureIdsArrayPath());
 
   if(featureIdsPtr == nullptr)
   {

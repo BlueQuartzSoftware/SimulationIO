@@ -164,7 +164,7 @@ void CreateMultiOnScaleTableFile::dataCheck()
 
   std::vector<size_t> cDims{1};
 
-  StringDataArray::ConstPointer phaseNamesPtr = dca->getPrereqArrayFromPath<StringDataArray, AbstractFilter>(this, getPhaseNamesArrayPath(), cDims);
+  StringDataArray::ConstPointer phaseNamesPtr = dca->getPrereqArrayFromPath<StringDataArray>(this, getPhaseNamesArrayPath(), cDims);
 
   if(phaseNamesPtr == nullptr)
   {

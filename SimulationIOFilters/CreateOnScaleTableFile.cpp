@@ -473,7 +473,7 @@ void CreateOnScaleTableFile::dataCheck()
 
   p_Impl->m_PhaseNamesPtr = phaseNamesPtr;
 
-  IDataArray::ConstPointer featureIdsPtr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray>(this, getPzflexFeatureIdsArrayPath());
+  IDataArray::ConstPointer featureIdsPtr = getDataContainerArray()->getPrereqIDataArrayFromPath(this, getPzflexFeatureIdsArrayPath());
 
   if(featureIdsPtr == nullptr)
   {

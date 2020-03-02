@@ -506,13 +506,13 @@ std::shared_ptr<ExportDAMASKFiles> ExportDAMASKFiles::New()
 // -----------------------------------------------------------------------------
 QString ExportDAMASKFiles::getNameOfClass() const
 {
-  return QString("_SUPERExportDAMASKFiles");
+  return QString("ExportDAMASKFiles");
 }
 
 // -----------------------------------------------------------------------------
 QString ExportDAMASKFiles::ClassName()
 {
-  return QString("_SUPERExportDAMASKFiles");
+  return QString("ExportDAMASKFiles");
 }
 
 // -----------------------------------------------------------------------------

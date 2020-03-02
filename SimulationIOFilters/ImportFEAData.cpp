@@ -2193,13 +2193,13 @@ std::shared_ptr<ImportFEAData> ImportFEAData::New()
 // -----------------------------------------------------------------------------
 QString ImportFEAData::getNameOfClass() const
 {
-  return QString("_SUPERImportFEAData");
+  return QString("ImportFEAData");
 }
 
 // -----------------------------------------------------------------------------
 QString ImportFEAData::ClassName()
 {
-  return QString("_SUPERImportFEAData");
+  return QString("ImportFEAData");
 }
 
 // -----------------------------------------------------------------------------

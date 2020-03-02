@@ -1146,13 +1146,13 @@ std::shared_ptr<Export3dSolidMesh> Export3dSolidMesh::New()
 // -----------------------------------------------------------------------------
 QString Export3dSolidMesh::getNameOfClass() const
 {
-  return QString("_SUPERExport3dSolidMesh");
+  return QString("Export3dSolidMesh");
 }
 
 // -----------------------------------------------------------------------------
 QString Export3dSolidMesh::ClassName()
 {
-  return QString("_SUPERExport3dSolidMesh");
+  return QString("Export3dSolidMesh");
 }
 
 // -----------------------------------------------------------------------------

@@ -287,7 +287,7 @@ void Export3dSolidMesh::dataCheck()
     QVector<DataArrayPath> dataArrayPaths;
     std::vector<size_t> cDims(1, 1);
 
-    m_FeaturePhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getFeaturePhasesArrayPath(),
+    m_FeaturePhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>>(this, getFeaturePhasesArrayPath(),
                                                                                                              cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
     if(nullptr != m_FeaturePhasesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
     {
@@ -299,7 +299,7 @@ void Export3dSolidMesh::dataCheck()
     }
 
     cDims[0] = 3;
-    m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureEulerAnglesArrayPath(),
+    m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureEulerAnglesArrayPath(),
                                                                                                                 cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
     if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
     {
@@ -311,7 +311,7 @@ void Export3dSolidMesh::dataCheck()
     }
 
     cDims[0] = 3;
-    m_FeatureCentroidPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureCentroidArrayPath(),
+    m_FeatureCentroidPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureCentroidArrayPath(),
                                                                                                              cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
     if(nullptr != m_FeatureCentroidPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
     {
@@ -322,10 +322,10 @@ void Export3dSolidMesh::dataCheck()
       dataArrayPaths.push_back(getFeatureCentroidArrayPath());
     }
 
-    getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
+    getDataContainerArray()->validateNumberOfTuples(this, dataArrayPaths);
 
     // Create the output Data Container
-    DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getTetDataContainerName());
+    DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer(this, getTetDataContainerName());
     if(getErrorCode() < 0)
     {
       return;
@@ -356,7 +356,7 @@ void Export3dSolidMesh::dataCheck()
     QVector<DataArrayPath> dataArrayPaths;
     std::vector<size_t> cDims(1, 1);
     cDims[0] = 3;
-    m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureEulerAnglesArrayPath(),
+    m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureEulerAnglesArrayPath(),
                                                                                                                 cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
     if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
     {
@@ -374,7 +374,7 @@ void Export3dSolidMesh::dataCheck()
     QVector<DataArrayPath> dataArrayPaths;
     std::vector<size_t> cDims(1, 1);
     cDims[0] = 3;
-    m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>, AbstractFilter>(this, getFeatureEulerAnglesArrayPath(),
+    m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureEulerAnglesArrayPath(),
                                                                                                                 cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
     if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
     {

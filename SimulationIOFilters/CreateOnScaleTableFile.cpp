@@ -460,11 +460,11 @@ void CreateOnScaleTableFile::dataCheck()
     setWarningCondition(-10101, ss);
   }
 
-  getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom, AbstractFilter>(this, getPzflexFeatureIdsArrayPath().getDataContainerName());
+  getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom>(this, getPzflexFeatureIdsArrayPath().getDataContainerName());
 
   std::vector<size_t> cDims{1};
 
-  StringDataArray::ConstPointer phaseNamesPtr = getDataContainerArray()->getPrereqArrayFromPath<StringDataArray, AbstractFilter>(this, getPhaseNamesArrayPath(), cDims);
+  StringDataArray::ConstPointer phaseNamesPtr = getDataContainerArray()->getPrereqArrayFromPath<StringDataArray>(this, getPhaseNamesArrayPath(), cDims);
 
   if(phaseNamesPtr == nullptr)
   {
@@ -473,7 +473,7 @@ void CreateOnScaleTableFile::dataCheck()
 
   p_Impl->m_PhaseNamesPtr = phaseNamesPtr;
 
-  IDataArray::ConstPointer featureIdsPtr = getDataContainerArray()->getPrereqIDataArrayFromPath<IDataArray, AbstractFilter>(this, getPzflexFeatureIdsArrayPath());
+  IDataArray::ConstPointer featureIdsPtr = getDataContainerArray()->getPrereqIDataArrayFromPath(this, getPzflexFeatureIdsArrayPath());
 
   if(featureIdsPtr == nullptr)
   {
@@ -526,18 +526,6 @@ void CreateOnScaleTableFile::dataCheck()
     QString ss = QObject::tr("Invalid type of '%1' for '%2'. Must be an integer type").arg(p_Impl->m_Type).arg(getPzflexFeatureIdsArrayPath().serialize());
     setErrorCondition(-10103, ss);
   }
-}
-
-// -----------------------------------------------------------------------------
-void CreateOnScaleTableFile::preflight()
-{
-  // These are the REQUIRED lines of CODE to make sure the filter behaves correctly
-  setInPreflight(true);              // Set the fact that we are preflighting.
-  emit preflightAboutToExecute();    // Emit this signal so that other widgets can do one file update
-  emit updateFilterParameters(this); // Emit this signal to have the widgets push their values down to the filter
-  dataCheck();                       // Run our DataCheck to make sure everthing is setup correctly
-  emit preflightExecuted();          // We are done preflighting this filter
-  setInPreflight(false);             // Inform the system this filter is NOT in preflight mode anymore.
 }
 
 // -----------------------------------------------------------------------------

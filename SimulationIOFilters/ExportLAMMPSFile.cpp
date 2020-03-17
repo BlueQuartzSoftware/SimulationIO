@@ -115,7 +115,7 @@ void ExportLAMMPSFile::dataCheck()
 
   FileSystemPathHelper::CheckOutputFile(this, "Output LAMMPS File", getLammpsFile(), true);
 
-  getDataContainerArray()->getPrereqGeometryFromDataContainer<VertexGeom, AbstractFilter>(this, getAtomFeatureLabelsPath().getDataContainerName());
+  getDataContainerArray()->getPrereqGeometryFromDataContainer<VertexGeom>(this, getAtomFeatureLabelsPath().getDataContainerName());
 
   DataContainer::Pointer v = getDataContainerArray()->getDataContainer(getAtomFeatureLabelsPath().getDataContainerName());
   if(nullptr == v.get())
@@ -123,7 +123,7 @@ void ExportLAMMPSFile::dataCheck()
     setErrorCondition(-38401, "DataContainer not found");
     return;
   }
-  VertexGeom::Pointer vertices = v->getPrereqGeometry<VertexGeom, AbstractFilter>(this);
+  VertexGeom::Pointer vertices = v->getPrereqGeometry<VertexGeom>(this);
   if(getErrorCode() < 0)
   {
     return;
@@ -139,7 +139,7 @@ void ExportLAMMPSFile::dataCheck()
 
   std::vector<size_t> cDims(1, 1);
 
-  m_AtomFeatureLabelsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>, AbstractFilter>(this, getAtomFeatureLabelsPath(),
+  m_AtomFeatureLabelsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>>(this, getAtomFeatureLabelsPath(),
                                                                                                                cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
   if(nullptr != m_AtomFeatureLabelsPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
@@ -150,21 +150,9 @@ void ExportLAMMPSFile::dataCheck()
     dataArrayPaths.push_back(getAtomFeatureLabelsPath());
   }
 
-  getDataContainerArray()->validateNumberOfTuples<AbstractFilter>(this, dataArrayPaths);
+  getDataContainerArray()->validateNumberOfTuples(this, dataArrayPaths);
 }
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void ExportLAMMPSFile::preflight()
-{
-  setInPreflight(true);
-  emit preflightAboutToExecute();
-  emit updateFilterParameters(this);
-  dataCheck();
-  emit preflightExecuted();
-  setInPreflight(false);
-}
 
 // -----------------------------------------------------------------------------
 //

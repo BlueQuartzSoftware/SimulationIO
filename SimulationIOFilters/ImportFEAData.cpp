@@ -262,7 +262,7 @@ void ImportFEAData::dataCheck()
     }
 
     // Create the output Data Container
-    DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
+    DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer(this, getDataContainerName());
     if(getErrorCode() < 0)
     {
       return;
@@ -298,7 +298,7 @@ void ImportFEAData::dataCheck()
     }
 
     // Create the output Data Container
-    DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
+    DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer(this, getDataContainerName());
     if(getErrorCode() < 0)
     {
       return;
@@ -336,7 +336,7 @@ void ImportFEAData::dataCheck()
     }
 
     // Create the output Data Container
-    DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, getDataContainerName());
+    DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer(this, getDataContainerName());
     if(getErrorCode() < 0)
     {
       return;
@@ -430,7 +430,7 @@ void ImportFEAData::dataCheck()
 
       // Create the output Data Container for the first time step
       QString dcName = getDataContainerName() + "_" + QString::number(t);
-      DataContainer::Pointer v = getDataContainerArray()->createNonPrereqDataContainer<AbstractFilter>(this, dcName);
+      DataContainer::Pointer v = getDataContainerArray()->createNonPrereqDataContainer(this, dcName);
       if(getErrorCode() < 0)
       {
         QString ss = QObject::tr("Error Creating Vertex Data Container with name '%1' for Time Step %2").arg(dcName).arg(t);
@@ -480,9 +480,9 @@ void ImportFEAData::dataCheck()
       }
 
       std::vector<size_t> cDims(1, 1);
-      metaData->createNonPrereqArray<FloatArrayType, AbstractFilter, float>(this, getSelectedTimeArrayName(), 0.0f, cDims);
-      metaData->createNonPrereqArray<Int32ArrayType, AbstractFilter, int32_t>(this, getSelectedTimeStepArrayName(), 0, cDims);
-      metaData->createNonPrereqArray<Int32ArrayType, AbstractFilter, int32_t>(this, READ_DEF_PT_TRACKING_TIME_INDEX, 0, cDims);
+      metaData->createNonPrereqArray<FloatArrayType>(this, getSelectedTimeArrayName(), 0.0f, cDims);
+      metaData->createNonPrereqArray<Int32ArrayType>(this, getSelectedTimeStepArrayName(), 0, cDims);
+      metaData->createNonPrereqArray<Int32ArrayType>(this, READ_DEF_PT_TRACKING_TIME_INDEX, 0, cDims);
     }
 
     break;
@@ -490,19 +490,6 @@ void ImportFEAData::dataCheck()
   }
 }
 
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-void ImportFEAData::preflight()
-{
-  // These are the REQUIRED lines of CODE to make sure the filter behaves correctly
-  setInPreflight(true);              // Set the fact that we are preflighting.
-  emit preflightAboutToExecute();    // Emit this signal so that other widgets can do one file update
-  emit updateFilterParameters(this); // Emit this signal to have the widgets push their values down to the filter
-  dataCheck();                       // Run our DataCheck to make sure everthing is setup correctly
-  emit preflightExecuted();          // We are done preflighting this filter
-  setInPreflight(false);             // Inform the system this filter is NOT in preflight mode anymore.
-}
 
 // -----------------------------------------------------------------------------
 //

@@ -37,7 +37,7 @@ void OnScaleTableFileWriter::writeCoords(QTextStream& stream, const QString& tex
 {
   stream << QString("%1 %2\n").arg(text).arg(maxIndex);
 
-  auto func = [origin, spacing](size_t i) { return QString::number(origin + (i * spacing), 'f', 3); };
+  auto func = [origin, spacing](size_t i) { return QString::number(origin + (i * spacing), 'E', 8); };
 
   EntriesHelper::writeEntries(stream, func, maxIndex, 6);
 

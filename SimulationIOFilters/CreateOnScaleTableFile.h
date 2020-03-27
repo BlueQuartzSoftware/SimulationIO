@@ -49,8 +49,8 @@ class SimulationIO_EXPORT CreateOnScaleTableFile : public AbstractFilter
 {
   Q_OBJECT
 
-#ifdef SIMPL_ENABLE_PYTHON
-  PYB11_CREATE_BINDINGS(CreateOnScaleTableFile SUPERCLASS AbstractFilter)
+  // Start Python bindings declarations
+  PYB11_BEGIN_BINDINGS(CreateOnScaleTableFile SUPERCLASS AbstractFilter)
   PYB11_SHARED_POINTERS(CreateOnScaleTableFile)
   PYB11_STATIC_NEW_MACRO(CreateOnScaleTableFile)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
@@ -58,7 +58,8 @@ class SimulationIO_EXPORT CreateOnScaleTableFile : public AbstractFilter
   PYB11_PROPERTY(DataArrayPath PzflexFeatureIdsArrayPath READ getPzflexFeatureIdsArrayPath WRITE setPzflexFeatureIdsArrayPath)
   PYB11_PROPERTY(IntVec3Type NumKeypoints READ getNumKeypoints WRITE setNumKeypoints)
   PYB11_PROPERTY(DataArrayPath PhaseNamesArrayPath READ getPhaseNamesArrayPath WRITE setPhaseNamesArrayPath)
-#endif
+  PYB11_END_BINDINGS()
+  // End Python bindings declarations
 
 public:
   using Self = CreateOnScaleTableFile;

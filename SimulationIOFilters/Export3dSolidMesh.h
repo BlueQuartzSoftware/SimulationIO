@@ -32,30 +32,10 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
 {
   Q_OBJECT
 
-#ifdef SIMPL_ENABLE_PYTHON
-  PYB11_CREATE_BINDINGS(Export3dSolidMesh SUPERCLASS AbstractFilter)
+  // Start Python bindings declarations
+  PYB11_BEGIN_BINDINGS(Export3dSolidMesh SUPERCLASS AbstractFilter)
   PYB11_SHARED_POINTERS(Export3dSolidMesh)
   PYB11_FILTER_NEW_MACRO(Export3dSolidMesh)
-  PYB11_FILTER_PARAMETER(int, MeshingPackage)
-  PYB11_FILTER_PARAMETER(QString, outputPath)
-  PYB11_FILTER_PARAMETER(QString, PackageLocation)
-  PYB11_FILTER_PARAMETER(DataArrayPath, SurfaceMeshFaceLabelsArrayPath)
-  PYB11_FILTER_PARAMETER(DataArrayPath, FeaturePhasesArrayPath)
-  PYB11_FILTER_PARAMETER(DataArrayPath, FeatureEulerAnglesArrayPath)
-  PYB11_FILTER_PARAMETER(DataArrayPath, FeatureCentroidArrayPath)
-  PYB11_FILTER_PARAMETER(bool, RefineMesh)
-  PYB11_FILTER_PARAMETER(float, MaxRadiusEdgeRatio)
-  PYB11_FILTER_PARAMETER(float, MinDihedralAngle)
-  PYB11_FILTER_PARAMETER(bool, LimitTetrahedraVolume)
-  PYB11_FILTER_PARAMETER(float, MaxTetrahedraVolume)
-  PYB11_FILTER_PARAMETER(int, OptimizationLevel)
-  PYB11_FILTER_PARAMETER(QString, TetDataContainerName)
-  PYB11_FILTER_PARAMETER(QString, VertexAttributeMatrixName)
-  PYB11_FILTER_PARAMETER(QString, CellAttributeMatrixName)
-  PYB11_FILTER_PARAMETER(QString, GmshSTLFileName)
-  PYB11_FILTER_PARAMETER(int, MeshFileFormat)
-  PYB11_FILTER_PARAMETER(QString, NetgenSTLFileName)
-  PYB11_FILTER_PARAMETER(int, MeshSize)
   PYB11_PROPERTY(int MeshingPackage READ getMeshingPackage WRITE setMeshingPackage)
   PYB11_PROPERTY(QString outputPath READ getoutputPath WRITE setoutputPath)
   PYB11_PROPERTY(QString PackageLocation READ getPackageLocation WRITE setPackageLocation)
@@ -63,7 +43,6 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
   PYB11_PROPERTY(DataArrayPath FeaturePhasesArrayPath READ getFeaturePhasesArrayPath WRITE setFeaturePhasesArrayPath)
   PYB11_PROPERTY(DataArrayPath FeatureEulerAnglesArrayPath READ getFeatureEulerAnglesArrayPath WRITE setFeatureEulerAnglesArrayPath)
   PYB11_PROPERTY(DataArrayPath FeatureCentroidArrayPath READ getFeatureCentroidArrayPath WRITE setFeatureCentroidArrayPath)
-
   PYB11_PROPERTY(bool RefineMesh READ getRefineMesh WRITE setRefineMesh)
   PYB11_PROPERTY(float MaxRadiusEdgeRatio READ getMaxRadiusEdgeRatio WRITE setMaxRadiusEdgeRatio)
   PYB11_PROPERTY(float MinDihedralAngle READ getMinDihedralAngle WRITE setMinDihedralAngle)
@@ -72,17 +51,15 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
   PYB11_PROPERTY(int OptimizationLevel READ getOptimizationLevel WRITE setOptimizationLevel)
   PYB11_PROPERTY(bool IncludeHolesUsingPhaseID READ getIncludeHolesUsingPhaseID WRITE setIncludeHolesUsingPhaseID)
   PYB11_PROPERTY(int PhaseID READ getPhaseID WRITE setPhaseID)
-
   PYB11_PROPERTY(QString TetDataContainerName READ getTetDataContainerName WRITE setTetDataContainerName)
   PYB11_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
   PYB11_PROPERTY(QString CellAttributeMatrixName READ getCellAttributeMatrixName WRITE setCellAttributeMatrixName)
-
   PYB11_PROPERTY(QString GmshSTLFileName READ getGmshSTLFileName WRITE setGmshSTLFileName)
   PYB11_PROPERTY(int MeshFileFormat READ getMeshFileFormat WRITE setMeshFileFormat)
-
   PYB11_PROPERTY(QString NetgenSTLFileName READ getNetgenSTLFileName WRITE setNetgenSTLFileName)
   PYB11_PROPERTY(int MeshSize READ getMeshSize WRITE setMeshSize)
-#endif
+  PYB11_END_BINDINGS()
+  // End Python bindings declarations
 
 public:
   using Self = Export3dSolidMesh;

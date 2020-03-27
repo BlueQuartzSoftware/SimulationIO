@@ -34,32 +34,10 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
 {
   Q_OBJECT
 
-#ifdef SIMPL_ENABLE_PYTHON
-  PYB11_CREATE_BINDINGS(ImportFEAData SUPERCLASS AbstractFilter)
+  // Start Python bindings declarations
+  PYB11_BEGIN_BINDINGS(ImportFEAData SUPERCLASS AbstractFilter)
   PYB11_SHARED_POINTERS(ImportFEAData)
   PYB11_FILTER_NEW_MACRO(ImportFEAData)
-  PYB11_FILTER_PARAMETER(int, FEAPackage)
-  PYB11_FILTER_PARAMETER(QString, odbName)
-  PYB11_FILTER_PARAMETER(QString, odbFilePath)
-  PYB11_FILTER_PARAMETER(QString, ABQPythonCommand)
-  PYB11_FILTER_PARAMETER(QString, InstanceName)
-  PYB11_FILTER_PARAMETER(QString, Step)
-  PYB11_FILTER_PARAMETER(int, FrameNumber)
-  PYB11_FILTER_PARAMETER(QString, DEFORMInputFile)
-  PYB11_FILTER_PARAMETER(QString, BSAMInputFile)
-  PYB11_FILTER_PARAMETER(QString, DEFORMPointTrackInputFile)
-  PYB11_FILTER_PARAMETER(QString, TimeSeriesBundleName)
-  PYB11_FILTER_PARAMETER(bool, ImportSingleTimeStep)
-  PYB11_FILTER_PARAMETER(int, SingleTimeStepValue)
-  PYB11_FILTER_PARAMETER(QString, SelectedTimeArrayName)
-  PYB11_FILTER_PARAMETER(QString, SelectedTimeStepArrayName)
-  PYB11_FILTER_PARAMETER(QString, SelectedPointNumArrayName)
-  PYB11_FILTER_PARAMETER(QString, SelectedXCoordArrayName)
-  PYB11_FILTER_PARAMETER(QString, SelectedYCoordArrayName)
-  PYB11_FILTER_PARAMETER(QStringList, DataArrayList)
-  PYB11_FILTER_PARAMETER(QString, DataContainerName)
-  PYB11_FILTER_PARAMETER(QString, VertexAttributeMatrixName)
-  PYB11_FILTER_PARAMETER(QString, CellAttributeMatrixName)
   PYB11_PROPERTY(int FEAPackage READ getFEAPackage WRITE setFEAPackage)
   PYB11_PROPERTY(QString odbName READ getodbName WRITE setodbName)
   // PYB11_PROPERTY(QString ABQInputFile READ getABQInputFile WRITE setABQInputFile)
@@ -68,13 +46,10 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
   PYB11_PROPERTY(QString InstanceName READ getInstanceName WRITE setInstanceName)
   PYB11_PROPERTY(QString Step READ getStep WRITE setStep)
   PYB11_PROPERTY(int FrameNumber READ getFrameNumber WRITE setFrameNumber)
-  //    PYB11_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable)
+  //  PYB11_PROPERTY(QString OutputVariable READ getOutputVariable WRITE setOutputVariable)
   //  PYB11_PROPERTY(QString ElementSet READ getElementSet WRITE setElementSet)
-
   PYB11_PROPERTY(QString BSAMInputFile READ getBSAMInputFile WRITE setBSAMInputFile)
-
   PYB11_PROPERTY(QString DEFORMInputFile READ getDEFORMInputFile WRITE setDEFORMInputFile)
-
   PYB11_PROPERTY(QString DEFORMPointTrackInputFile READ getDEFORMPointTrackInputFile WRITE setDEFORMPointTrackInputFile)
   PYB11_PROPERTY(QString TimeSeriesBundleName READ getTimeSeriesBundleName WRITE setTimeSeriesBundleName)
   PYB11_PROPERTY(bool ImportSingleTimeStep READ getImportSingleTimeStep WRITE setImportSingleTimeStep)
@@ -85,11 +60,11 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
   PYB11_PROPERTY(QString SelectedXCoordArrayName READ getSelectedXCoordArrayName WRITE setSelectedXCoordArrayName)
   PYB11_PROPERTY(QString SelectedYCoordArrayName READ getSelectedYCoordArrayName WRITE setSelectedYCoordArrayName)
   PYB11_PROPERTY(QStringList DataArrayList READ getDataArrayList WRITE setDataArrayList)
-
   PYB11_PROPERTY(QString DataContainerName READ getDataContainerName WRITE setDataContainerName)
   PYB11_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
   PYB11_PROPERTY(QString CellAttributeMatrixName READ getCellAttributeMatrixName WRITE setCellAttributeMatrixName)
-#endif
+  PYB11_END_BINDINGS()
+  // End Python bindings declarations
 
 public:
   using Self = ImportFEAData;

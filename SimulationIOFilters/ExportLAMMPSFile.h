@@ -55,15 +55,14 @@ class SimulationIO_EXPORT ExportLAMMPSFile : public AbstractFilter
 {
   Q_OBJECT
 
-#ifdef SIMPL_ENABLE_PYTHON
-  PYB11_CREATE_BINDINGS(ExportLAMMPSFile SUPERCLASS AbstractFilter)
+  // Start Python bindings declarations
+  PYB11_BEGIN_BINDINGS(ExportLAMMPSFile SUPERCLASS AbstractFilter)
   PYB11_SHARED_POINTERS(ExportLAMMPSFile)
   PYB11_FILTER_NEW_MACRO(ExportLAMMPSFile)
-  PYB11_FILTER_PARAMETER(QString, LammpsFile)
-  PYB11_FILTER_PARAMETER(DataArrayPath, AtomFeatureLabelsPath)
   PYB11_PROPERTY(QString LammpsFile READ getLammpsFile WRITE setLammpsFile)
   PYB11_PROPERTY(DataArrayPath AtomFeatureLabelsPath READ getAtomFeatureLabelspath WRITE setAtomFeatureLabelsPath)
-#endif
+  PYB11_END_BINDINGS()
+  // End Python bindings declarations
 
 public:
   using Self = ExportLAMMPSFile;

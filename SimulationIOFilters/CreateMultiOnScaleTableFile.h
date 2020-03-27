@@ -48,8 +48,8 @@ class SimulationIO_EXPORT CreateMultiOnScaleTableFile : public AbstractFilter
 {
   Q_OBJECT
 
-#ifdef SIMPL_ENABLE_PYTHON
-  PYB11_CREATE_BINDINGS(CreateMultiOnScaleTableFile SUPERCLASS AbstractFilter)
+  // Start Python bindings declarations
+  PYB11_BEGIN_BINDINGS(CreateMultiOnScaleTableFile SUPERCLASS AbstractFilter)
   PYB11_SHARED_POINTERS(CreateMultiOnScaleTableFile)
   PYB11_STATIC_NEW_MACRO(CreateMultiOnScaleTableFile)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
@@ -59,7 +59,8 @@ class SimulationIO_EXPORT CreateMultiOnScaleTableFile : public AbstractFilter
   PYB11_PROPERTY(QString SelectedArrays READ getSelectedArrays WRITE setSelectedArrays)
   PYB11_PROPERTY(IntVec3Type NumKeypoints READ getNumKeypoints WRITE setNumKeypoints)
   PYB11_PROPERTY(DataArrayPath PhaseNamesArrayPath READ getPhaseNamesArrayPath WRITE setPhaseNamesArrayPath)
-#endif
+  PYB11_END_BINDINGS()
+  // End Python bindings declarations
 
 public:
   using Self = CreateMultiOnScaleTableFile;

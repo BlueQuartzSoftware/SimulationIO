@@ -30,18 +30,10 @@ class SimulationIO_EXPORT ExportDAMASKFiles : public AbstractFilter
 {
   Q_OBJECT
 
-#ifdef SIMPL_ENABLE_PYTHON
-  PYB11_CREATE_BINDINGS(ExportDAMASKFiles SUPERCLASS AbstractFilter)
+  // Start Python bindings declarations
+  PYB11_BEGIN_BINDINGS(ExportDAMASKFiles SUPERCLASS AbstractFilter)
   PYB11_SHARED_POINTERS(ExportDAMASKFiles)
   PYB11_FILTER_NEW_MACRO(ExportDAMASKFiles)
-  PYB11_FILTER_PARAMETER(int, DataFormat)
-  PYB11_FILTER_PARAMETER(QString, OutputPath)
-  PYB11_FILTER_PARAMETER(QString, GeometryFileName)
-  PYB11_FILTER_PARAMETER(int, HomogenizationIndex)
-  PYB11_FILTER_PARAMETER(DataArrayPath, FeatureIdsArrayPath)
-  PYB11_FILTER_PARAMETER(DataArrayPath, CellPhasesArrayPath)
-  PYB11_FILTER_PARAMETER(DataArrayPath, CellEulerAnglesArrayPath)
-  PYB11_FILTER_PARAMETER(bool, CompressGeomFile)
   PYB11_PROPERTY(int DataFormat READ getDataFormat WRITE setDataFormat)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
   PYB11_PROPERTY(QString GeometryFileName READ getGeometryFileName WRITE setGeometryFileName)
@@ -50,7 +42,8 @@ class SimulationIO_EXPORT ExportDAMASKFiles : public AbstractFilter
   PYB11_PROPERTY(DataArrayPath CellPhasesArrayPath READ getCellPhasesArrayPath WRITE setCellPhasesArrayPath)
   PYB11_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
   PYB11_PROPERTY(bool CompressGeomFile READ getCompressGeomFile WRITE setCompressGeomFile)
-#endif
+  PYB11_END_BINDINGS()
+  // End Python bindings declarations
 
 public:
   using Self = ExportDAMASKFiles;

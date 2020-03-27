@@ -48,8 +48,8 @@ class SimulationIO_EXPORT CreateAbaqusFile : public AbstractFilter
 {
   Q_OBJECT
 
-#ifdef SIMPL_ENABLE_PYTHON
-  PYB11_CREATE_BINDINGS(CreateAbaqusFile SUPERCLASS AbstractFilter)
+  // Start Python bindings declarations
+  PYB11_BEGIN_BINDINGS(CreateAbaqusFile SUPERCLASS AbstractFilter)
   PYB11_SHARED_POINTERS(CreateAbaqusFile)
   PYB11_STATIC_NEW_MACRO(CreateAbaqusFile)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
@@ -61,7 +61,8 @@ class SimulationIO_EXPORT CreateAbaqusFile : public AbstractFilter
   PYB11_PROPERTY(DataArrayPath AbqFeatureIdsArrayPath READ getAbqFeatureIdsArrayPath WRITE setAbqFeatureIdsArrayPath)
   PYB11_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
   PYB11_PROPERTY(DataArrayPath CellPhasesArrayPath READ getCellPhasesArrayPath WRITE setCellPhasesArrayPath)
-#endif
+  PYB11_END_BINDINGS()
+  // End Python bindings declarations
 
 public:
   using Self = CreateAbaqusFile;

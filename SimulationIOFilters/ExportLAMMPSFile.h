@@ -60,7 +60,7 @@ class SimulationIO_EXPORT ExportLAMMPSFile : public AbstractFilter
   PYB11_SHARED_POINTERS(ExportLAMMPSFile)
   PYB11_FILTER_NEW_MACRO(ExportLAMMPSFile)
   PYB11_PROPERTY(QString LammpsFile READ getLammpsFile WRITE setLammpsFile)
-  PYB11_PROPERTY(DataArrayPath AtomFeatureLabelsPath READ getAtomFeatureLabelspath WRITE setAtomFeatureLabelsPath)
+  PYB11_PROPERTY(DataArrayPath AtomFeatureLabelsPath READ getAtomFeatureLabelsPath WRITE setAtomFeatureLabelsPath)
   PYB11_END_BINDINGS()
   // End Python bindings declarations
 

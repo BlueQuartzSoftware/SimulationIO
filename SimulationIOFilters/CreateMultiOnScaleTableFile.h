@@ -95,7 +95,6 @@ public:
    * @param value
    */
   void setOutputPath(const QString& value);
-
   Q_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
 
   /**
@@ -109,7 +108,6 @@ public:
    * @param value
    */
   void setDataContainerPrefix(const QString& value);
-
   Q_PROPERTY(QString DataContainerPrefix READ getDataContainerPrefix WRITE setDataContainerPrefix)
 
   /**
@@ -123,7 +121,6 @@ public:
    * @param value
    */
   void setMatrixName(const QString& value);
-
   Q_PROPERTY(QString MatrixName READ getMatrixName WRITE setMatrixName)
 
   /**
@@ -137,7 +134,6 @@ public:
    * @param value
    */
   void setArrayName(const QString& value);
-
   Q_PROPERTY(QString ArrayName READ getArrayName WRITE setArrayName)
 
   /**
@@ -151,7 +147,6 @@ public:
    * @param value
    */
   void setSelectedArrays(const QString& value);
-
   Q_PROPERTY(QString SelectedArrays READ getSelectedArrays WRITE setSelectedArrays)
 
   /**
@@ -165,7 +160,6 @@ public:
    * @param value
    */
   void setNumKeypoints(const IntVec3Type& value);
-
   Q_PROPERTY(IntVec3Type NumKeypoints READ getNumKeypoints WRITE setNumKeypoints)
 
   /**
@@ -179,7 +173,6 @@ public:
    * @param value
    */
   void setPhaseNamesArrayPath(const DataArrayPath& value);
-
   Q_PROPERTY(DataArrayPath PhaseNamesArrayPath READ getPhaseNamesArrayPath WRITE setPhaseNamesArrayPath)
 
   /**

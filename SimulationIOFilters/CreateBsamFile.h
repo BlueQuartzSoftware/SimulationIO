@@ -90,7 +90,6 @@ public:
    * @param value
    */
   void setOutputPath(const QString& value);
-
   Q_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
 
   /**
@@ -104,7 +103,6 @@ public:
    * @param value
    */
   void setOutputFilePrefix(const QString& value);
-
   Q_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
 
   /**
@@ -118,7 +116,6 @@ public:
    * @param value
    */
   void setNumClusters(int value);
-
   Q_PROPERTY(int NumClusters READ getNumClusters WRITE setNumClusters)
 
   /**

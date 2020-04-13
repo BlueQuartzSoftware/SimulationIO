@@ -97,7 +97,6 @@ public:
    * @param value
    */
   void setOutputPath(const QString& value);
-
   Q_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
 
   /**
@@ -111,7 +110,6 @@ public:
    * @param value
    */
   void setOutputFilePrefix(const QString& value);
-
   Q_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
 
   /**
@@ -125,7 +123,6 @@ public:
    * @param value
    */
   void setJobName(const QString& value);
-
   Q_PROPERTY(QString JobName READ getJobName WRITE setJobName)
 
   /**
@@ -139,7 +136,6 @@ public:
    * @param value
    */
   void setNumDepvar(int value);
-
   Q_PROPERTY(int NumDepvar READ getNumDepvar WRITE setNumDepvar)
 
   /**
@@ -153,7 +149,6 @@ public:
    * @param value
    */
   void setNumUserOutVar(int value);
-
   Q_PROPERTY(int NumUserOutVar READ getNumUserOutVar WRITE setNumUserOutVar)
 
   /**
@@ -167,7 +162,6 @@ public:
    * @param value
    */
   void setMatConst(const DynamicTableData& value);
-
   Q_PROPERTY(DynamicTableData MatConst READ getMatConst WRITE setMatConst)
 
   /**
@@ -181,7 +175,6 @@ public:
    * @param value
    */
   void setAbqFeatureIdsArrayPath(const DataArrayPath& value);
-
   Q_PROPERTY(DataArrayPath AbqFeatureIdsArrayPath READ getAbqFeatureIdsArrayPath WRITE setAbqFeatureIdsArrayPath)
 
   /**
@@ -195,7 +188,6 @@ public:
    * @param value
    */
   void setCellEulerAnglesArrayPath(const DataArrayPath& value);
-
   Q_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
 
   /**
@@ -209,7 +201,6 @@ public:
    * @param value
    */
   void setCellPhasesArrayPath(const DataArrayPath& value);
-
   Q_PROPERTY(DataArrayPath CellPhasesArrayPath READ getCellPhasesArrayPath WRITE setCellPhasesArrayPath)
 
   /**

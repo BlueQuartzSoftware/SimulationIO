@@ -91,7 +91,6 @@ public:
    * @return Value of MeshingPackage
    */
   int getMeshingPackage() const;
-
   Q_PROPERTY(int MeshingPackage READ getMeshingPackage WRITE setMeshingPackage)
 
   /**
@@ -103,7 +102,6 @@ public:
    * @return Value of outputPath
    */
   QString getoutputPath() const;
-
   Q_PROPERTY(QString outputPath READ getoutputPath WRITE setoutputPath)
 
   /**
@@ -115,7 +113,6 @@ public:
    * @return Value of PackageLocation
    */
   QString getPackageLocation() const;
-
   Q_PROPERTY(QString PackageLocation READ getPackageLocation WRITE setPackageLocation)
 
   /**
@@ -127,7 +124,6 @@ public:
    * @return Value of SurfaceMeshFaceLabelsArrayPath
    */
   DataArrayPath getSurfaceMeshFaceLabelsArrayPath() const;
-
   Q_PROPERTY(DataArrayPath SurfaceMeshFaceLabelsArrayPath READ getSurfaceMeshFaceLabelsArrayPath WRITE setSurfaceMeshFaceLabelsArrayPath)
 
   /**
@@ -139,7 +135,6 @@ public:
    * @return Value of FeaturePhasesArrayPath
    */
   DataArrayPath getFeaturePhasesArrayPath() const;
-
   Q_PROPERTY(DataArrayPath FeaturePhasesArrayPath READ getFeaturePhasesArrayPath WRITE setFeaturePhasesArrayPath)
 
   /**
@@ -151,7 +146,6 @@ public:
    * @return Value of FeatureEulerAnglesArrayPath
    */
   DataArrayPath getFeatureEulerAnglesArrayPath() const;
-
   Q_PROPERTY(DataArrayPath FeatureEulerAnglesArrayPath READ getFeatureEulerAnglesArrayPath WRITE setFeatureEulerAnglesArrayPath)
 
   /**
@@ -163,7 +157,6 @@ public:
    * @return Value of FeatureCentroidArrayPath
    */
   DataArrayPath getFeatureCentroidArrayPath() const;
-
   Q_PROPERTY(DataArrayPath FeatureCentroidArrayPath READ getFeatureCentroidArrayPath WRITE setFeatureCentroidArrayPath)
 
   /**
@@ -175,7 +168,6 @@ public:
    * @return Value of RefineMesh
    */
   bool getRefineMesh() const;
-
   Q_PROPERTY(bool RefineMesh READ getRefineMesh WRITE setRefineMesh)
 
   /**
@@ -187,7 +179,6 @@ public:
    * @return Value of MaxRadiusEdgeRatio
    */
   float getMaxRadiusEdgeRatio() const;
-
   Q_PROPERTY(float MaxRadiusEdgeRatio READ getMaxRadiusEdgeRatio WRITE setMaxRadiusEdgeRatio)
 
   /**
@@ -199,7 +190,6 @@ public:
    * @return Value of MinDihedralAngle
    */
   float getMinDihedralAngle() const;
-
   Q_PROPERTY(float MinDihedralAngle READ getMinDihedralAngle WRITE setMinDihedralAngle)
 
   /**
@@ -211,7 +201,6 @@ public:
    * @return Value of LimitTetrahedraVolume
    */
   bool getLimitTetrahedraVolume() const;
-
   Q_PROPERTY(bool LimitTetrahedraVolume READ getLimitTetrahedraVolume WRITE setLimitTetrahedraVolume)
 
   /**
@@ -223,7 +212,6 @@ public:
    * @return Value of MaxTetrahedraVolume
    */
   float getMaxTetrahedraVolume() const;
-
   Q_PROPERTY(float MaxTetrahedraVolume READ getMaxTetrahedraVolume WRITE setMaxTetrahedraVolume)
 
   /**
@@ -235,7 +223,6 @@ public:
    * @return Value of OptimizationLevel
    */
   int getOptimizationLevel() const;
-
   Q_PROPERTY(int OptimizationLevel READ getOptimizationLevel WRITE setOptimizationLevel)
 
   /**
@@ -247,7 +234,6 @@ public:
    * @return Value of IncludeHolesUsingPhaseID
    */
   bool getIncludeHolesUsingPhaseID() const;
-
   Q_PROPERTY(bool IncludeHolesUsingPhaseID READ getIncludeHolesUsingPhaseID WRITE setIncludeHolesUsingPhaseID)
 
     /**
@@ -259,7 +245,6 @@ public:
    * @return Value of PhaseID
    */
   int getPhaseID() const;
-
   Q_PROPERTY(int PhaseID READ getPhaseID WRITE setPhaseID)
 
     /**
@@ -271,7 +256,6 @@ public:
     * @return Value of TetDataContainerName
     */
     QString getTetDataContainerName() const;
-
   Q_PROPERTY(QString TetDataContainerName READ getTetDataContainerName WRITE setTetDataContainerName)
 
   /**
@@ -283,7 +267,6 @@ public:
    * @return Value of VertexAttributeMatrixName
    */
   QString getVertexAttributeMatrixName() const;
-
   Q_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
 
   /**
@@ -295,7 +278,6 @@ public:
    * @return Value of CellAttributeMatrixName
    */
   QString getCellAttributeMatrixName() const;
-
   Q_PROPERTY(QString CellAttributeMatrixName READ getCellAttributeMatrixName WRITE setCellAttributeMatrixName)
 
   /**
@@ -307,7 +289,6 @@ public:
    * @return Value of GmshSTLFileName
    */
   QString getGmshSTLFileName() const;
-
   Q_PROPERTY(QString GmshSTLFileName READ getGmshSTLFileName WRITE setGmshSTLFileName)
 
   /**
@@ -319,7 +300,6 @@ public:
    * @return Value of MeshFileFormat
    */
   int getMeshFileFormat() const;
-
   Q_PROPERTY(int MeshFileFormat READ getMeshFileFormat WRITE setMeshFileFormat)
 
   /**
@@ -331,7 +311,6 @@ public:
    * @return Value of NetgenSTLFileName
    */
   QString getNetgenSTLFileName() const;
-
   Q_PROPERTY(QString NetgenSTLFileName READ getNetgenSTLFileName WRITE setNetgenSTLFileName)
 
   /**
@@ -343,7 +322,6 @@ public:
    * @return Value of MeshSize
    */
   int getMeshSize() const;
-
   Q_PROPERTY(int MeshSize READ getMeshSize WRITE setMeshSize)
 
   /**

@@ -94,7 +94,6 @@ public:
    * @return Value of LammpsFile
    */
   QString getLammpsFile() const;
-
   Q_PROPERTY(QString LammpsFile READ getLammpsFile WRITE setLammpsFile)
 
   /**
@@ -106,7 +105,6 @@ public:
    * @return Value of AtomFeatureLabelsPath
    */
   DataArrayPath getAtomFeatureLabelsPath() const;
-
   Q_PROPERTY(DataArrayPath AtomFeatureLabelsPath READ getAtomFeatureLabelsPath WRITE setAtomFeatureLabelsPath)
 
   /**

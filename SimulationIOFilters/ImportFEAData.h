@@ -96,7 +96,6 @@ public:
    * @return Value of FEAPackage
    */
   int getFEAPackage() const;
-
   Q_PROPERTY(int FEAPackage READ getFEAPackage WRITE setFEAPackage)
 
   /**
@@ -108,7 +107,6 @@ public:
    * @return Value of odbName
    */
   QString getodbName() const;
-
   Q_PROPERTY(QString odbName READ getodbName WRITE setodbName)
 
   /**
@@ -120,7 +118,6 @@ public:
    * @return Value of odbFilePath
    */
   QString getodbFilePath() const;
-
   Q_PROPERTY(QString odbFilePath READ getodbFilePath WRITE setodbFilePath)
 
   /**
@@ -132,7 +129,6 @@ public:
    * @return Value of ABQPythonCommand
    */
   QString getABQPythonCommand() const;
-
   Q_PROPERTY(QString ABQPythonCommand READ getABQPythonCommand WRITE setABQPythonCommand)
 
   /**
@@ -144,7 +140,6 @@ public:
    * @return Value of InstanceName
    */
   QString getInstanceName() const;
-
   Q_PROPERTY(QString InstanceName READ getInstanceName WRITE setInstanceName)
 
   /**
@@ -156,7 +151,6 @@ public:
    * @return Value of Step
    */
   QString getStep() const;
-
   Q_PROPERTY(QString Step READ getStep WRITE setStep)
 
   /**
@@ -168,7 +162,6 @@ public:
    * @return Value of FrameNumber
    */
   int getFrameNumber() const;
-
   Q_PROPERTY(int FrameNumber READ getFrameNumber WRITE setFrameNumber)
 
   /**
@@ -180,7 +173,6 @@ public:
    * @return Value of DEFORMInputFile
    */
   QString getDEFORMInputFile() const;
-
   Q_PROPERTY(QString DEFORMInputFile READ getDEFORMInputFile WRITE setDEFORMInputFile)
 
   /**
@@ -192,7 +184,6 @@ public:
    * @return Value of BSAMInputFile
    */
   QString getBSAMInputFile() const;
-
   Q_PROPERTY(QString BSAMInputFile READ getBSAMInputFile WRITE setBSAMInputFile)
 
   /**
@@ -204,7 +195,6 @@ public:
    * @return Value of DEFORMPointTrackInputFile
    */
   QString getDEFORMPointTrackInputFile() const;
-
   Q_PROPERTY(QString DEFORMPointTrackInputFile READ getDEFORMPointTrackInputFile WRITE setDEFORMPointTrackInputFile)
 
   /**
@@ -216,7 +206,6 @@ public:
    * @return Value of TimeSeriesBundleName
    */
   QString getTimeSeriesBundleName() const;
-
   Q_PROPERTY(QString TimeSeriesBundleName READ getTimeSeriesBundleName WRITE setTimeSeriesBundleName)
 
   /**
@@ -228,7 +217,6 @@ public:
    * @return Value of ImportSingleTimeStep
    */
   bool getImportSingleTimeStep() const;
-
   Q_PROPERTY(bool ImportSingleTimeStep READ getImportSingleTimeStep WRITE setImportSingleTimeStep)
 
   /**
@@ -240,7 +228,6 @@ public:
    * @return Value of SingleTimeStepValue
    */
   int getSingleTimeStepValue() const;
-
   Q_PROPERTY(int SingleTimeStepValue READ getSingleTimeStepValue WRITE setSingleTimeStepValue)
 
   /**
@@ -312,7 +299,6 @@ public:
    * @return Value of DataArrayList
    */
   QStringList getDataArrayList() const;
-
   Q_PROPERTY(QStringList DataArrayList READ getDataArrayList WRITE setDataArrayList)
 
   /**
@@ -324,7 +310,6 @@ public:
    * @return Value of DataContainerName
    */
   QString getDataContainerName() const;
-
   Q_PROPERTY(QString DataContainerName READ getDataContainerName WRITE setDataContainerName)
 
   /**
@@ -336,7 +321,6 @@ public:
    * @return Value of VertexAttributeMatrixName
    */
   QString getVertexAttributeMatrixName() const;
-
   Q_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
 
   /**
@@ -348,7 +332,6 @@ public:
    * @return Value of CellAttributeMatrixName
    */
   QString getCellAttributeMatrixName() const;
-
   Q_PROPERTY(QString CellAttributeMatrixName READ getCellAttributeMatrixName WRITE setCellAttributeMatrixName)
 
   /**

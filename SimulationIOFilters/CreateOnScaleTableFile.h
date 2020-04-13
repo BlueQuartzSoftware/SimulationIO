@@ -94,7 +94,6 @@ public:
    * @param value
    */
   void setOutputPath(const QString& value);
-
   Q_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
 
   /**
@@ -108,7 +107,6 @@ public:
    * @param value
    */
   void setOutputFilePrefix(const QString& value);
-
   Q_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
 
   /**
@@ -122,7 +120,6 @@ public:
    * @param value
    */
   void setPzflexFeatureIdsArrayPath(const DataArrayPath& value);
-
   Q_PROPERTY(DataArrayPath PzflexFeatureIdsArrayPath READ getPzflexFeatureIdsArrayPath WRITE setPzflexFeatureIdsArrayPath)
 
   /**
@@ -136,7 +133,6 @@ public:
    * @param value
    */
   void setNumKeypoints(const IntVec3Type& value);
-
   Q_PROPERTY(IntVec3Type NumKeypoints READ getNumKeypoints WRITE setNumKeypoints)
 
   /**
@@ -150,7 +146,6 @@ public:
    * @param value
    */
   void setPhaseNamesArrayPath(const DataArrayPath& value);
-
   Q_PROPERTY(DataArrayPath PhaseNamesArrayPath READ getPhaseNamesArrayPath WRITE setPhaseNamesArrayPath)
 
   /**

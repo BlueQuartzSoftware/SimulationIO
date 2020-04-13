@@ -75,7 +75,6 @@ public:
    * @return Value of DataFormat
    */
   int getDataFormat() const;
-
   Q_PROPERTY(int DataFormat READ getDataFormat WRITE setDataFormat)
 
   /**
@@ -87,7 +86,6 @@ public:
    * @return Value of OutputPath
    */
   QString getOutputPath() const;
-
   Q_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
 
   /**
@@ -99,7 +97,6 @@ public:
    * @return Value of GeometryFileName
    */
   QString getGeometryFileName() const;
-
   Q_PROPERTY(QString GeometryFileName READ getGeometryFileName WRITE setGeometryFileName)
 
   /**
@@ -111,7 +108,6 @@ public:
    * @return Value of HomogenizationIndex
    */
   int getHomogenizationIndex() const;
-
   Q_PROPERTY(int HomogenizationIndex READ getHomogenizationIndex WRITE setHomogenizationIndex)
 
   /**
@@ -123,7 +119,6 @@ public:
    * @return Value of FeatureIdsArrayPath
    */
   DataArrayPath getFeatureIdsArrayPath() const;
-
   Q_PROPERTY(DataArrayPath FeatureIdsArrayPath READ getFeatureIdsArrayPath WRITE setFeatureIdsArrayPath)
 
   /**
@@ -135,7 +130,6 @@ public:
    * @return Value of CellPhasesArrayPath
    */
   DataArrayPath getCellPhasesArrayPath() const;
-
   Q_PROPERTY(DataArrayPath CellPhasesArrayPath READ getCellPhasesArrayPath WRITE setCellPhasesArrayPath)
 
   /**
@@ -147,7 +141,6 @@ public:
    * @return Value of CellEulerAnglesArrayPath
    */
   DataArrayPath getCellEulerAnglesArrayPath() const;
-
   Q_PROPERTY(DataArrayPath CellEulerAnglesArrayPath READ getCellEulerAnglesArrayPath WRITE setCellEulerAnglesArrayPath)
 
   /**
@@ -159,7 +152,6 @@ public:
    * @return Value of CompressGeomFile
    */
   bool getCompressGeomFile() const;
-
   Q_PROPERTY(bool CompressGeomFile READ getCompressGeomFile WRITE setCompressGeomFile)
 
   /**

@@ -50,6 +50,7 @@ class SimulationIO_EXPORT CreateAbaqusFile : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(CreateAbaqusFile SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(CreateAbaqusFile)
   PYB11_STATIC_NEW_MACRO(CreateAbaqusFile)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)

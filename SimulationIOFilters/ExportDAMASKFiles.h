@@ -32,6 +32,7 @@ class SimulationIO_EXPORT ExportDAMASKFiles : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(ExportDAMASKFiles SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(ExportDAMASKFiles)
   PYB11_FILTER_NEW_MACRO(ExportDAMASKFiles)
   PYB11_PROPERTY(int DataFormat READ getDataFormat WRITE setDataFormat)

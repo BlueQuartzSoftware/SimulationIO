@@ -36,6 +36,7 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(ImportFEAData SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(ImportFEAData)
   PYB11_FILTER_NEW_MACRO(ImportFEAData)
   PYB11_PROPERTY(int FEAPackage READ getFEAPackage WRITE setFEAPackage)

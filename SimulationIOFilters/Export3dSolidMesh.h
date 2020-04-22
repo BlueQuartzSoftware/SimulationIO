@@ -34,6 +34,7 @@ class SimulationIO_EXPORT Export3dSolidMesh : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(Export3dSolidMesh SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(Export3dSolidMesh)
   PYB11_FILTER_NEW_MACRO(Export3dSolidMesh)
   PYB11_PROPERTY(int MeshingPackage READ getMeshingPackage WRITE setMeshingPackage)

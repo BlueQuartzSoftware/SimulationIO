@@ -49,6 +49,7 @@ class SimulationIO_EXPORT CreateBsamFile : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(CreateBsamFile SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(CreateBsamFile)
   PYB11_STATIC_NEW_MACRO(CreateBsamFile)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)

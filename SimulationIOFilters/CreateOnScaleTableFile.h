@@ -51,6 +51,7 @@ class SimulationIO_EXPORT CreateOnScaleTableFile : public AbstractFilter
 
   // Start Python bindings declarations
   PYB11_BEGIN_BINDINGS(CreateOnScaleTableFile SUPERCLASS AbstractFilter)
+  PYB11_FILTER()
   PYB11_SHARED_POINTERS(CreateOnScaleTableFile)
   PYB11_STATIC_NEW_MACRO(CreateOnScaleTableFile)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)

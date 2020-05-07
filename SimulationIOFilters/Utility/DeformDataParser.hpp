@@ -32,7 +32,6 @@
 #include <QtCore/QString>
 
 #include "SIMPLib/SIMPLib.h"
-
 #include "SIMPLib/DataArrays/DataArray.hpp"
 
 namespace SimulationIO

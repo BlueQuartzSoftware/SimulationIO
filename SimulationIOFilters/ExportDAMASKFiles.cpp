@@ -6,10 +6,9 @@
 #include "ExportDAMASKFiles.h"
 
 #include <QtCore/QTextStream>
+#include <QtCore/QDir>
 
 #include "SIMPLib/Common/Constants.h"
-
-#include <QtCore/QDir>
 
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"

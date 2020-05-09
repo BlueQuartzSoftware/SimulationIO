@@ -237,9 +237,6 @@ public:
    */
   void execute() override;
 
-
-
-
 protected:
   CreateMultiOnScaleTableFile();
 

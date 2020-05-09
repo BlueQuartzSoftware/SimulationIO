@@ -265,9 +265,6 @@ public:
    */
   void execute() override;
 
-
-
-
 protected:
   CreateAbaqusFile();
 

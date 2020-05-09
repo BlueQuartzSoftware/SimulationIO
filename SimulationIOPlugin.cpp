@@ -23,17 +23,17 @@ SimulationIOPlugin::SimulationIOPlugin()
 , m_CompatibilityVersion(SimulationIO::Version::Package())
 , m_Vendor("BlueQuartz Software")
 , // Initialize SimulationIO's Vendor Name Here
-    m_URL("http://www.github.com/bluequartzsoftware/simulationIO")
+m_URL("http://www.github.com/bluequartzsoftware/simulationIO")
 , // Initialize Company URL Here
-    m_Location("")
+m_Location("")
 , // Initialize SimulationIO library Location Here
-    m_Description("")
+m_Description("")
 , // Initialize SimulationIO's Description Here
-    m_Copyright("(c) BlueQuartz Software, LLC")
+m_Copyright("(c) BlueQuartz Software, LLC")
 , // Initialize SimulationIO's Copyright Here
-    m_Filters(QList<QString>())
+m_Filters(QList<QString>())
 , // Initialize SimulationIO's List of Dependencies Here
-    m_DidLoad(false)
+m_DidLoad(false)
 {
 }
 

@@ -2,7 +2,6 @@
  * Your License or Copyright can go here
  */
 
-
 #include "ImportFEAData.h"
 
 #include <QtCore/QDir>
@@ -247,8 +246,7 @@ void ImportFEAData::dataCheck()
 
   switch(m_FEAPackage)
   {
-  case 0:
-  {
+  case 0: {
 
     QStringList arguments = splitArgumentsString(m_ABQPythonCommand);
     if(arguments.empty())
@@ -486,7 +484,6 @@ void ImportFEAData::dataCheck()
   }
   }
 }
-
 
 // -----------------------------------------------------------------------------
 //

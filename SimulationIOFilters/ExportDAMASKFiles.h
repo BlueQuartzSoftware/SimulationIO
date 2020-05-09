@@ -216,8 +216,6 @@ public:
    */
   void execute() override;
 
-
-
 protected:
   ExportDAMASKFiles();
 

@@ -2,7 +2,6 @@
  * Your License or Copyright can go here
  */
 
-
 #include "Export3dSolidMesh.h"
 
 #include <QtCore/QDir>
@@ -98,8 +97,8 @@ void Export3dSolidMesh::setupFilterParameters()
                                "OptimizationLevel",
                                "LimitTetrahedraVolume",
                                "MaxTetrahedraVolume",
-			       "IncludeHolesUsingPhaseID",
-			       "PhaseID",
+                               "IncludeHolesUsingPhaseID",
+                               "PhaseID",
                                "TetDataContainerName",
                                "VertexAttributeMatrixName",
                                "CellAttributeMatrixName",
@@ -284,8 +283,8 @@ void Export3dSolidMesh::dataCheck()
     QVector<DataArrayPath> dataArrayPaths;
     std::vector<size_t> cDims(1, 1);
 
-    m_FeaturePhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>>(this, getFeaturePhasesArrayPath(),
-                                                                                                             cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+    m_FeaturePhasesPtr =
+        getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>>(this, getFeaturePhasesArrayPath(), cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
     if(nullptr != m_FeaturePhasesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
     {
       m_FeaturePhases = m_FeaturePhasesPtr.lock()->getPointer(0);
@@ -296,8 +295,8 @@ void Export3dSolidMesh::dataCheck()
     }
 
     cDims[0] = 3;
-    m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureEulerAnglesArrayPath(),
-                                                                                                                cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+    m_FeatureEulerAnglesPtr =
+        getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureEulerAnglesArrayPath(), cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
     if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
     {
       m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
@@ -308,8 +307,8 @@ void Export3dSolidMesh::dataCheck()
     }
 
     cDims[0] = 3;
-    m_FeatureCentroidPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureCentroidArrayPath(),
-                                                                                                             cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+    m_FeatureCentroidPtr =
+        getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureCentroidArrayPath(), cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
     if(nullptr != m_FeatureCentroidPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
     {
       m_FeatureCentroid = m_FeatureCentroidPtr.lock()->getPointer(0);
@@ -348,13 +347,12 @@ void Export3dSolidMesh::dataCheck()
     break;
   }
 
-  case 1:
-  {
+  case 1: {
     QVector<DataArrayPath> dataArrayPaths;
     std::vector<size_t> cDims(1, 1);
     cDims[0] = 3;
-    m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureEulerAnglesArrayPath(),
-                                                                                                                cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+    m_FeatureEulerAnglesPtr =
+        getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureEulerAnglesArrayPath(), cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
     if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
     {
       m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
@@ -366,13 +364,12 @@ void Export3dSolidMesh::dataCheck()
 
     break;
   }
-  case 2:
-  {
+  case 2: {
     QVector<DataArrayPath> dataArrayPaths;
     std::vector<size_t> cDims(1, 1);
     cDims[0] = 3;
-    m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureEulerAnglesArrayPath(),
-                                                                                                                cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+    m_FeatureEulerAnglesPtr =
+        getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureEulerAnglesArrayPath(), cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
     if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
     {
       m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
@@ -386,7 +383,6 @@ void Export3dSolidMesh::dataCheck()
   }
   }
 }
-
 
 // -----------------------------------------------------------------------------
 //
@@ -523,14 +519,14 @@ void Export3dSolidMesh::execute()
     fprintf(f1, "Mesh 3;\n");
     fprintf(f1, "Coherence Mesh;\n");
     if(m_MeshFileFormat == 1)
-      {
-	fprintf(f1, "Save \"gmsh.inp\";\n");
-      }
+    {
+      fprintf(f1, "Save \"gmsh.inp\";\n");
+    }
     else
-      {
-	fprintf(f1, "Save \"gmsh.msh\";\n");
-      }
-    
+    {
+      fprintf(f1, "Save \"gmsh.msh\";\n");
+    }
+
     fclose(f1);
 
     // running Gmsh
@@ -574,35 +570,34 @@ void Export3dSolidMesh::createTetgenInpFile(const QString& file, MeshIndexType n
 
   fprintf(f1, "# Part 3 - hole list\n");
   if(m_IncludeHolesUsingPhaseID)
+  {
+    size_t numHoles = 0;
+    size_t jj = 0;
+    //      Int32ArrayType::Pointer m_HolesIDPtr = Int32ArrayType::CreateArray(numfeatures, "HOLESID_INTERNAL_USE_ONLY", true);
+    // int32_t* m_HolesID = m_HolesIDPtr->getPointer(0);
+
+    for(size_t ii = 1; ii < numfeatures; ii++)
     {
-      size_t numHoles = 0;
-      size_t jj = 0;
-      //      Int32ArrayType::Pointer m_HolesIDPtr = Int32ArrayType::CreateArray(numfeatures, "HOLESID_INTERNAL_USE_ONLY", true);
-      // int32_t* m_HolesID = m_HolesIDPtr->getPointer(0);
-      
-      for(size_t ii = 1; ii < numfeatures; ii++)
-	{
-	  if (m_FeaturePhases[ii] == m_PhaseID )
-	    {
-	      numHoles = numHoles + 1;
-	      //      m_HolesID[ii] = 1;
-	    }
-	}
-      fprintf(f1, "%zu\n",numHoles);
-      for(size_t ii = 1; ii < numfeatures; ii++)
-	{
-	  //	  if (m_HolesID[ii] == 1 )
-	  if (m_FeaturePhases[ii] == m_PhaseID )
-	    {
-	      fprintf(f1, "%zu %.3f %.3f %.3f\n", jj+1, centroid[ii * 3], centroid[ii * 3 + 1], centroid[ii * 3 + 2]);
-	    }
-	}
+      if(m_FeaturePhases[ii] == m_PhaseID)
+      {
+        numHoles = numHoles + 1;
+        //      m_HolesID[ii] = 1;
+      }
     }
+    fprintf(f1, "%zu\n", numHoles);
+    for(size_t ii = 1; ii < numfeatures; ii++)
+    {
+      //	  if (m_HolesID[ii] == 1 )
+      if(m_FeaturePhases[ii] == m_PhaseID)
+      {
+        fprintf(f1, "%zu %.3f %.3f %.3f\n", jj + 1, centroid[ii * 3], centroid[ii * 3 + 1], centroid[ii * 3 + 2]);
+      }
+    }
+  }
   else
-    {
-      fprintf(f1, "0\n");
-    }
-  
+  {
+    fprintf(f1, "0\n");
+  }
 
   fprintf(f1, "# Part 4 - region list\n");
   fprintf(f1, "%zu 0\n", numfeatures - 1);
@@ -652,8 +647,7 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
 
     break;
   }
-  case 1:
-  {
+  case 1: {
 
     // cmd to run: "netgen file.stlb -batchmode -verycoarse/coarse/moderate/fine/veryfine -meshfile=output filename
 
@@ -690,8 +684,7 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
 
     break;
   }
-  case 2:
-  {
+  case 2: {
     // QString switch1;
     // QString switch2;
 
@@ -1402,4 +1395,3 @@ int Export3dSolidMesh::getPhaseID() const
 {
   return m_PhaseID;
 }
-

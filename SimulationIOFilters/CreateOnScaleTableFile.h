@@ -211,9 +211,6 @@ public:
    */
   void execute() override;
 
-
-
-
 protected:
   CreateOnScaleTableFile();
 

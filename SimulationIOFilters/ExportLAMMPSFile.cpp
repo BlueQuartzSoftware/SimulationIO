@@ -135,9 +135,9 @@ void ExportLAMMPSFile::dataCheck()
 
   std::vector<size_t> cDims(1, 1);
 
-  m_AtomFeatureLabelsPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>>(this, getAtomFeatureLabelsPath(),
-                                                                                                               cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-  if(nullptr != m_AtomFeatureLabelsPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+  m_AtomFeatureLabelsPtr =
+      getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>>(this, getAtomFeatureLabelsPath(), cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
+  if(nullptr != m_AtomFeatureLabelsPtr.lock())                                                                      /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
   {
     m_AtomFeatureLabels = m_AtomFeatureLabelsPtr.lock()->getPointer(0);
   } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -148,7 +148,6 @@ void ExportLAMMPSFile::dataCheck()
 
   getDataContainerArray()->validateNumberOfTuples(this, dataArrayPaths);
 }
-
 
 // -----------------------------------------------------------------------------
 //

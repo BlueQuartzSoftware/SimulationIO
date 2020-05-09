@@ -168,8 +168,6 @@ public:
    */
   void execute() override;
 
-
-
 protected:
   ExportLAMMPSFile();
 

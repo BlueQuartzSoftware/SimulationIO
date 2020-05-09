@@ -237,9 +237,9 @@ public:
   bool getIncludeHolesUsingPhaseID() const;
   Q_PROPERTY(bool IncludeHolesUsingPhaseID READ getIncludeHolesUsingPhaseID WRITE setIncludeHolesUsingPhaseID)
 
-    /**
-    * @brief Setter property for PhaseID
-    */
+  /**
+   * @brief Setter property for PhaseID
+   */
   void setPhaseID(int value);
   /**
    * @brief Getter property for PhaseID
@@ -248,15 +248,15 @@ public:
   int getPhaseID() const;
   Q_PROPERTY(int PhaseID READ getPhaseID WRITE setPhaseID)
 
-    /**
-    * @brief Setter property for TetDataContainerName
-    */
-    void setTetDataContainerName(const QString& value); 
-    /**
-    * @brief Getter property for TetDataContainerName
-    * @return Value of TetDataContainerName
-    */
-    QString getTetDataContainerName() const;
+  /**
+   * @brief Setter property for TetDataContainerName
+   */
+  void setTetDataContainerName(const QString& value);
+  /**
+   * @brief Getter property for TetDataContainerName
+   * @return Value of TetDataContainerName
+   */
+  QString getTetDataContainerName() const;
   Q_PROPERTY(QString TetDataContainerName READ getTetDataContainerName WRITE setTetDataContainerName)
 
   /**
@@ -385,8 +385,6 @@ public:
    * @brief execute Reimplemented from @see AbstractFilter class
    */
   void execute() override;
-
-
 
 protected:
   Export3dSolidMesh();

@@ -60,7 +60,8 @@ void writeCoords(QTextStream& stream, const QString& text, size_t maxIndex, floa
  * @return
  */
 template <class T>
-std::pair<int, QString> write(const ImageGeom& imageGeom, const StringDataArray& phaseNames, const DataArray<T>& featureIds, const QString& outputPath, const QString& filePrefix, const IntVec3Type& numKeypoints)
+std::pair<int, QString> write(const ImageGeom& imageGeom, const StringDataArray& phaseNames, const DataArray<T>& featureIds, const QString& outputPath, const QString& filePrefix,
+                              const IntVec3Type& numKeypoints)
 {
   SizeVec3Type dims = imageGeom.getDimensions();
   FloatVec3Type spacing = imageGeom.getSpacing();

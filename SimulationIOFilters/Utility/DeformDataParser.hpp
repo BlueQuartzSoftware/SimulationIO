@@ -195,74 +195,75 @@ private:
 // -----------------------------------------------------------------------------
 class FloatParser : public DeformDataParser
 {
-  public:
-    using Self = FloatParser;
-    using Pointer = std::shared_ptr<Self>;
-    using ConstPointer = std::shared_ptr<const Self>;
-    using WeakPointer = std::weak_ptr<Self>;
-    using ConstWeakPointer = std::weak_ptr<const Self>;
-    static Pointer NullPointer()
-    {
-      return Pointer(static_cast<Self*>(nullptr));
-    }
-    /**
-     * @brief Returns the name of the class for AbstractMessage
-     */
-    virtual QString getNameOfClass() const override
-    {
-      return QString("FloatParser");
-    }
-    /**
-     * @brief Returns the name of the class for AbstractMessage
-     */
-    static QString ClassName()
-    {
-      return QString("FloatParser");
-    }
+public:
+  using Self = FloatParser;
+  using Pointer = std::shared_ptr<Self>;
+  using ConstPointer = std::shared_ptr<const Self>;
+  using WeakPointer = std::weak_ptr<Self>;
+  using ConstWeakPointer = std::weak_ptr<const Self>;
+  static Pointer NullPointer()
+  {
+    return Pointer(static_cast<Self*>(nullptr));
+  }
+  /**
+   * @brief Returns the name of the class for AbstractMessage
+   */
+  virtual QString getNameOfClass() const override
+  {
+    return QString("FloatParser");
+  }
+  /**
+   * @brief Returns the name of the class for AbstractMessage
+   */
+  static QString ClassName()
+  {
+    return QString("FloatParser");
+  }
 
-    virtual ~FloatParser() = default;
+  virtual ~FloatParser() = default;
 
-    static Pointer New(FloatArrayType::Pointer ptr, const QString& name, int colIndex)
+  static Pointer New(FloatArrayType::Pointer ptr, const QString& name, int colIndex)
+  {
+    Pointer sharedPtr(new FloatParser(ptr, name, colIndex));
+    return sharedPtr;
+  }
+
+  void setDataArray(IDataArray::Pointer value) override
+  {
+    DeformDataParser::setDataArray(value);
+    m_Ptr = std::dynamic_pointer_cast<FloatArrayType>(value);
+  }
+
+  IDataArray::Pointer initializeNewDataArray(size_t numTuples, const QString& name, bool allocate) override
+  {
+    FloatArrayType::Pointer array = FloatArrayType::CreateArray(numTuples, name, allocate);
+    if(allocate)
     {
-      Pointer sharedPtr(new FloatParser(ptr, name, colIndex));
-      return sharedPtr;
+      array->initializeWithZeros();
     }
+    return array;
+  }
 
-    void setDataArray(IDataArray::Pointer value) override
-    {
-      DeformDataParser::setDataArray(value);
-      m_Ptr = std::dynamic_pointer_cast<FloatArrayType>(value);
-    }
+  virtual void parse(const QByteArray& token, size_t index) override
+  {
+    bool ok = false;
+    (*m_Ptr)[index] = token.toFloat(&ok);
+  }
 
-    IDataArray::Pointer initializeNewDataArray(size_t numTuples, const QString& name, bool allocate) override
-    {
-      FloatArrayType::Pointer array = FloatArrayType::CreateArray(numTuples, name, allocate);
-      if (allocate) { array->initializeWithZeros(); }
-      return array;
-    }
+protected:
+  FloatParser(FloatArrayType::Pointer ptr, const QString& name, int index)
+  {
+    setColumnName(name);
+    setColumnIndex(index);
+    setDataArray(ptr);
+    m_Ptr = ptr;
+  }
 
-    virtual void parse(const QByteArray& token, size_t index) override
-    {
-      bool ok = false;
-      (*m_Ptr)[index] = token.toFloat(&ok);
-    }
+private:
+  FloatArrayType::Pointer m_Ptr;
 
-  protected:
-    FloatParser(FloatArrayType::Pointer ptr, const QString& name, int index)
-    {
-      setColumnName(name);
-      setColumnIndex(index);
-      setDataArray(ptr);
-      m_Ptr = ptr;
-    }
-
-  private:
-    FloatArrayType::Pointer m_Ptr;
-
-    FloatParser(const FloatParser&); // Copy Constructor Not Implemented
-    void operator=(const FloatParser&); // Move assignment Not ImplementedOperator '=' Not Implemented
+  FloatParser(const FloatParser&);    // Copy Constructor Not Implemented
+  void operator=(const FloatParser&); // Move assignment Not ImplementedOperator '=' Not Implemented
 };
 
-}
-
-
+} // namespace SimulationIO

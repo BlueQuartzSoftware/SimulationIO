@@ -181,9 +181,6 @@ public:
    */
   void execute() override;
 
-
-
-
 protected:
   CreateBsamFile();
 

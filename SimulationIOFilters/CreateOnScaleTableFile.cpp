@@ -152,18 +152,15 @@ Eigen::Matrix3f createRotationMatrix(float angle, Axis axis)
 
   switch(axis)
   {
-  case Axis::X:
-  {
+  case Axis::X: {
     matrix << Eigen::Vector3f{1, 0, 0}, Eigen::Vector3f{0, cosA, sinA}, Eigen::Vector3f{0, -sinA, cosA};
   }
   break;
-  case Axis::Y:
-  {
+  case Axis::Y: {
     matrix << Eigen::Vector3f{cosA, 0, -sinA}, Eigen::Vector3f{0, 1, 0}, Eigen::Vector3f{sinA, 0, cosA};
   }
   break;
-  case Axis::Z:
-  {
+  case Axis::Z: {
     matrix << Eigen::Vector3f{cosA, sinA, 0}, Eigen::Vector3f{-sinA, cosA, 0}, Eigen::Vector3f{0, 0, 1};
   }
   break;

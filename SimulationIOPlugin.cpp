@@ -19,7 +19,7 @@
 //
 // -----------------------------------------------------------------------------
 SimulationIOPlugin::SimulationIOPlugin()
-: m_Version(SimulationIO::Version::Package())
+: m_Version(SimulationIO::Version::Complete())
 , m_CompatibilityVersion(SimulationIO::Version::Package())
 , m_Vendor("BlueQuartz Software")
 , // Initialize SimulationIO's Vendor Name Here

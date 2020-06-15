@@ -31,7 +31,7 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "CreateMultiOnScaleTableFile.h"
+#include "ExportMultiOnScaleTableFile.h"
 
 #include <QtCore/QDir>
 
@@ -50,9 +50,9 @@
 #include "SimulationIO/SimulationIOVersion.h"
 
 #include "SimulationIO/SimulationIOFilters/Utility/OnScaleTableFileWriter.h"
-#include "SimulationIO/SimulationIOFilters/CreateOnScaleTableFile.h"
+#include "SimulationIO/SimulationIOFilters/ExportOnScaleTableFile.h"
 
-struct CreateMultiOnScaleTableFile::Impl
+struct ExportMultiOnScaleTableFile::Impl
 {
   std::vector<DataArrayPath> m_FeatureIdsList;
 
@@ -72,7 +72,7 @@ struct CreateMultiOnScaleTableFile::Impl
 };
 
 // -----------------------------------------------------------------------------
-CreateMultiOnScaleTableFile::CreateMultiOnScaleTableFile()
+ExportMultiOnScaleTableFile::ExportMultiOnScaleTableFile()
 : p_Impl(std::make_unique<Impl>())
 , m_NumKeypoints(2, 2, 2)
 , m_PhaseNamesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::EnsembleAttributeMatrixName, SIMPL::EnsembleData::PhaseName)
@@ -83,10 +83,10 @@ CreateMultiOnScaleTableFile::CreateMultiOnScaleTableFile()
 }
 
 // -----------------------------------------------------------------------------
-CreateMultiOnScaleTableFile::~CreateMultiOnScaleTableFile() = default;
+ExportMultiOnScaleTableFile::~ExportMultiOnScaleTableFile() = default;
 
 // -----------------------------------------------------------------------------
-void CreateMultiOnScaleTableFile::initialize()
+void ExportMultiOnScaleTableFile::initialize()
 {
   clearErrorCode();
   clearWarningCode();
@@ -94,31 +94,31 @@ void CreateMultiOnScaleTableFile::initialize()
 }
 
 // -----------------------------------------------------------------------------
-void CreateMultiOnScaleTableFile::setupFilterParameters()
+void ExportMultiOnScaleTableFile::setupFilterParameters()
 {
   FilterParameterVectorType parameters;
 
-  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Parameter, CreateMultiOnScaleTableFile, "*", "*"));
-  parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Prefix", DataContainerPrefix, FilterParameter::Parameter, CreateMultiOnScaleTableFile));
-  parameters.push_back(SIMPL_NEW_STRING_FP("Matrix Name", MatrixName, FilterParameter::Parameter, CreateMultiOnScaleTableFile));
-  parameters.push_back(SIMPL_NEW_STRING_FP("Array Name", ArrayName, FilterParameter::Parameter, CreateMultiOnScaleTableFile));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Parameter, ExportMultiOnScaleTableFile, "*", "*"));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Prefix", DataContainerPrefix, FilterParameter::Parameter, ExportMultiOnScaleTableFile));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Matrix Name", MatrixName, FilterParameter::Parameter, ExportMultiOnScaleTableFile));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Array Name", ArrayName, FilterParameter::Parameter, ExportMultiOnScaleTableFile));
 
-  parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Keypoints", NumKeypoints, FilterParameter::Parameter, CreateMultiOnScaleTableFile));
+  parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Keypoints", NumKeypoints, FilterParameter::Parameter, ExportMultiOnScaleTableFile));
   parameters.push_back(SeparatorFilterParameter::New("Ensemble Data", FilterParameter::RequiredArray));
 
-  parameters.push_back(SIMPL_NEW_PREFLIGHTUPDATEDVALUE_FP("Selected Arrays", SelectedArrays, FilterParameter::Category::Parameter, CreateMultiOnScaleTableFile));
+  parameters.push_back(SIMPL_NEW_PREFLIGHTUPDATEDVALUE_FP("Selected Arrays", SelectedArrays, FilterParameter::Category::Parameter, ExportMultiOnScaleTableFile));
 
   {
     DataArraySelectionFilterParameter::RequirementType req =
         DataArraySelectionFilterParameter::CreateRequirement(SIMPL::Defaults::AnyPrimitive, 1, AttributeMatrix::Type::CellEnsemble, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phase Names", PhaseNamesArrayPath, FilterParameter::RequiredArray, CreateMultiOnScaleTableFile, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phase Names", PhaseNamesArrayPath, FilterParameter::RequiredArray, ExportMultiOnScaleTableFile, req));
   }
 
   setFilterParameters(parameters);
 }
 
 // -----------------------------------------------------------------------------
-void CreateMultiOnScaleTableFile::readFilterParameters(AbstractFilterParametersReader* reader, int index)
+void ExportMultiOnScaleTableFile::readFilterParameters(AbstractFilterParametersReader* reader, int index)
 {
   reader->openFilterGroup(this, index);
   setOutputPath(reader->readString("OutputPath", getOutputPath()));
@@ -132,7 +132,7 @@ void CreateMultiOnScaleTableFile::readFilterParameters(AbstractFilterParametersR
 }
 
 // -----------------------------------------------------------------------------
-void CreateMultiOnScaleTableFile::dataCheck()
+void ExportMultiOnScaleTableFile::dataCheck()
 {
   clearErrorCode();
   clearWarningCode();
@@ -231,7 +231,7 @@ void CreateMultiOnScaleTableFile::dataCheck()
 }
 
 // -----------------------------------------------------------------------------
-void CreateMultiOnScaleTableFile::execute()
+void ExportMultiOnScaleTableFile::execute()
 {
   initialize();
   dataCheck();
@@ -253,7 +253,7 @@ void CreateMultiOnScaleTableFile::execute()
     return;
   }
 
-  CreateOnScaleTableFile::Pointer createOnScaleFilter = CreateOnScaleTableFile::New();
+  ExportOnScaleTableFile::Pointer createOnScaleFilter = ExportOnScaleTableFile::New();
   createOnScaleFilter->setDataContainerArray(getDataContainerArray());
 
   createOnScaleFilter->setOutputPath(m_OutputPath);
@@ -272,16 +272,16 @@ void CreateMultiOnScaleTableFile::execute()
     int error = createOnScaleFilter->getErrorCode();
     if(error < 0)
     {
-      setErrorCondition(-10407, QObject::tr("CreateOnScaleTableFile sub-filter failed with error code %1").arg(error));
+      setErrorCondition(-10407, QObject::tr("ExportOnScaleTableFile sub-filter failed with error code %1").arg(error));
       return;
     }
   }
 }
 //
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer CreateMultiOnScaleTableFile::newFilterInstance(bool copyFilterParameters) const
+AbstractFilter::Pointer ExportMultiOnScaleTableFile::newFilterInstance(bool copyFilterParameters) const
 {
-  CreateMultiOnScaleTableFile::Pointer filter = CreateMultiOnScaleTableFile::New();
+  ExportMultiOnScaleTableFile::Pointer filter = ExportMultiOnScaleTableFile::New();
   if(copyFilterParameters)
   {
     copyFilterParameterInstanceVariables(filter.get());
@@ -290,19 +290,19 @@ AbstractFilter::Pointer CreateMultiOnScaleTableFile::newFilterInstance(bool copy
 }
 
 // -----------------------------------------------------------------------------
-QString CreateMultiOnScaleTableFile::getCompiledLibraryName() const
+QString ExportMultiOnScaleTableFile::getCompiledLibraryName() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
 
 // -----------------------------------------------------------------------------
-QString CreateMultiOnScaleTableFile::getBrandingString() const
+QString ExportMultiOnScaleTableFile::getBrandingString() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
 
 // -----------------------------------------------------------------------------
-QString CreateMultiOnScaleTableFile::getFilterVersion() const
+QString ExportMultiOnScaleTableFile::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
@@ -311,136 +311,136 @@ QString CreateMultiOnScaleTableFile::getFilterVersion() const
 }
 
 // -----------------------------------------------------------------------------
-QString CreateMultiOnScaleTableFile::getGroupName() const
+QString ExportMultiOnScaleTableFile::getGroupName() const
 {
   return SIMPL::FilterGroups::Unsupported;
 }
 
 // -----------------------------------------------------------------------------
-QString CreateMultiOnScaleTableFile::getSubGroupName() const
+QString ExportMultiOnScaleTableFile::getSubGroupName() const
 {
   return "SimulationIO";
 }
 
 // -----------------------------------------------------------------------------
-QString CreateMultiOnScaleTableFile::getHumanLabel() const
+QString ExportMultiOnScaleTableFile::getHumanLabel() const
 {
   return "Create Multi OnScale Table File";
 }
 
 // -----------------------------------------------------------------------------
-QUuid CreateMultiOnScaleTableFile::getUuid() const
+QUuid ExportMultiOnScaleTableFile::getUuid() const
 {
   return QUuid("{d5873836-f150-5fc9-9bc8-0bc837bd8dd4}");
 }
 
 // -----------------------------------------------------------------------------
-CreateMultiOnScaleTableFile::Pointer CreateMultiOnScaleTableFile::NullPointer()
+ExportMultiOnScaleTableFile::Pointer ExportMultiOnScaleTableFile::NullPointer()
 {
   return Pointer(static_cast<Self*>(nullptr));
 }
 
 // -----------------------------------------------------------------------------
-CreateMultiOnScaleTableFile::Pointer CreateMultiOnScaleTableFile::New()
+ExportMultiOnScaleTableFile::Pointer ExportMultiOnScaleTableFile::New()
 {
-  struct make_shared_enabler : public CreateMultiOnScaleTableFile
+  struct make_shared_enabler : public ExportMultiOnScaleTableFile
   {
   };
   return std::make_shared<make_shared_enabler>();
 }
 
 // -----------------------------------------------------------------------------
-QString CreateMultiOnScaleTableFile::getNameOfClass() const
+QString ExportMultiOnScaleTableFile::getNameOfClass() const
 {
   return ClassName();
 }
 
 // -----------------------------------------------------------------------------
-QString CreateMultiOnScaleTableFile::ClassName()
+QString ExportMultiOnScaleTableFile::ClassName()
 {
-  return QString("CreateMultiOnScaleTableFile");
+  return QString("ExportMultiOnScaleTableFile");
 }
 
 // -----------------------------------------------------------------------------
-void CreateMultiOnScaleTableFile::setOutputPath(const QString& value)
+void ExportMultiOnScaleTableFile::setOutputPath(const QString& value)
 {
   m_OutputPath = value;
 }
 
 // -----------------------------------------------------------------------------
-QString CreateMultiOnScaleTableFile::getOutputPath() const
+QString ExportMultiOnScaleTableFile::getOutputPath() const
 {
   return m_OutputPath;
 }
 
 // -----------------------------------------------------------------------------
-void CreateMultiOnScaleTableFile::setDataContainerPrefix(const QString& value)
+void ExportMultiOnScaleTableFile::setDataContainerPrefix(const QString& value)
 {
   m_DataContainerPrefix = value;
 }
 
 // -----------------------------------------------------------------------------
-QString CreateMultiOnScaleTableFile::getDataContainerPrefix() const
+QString ExportMultiOnScaleTableFile::getDataContainerPrefix() const
 {
   return m_DataContainerPrefix;
 }
 
 // -----------------------------------------------------------------------------
-void CreateMultiOnScaleTableFile::setMatrixName(const QString& value)
+void ExportMultiOnScaleTableFile::setMatrixName(const QString& value)
 {
   m_MatrixName = value;
 }
 
 // -----------------------------------------------------------------------------
-QString CreateMultiOnScaleTableFile::getMatrixName() const
+QString ExportMultiOnScaleTableFile::getMatrixName() const
 {
   return m_MatrixName;
 }
 
 // -----------------------------------------------------------------------------
-void CreateMultiOnScaleTableFile::setArrayName(const QString& value)
+void ExportMultiOnScaleTableFile::setArrayName(const QString& value)
 {
   m_ArrayName = value;
 }
 
 // -----------------------------------------------------------------------------
-QString CreateMultiOnScaleTableFile::getArrayName() const
+QString ExportMultiOnScaleTableFile::getArrayName() const
 {
   return m_ArrayName;
 }
 
 // -----------------------------------------------------------------------------
-void CreateMultiOnScaleTableFile::setSelectedArrays(const QString& value)
+void ExportMultiOnScaleTableFile::setSelectedArrays(const QString& value)
 {
   m_SelectedArrays = value;
 }
 
 // -----------------------------------------------------------------------------
-QString CreateMultiOnScaleTableFile::getSelectedArrays() const
+QString ExportMultiOnScaleTableFile::getSelectedArrays() const
 {
   return m_SelectedArrays;
 }
 
 // -----------------------------------------------------------------------------
-void CreateMultiOnScaleTableFile::setNumKeypoints(const IntVec3Type& value)
+void ExportMultiOnScaleTableFile::setNumKeypoints(const IntVec3Type& value)
 {
   m_NumKeypoints = value;
 }
 
 // -----------------------------------------------------------------------------
-IntVec3Type CreateMultiOnScaleTableFile::getNumKeypoints() const
+IntVec3Type ExportMultiOnScaleTableFile::getNumKeypoints() const
 {
   return m_NumKeypoints;
 }
 
 // -----------------------------------------------------------------------------
-void CreateMultiOnScaleTableFile::setPhaseNamesArrayPath(const DataArrayPath& value)
+void ExportMultiOnScaleTableFile::setPhaseNamesArrayPath(const DataArrayPath& value)
 {
   m_PhaseNamesArrayPath = value;
 }
 
 // -----------------------------------------------------------------------------
-DataArrayPath CreateMultiOnScaleTableFile::getPhaseNamesArrayPath() const
+DataArrayPath ExportMultiOnScaleTableFile::getPhaseNamesArrayPath() const
 {
   return m_PhaseNamesArrayPath;
 }

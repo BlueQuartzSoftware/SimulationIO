@@ -23,7 +23,6 @@ class DataContainer;
 class QProcess;
 
 #include "SimulationIO/SimulationIODLLExport.h"
-
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOFilters/Utility/DeformDataParser.hpp"
 

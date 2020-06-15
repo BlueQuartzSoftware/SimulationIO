@@ -31,7 +31,7 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-#include "CreateOnScaleTableFile.h"
+#include "ExportOnScaleTableFile.h"
 
 #include <QtCore/QDir>
 
@@ -120,7 +120,7 @@ int rotateData(DataContainerArray::Pointer dca, const Eigen::Matrix3f& rotationM
 }
 
 template <class T>
-bool convertDataArrayPtr(IDataArray::ConstPointer dataArray, std::weak_ptr<const DataArray<T>>& weakPtr, CreateOnScaleTableFile* filter)
+bool convertDataArrayPtr(IDataArray::ConstPointer dataArray, std::weak_ptr<const DataArray<T>>& weakPtr, ExportOnScaleTableFile* filter)
 {
   auto ptr = std::dynamic_pointer_cast<const DataArray<T>>(dataArray);
   if(ptr == nullptr)
@@ -217,7 +217,7 @@ Eigen::Matrix3f determineRotationMatrix(const std::array<size_t, 3>& dims)
 
 template <class T>
 bool writeOnScaleFile(std::weak_ptr<const DataArray<T>> featureIdsPtr, const ImageGeom& imageGeom, const StringDataArray& phaseNames, const QString& outputPath, const QString& outputFilePrefix,
-                      const IntVec3Type& numKeypoints, CreateOnScaleTableFile* filter)
+                      const IntVec3Type& numKeypoints, ExportOnScaleTableFile* filter)
 {
   auto featureIds = featureIdsPtr.lock();
   if(featureIds == nullptr)
@@ -333,7 +333,7 @@ bool writeOnScaleFile(std::weak_ptr<const DataArray<T>> featureIdsPtr, const Ima
 }
 } // namespace
 
-struct CreateOnScaleTableFile::Impl
+struct ExportOnScaleTableFile::Impl
 {
   Int8ArrayType::ConstWeakPointer m_FeatureIds8Ptr;
   Int16ArrayType::ConstWeakPointer m_FeatureIds16Ptr;
@@ -377,7 +377,7 @@ struct CreateOnScaleTableFile::Impl
 };
 
 // -----------------------------------------------------------------------------
-CreateOnScaleTableFile::CreateOnScaleTableFile()
+ExportOnScaleTableFile::ExportOnScaleTableFile()
 : p_Impl(std::make_unique<Impl>())
 {
   initialize();
@@ -385,10 +385,10 @@ CreateOnScaleTableFile::CreateOnScaleTableFile()
 }
 
 // -----------------------------------------------------------------------------
-CreateOnScaleTableFile::~CreateOnScaleTableFile() = default;
+ExportOnScaleTableFile::~ExportOnScaleTableFile() = default;
 
 // -----------------------------------------------------------------------------
-void CreateOnScaleTableFile::initialize()
+void ExportOnScaleTableFile::initialize()
 {
   clearErrorCode();
   clearWarningCode();
@@ -396,20 +396,20 @@ void CreateOnScaleTableFile::initialize()
 }
 
 // -----------------------------------------------------------------------------
-void CreateOnScaleTableFile::setupFilterParameters()
+void ExportOnScaleTableFile::setupFilterParameters()
 {
   FilterParameterVectorType parameters;
 
-  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Parameter, CreateOnScaleTableFile, "*", "*"));
-  parameters.push_back(SIMPL_NEW_STRING_FP("Output File Prefix", OutputFilePrefix, FilterParameter::Parameter, CreateOnScaleTableFile));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Parameter, ExportOnScaleTableFile, "*", "*"));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Output File Prefix", OutputFilePrefix, FilterParameter::Parameter, ExportOnScaleTableFile));
 
-  parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Keypoints", NumKeypoints, FilterParameter::Parameter, CreateOnScaleTableFile));
+  parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Keypoints", NumKeypoints, FilterParameter::Parameter, ExportOnScaleTableFile));
   parameters.push_back(SeparatorFilterParameter::New("Ensemble Data", FilterParameter::RequiredArray));
 
   {
     DataArraySelectionFilterParameter::RequirementType req =
         DataArraySelectionFilterParameter::CreateRequirement(SIMPL::Defaults::AnyPrimitive, 1, AttributeMatrix::Type::CellEnsemble, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phase Names", PhaseNamesArrayPath, FilterParameter::RequiredArray, CreateOnScaleTableFile, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phase Names", PhaseNamesArrayPath, FilterParameter::RequiredArray, ExportOnScaleTableFile, req));
   }
 
   parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::RequiredArray));
@@ -418,14 +418,14 @@ void CreateOnScaleTableFile::setupFilterParameters()
     QVector<QString> types{SIMPL::TypeNames::Int8,  SIMPL::TypeNames::Int16,  SIMPL::TypeNames::Int32,  SIMPL::TypeNames::Int64,
                            SIMPL::TypeNames::UInt8, SIMPL::TypeNames::UInt16, SIMPL::TypeNames::UInt32, SIMPL::TypeNames::UInt64};
     DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(types, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", PzflexFeatureIdsArrayPath, FilterParameter::RequiredArray, CreateOnScaleTableFile, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", PzflexFeatureIdsArrayPath, FilterParameter::RequiredArray, ExportOnScaleTableFile, req));
   }
 
   setFilterParameters(parameters);
 }
 
 // -----------------------------------------------------------------------------
-void CreateOnScaleTableFile::readFilterParameters(AbstractFilterParametersReader* reader, int index)
+void ExportOnScaleTableFile::readFilterParameters(AbstractFilterParametersReader* reader, int index)
 {
   reader->openFilterGroup(this, index);
   setOutputPath(reader->readString("OutputPath", getOutputPath()));
@@ -437,7 +437,7 @@ void CreateOnScaleTableFile::readFilterParameters(AbstractFilterParametersReader
 }
 
 // -----------------------------------------------------------------------------
-void CreateOnScaleTableFile::dataCheck()
+void ExportOnScaleTableFile::dataCheck()
 {
   clearErrorCode();
   clearWarningCode();
@@ -526,7 +526,7 @@ void CreateOnScaleTableFile::dataCheck()
 }
 
 // -----------------------------------------------------------------------------
-void CreateOnScaleTableFile::execute()
+void ExportOnScaleTableFile::execute()
 {
   initialize();
   dataCheck();
@@ -636,9 +636,9 @@ void CreateOnScaleTableFile::execute()
 }
 
 // -----------------------------------------------------------------------------
-AbstractFilter::Pointer CreateOnScaleTableFile::newFilterInstance(bool copyFilterParameters) const
+AbstractFilter::Pointer ExportOnScaleTableFile::newFilterInstance(bool copyFilterParameters) const
 {
-  CreateOnScaleTableFile::Pointer filter = CreateOnScaleTableFile::New();
+  ExportOnScaleTableFile::Pointer filter = ExportOnScaleTableFile::New();
   if(copyFilterParameters)
   {
     copyFilterParameterInstanceVariables(filter.get());
@@ -647,19 +647,19 @@ AbstractFilter::Pointer CreateOnScaleTableFile::newFilterInstance(bool copyFilte
 }
 
 // -----------------------------------------------------------------------------
-QString CreateOnScaleTableFile::getCompiledLibraryName() const
+QString ExportOnScaleTableFile::getCompiledLibraryName() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
 
 // -----------------------------------------------------------------------------
-QString CreateOnScaleTableFile::getBrandingString() const
+QString ExportOnScaleTableFile::getBrandingString() const
 {
   return SimulationIOConstants::SimulationIOBaseName;
 }
 
 // -----------------------------------------------------------------------------
-QString CreateOnScaleTableFile::getFilterVersion() const
+QString ExportOnScaleTableFile::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
@@ -668,112 +668,112 @@ QString CreateOnScaleTableFile::getFilterVersion() const
 }
 
 // -----------------------------------------------------------------------------
-QString CreateOnScaleTableFile::getGroupName() const
+QString ExportOnScaleTableFile::getGroupName() const
 {
   return SIMPL::FilterGroups::Unsupported;
 }
 
 // -----------------------------------------------------------------------------
-QString CreateOnScaleTableFile::getSubGroupName() const
+QString ExportOnScaleTableFile::getSubGroupName() const
 {
   return "SimulationIO";
 }
 
 // -----------------------------------------------------------------------------
-QString CreateOnScaleTableFile::getHumanLabel() const
+QString ExportOnScaleTableFile::getHumanLabel() const
 {
   return "Create OnScale Table File";
 }
 
 // -----------------------------------------------------------------------------
-QUuid CreateOnScaleTableFile::getUuid() const
+QUuid ExportOnScaleTableFile::getUuid() const
 {
   return QUuid("{8efc447d-1c92-5ec5-885c-60b4a597835c}");
 }
 
 // -----------------------------------------------------------------------------
-CreateOnScaleTableFile::Pointer CreateOnScaleTableFile::NullPointer()
+ExportOnScaleTableFile::Pointer ExportOnScaleTableFile::NullPointer()
 {
   return Pointer(static_cast<Self*>(nullptr));
 }
 
 // -----------------------------------------------------------------------------
-CreateOnScaleTableFile::Pointer CreateOnScaleTableFile::New()
+ExportOnScaleTableFile::Pointer ExportOnScaleTableFile::New()
 {
-  struct make_shared_enabler : public CreateOnScaleTableFile
+  struct make_shared_enabler : public ExportOnScaleTableFile
   {
   };
   return std::make_shared<make_shared_enabler>();
 }
 
 // -----------------------------------------------------------------------------
-QString CreateOnScaleTableFile::getNameOfClass() const
+QString ExportOnScaleTableFile::getNameOfClass() const
 {
   return ClassName();
 }
 
 // -----------------------------------------------------------------------------
-QString CreateOnScaleTableFile::ClassName()
+QString ExportOnScaleTableFile::ClassName()
 {
-  return QString("CreateOnScaleTableFile");
+  return QString("ExportOnScaleTableFile");
 }
 
 // -----------------------------------------------------------------------------
-QString CreateOnScaleTableFile::getOutputPath() const
+QString ExportOnScaleTableFile::getOutputPath() const
 {
   return m_OutputPath;
 }
 
 // -----------------------------------------------------------------------------
-void CreateOnScaleTableFile::setOutputPath(const QString& value)
+void ExportOnScaleTableFile::setOutputPath(const QString& value)
 {
   m_OutputPath = value;
 }
 
 // -----------------------------------------------------------------------------
-void CreateOnScaleTableFile::setOutputFilePrefix(const QString& value)
+void ExportOnScaleTableFile::setOutputFilePrefix(const QString& value)
 {
   m_OutputFilePrefix = value;
 }
 
 // -----------------------------------------------------------------------------
-QString CreateOnScaleTableFile::getOutputFilePrefix() const
+QString ExportOnScaleTableFile::getOutputFilePrefix() const
 {
   return m_OutputFilePrefix;
 }
 
 // -----------------------------------------------------------------------------
-void CreateOnScaleTableFile::setPzflexFeatureIdsArrayPath(const DataArrayPath& value)
+void ExportOnScaleTableFile::setPzflexFeatureIdsArrayPath(const DataArrayPath& value)
 {
   m_PzflexFeatureIdsArrayPath = value;
 }
 
 // -----------------------------------------------------------------------------
-DataArrayPath CreateOnScaleTableFile::getPzflexFeatureIdsArrayPath() const
+DataArrayPath ExportOnScaleTableFile::getPzflexFeatureIdsArrayPath() const
 {
   return m_PzflexFeatureIdsArrayPath;
 }
 
 // -----------------------------------------------------------------------------
-void CreateOnScaleTableFile::setNumKeypoints(const IntVec3Type& value)
+void ExportOnScaleTableFile::setNumKeypoints(const IntVec3Type& value)
 {
   m_NumKeypoints = value;
 }
 
 // -----------------------------------------------------------------------------
-IntVec3Type CreateOnScaleTableFile::getNumKeypoints() const
+IntVec3Type ExportOnScaleTableFile::getNumKeypoints() const
 {
   return m_NumKeypoints;
 }
 
 // -----------------------------------------------------------------------------
-void CreateOnScaleTableFile::setPhaseNamesArrayPath(const DataArrayPath& value)
+void ExportOnScaleTableFile::setPhaseNamesArrayPath(const DataArrayPath& value)
 {
   m_PhaseNamesArrayPath = value;
 }
 
 // -----------------------------------------------------------------------------
-DataArrayPath CreateOnScaleTableFile::getPhaseNamesArrayPath() const
+DataArrayPath ExportOnScaleTableFile::getPhaseNamesArrayPath() const
 {
   return m_PhaseNamesArrayPath;
 }

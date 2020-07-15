@@ -38,33 +38,32 @@
 #include "SIMPLib/Common/SIMPLArray.hpp"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/SIMPLib.h"
+#include "SIMPLib/Common/Constants.h"
 
 #include "SimulationIO/SimulationIODLLExport.h"
 
 /**
- * @brief The CreateMultiOnScaleTableFile class. See [Filter documentation](@ref CreateMultiOnScaleTableFile) for details.
+ * @brief The ExportOnScaleTableFile class. See [Filter documentation](@ref ExportOnScaleTableFile) for details.
  */
-class SimulationIO_EXPORT CreateMultiOnScaleTableFile : public AbstractFilter
+class SimulationIO_EXPORT ExportOnScaleTableFile : public AbstractFilter
 {
   Q_OBJECT
 
   // Start Python bindings declarations
-  PYB11_BEGIN_BINDINGS(CreateMultiOnScaleTableFile SUPERCLASS AbstractFilter)
+  PYB11_BEGIN_BINDINGS(ExportOnScaleTableFile SUPERCLASS AbstractFilter)
   PYB11_FILTER()
-  PYB11_SHARED_POINTERS(CreateMultiOnScaleTableFile)
-  PYB11_STATIC_NEW_MACRO(CreateMultiOnScaleTableFile)
+  PYB11_SHARED_POINTERS(ExportOnScaleTableFile)
+  PYB11_STATIC_NEW_MACRO(ExportOnScaleTableFile)
   PYB11_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
-  PYB11_PROPERTY(QString DataContainerPrefix READ getDataContainerPrefix WRITE setDataContainerPrefix)
-  PYB11_PROPERTY(QString MatrixName READ getMatrixName WRITE setMatrixName)
-  PYB11_PROPERTY(QString ArrayName READ getArrayName WRITE setArrayName)
-  PYB11_PROPERTY(QString SelectedArrays READ getSelectedArrays WRITE setSelectedArrays)
+  PYB11_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
+  PYB11_PROPERTY(DataArrayPath PzflexFeatureIdsArrayPath READ getPzflexFeatureIdsArrayPath WRITE setPzflexFeatureIdsArrayPath)
   PYB11_PROPERTY(IntVec3Type NumKeypoints READ getNumKeypoints WRITE setNumKeypoints)
   PYB11_PROPERTY(DataArrayPath PhaseNamesArrayPath READ getPhaseNamesArrayPath WRITE setPhaseNamesArrayPath)
   PYB11_END_BINDINGS()
   // End Python bindings declarations
 
 public:
-  using Self = CreateMultiOnScaleTableFile;
+  using Self = ExportOnScaleTableFile;
   using Pointer = std::shared_ptr<Self>;
   using ConstPointer = std::shared_ptr<const Self>;
   using WeakPointer = std::weak_ptr<Self>;
@@ -83,7 +82,7 @@ public:
    */
   static QString ClassName();
 
-  ~CreateMultiOnScaleTableFile() override;
+  ~ExportOnScaleTableFile() override;
 
   /**
    * @brief Getter property for OutputPath
@@ -99,56 +98,30 @@ public:
   Q_PROPERTY(QString OutputPath READ getOutputPath WRITE setOutputPath)
 
   /**
-   * @brief Getter property for DataContainerPrefix
+   * @brief Getter property for OutputFilePrefix
    * @return
    */
-  QString getDataContainerPrefix() const;
+  QString getOutputFilePrefix() const;
 
   /**
-   * @brief Setter property for DataContainerPrefix
+   * @brief Setter property for OutputFilePrefix
    * @param value
    */
-  void setDataContainerPrefix(const QString& value);
-  Q_PROPERTY(QString DataContainerPrefix READ getDataContainerPrefix WRITE setDataContainerPrefix)
+  void setOutputFilePrefix(const QString& value);
+  Q_PROPERTY(QString OutputFilePrefix READ getOutputFilePrefix WRITE setOutputFilePrefix)
 
   /**
-   * @brief Getter property for MatrixName
+   * @brief Getter property for PzflexFeatureIdsArrayPath
    * @return
    */
-  QString getMatrixName() const;
+  DataArrayPath getPzflexFeatureIdsArrayPath() const;
 
   /**
-   * @brief Setter property for MatrixName
+   * @brief Setter property for PzflexFeatureIdsArrayPath
    * @param value
    */
-  void setMatrixName(const QString& value);
-  Q_PROPERTY(QString MatrixName READ getMatrixName WRITE setMatrixName)
-
-  /**
-   * @brief Getter property for ArrayName
-   * @return
-   */
-  QString getArrayName() const;
-
-  /**
-   * @brief Setter property for ArrayName
-   * @param value
-   */
-  void setArrayName(const QString& value);
-  Q_PROPERTY(QString ArrayName READ getArrayName WRITE setArrayName)
-
-  /**
-   * @brief Getter property for SelectedArrays
-   * @return
-   */
-  QString getSelectedArrays() const;
-
-  /**
-   * @brief Setter property for SelectedArrays
-   * @param value
-   */
-  void setSelectedArrays(const QString& value);
-  Q_PROPERTY(QString SelectedArrays READ getSelectedArrays WRITE setSelectedArrays)
+  void setPzflexFeatureIdsArrayPath(const DataArrayPath& value);
+  Q_PROPERTY(DataArrayPath PzflexFeatureIdsArrayPath READ getPzflexFeatureIdsArrayPath WRITE setPzflexFeatureIdsArrayPath)
 
   /**
    * @brief Getter property for NumKeypoints
@@ -220,6 +193,7 @@ public:
    * @brief getHumanLabel Reimplemented from @see AbstractFilter class
    */
   QString getHumanLabel() const override;
+
   /**
    * @brief This method will instantiate all the end user settable options/parameters
    * for this filter
@@ -238,7 +212,7 @@ public:
   void execute() override;
 
 protected:
-  CreateMultiOnScaleTableFile();
+  ExportOnScaleTableFile();
 
   /**
    * @brief dataCheck Checks for the appropriate parameter values and availability of arrays
@@ -255,16 +229,14 @@ private:
   std::unique_ptr<Impl> p_Impl;
 
   QString m_OutputPath;
-  QString m_DataContainerPrefix;
-  QString m_MatrixName;
-  QString m_ArrayName;
-  QString m_SelectedArrays;
-  IntVec3Type m_NumKeypoints;
-  DataArrayPath m_PhaseNamesArrayPath;
+  QString m_OutputFilePrefix;
+  DataArrayPath m_PzflexFeatureIdsArrayPath = DataArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds);
+  IntVec3Type m_NumKeypoints = {2, 2, 2};
+  DataArrayPath m_PhaseNamesArrayPath = DataArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::EnsembleAttributeMatrixName, SIMPL::EnsembleData::PhaseName);
 
 public:
-  CreateMultiOnScaleTableFile(const CreateMultiOnScaleTableFile&) = delete;            // Copy Constructor Not Implemented
-  CreateMultiOnScaleTableFile(CreateMultiOnScaleTableFile&&) = delete;                 // Move Constructor Not Implemented
-  CreateMultiOnScaleTableFile& operator=(const CreateMultiOnScaleTableFile&) = delete; // Copy Assignment Not Implemented
-  CreateMultiOnScaleTableFile& operator=(CreateMultiOnScaleTableFile&&) = delete;      // Move Assignment Not Implemented
+  ExportOnScaleTableFile(const ExportOnScaleTableFile&) = delete;            // Copy Constructor Not Implemented
+  ExportOnScaleTableFile(ExportOnScaleTableFile&&) = delete;                 // Move Constructor Not Implemented
+  ExportOnScaleTableFile& operator=(const ExportOnScaleTableFile&) = delete; // Copy Assignment Not Implemented
+  ExportOnScaleTableFile& operator=(ExportOnScaleTableFile&&) = delete;      // Move Assignment Not Implemented
 };

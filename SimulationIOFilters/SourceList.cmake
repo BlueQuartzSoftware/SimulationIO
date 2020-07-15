@@ -21,10 +21,11 @@ set(_PublicFilters
   ImportFEAData
   ExportLAMMPSFile
   ExportDAMASKFiles
-  CreateOnScaleTableFile
+  ExportOnScaleTableFile
   CreateAbaqusFile
   CreateBsamFile
-  CreateMultiOnScaleTableFile
+  ExportMultiOnScaleTableFile
+  ImportOnScaleTableFile
 )
 
 list(LENGTH _PublicFilters PluginNumFilters)

@@ -12,7 +12,7 @@ set(TEST_NAMES
   ExportLAMMPSFileTest
   ImportFEADataTest
   Export3dSolidMeshTest
-
+  ImportOnScaleTableFileTest
 )
 
 #------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ get_filename_component(${PLUGIN_NAME}_PARENT_BINARY_DIR "${${PLUGIN_NAME}_BINARY
 SIMPL_GenerateUnitTestFile(PLUGIN_NAME ${PLUGIN_NAME}
                            TEST_DATA_DIR ${${PLUGIN_NAME}_SOURCE_DIR}/Test/Data
                            SOURCES ${TEST_NAMES}
-                           LINK_LIBRARIES SIMPLib
+                           LINK_LIBRARIES SIMPLib ${plug_target_name}
                            INCLUDE_DIRS ${${PLUGIN_NAME}_PARENT_SOURCE_DIR}
                                         ${${PLUGIN_NAME}Test_SOURCE_DIR}
                                         ${${PLUGIN_NAME}Test_BINARY_DIR}

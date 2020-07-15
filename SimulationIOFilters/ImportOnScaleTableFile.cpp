@@ -581,13 +581,13 @@ int32_t ImportOnScaleTableFile::readFile(QFile& fileStream)
   AttributeMatrix::Pointer enAm = m->getAttributeMatrix(getPhaseAttributeMatrixName());
   bool ok = false;
 
-  FloatArrayType::Pointer xValues = FloatArrayType::CreateArray(tDims[0], "X Bounds", true);
+  FloatArrayType::Pointer xValues = FloatArrayType::CreateArray(tDims[0], std::string("X Bounds"), true);
   rectGridGeom->setXBounds(xValues);
 
-  FloatArrayType::Pointer yValues = FloatArrayType::CreateArray(tDims[1], "Y Bounds", true);
+  FloatArrayType::Pointer yValues = FloatArrayType::CreateArray(tDims[1], std::string("Y Bounds"), true);
   rectGridGeom->setYBounds(yValues);
 
-  FloatArrayType::Pointer zValues = FloatArrayType::CreateArray(tDims[2], "Z Bounds", true);
+  FloatArrayType::Pointer zValues = FloatArrayType::CreateArray(tDims[2], std::string("Z Bounds"), true);
   rectGridGeom->setZBounds(zValues);
 
   Int32ArrayType::Pointer featureIds = std::dynamic_pointer_cast<Int32ArrayType>(am->getAttributeArray(getFeatureIdsArrayName()));

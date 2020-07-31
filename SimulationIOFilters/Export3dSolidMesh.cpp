@@ -283,9 +283,8 @@ void Export3dSolidMesh::dataCheck()
     QVector<DataArrayPath> dataArrayPaths;
     std::vector<size_t> cDims(1, 1);
 
-    m_FeaturePhasesPtr =
-        getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>>(this, getFeaturePhasesArrayPath(), cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-    if(nullptr != m_FeaturePhasesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+    m_FeaturePhasesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<int32_t>>(this, getFeaturePhasesArrayPath(), cDims);
+    if(nullptr != m_FeaturePhasesPtr.lock())
     {
       m_FeaturePhases = m_FeaturePhasesPtr.lock()->getPointer(0);
     } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -295,9 +294,8 @@ void Export3dSolidMesh::dataCheck()
     }
 
     cDims[0] = 3;
-    m_FeatureEulerAnglesPtr =
-        getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureEulerAnglesArrayPath(), cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-    if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+    m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureEulerAnglesArrayPath(), cDims);
+    if(nullptr != m_FeatureEulerAnglesPtr.lock())
     {
       m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
     } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -307,9 +305,8 @@ void Export3dSolidMesh::dataCheck()
     }
 
     cDims[0] = 3;
-    m_FeatureCentroidPtr =
-        getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureCentroidArrayPath(), cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-    if(nullptr != m_FeatureCentroidPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+    m_FeatureCentroidPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureCentroidArrayPath(), cDims);
+    if(nullptr != m_FeatureCentroidPtr.lock())
     {
       m_FeatureCentroid = m_FeatureCentroidPtr.lock()->getPointer(0);
     } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -351,9 +348,8 @@ void Export3dSolidMesh::dataCheck()
     QVector<DataArrayPath> dataArrayPaths;
     std::vector<size_t> cDims(1, 1);
     cDims[0] = 3;
-    m_FeatureEulerAnglesPtr =
-        getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureEulerAnglesArrayPath(), cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-    if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+    m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureEulerAnglesArrayPath(), cDims);
+    if(nullptr != m_FeatureEulerAnglesPtr.lock())
     {
       m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
     } /* Now assign the raw pointer to data from the DataArray<T> object */
@@ -368,9 +364,8 @@ void Export3dSolidMesh::dataCheck()
     QVector<DataArrayPath> dataArrayPaths;
     std::vector<size_t> cDims(1, 1);
     cDims[0] = 3;
-    m_FeatureEulerAnglesPtr =
-        getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureEulerAnglesArrayPath(), cDims); /* Assigns the shared_ptr<> to an instance variable that is a weak_ptr<> */
-    if(nullptr != m_FeatureEulerAnglesPtr.lock()) /* Validate the Weak Pointer wraps a non-nullptr pointer to a DataArray<T> object */
+    m_FeatureEulerAnglesPtr = getDataContainerArray()->getPrereqArrayFromPath<DataArray<float>>(this, getFeatureEulerAnglesArrayPath(), cDims);
+    if(nullptr != m_FeatureEulerAnglesPtr.lock())
     {
       m_FeatureEulerAngles = m_FeatureEulerAnglesPtr.lock()->getPointer(0);
     } /* Now assign the raw pointer to data from the DataArray<T> object */

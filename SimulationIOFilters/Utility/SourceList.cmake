@@ -4,6 +4,7 @@ set(${PLUGIN_NAME}_UTILITY_HDRS
   ${${PLUGIN_NAME}_SOURCE_DIR}/${PLUGIN_NAME}Filters/Utility/OnScaleTableFileWriter.h
   ${${PLUGIN_NAME}_SOURCE_DIR}/${PLUGIN_NAME}Filters/Utility/EntriesHelper.h
   ${${PLUGIN_NAME}_SOURCE_DIR}/${PLUGIN_NAME}Filters/Utility/DeformDataParser.hpp
+  ${${PLUGIN_NAME}_SOURCE_DIR}/${PLUGIN_NAME}Filters/Utility/OnScaleTableFileUtils.hpp
 )
 
 set(${PLUGIN_NAME}_UTILITY_SRCS

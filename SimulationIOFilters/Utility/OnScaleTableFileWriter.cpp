@@ -43,3 +43,14 @@ void OnScaleTableFileWriter::writeCoords(QTextStream& stream, const QString& tex
 
   stream << "\n";
 }
+
+void OnScaleTableFileWriter::writeCoords(QTextStream& stream, const QString& text, const FloatArrayType& bounds)
+{
+  stream << QString("%1 %2\n").arg(text).arg(bounds.size());
+
+  auto func = [&bounds](size_t i) { return QString::number(bounds[i], 'E', 8); };
+
+  EntriesHelper::writeEntries(stream, func, bounds.size(), 6);
+
+  stream << "\n";
+}

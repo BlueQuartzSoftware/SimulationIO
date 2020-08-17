@@ -1,15 +1,43 @@
-/*
- * Your License or Copyright can go here
- */
+/* ============================================================================
+ * Copyright (c) 2019-2019 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-15-D-5231
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #pragma once
 
 #include "SIMPLib/SIMPLib.h"
-#include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
 #include "SimulationIO/SimulationIOPlugin.h"
-    
+
 /**
  * @brief The ImportDelamData class. See [Filter documentation](@ref importdelamdata) for details.
  */
@@ -53,16 +81,16 @@ public:
   ~ImportDelamData() override;
 
   /**
-   * @brief Setter property for BvidFile
+   * @brief Setter property for CSDGMFile
    */
-  void setBvidFile(const QString& value);
+  void setCSDGMFile(const QString& value);
 
   /**
-   * @brief Getter property for BvidFile
-   * @return Value of BvidFile
+   * @brief Getter property for CSDGMFile
+   * @return Value of CSDGMFile
    */
-  QString getBvidFile() const;
-  Q_PROPERTY(QString BvidFile READ getBvidFile WRITE setBvidFile)
+  QString getCSDGMFile() const;
+  Q_PROPERTY(QString CSDGMFile READ getCSDGMFile WRITE setCSDGMFile)
 
   /**
    * @brief Setter property for BvidStdOutFile
@@ -192,7 +220,7 @@ protected:
   void initialize();
 
 private:
-  QString m_BvidFile = {};
+  QString m_CSDGMFile = {};
   QString m_BvidStdOutFile = {};
   float m_InterfaceThickness = 0.001f;
   DataArrayPath m_DataContainerName = DataArrayPath("RectGridDataContainer", "", "");
@@ -220,9 +248,9 @@ private:
   size_t getBvidFileLineCount();
 
   /**
-   * @brief Reads the data in the Bvid file and populates the created Data Array
+   * @brief Reads the data in the CSDGM file and populates the created Data Array
    */
-  void readBvidFile();
+  void readCSDGMFile();
 
 public:
   ImportDelamData(const ImportDelamData&) = delete;            // Copy Constructor Not Implemented

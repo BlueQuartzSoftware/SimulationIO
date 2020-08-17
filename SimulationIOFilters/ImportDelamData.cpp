@@ -1,13 +1,41 @@
-/*
- * Your License or Copyright can go here
- */
+/* ============================================================================
+ * Copyright (c) 2019-2019 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the followig contracts:
+ *    United States Air Force Prime Contract FA8650-15-D-5231
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #include "ImportDelamData.h"
 
 #include <QtCore/QFileInfo>
-#include <QtCore/QTextStream>
 
-#include "SIMPLib/Common/Constants.h"
+#include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/DataContainerCreationFilterParameter.h"
 #include "SIMPLib/FilterParameters/FloatFilterParameter.h"
@@ -47,7 +75,7 @@ void ImportDelamData::setupFilterParameters()
 {
   FilterParameterVectorType parameters;
 
-  parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Bvid File", BvidFile, FilterParameter::Parameter, ImportDelamData, "*.txt"));
+  parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("CSDGM File", CSDGMFile, FilterParameter::Parameter, ImportDelamData, "*.txt"));
   parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Bvid StdOut File", BvidStdOutFile, FilterParameter::Parameter, ImportDelamData, "*.txt"));
   parameters.push_back(SIMPL_NEW_FLOAT_FP("Interface Thickness", InterfaceThickness, FilterParameter::Parameter, ImportDelamData));
 
@@ -64,8 +92,8 @@ void ImportDelamData::dataCheck()
   clearErrorCode();
   clearWarningCode();
 
-  QFileInfo fi(m_BvidFile);
-  if(m_BvidFile.isEmpty())
+  QFileInfo fi(m_CSDGMFile);
+  if(m_CSDGMFile.isEmpty())
   {
     QString ss = QObject::tr("Bvid File is empty.  Please enter a file path.");
     setErrorCondition(-2000, ss);
@@ -233,7 +261,7 @@ void ImportDelamData::readBvidStdOutFile()
 // -----------------------------------------------------------------------------
 size_t ImportDelamData::getBvidFileLineCount()
 {
-  QFile bvidFile(m_BvidFile);
+  QFile bvidFile(m_CSDGMFile);
   if(!bvidFile.open(QFile::ReadOnly))
   {
     QString ss = QObject::tr("Cannot open Bvid File for reading.");
@@ -262,29 +290,29 @@ void ImportDelamData::execute()
     return;
   }
 
-  readBvidFile();
+  readCSDGMFile();
 }
 
 // -----------------------------------------------------------------------------
-void ImportDelamData::readBvidFile()
+void ImportDelamData::readCSDGMFile()
 {
-  QFile bvidFile(m_BvidFile);
-  if(!bvidFile.open(QFile::ReadOnly))
+  QFile csdgmFile(m_CSDGMFile);
+  if(!csdgmFile.open(QFile::ReadOnly))
   {
     QString ss = QObject::tr("Cannot open Bvid File for reading.");
     setErrorCondition(-2011, ss);
     return;
   }
 
-  QString bvidLine = bvidFile.readLine();
+  QString csdgmLine = csdgmFile.readLine();
   size_t lineCount = 1;
-  while(!bvidLine.isEmpty())
+  while(!csdgmLine.isEmpty())
   {
-    QStringList tokens = bvidLine.split(' ', QString::SplitBehavior::SkipEmptyParts);
+    QStringList tokens = csdgmLine.split(' ', QString::SplitBehavior::SkipEmptyParts);
     if(tokens.size() != 4)
     {
       std::stringstream ss;
-      ss << "Bvid File line " << lineCount << ": line does not have 4 values.";
+      ss << "CSDGM File line " << lineCount << ": line does not have 4 values.";
       setErrorCondition(-2012, QString::fromStdString(ss.str()));
       return;
     }
@@ -294,7 +322,7 @@ void ImportDelamData::readBvidFile()
     if(!ok)
     {
       std::stringstream ss;
-      ss << "Bvid File line " << lineCount << ": Could not convert X value to a float.";
+      ss << "CSDGM File line " << lineCount << ": Could not convert X value to a float.";
       setErrorCondition(-2013, QString::fromStdString(ss.str()));
       return;
     }
@@ -303,7 +331,7 @@ void ImportDelamData::readBvidFile()
     if(!ok)
     {
       std::stringstream ss;
-      ss << "Bvid File line " << lineCount << ": Could not convert Y value to a float.";
+      ss << "CSDGM File line " << lineCount << ": Could not convert Y value to a float.";
       setErrorCondition(-2014, QString::fromStdString(ss.str()));
       return;
     }
@@ -312,7 +340,7 @@ void ImportDelamData::readBvidFile()
     if(!ok)
     {
       std::stringstream ss;
-      ss << "Bvid File line " << lineCount << ": Could not convert Z value to a float.";
+      ss << "CSDGM File line " << lineCount << ": Could not convert Z value to a float.";
       setErrorCondition(-2015, QString::fromStdString(ss.str()));
       return;
     }
@@ -321,7 +349,7 @@ void ImportDelamData::readBvidFile()
     if(!ok)
     {
       std::stringstream ss;
-      ss << "Bvid File line " << lineCount << ": Could not convert 4th value to a float.";
+      ss << "CSDGM File line " << lineCount << ": Could not convert 4th value to a float.";
       setErrorCondition(-2016, QString::fromStdString(ss.str()));
       return;
     }
@@ -335,7 +363,7 @@ void ImportDelamData::readBvidFile()
     if(!idxOpt.has_value())
     {
       std::stringstream ss;
-      ss << "Bvid File line " << lineCount << ": X,Y,Z coordinate is outside the geometry bounds.";
+      ss << "CSDGM File line " << lineCount << ": X,Y,Z coordinate is outside the geometry bounds.";
       setErrorCondition(-2017, QString::fromStdString(ss.str()));
       return;
     }
@@ -344,11 +372,11 @@ void ImportDelamData::readBvidFile()
     // Set Value into Array
     da.setValue(idx, value);
 
-    bvidLine = bvidFile.readLine();
+    csdgmLine = csdgmFile.readLine();
     lineCount++;
   }
 
-  bvidFile.close();
+  csdgmFile.close();
 }
 
 // -----------------------------------------------------------------------------
@@ -437,15 +465,15 @@ QString ImportDelamData::ClassName()
 }
 
 // -----------------------------------------------------------------------------
-void ImportDelamData::setBvidFile(const QString& value)
+void ImportDelamData::setCSDGMFile(const QString& value)
 {
-  m_BvidFile = value;
+  m_CSDGMFile = value;
 }
 
 // -----------------------------------------------------------------------------
-QString ImportDelamData::getBvidFile() const
+QString ImportDelamData::getCSDGMFile() const
 {
-  return m_BvidFile;
+  return m_CSDGMFile;
 }
 
 // -----------------------------------------------------------------------------

@@ -6,13 +6,29 @@ SimulationIO (SimulationIO)
 
 ## Description ##
 
-This **Filter** imports data from a Bvid and a Bvid stdout text file and creates a rectilinear geometry out of it.
+This **Filter** imports data from a CSDGM and a Bvid stdout text file and creates a rectilinear geometry out of it.
+
+### CSDGM File ###
++ Must have 4 columns (X, Y, Z, and data value) that are all convertable to floats
+
+The 4th term in each line is the data that will be inserted into the rectilinear grid at the voxel that contains the coordinates (1st, 2nd, 3rd terms).
+
+### Bvid StdOut File ###
++ Must have a line where the 2nd term in the line is `0/90ply`, and the last term is convertable to a `float`.
++ Must have a line that starts with `Previous`, and the last term is convertable to a `float`.
++ Must have a line where the 4th term is `CZM` and the last term is convertable to an `integer`.
++ Must have a line where the 4th term is `plies` and the last term is convertable to an `integer`.
++ Must have a line where the 2nd term is `CPT:` and the last term is convertable to a `float`.
+
+These lines are parsed to get the values necessary to calculate the size and bounds of the rectilinear grid geometry.
+
+These requirements were taken directly from a Python script written by John Wertz from the Air Force Research Lab.
 
 ## Parameters ##
 
 | Name | Type | Description |
 |------|------|------|
-| Bvid File | Input File | The path to the Bvid file |
+| CSDGM File | Input File | The path to the CSDGM file |
 | Bvid StdOut File | Input File | The path to the Bvid stdout file |
 | Interface Thickness | Float | The interface thickness for the data |
 

@@ -130,30 +130,30 @@ void ImportDelamData::dataCheck()
 
   DataContainerShPtr dc = getDataContainerArray()->createNonPrereqDataContainer(this, getDataContainerName(), DataContainerID);
 
-  m_Xcrd = static_cast<int>(m_Lcx / m_Ex) + 1;
+  m_Xcrd = static_cast<int>(*m_Lcx / *m_Ex) + 1;
   m_Ycrd = m_Xcrd;
-  m_Zcrd = 2 * m_CzmLayers + 2;
+  m_Zcrd = 2 * *m_CzmLayers + 2;
 
-  float translate_x = m_Ex * static_cast<int>(m_Lcx / m_Ex / 2);
+  float translate_x = *m_Ex * static_cast<int>(*m_Lcx / *m_Ex / 2);
   float translate_y = translate_x;
 
   FloatArrayType::Pointer xBounds = FloatArrayType::CreateArray(m_Xcrd, SIMPL::Geometry::xBoundsList, true);
-  std::generate(xBounds->begin(), xBounds->end(), [n = -translate_x, this]() mutable { return n += m_Ex; });
+  std::generate(xBounds->begin(), xBounds->end(), [n = -translate_x, this]() mutable { return n += *m_Ex; });
 
   FloatArrayType::Pointer yBounds = FloatArrayType::CreateArray(m_Ycrd, SIMPL::Geometry::yBoundsList, true);
-  std::generate(yBounds->begin(), yBounds->end(), [n = -translate_y, this]() mutable { return n += m_Ex; });
+  std::generate(yBounds->begin(), yBounds->end(), [n = -translate_y, this]() mutable { return n += *m_Ex; });
 
   FloatArrayType::Pointer zBounds = FloatArrayType::CreateArray(m_Zcrd, SIMPL::Geometry::zBoundsList, true);
   float z_0 = 0.0f;
-  float z_1 = (m_TotalThk / m_NumPlies) - m_InterfaceThickness;
+  float z_1 = (*m_TotalThk / *m_NumPlies) - m_InterfaceThickness;
   zBounds->setValue(0, z_0);
   zBounds->setValue(1, z_1);
 
   int currentIdx = 2;
-  for(int i = 1; i <= m_NumPlies - 1; i++)
+  for(int i = 1; i <= *m_NumPlies - 1; i++)
   {
-    float z_0 = (i * m_TotalThk / m_NumPlies) + m_InterfaceThickness;
-    float z_1 = ((i + 1) * m_TotalThk / m_NumPlies) - m_InterfaceThickness;
+    float z_0 = (i * *m_TotalThk / *m_NumPlies) + m_InterfaceThickness;
+    float z_1 = ((i + 1) * *m_TotalThk / *m_NumPlies) - m_InterfaceThickness;
     zBounds->setValue(currentIdx++, z_0);
     zBounds->setValue(currentIdx++, z_1);
   }
@@ -215,17 +215,17 @@ void ImportDelamData::readBvidStdOutFile()
       }
       m_Lcx = lcx;
     }
-    else if(tokens.size() >= 4 && tokens[3] == "CZM")
+    else if(tokens.size() >= 2 && tokens[1] == "CPT:")
     {
       bool ok = false;
-      int czmLayers = tokens.last().toInt(&ok);
+      float total_thk = tokens.last().toFloat(&ok);
       if(!ok)
       {
-        QString ss = QObject::tr("Cannot read total number of CZM layers from Bvid StdOut File.");
+        QString ss = QObject::tr("Cannot read total CPT from Bvid StdOut File.");
         setErrorCondition(-2007, ss);
         return;
       }
-      m_CzmLayers = czmLayers;
+      m_TotalThk = total_thk;
     }
     else if(tokens.size() >= 4 && tokens[3] == "plies")
     {
@@ -239,20 +239,51 @@ void ImportDelamData::readBvidStdOutFile()
       }
       m_NumPlies = num_plies;
     }
-    else if(tokens.size() >= 2 && tokens[1] == "CPT:")
+    else if(tokens.size() >= 4 && tokens[3] == "CZM")
     {
       bool ok = false;
-      float total_thk = tokens.last().toFloat(&ok);
+      int czmLayers = tokens.last().toInt(&ok);
       if(!ok)
       {
-        QString ss = QObject::tr("Cannot read total CPT from Bvid StdOut File.");
+        QString ss = QObject::tr("Cannot read total number of CZM layers from Bvid StdOut File.");
         setErrorCondition(-2009, ss);
         return;
       }
-      m_TotalThk = total_thk;
+      m_CzmLayers = czmLayers;
     }
 
     bvidLine = bvidStdOutFile.readLine();
+  }
+
+  if(!m_Ex.has_value())
+  {
+    QString ss = QObject::tr("Cannot find Elx value from Bvid StdOut File.");
+    setErrorCondition(-2010, ss);
+    return;
+  }
+  if(!m_Lcx.has_value())
+  {
+    QString ss = QObject::tr("Cannot find Lcx value from Bvid StdOut File.");
+    setErrorCondition(-2011, ss);
+    return;
+  }
+  if(!m_TotalThk.has_value())
+  {
+    QString ss = QObject::tr("Cannot find total CPT from Bvid StdOut File.");
+    setErrorCondition(-2012, ss);
+    return;
+  }
+  if(!m_NumPlies.has_value())
+  {
+    QString ss = QObject::tr("Cannot find total number of plies from Bvid StdOut File.");
+    setErrorCondition(-2013, ss);
+    return;
+  }
+  if(!m_CzmLayers.has_value())
+  {
+    QString ss = QObject::tr("Cannot find total number of CZM layers from Bvid StdOut File.");
+    setErrorCondition(-2014, ss);
+    return;
   }
 
   bvidStdOutFile.close();
@@ -265,7 +296,7 @@ size_t ImportDelamData::getBvidFileLineCount()
   if(!bvidFile.open(QFile::ReadOnly))
   {
     QString ss = QObject::tr("Cannot open Bvid File for reading.");
-    setErrorCondition(-2010, ss);
+    setErrorCondition(-2015, ss);
     return 0;
   }
 
@@ -300,7 +331,7 @@ void ImportDelamData::readCSDGMFile()
   if(!csdgmFile.open(QFile::ReadOnly))
   {
     QString ss = QObject::tr("Cannot open Bvid File for reading.");
-    setErrorCondition(-2011, ss);
+    setErrorCondition(-2016, ss);
     return;
   }
 
@@ -313,7 +344,7 @@ void ImportDelamData::readCSDGMFile()
     {
       std::stringstream ss;
       ss << "CSDGM File line " << lineCount << ": line does not have 4 values.";
-      setErrorCondition(-2012, QString::fromStdString(ss.str()));
+      setErrorCondition(-2017, QString::fromStdString(ss.str()));
       return;
     }
 
@@ -323,7 +354,7 @@ void ImportDelamData::readCSDGMFile()
     {
       std::stringstream ss;
       ss << "CSDGM File line " << lineCount << ": Could not convert X value to a float.";
-      setErrorCondition(-2013, QString::fromStdString(ss.str()));
+      setErrorCondition(-2018, QString::fromStdString(ss.str()));
       return;
     }
 
@@ -332,7 +363,7 @@ void ImportDelamData::readCSDGMFile()
     {
       std::stringstream ss;
       ss << "CSDGM File line " << lineCount << ": Could not convert Y value to a float.";
-      setErrorCondition(-2014, QString::fromStdString(ss.str()));
+      setErrorCondition(-2019, QString::fromStdString(ss.str()));
       return;
     }
 
@@ -341,7 +372,7 @@ void ImportDelamData::readCSDGMFile()
     {
       std::stringstream ss;
       ss << "CSDGM File line " << lineCount << ": Could not convert Z value to a float.";
-      setErrorCondition(-2015, QString::fromStdString(ss.str()));
+      setErrorCondition(-2020, QString::fromStdString(ss.str()));
       return;
     }
 
@@ -350,7 +381,7 @@ void ImportDelamData::readCSDGMFile()
     {
       std::stringstream ss;
       ss << "CSDGM File line " << lineCount << ": Could not convert 4th value to a float.";
-      setErrorCondition(-2016, QString::fromStdString(ss.str()));
+      setErrorCondition(-2021, QString::fromStdString(ss.str()));
       return;
     }
 
@@ -364,7 +395,7 @@ void ImportDelamData::readCSDGMFile()
     {
       std::stringstream ss;
       ss << "CSDGM File line " << lineCount << ": X,Y,Z coordinate is outside the geometry bounds.";
-      setErrorCondition(-2017, QString::fromStdString(ss.str()));
+      setErrorCondition(-2022, QString::fromStdString(ss.str()));
       return;
     }
     size_t idx = *idxOpt;

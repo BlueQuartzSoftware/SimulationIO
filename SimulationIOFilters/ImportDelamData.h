@@ -227,11 +227,11 @@ private:
   QString m_CellAttributeMatrixName = "CellData";
   QString m_DataArrayName = "DataArray";
 
-  float m_Lcx = {};
-  float m_Ex = {};
-  int m_CzmLayers = {};
-  int m_NumPlies = {};
-  float m_TotalThk = {};
+  std::optional<float> m_Lcx = {};
+  std::optional<float> m_Ex = {};
+  std::optional<int> m_CzmLayers = {};
+  std::optional<int> m_NumPlies = {};
+  std::optional<float> m_TotalThk = {};
   size_t m_Xcrd = {};
   size_t m_Ycrd = {};
   size_t m_Zcrd = {};

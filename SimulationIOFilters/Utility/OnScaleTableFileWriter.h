@@ -42,14 +42,12 @@
 #include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/DataArrays/StringDataArray.h"
 #include "SIMPLib/Geometry/ImageGeom.h"
-#include "SIMPLib/Geometry/RectGridGeom.h"
 
 #include "SimulationIO/SimulationIOFilters/Utility/EntriesHelper.h"
 
 namespace OnScaleTableFileWriter
 {
 void writeCoords(QTextStream& stream, const QString& text, size_t maxIndex, float origin, float spacing);
-void writeCoords(QTextStream& stream, const QString& text, const FloatArrayType& bounds);
 
 /**
  * @brief Writes a OnScale table file. All elements of featureIds must be >=0. Returns true on success.
@@ -62,9 +60,13 @@ void writeCoords(QTextStream& stream, const QString& text, const FloatArrayType&
  * @return
  */
 template <class T>
-std::pair<int, QString> write(IGeometryGrid::Pointer geom, const StringDataArray& phaseNames, const DataArray<T>& featureIds, const QString& outputPath, const QString& filePrefix,
+std::pair<int, QString> write(const ImageGeom& imageGeom, const StringDataArray& phaseNames, const DataArray<T>& featureIds, const QString& outputPath, const QString& filePrefix,
                               const IntVec3Type& numKeypoints)
 {
+  SizeVec3Type dims = imageGeom.getDimensions();
+  FloatVec3Type spacing = imageGeom.getSpacing();
+  FloatVec3Type origin = imageGeom.getOrigin();
+
   size_t numTuples = phaseNames.getNumberOfTuples();
 
   // Find total number of grain ids
@@ -79,7 +81,7 @@ std::pair<int, QString> write(IGeometryGrid::Pointer geom, const StringDataArray
 
   size_t maxGrainId = static_cast<size_t>(*maxElement);
 
-  size_t totalPoints = geom->getNumberOfElements();
+  size_t totalPoints = imageGeom.getNumberOfElements();
 
   QString masterFilePath = outputPath + QDir::separator() + filePrefix + ".flxtbl";
 
@@ -99,38 +101,17 @@ std::pair<int, QString> write(IGeometryGrid::Pointer geom, const StringDataArray
   masterStream << "hedr 0\n";
   masterStream << "info 1\n";
 
-  SizeVec3Type dims = geom->getDimensions();
-
-  ImageGeom::Pointer imageGeomRotated = std::dynamic_pointer_cast<ImageGeom>(geom);
-  RectGridGeom::Pointer rectGridGeomRotated = std::dynamic_pointer_cast<RectGridGeom>(geom);
-  std::pair<int, QString> result;
   size_t ne_x = dims[0];
   size_t ne_y = dims[1];
   size_t ne_z = dims[2];
-  if(imageGeomRotated != nullptr)
-  {
-    FloatVec3Type spacing = imageGeomRotated->getSpacing();
-    FloatVec3Type origin = imageGeomRotated->getOrigin();
 
-    size_t nnode_x = ne_x + 1;
-    size_t nnode_y = ne_y + 1;
-    size_t nnode_z = ne_z + 1;
+  size_t nnode_x = ne_x + 1;
+  size_t nnode_y = ne_y + 1;
+  size_t nnode_z = ne_z + 1;
 
-    writeCoords(masterStream, "xcrd", nnode_x, origin[0], spacing[0]);
-    writeCoords(masterStream, "ycrd", nnode_y, origin[1], spacing[1]);
-    writeCoords(masterStream, "zcrd", nnode_z, origin[2], spacing[2]);
-  }
-  else if(rectGridGeomRotated != nullptr)
-  {
-    writeCoords(masterStream, "xcrd", *rectGridGeomRotated->getXBounds());
-    writeCoords(masterStream, "ycrd", *rectGridGeomRotated->getYBounds());
-    writeCoords(masterStream, "zcrd", *rectGridGeomRotated->getZBounds());
-  }
-  else
-  {
-    QString ss = QObject::tr("Failed to obtain geometry");
-    return {-10117, ss};
-  }
+  writeCoords(masterStream, "xcrd", nnode_x, origin[0], spacing[0]);
+  writeCoords(masterStream, "ycrd", nnode_y, origin[1], spacing[1]);
+  writeCoords(masterStream, "zcrd", nnode_z, origin[2], spacing[2]);
 
   masterStream << "keypoints\n";
   masterStream << QString("%1 %2 %3\n").arg(numKeypoints[0]).arg(numKeypoints[1]).arg(numKeypoints[2]);

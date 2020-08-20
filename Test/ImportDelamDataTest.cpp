@@ -47,11 +47,11 @@
 
 class ImportDelamDataTest
 {
-  const std::string k_CSDGMTestFile = UnitTest::TestTempDir.toStdString() + "/csdgm.txt";
-  const std::string k_BvidStdOutTestFile = UnitTest::TestTempDir.toStdString() + "/bvid_stdout.txt";
-  const std::string k_WrongCSDGMTestFile = UnitTest::TestTempDir.toStdString() + "/csdgm.exe";
-  const std::string k_WrongBvidStdOutTestFile = UnitTest::TestTempDir.toStdString() + "/bvid_stdout.rar";
-  const char k_NL = '\n';
+  static inline const std::string k_CSDGMTestFile = UnitTest::TestTempDir.toStdString() + "/csdgm.txt";
+  static inline const std::string k_BvidStdOutTestFile = UnitTest::TestTempDir.toStdString() + "/bvid_stdout.txt";
+  static inline const std::string k_WrongCSDGMTestFile = UnitTest::TestTempDir.toStdString() + "/csdgm.exe";
+  static inline const std::string k_WrongBvidStdOutTestFile = UnitTest::TestTempDir.toStdString() + "/bvid_stdout.rar";
+  static inline constexpr char k_NL = '\n';
 
 public:
   ImportDelamDataTest() = default;
@@ -68,7 +68,7 @@ public:
     QString filtName = "ImportDelamData";
     FilterManager* fm = FilterManager::Instance();
     IFilterFactory::Pointer filterFactory = fm->getFactoryFromClassName(filtName);
-    if (nullptr == filterFactory.get())
+    if(nullptr == filterFactory)
     {
       std::stringstream ss;
       ss << "The ImportDelamDataTest Requires the use of the " << filtName.toStdString()
@@ -90,7 +90,6 @@ public:
     }
 
     outfile << "Desired" << k_NL;
-    outfile.close();
 
     return 0;
   }
@@ -105,7 +104,6 @@ public:
     }
 
     outfile << "Desired 0/90ply Elx = 0.5 Current  0/90ply Elx" << k_NL;
-    outfile.close();
 
     return 0;
   }
@@ -120,7 +118,6 @@ public:
     }
 
     outfile << "Desired 0/90ply Elx = 0.5 Current  0/90ply Elx = 0.7071067811865476";
-    outfile.close();
 
     return 0;
   }
@@ -136,7 +133,6 @@ public:
 
     outfile << "Desired 0/90ply Elx = 0.5 Current  0/90ply Elx = 0.7071067811865476" << k_NL;
     outfile << "Previous Lcx = 40.0 Updated";
-    outfile.close();
 
     return 0;
   }
@@ -152,7 +148,6 @@ public:
 
     outfile << "Desired 0/90ply Elx = 0.5 Current  0/90ply Elx = 0.7071067811865476" << k_NL;
     outfile << "Previous Lcx = 40.0 Updated Lcx = 38.18376618407357";
-    outfile.close();
 
     return 0;
   }
@@ -169,7 +164,6 @@ public:
     outfile << "Desired 0/90ply Elx = 0.5 Current  0/90ply Elx = 0.7071067811865476" << k_NL;
     outfile << "Previous Lcx = 40.0 Updated Lcx = 38.18376618407357" << k_NL;
     outfile << "Total CPT:";
-    outfile.close();
 
     return 0;
   }
@@ -186,7 +180,6 @@ public:
     outfile << "Desired 0/90ply Elx = 0.5 Current  0/90ply Elx = 0.7071067811865476" << k_NL;
     outfile << "Previous Lcx = 40.0 Updated Lcx = 38.18376618407357" << k_NL;
     outfile << "Total CPT: 2.032";
-    outfile.close();
 
     return 0;
   }
@@ -204,7 +197,6 @@ public:
     outfile << "Previous Lcx = 40.0 Updated Lcx = 38.18376618407357" << k_NL;
     outfile << "Total CPT: 2.032" << k_NL;
     outfile << "Total number of plies";
-    outfile.close();
 
     return 0;
   }
@@ -222,7 +214,6 @@ public:
     outfile << "Previous Lcx = 40.0 Updated Lcx = 38.18376618407357" << k_NL;
     outfile << "Total CPT: 2.032" << k_NL;
     outfile << "Total number of plies = 16";
-    outfile.close();
 
     return 0;
   }
@@ -241,7 +232,6 @@ public:
     outfile << "Total CPT: 2.032" << k_NL;
     outfile << "Total number of plies = 16" << k_NL;
     outfile << "Total number of CZM layers";
-    outfile.close();
 
     return 0;
   }
@@ -260,7 +250,6 @@ public:
     outfile << "Total CPT: 2.032" << k_NL;
     outfile << "Total number of plies = 16" << k_NL;
     outfile << "Total number of CZM layers = 15";
-    outfile.close();
 
     return 0;
   }
@@ -277,7 +266,6 @@ public:
     }
 
     outfile << "0.1 0.1 0.1";
-    outfile.close();
 
     return 0;
   }
@@ -292,7 +280,6 @@ public:
     }
 
     outfile << "invalid 0.1 0.1 0.1";
-    outfile.close();
 
     return 0;
   }
@@ -307,7 +294,6 @@ public:
     }
 
     outfile << "0.1 invalid 0.1 0.1";
-    outfile.close();
 
     return 0;
   }
@@ -322,7 +308,6 @@ public:
     }
 
     outfile << "0.1 0.1 invalid 0.1";
-    outfile.close();
 
     return 0;
   }
@@ -337,7 +322,6 @@ public:
     }
 
     outfile << "0.1 0.1 0.1 invalid";
-    outfile.close();
 
     return 0;
   }
@@ -352,7 +336,6 @@ public:
     }
 
     outfile << "1000 1000 1000 0.1";
-    outfile.close();
 
     return 0;
   }
@@ -413,8 +396,6 @@ public:
     outfile << "18.7383 19.2098 1.9685 38" << k_NL;
     outfile << "18.974 19.2098 1.9685 39" << k_NL;
     outfile << "19.2098 19.2098 1.9685 40" << k_NL;
-
-    outfile.close();
 
     return 0;
   }
@@ -551,54 +532,58 @@ public:
     filter->execute();
     DREAM3D_REQUIRE_EQUAL(filter->getErrorCode(), 0)
 
-    DataContainerArray& dca = *filter->getDataContainerArray();
-    DataContainer& dc = *dca.getDataContainer(filter->getDataContainerName());
-    AttributeMatrix& am = *dc.getAttributeMatrix(filter->getCellAttributeMatrixName());
-    FloatArrayType& da = *am.getAttributeArrayAs<FloatArrayType>(filter->getDataArrayName());
+    DataContainerArray::Pointer dca = filter->getDataContainerArray();
+    DREAM3D_REQUIRE_VALID_POINTER(dca)
+    DataContainer::Pointer dc = dca->getDataContainer(filter->getDataContainerPath());
+    DREAM3D_REQUIRE_VALID_POINTER(dc)
+    AttributeMatrix::Pointer am = dc->getAttributeMatrix(filter->getCellAttributeMatrixName());
+    DREAM3D_REQUIRE_VALID_POINTER(am)
+    FloatArrayType::Pointer da = am->getAttributeArrayAs<FloatArrayType>(filter->getDataArrayName());
+    DREAM3D_REQUIRE_VALID_POINTER(da)
 
-    DREAM3D_REQUIRE_EQUAL(da.getValue(0), 1.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(1), 2.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(2), 3.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(3), 4.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(4), 5.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(5), 6.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(6), 7.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(7), 8.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(8), 9.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(9), 10.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(0), 1.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(1), 2.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(2), 3.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(3), 4.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(4), 5.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(5), 6.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(6), 7.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(7), 8.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(8), 9.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(9), 10.0f)
 
-    DREAM3D_REQUIRE_EQUAL(da.getValue(256868), 11.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(256869), 12.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(256870), 13.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(256871), 14.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(256872), 15.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(256873), 16.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(256874), 17.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(256875), 18.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(256876), 19.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(256877), 20.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(256868), 11.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(256869), 12.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(256870), 13.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(256871), 14.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(256872), 15.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(256873), 16.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(256874), 17.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(256875), 18.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(256876), 19.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(256877), 20.0f)
 
-    DREAM3D_REQUIRE_EQUAL(da.getValue(560650), 21.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(560651), 22.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(560652), 23.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(560653), 24.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(560654), 25.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(560655), 26.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(560656), 27.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(560657), 28.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(560658), 29.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(560659), 30.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(560650), 21.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(560651), 22.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(560652), 23.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(560653), 24.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(560654), 25.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(560655), 26.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(560656), 27.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(560657), 28.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(560658), 29.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(560659), 30.0f)
 
-    DREAM3D_REQUIRE_EQUAL(da.getValue(813554), 31.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(813555), 32.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(813556), 33.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(813557), 34.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(813558), 35.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(813559), 36.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(813560), 37.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(813561), 38.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(813562), 39.0f)
-    DREAM3D_REQUIRE_EQUAL(da.getValue(813563), 40.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(813554), 31.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(813555), 32.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(813556), 33.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(813557), 34.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(813558), 35.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(813559), 36.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(813560), 37.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(813561), 38.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(813562), 39.0f)
+    DREAM3D_REQUIRE_EQUAL(da->getValue(813563), 40.0f)
 
     return EXIT_SUCCESS;
   }
@@ -611,11 +596,7 @@ public:
     DREAM3D_REGISTER_TEST(TestFilterAvailability());
 
     DREAM3D_REGISTER_TEST(MissingOrIncorrectInputFilesTest())
-    //    DREAM3D_REGISTER_TEST(CorrectImportTest())
+    DREAM3D_REGISTER_TEST(CorrectImportTest())
   }
-
-  private:
-
-
 };
 

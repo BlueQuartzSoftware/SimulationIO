@@ -79,7 +79,7 @@ void ImportDelamData::setupFilterParameters()
   parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Bvid StdOut File", BvidStdOutFile, FilterParameter::Parameter, ImportDelamData, "*.txt"));
   parameters.push_back(SIMPL_NEW_FLOAT_FP("Interface Thickness", InterfaceThickness, FilterParameter::Parameter, ImportDelamData));
 
-  parameters.push_back(SIMPL_NEW_DC_CREATION_FP("Data Container", DataContainerName, FilterParameter::CreatedArray, ImportDelamData));
+  parameters.push_back(SIMPL_NEW_DC_CREATION_FP("Data Container", DataContainerPath, FilterParameter::CreatedArray, ImportDelamData));
   parameters.push_back(SIMPL_NEW_STRING_FP("Cell Attribute Matrix", CellAttributeMatrixName, FilterParameter::CreatedArray, ImportDelamData));
   parameters.push_back(SIMPL_NEW_STRING_FP("Data Array", DataArrayName, FilterParameter::CreatedArray, ImportDelamData));
 
@@ -100,7 +100,7 @@ void ImportDelamData::dataCheck()
     return;
   }
 
-  if(!fi.isFile() || fi.suffix() != "txt")
+  if(!fi.isFile() || fi.suffix().toLower() != "txt")
   {
     QString ss = QObject::tr("Bvid File is not a text file.  Please enter the path to a text file.");
     setErrorCondition(-2001, ss);
@@ -115,7 +115,7 @@ void ImportDelamData::dataCheck()
     return;
   }
 
-  if(!fi.isFile() || fi.completeSuffix() != "txt")
+  if(!fi.isFile() || fi.suffix().toLower() != "txt")
   {
     QString ss = QObject::tr("Bvid StdOut File is not a text file.  Please enter the path to a text file.");
     setErrorCondition(-2003, ss);
@@ -128,11 +128,11 @@ void ImportDelamData::dataCheck()
     return;
   }
 
-  DataContainerShPtr dc = getDataContainerArray()->createNonPrereqDataContainer(this, getDataContainerName(), DataContainerID);
+  DataContainerShPtr dc = getDataContainerArray()->createNonPrereqDataContainer(this, getDataContainerPath(), DataContainerID);
 
   m_Xcrd = static_cast<int>(*m_Lcx / *m_Ex) + 1;
   m_Ycrd = m_Xcrd;
-  m_Zcrd = 2 * *m_CzmLayers + 2;
+  m_Zcrd = 2 * (*m_CzmLayers) + 2;
 
   float translate_x = *m_Ex * static_cast<int>(*m_Lcx / *m_Ex / 2);
   float translate_y = translate_x;
@@ -165,20 +165,20 @@ void ImportDelamData::dataCheck()
   geom->setZBounds(zBounds);
   dc->setGeometry(geom);
 
-  size_t totalLines = getBvidFileLineCount();
-  if(totalLines == 0)
-  {
-    return;
-  }
-
-  AttributeMatrixShPtr am =
-      dc->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), geom->getDimensions().toContainer<std::vector<size_t>>(), AttributeMatrix::Type::Cell, AttributeMatrixID21);
+  std::vector<size_t> dims = geom->getDimensions().toContainer<std::vector<size_t>>();
+  AttributeMatrixShPtr am = dc->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), dims, AttributeMatrix::Type::Cell, AttributeMatrixID21);
   am->createNonPrereqArray<FloatArrayType>(this, getDataArrayName(), 0, {1}, DataArrayID30);
 }
 
 // -----------------------------------------------------------------------------
 void ImportDelamData::readBvidStdOutFile()
 {
+  m_Lcx.reset();
+  m_Ex.reset();
+  m_CzmLayers.reset();
+  m_NumPlies.reset();
+  m_TotalThk.reset();
+
   QFile bvidStdOutFile(m_BvidStdOutFile);
   if(!bvidStdOutFile.open(QFile::ReadOnly))
   {
@@ -290,28 +290,6 @@ void ImportDelamData::readBvidStdOutFile()
 }
 
 // -----------------------------------------------------------------------------
-size_t ImportDelamData::getBvidFileLineCount()
-{
-  QFile bvidFile(m_CSDGMFile);
-  if(!bvidFile.open(QFile::ReadOnly))
-  {
-    QString ss = QObject::tr("Cannot open Bvid File for reading.");
-    setErrorCondition(-2015, ss);
-    return 0;
-  }
-
-  size_t lineCount = 0;
-  while(!bvidFile.readLine().isEmpty())
-  {
-    lineCount++;
-  }
-
-  bvidFile.close();
-
-  return lineCount;
-}
-
-// -----------------------------------------------------------------------------
 void ImportDelamData::execute()
 {
   initialize();
@@ -336,14 +314,14 @@ void ImportDelamData::readCSDGMFile()
   }
 
   QString csdgmLine = csdgmFile.readLine();
-  size_t lineCount = 1;
+  size_t lineNum = 1;
   while(!csdgmLine.isEmpty())
   {
     QStringList tokens = csdgmLine.split(' ', QString::SplitBehavior::SkipEmptyParts);
     if(tokens.size() != 4)
     {
       std::stringstream ss;
-      ss << "CSDGM File line " << lineCount << ": line does not have 4 values.";
+      ss << "CSDGM File line " << lineNum << ": line does not have 4 values.";
       setErrorCondition(-2017, QString::fromStdString(ss.str()));
       return;
     }
@@ -353,7 +331,7 @@ void ImportDelamData::readCSDGMFile()
     if(!ok)
     {
       std::stringstream ss;
-      ss << "CSDGM File line " << lineCount << ": Could not convert X value to a float.";
+      ss << "CSDGM File line " << lineNum << ": Could not convert X value to a float.";
       setErrorCondition(-2018, QString::fromStdString(ss.str()));
       return;
     }
@@ -362,7 +340,7 @@ void ImportDelamData::readCSDGMFile()
     if(!ok)
     {
       std::stringstream ss;
-      ss << "CSDGM File line " << lineCount << ": Could not convert Y value to a float.";
+      ss << "CSDGM File line " << lineNum << ": Could not convert Y value to a float.";
       setErrorCondition(-2019, QString::fromStdString(ss.str()));
       return;
     }
@@ -371,7 +349,7 @@ void ImportDelamData::readCSDGMFile()
     if(!ok)
     {
       std::stringstream ss;
-      ss << "CSDGM File line " << lineCount << ": Could not convert Z value to a float.";
+      ss << "CSDGM File line " << lineNum << ": Could not convert Z value to a float.";
       setErrorCondition(-2020, QString::fromStdString(ss.str()));
       return;
     }
@@ -380,31 +358,63 @@ void ImportDelamData::readCSDGMFile()
     if(!ok)
     {
       std::stringstream ss;
-      ss << "CSDGM File line " << lineCount << ": Could not convert 4th value to a float.";
+      ss << "CSDGM File line " << lineNum << ": Could not convert 4th value to a float.";
       setErrorCondition(-2021, QString::fromStdString(ss.str()));
       return;
     }
 
-    DataContainer& dc = *getDataContainerArray()->getDataContainer(getDataContainerName());
-    AttributeMatrix& am = *dc.getAttributeMatrix(getCellAttributeMatrixName());
-    FloatArrayType& da = *am.getAttributeArrayAs<FloatArrayType>(getDataArrayName());
+    DataContainer::Pointer dc = getDataContainerArray()->getDataContainer(getDataContainerPath());
+    if(dc == nullptr)
+    {
+      std::stringstream ss;
+      std::string dcName = getDataContainerPath().getDataContainerName().toStdString();
+      ss << "Could not get data container '" << dcName << "' from data container array.";
+      setErrorCondition(-2022, QString::fromStdString(ss.str()));
+      return;
+    }
+    AttributeMatrix::Pointer am = dc->getAttributeMatrix(getCellAttributeMatrixName());
+    if(am == nullptr)
+    {
+      std::stringstream ss;
+      std::string amName = getCellAttributeMatrixName().toStdString();
+      ss << "Could not get attribute matrix '" << amName << "' from data container array.";
+      setErrorCondition(-2023, QString::fromStdString(ss.str()));
+      return;
+    }
+    FloatArrayType::Pointer da = am->getAttributeArrayAs<FloatArrayType>(getDataArrayName());
+    if(da == nullptr)
+    {
+      std::stringstream ss;
+      std::string daName = getDataArrayName().toStdString();
+      ss << "Could not get data array '" << daName << "' from data container array.";
+      setErrorCondition(-2024, QString::fromStdString(ss.str()));
+      return;
+    }
 
-    RectGridGeom& geom = *dc.getGeometryAs<RectGridGeom>();
-    std::optional<size_t> idxOpt = geom.getIndex(xCoord, yCoord, zCoord);
+    RectGridGeom::Pointer geom = dc->getGeometryAs<RectGridGeom>();
+    if(geom == nullptr)
+    {
+      std::stringstream ss;
+      std::string dcName = getDataContainerPath().getDataContainerName().toStdString();
+      ss << "Could not get rectilinear grid geometry from data container '" << dcName << "'.";
+      setErrorCondition(-2024, QString::fromStdString(ss.str()));
+      return;
+    }
+    std::optional<size_t> idxOpt = geom->getIndex(xCoord, yCoord, zCoord);
     if(!idxOpt.has_value())
     {
       std::stringstream ss;
-      ss << "CSDGM File line " << lineCount << ": X,Y,Z coordinate is outside the geometry bounds.";
-      setErrorCondition(-2022, QString::fromStdString(ss.str()));
+      ss << "CSDGM File line " << lineNum << ": X,Y,Z coordinate is outside the geometry bounds.";
+      setErrorCondition(-2025, QString::fromStdString(ss.str()));
       return;
     }
     size_t idx = *idxOpt;
 
     // Set Value into Array
-    da.setValue(idx, value);
+    da->setValue(idx, value);
 
     csdgmLine = csdgmFile.readLine();
-    lineCount++;
+    lineNum++;
   }
 
   csdgmFile.close();
@@ -532,15 +542,15 @@ float ImportDelamData::getInterfaceThickness() const
 }
 
 // -----------------------------------------------------------------------------
-void ImportDelamData::setDataContainerName(const DataArrayPath& value)
+void ImportDelamData::setDataContainerPath(const DataArrayPath& value)
 {
-  m_DataContainerName = value;
+  m_DataContainerPath = value;
 }
 
 // -----------------------------------------------------------------------------
-DataArrayPath ImportDelamData::getDataContainerName() const
+DataArrayPath ImportDelamData::getDataContainerPath() const
 {
-  return m_DataContainerName;
+  return m_DataContainerPath;
 }
 
 // -----------------------------------------------------------------------------

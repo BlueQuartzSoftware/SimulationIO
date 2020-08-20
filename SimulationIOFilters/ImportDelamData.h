@@ -33,6 +33,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
@@ -50,10 +52,10 @@ class SimulationIO_EXPORT ImportDelamData : public AbstractFilter
   PYB11_FILTER()
   PYB11_SHARED_POINTERS(ImportDelamData)
   PYB11_FILTER_NEW_MACRO(ImportDelamData)
-  PYB11_PROPERTY(QString BvidFile READ getBvidFile WRITE setBvidFile)
+  PYB11_PROPERTY(QString CSDGMFile READ getCSDGMFile WRITE setCSDGMFile)
   PYB11_PROPERTY(QString BvidStdOutFile READ getBvidStdOutFile WRITE setBvidStdOutFile)
   PYB11_PROPERTY(float InterfaceThickness READ getInterfaceThickness WRITE setInterfaceThickness)
-  PYB11_PROPERTY(DataArrayPath DataContainerName READ getDataContainerName WRITE setDataContainerName)
+  PYB11_PROPERTY(DataArrayPath DataContainerPath READ getDataContainerPath WRITE setDataContainerPath)
   PYB11_END_BINDINGS()
   // clang-format on
 
@@ -117,15 +119,15 @@ public:
   Q_PROPERTY(float InterfaceThickness READ getInterfaceThickness WRITE setInterfaceThickness)
 
   /**
-   * @brief Setter property for DataContainerName
+   * @brief Setter property for DataContainerPath
    */
-  void setDataContainerName(const DataArrayPath& value);
+  void setDataContainerPath(const DataArrayPath& value);
   /**
-   * @brief Getter property for DataContainerName
-   * @return Value of DataContainerName
+   * @brief Getter property for DataContainerPath
+   * @return Value of DataContainerPath
    */
-  DataArrayPath getDataContainerName() const;
-  Q_PROPERTY(DataArrayPath DataContainerName READ getDataContainerName WRITE setDataContainerName)
+  DataArrayPath getDataContainerPath() const;
+  Q_PROPERTY(DataArrayPath DataContainerPath READ getDataContainerPath WRITE setDataContainerPath)
 
   /**
    * @brief Setter property for CellAttributeMatrixName
@@ -223,7 +225,7 @@ private:
   QString m_CSDGMFile = {};
   QString m_BvidStdOutFile = {};
   float m_InterfaceThickness = 0.001f;
-  DataArrayPath m_DataContainerName = DataArrayPath("RectGridDataContainer", "", "");
+  DataArrayPath m_DataContainerPath = DataArrayPath("RectGridDataContainer", "", "");
   QString m_CellAttributeMatrixName = "CellData";
   QString m_DataArrayName = "DataArray";
 
@@ -240,12 +242,6 @@ private:
    * @brief Reads the Lcx, Ex, CzmLayers, NumPlies, and TotalThk values out of the Bvid stdout file
    */
   void readBvidStdOutFile();
-
-  /**
-   * @brief Gets the line count from the Bvid file.  This is used to determine how many tuples the created attribute matrix should have
-   * @return
-   */
-  size_t getBvidFileLineCount();
 
   /**
    * @brief Reads the data in the CSDGM file and populates the created Data Array

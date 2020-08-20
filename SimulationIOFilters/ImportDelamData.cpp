@@ -397,7 +397,7 @@ void ImportDelamData::readCSDGMFile()
       std::stringstream ss;
       std::string dcName = getDataContainerPath().getDataContainerName().toStdString();
       ss << "Could not get rectilinear grid geometry from data container '" << dcName << "'.";
-      setErrorCondition(-2024, QString::fromStdString(ss.str()));
+      setErrorCondition(-2025, QString::fromStdString(ss.str()));
       return;
     }
     std::optional<size_t> idxOpt = geom->getIndex(xCoord, yCoord, zCoord);
@@ -405,7 +405,7 @@ void ImportDelamData::readCSDGMFile()
     {
       std::stringstream ss;
       ss << "CSDGM File line " << lineNum << ": X,Y,Z coordinate is outside the geometry bounds.";
-      setErrorCondition(-2025, QString::fromStdString(ss.str()));
+      setErrorCondition(-2026, QString::fromStdString(ss.str()));
       return;
     }
     size_t idx = *idxOpt;

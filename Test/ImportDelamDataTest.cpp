@@ -512,7 +512,7 @@ public:
     DREAM3D_REQUIRED(result, >=, 0)
     filter->setDataContainerArray(DataContainerArray::New());
     filter->execute();
-    DREAM3D_REQUIRE_EQUAL(filter->getErrorCode(), -2022)
+    DREAM3D_REQUIRE_EQUAL(filter->getErrorCode(), -2026)
 
     return EXIT_SUCCESS;
   }

@@ -26,6 +26,7 @@ set(_PublicFilters
   CreateBsamFile
   ExportMultiOnScaleTableFile
   ImportOnScaleTableFile
+  ImportDelamData
 )
 
 list(LENGTH _PublicFilters PluginNumFilters)

@@ -35,6 +35,8 @@
 
 #include <fstream>
 
+#include <QtCore/QFile>
+
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/Geometry/RectGridGeom.h"
@@ -79,7 +81,30 @@ public:
   }
 
   // -----------------------------------------------------------------------------
+  //
+  // -----------------------------------------------------------------------------
+  void RemoveTestFiles()
+  {
+#if REMOVE_TEST_FILES
+    QFile::remove(QString::fromStdString(k_CSDGMTestFile));
+    QFile::remove(QString::fromStdString(k_BvidStdOutTestFile));
+#endif
+  }
+
+  // -----------------------------------------------------------------------------
   // Bvid StdOut File Creation Methods
+  // -----------------------------------------------------------------------------
+  int32_t CreateBvidStdOutFile_Empty()
+  {
+    std::ofstream outfile(k_BvidStdOutTestFile, std::ios_base::out);
+    if(!outfile.is_open())
+    {
+      return -1;
+    }
+
+    return 0;
+  }
+
   // -----------------------------------------------------------------------------
   int32_t CreateBvidStdOutFile_0()
   {
@@ -257,6 +282,18 @@ public:
   // -----------------------------------------------------------------------------
   // CSDGM File Creation Methods
   // -----------------------------------------------------------------------------
+  int32_t CreateCSDGMFile_Empty()
+  {
+    std::ofstream outfile(k_CSDGMTestFile, std::ios_base::out);
+    if(!outfile.is_open())
+    {
+      return -1;
+    }
+
+    return 0;
+  }
+
+  // -----------------------------------------------------------------------------
   int32_t CreateCSDGMFile_0()
   {
     std::ofstream outfile(k_CSDGMTestFile, std::ios_base::out);
@@ -406,6 +443,10 @@ public:
   int MissingOrIncorrectInputFilesTest()
   {
     ImportDelamData::Pointer filter = ImportDelamData::New();
+    int32_t result = CreateCSDGMFile_Empty();
+    DREAM3D_REQUIRED(result, >=, 0)
+    result = CreateBvidStdOutFile_Empty();
+    DREAM3D_REQUIRED(result, >=, 0)
 
     // Empty CSDGM file test
     filter->preflight();
@@ -427,7 +468,7 @@ public:
     DREAM3D_REQUIRE_EQUAL(filter->getErrorCode(), -2003)
 
     filter->setBvidStdOutFile(QString::fromStdString(k_BvidStdOutTestFile));
-    int32_t result = CreateBvidStdOutFile_0();
+    result = CreateBvidStdOutFile_0();
     DREAM3D_REQUIRED(result, >=, 0)
     filter->preflight();
     DREAM3D_REQUIRE_EQUAL(filter->getErrorCode(), -2010)
@@ -597,6 +638,8 @@ public:
 
     DREAM3D_REGISTER_TEST(MissingOrIncorrectInputFilesTest())
     DREAM3D_REGISTER_TEST(CorrectImportTest())
+
+    DREAM3D_REGISTER_TEST(RemoveTestFiles())
   }
 };
 

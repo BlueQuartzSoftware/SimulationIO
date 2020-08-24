@@ -38,15 +38,16 @@
 #include <Eigen/Dense>
 
 #include "SIMPLib/DataContainers/DataContainerArray.h"
-#include "SIMPLib/Filtering/IFilterFactory.hpp"
-#include "SIMPLib/Filtering/FilterManager.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
 #include "SIMPLib/FilterParameters/OutputPathFilterParameter.h"
 #include "SIMPLib/FilterParameters/SeparatorFilterParameter.h"
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
+#include "SIMPLib/Filtering/FilterManager.h"
+#include "SIMPLib/Filtering/IFilterFactory.hpp"
 #include "SIMPLib/Geometry/ImageGeom.h"
+#include "SIMPLib/Geometry/RectGridGeom.h"
 #include "SIMPLib/Math/SIMPLibMath.h"
 
 #include "SimulationIO/SimulationIOConstants.h"
@@ -308,16 +309,14 @@ bool writeOnScaleFile(std::weak_ptr<const DataArray<T>> featureIdsPtr, const Str
     return false;
   }
 
-  ImageGeom::Pointer imageGeomRotated = dcRotated->getGeometryAs<ImageGeom>();
-
-  if(imageGeomRotated == nullptr)
+  IGeometryGrid::Pointer geomRotated = dcRotated->getPrereqGeometry<IGeometryGrid>(filter);
+  if(geomRotated == nullptr)
   {
-    QString ss = QObject::tr("Failed to obtain geometry");
+    QString ss = QObject::tr("The data container '%1' does not have a rectilinear grid or image geometry.");
     filter->setErrorCondition(-10117, ss);
     return false;
   }
-
-  auto result = OnScaleTableFileWriter::write(*imageGeomRotated, phaseNames, *featureIdsRotated, outputPath, outputFilePrefix, numKeypoints);
+  auto result = OnScaleTableFileWriter::write(geomRotated, phaseNames, *featureIdsRotated, outputPath, outputFilePrefix, numKeypoints);
 
   int error = result.first;
   QString errorString = result.second;
@@ -408,7 +407,7 @@ void ExportOnScaleTableFile::setupFilterParameters()
 
   {
     DataArraySelectionFilterParameter::RequirementType req =
-        DataArraySelectionFilterParameter::CreateRequirement(SIMPL::Defaults::AnyPrimitive, 1, AttributeMatrix::Type::CellEnsemble, IGeometry::Type::Image);
+        DataArraySelectionFilterParameter::CreateRequirement(SIMPL::Defaults::AnyPrimitive, 1, AttributeMatrix::Type::CellEnsemble, IGeometry::Type::Any);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phase Names", PhaseNamesArrayPath, FilterParameter::RequiredArray, ExportOnScaleTableFile, req));
   }
 
@@ -417,7 +416,7 @@ void ExportOnScaleTableFile::setupFilterParameters()
   {
     QVector<QString> types{SIMPL::TypeNames::Int8,  SIMPL::TypeNames::Int16,  SIMPL::TypeNames::Int32,  SIMPL::TypeNames::Int64,
                            SIMPL::TypeNames::UInt8, SIMPL::TypeNames::UInt16, SIMPL::TypeNames::UInt32, SIMPL::TypeNames::UInt64};
-    DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(types, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
+    DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(types, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Any);
     parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", PzflexFeatureIdsArrayPath, FilterParameter::RequiredArray, ExportOnScaleTableFile, req));
   }
 
@@ -457,8 +456,6 @@ void ExportOnScaleTableFile::dataCheck()
     setWarningCondition(-10101, ss);
   }
 
-  getDataContainerArray()->getPrereqGeometryFromDataContainer<ImageGeom>(this, getPzflexFeatureIdsArrayPath().getDataContainerName());
-
   std::vector<size_t> cDims{1};
 
   StringDataArray::ConstPointer phaseNamesPtr = getDataContainerArray()->getPrereqArrayFromPath<StringDataArray>(this, getPhaseNamesArrayPath(), cDims);
@@ -480,7 +477,7 @@ void ExportOnScaleTableFile::dataCheck()
   if(cDims != featureIdsPtr->getComponentDimensions())
   {
     QString ss = QObject::tr("Wrong component dimensions for '%1'").arg(getPzflexFeatureIdsArrayPath().serialize());
-    setErrorCondition(-10102, ss);
+    setErrorCondition(-10104, ss);
     return;
   }
 
@@ -521,7 +518,7 @@ void ExportOnScaleTableFile::dataCheck()
   else
   {
     QString ss = QObject::tr("Invalid type of '%1' for '%2'. Must be an integer type").arg(p_Impl->m_Type).arg(getPzflexFeatureIdsArrayPath().serialize());
-    setErrorCondition(-10103, ss);
+    setErrorCondition(-10105, ss);
   }
 }
 
@@ -544,7 +541,7 @@ void ExportOnScaleTableFile::execute()
   if(!dir.mkpath(m_OutputPath))
   {
     QString ss = QObject::tr("Error creating path '%1'").arg(m_OutputPath);
-    setErrorCondition(-10104, ss);
+    setErrorCondition(-10106, ss);
     return;
   }
 
@@ -552,15 +549,7 @@ void ExportOnScaleTableFile::execute()
   if(dc == nullptr)
   {
     QString ss = QObject::tr("Error obtaining data container '%1'").arg(m_PzflexFeatureIdsArrayPath.getDataContainerName());
-    setErrorCondition(-10105, ss);
-    return;
-  }
-
-  auto imageGeom = dc->getGeometryAs<ImageGeom>();
-  if(imageGeom == nullptr)
-  {
-    QString ss = QObject::tr("Error obtaining image geometry from data container '%1'").arg(m_PzflexFeatureIdsArrayPath.getDataContainerName());
-    setErrorCondition(-10106, ss);
+    setErrorCondition(-10107, ss);
     return;
   }
 
@@ -568,7 +557,7 @@ void ExportOnScaleTableFile::execute()
   if(phaseNames == nullptr)
   {
     QString ss = QObject::tr("Error obtaining phase names data array '%1'").arg(m_PhaseNamesArrayPath.serialize());
-    setErrorCondition(-10107, ss);
+    setErrorCondition(-10109, ss);
     return;
   }
 
@@ -631,7 +620,7 @@ void ExportOnScaleTableFile::execute()
   else
   {
     QString ss = QObject::tr("Invalid type of '%1' for '%2'. Must be an integer type").arg(p_Impl->m_Type).arg(getPzflexFeatureIdsArrayPath().serialize());
-    setErrorCondition(-10108, ss);
+    setErrorCondition(-10110, ss);
   }
 }
 

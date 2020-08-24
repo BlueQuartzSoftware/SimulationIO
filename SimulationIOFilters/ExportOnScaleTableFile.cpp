@@ -216,8 +216,8 @@ Eigen::Matrix3f determineRotationMatrix(const std::array<size_t, 3>& dims)
 }
 
 template <class T>
-bool writeOnScaleFile(std::weak_ptr<const DataArray<T>> featureIdsPtr, const ImageGeom& imageGeom, const StringDataArray& phaseNames, const QString& outputPath, const QString& outputFilePrefix,
-                      const IntVec3Type& numKeypoints, ExportOnScaleTableFile* filter)
+bool writeOnScaleFile(std::weak_ptr<const DataArray<T>> featureIdsPtr, const StringDataArray& phaseNames, const QString& outputPath, const QString& outputFilePrefix, const IntVec3Type& numKeypoints,
+                      ExportOnScaleTableFile* filter)
 {
   auto featureIds = featureIdsPtr.lock();
   if(featureIds == nullptr)
@@ -574,56 +574,56 @@ void ExportOnScaleTableFile::execute()
 
   if(p_Impl->m_Type == SIMPL::TypeNames::Int8)
   {
-    if(!writeOnScaleFile(p_Impl->m_FeatureIds8Ptr, *imageGeom, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
+    if(!writeOnScaleFile(p_Impl->m_FeatureIds8Ptr, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
     {
       return;
     }
   }
   else if(p_Impl->m_Type == SIMPL::TypeNames::Int16)
   {
-    if(!writeOnScaleFile(p_Impl->m_FeatureIds16Ptr, *imageGeom, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
+    if(!writeOnScaleFile(p_Impl->m_FeatureIds16Ptr, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
     {
       return;
     }
   }
   else if(p_Impl->m_Type == SIMPL::TypeNames::Int32)
   {
-    if(!writeOnScaleFile(p_Impl->m_FeatureIds32Ptr, *imageGeom, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
+    if(!writeOnScaleFile(p_Impl->m_FeatureIds32Ptr, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
     {
       return;
     }
   }
   else if(p_Impl->m_Type == SIMPL::TypeNames::Int64)
   {
-    if(!writeOnScaleFile(p_Impl->m_FeatureIds64Ptr, *imageGeom, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
+    if(!writeOnScaleFile(p_Impl->m_FeatureIds64Ptr, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
     {
       return;
     }
   }
   else if(p_Impl->m_Type == SIMPL::TypeNames::UInt8)
   {
-    if(!writeOnScaleFile(p_Impl->m_FeatureIdsU8Ptr, *imageGeom, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
+    if(!writeOnScaleFile(p_Impl->m_FeatureIdsU8Ptr, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
     {
       return;
     }
   }
   else if(p_Impl->m_Type == SIMPL::TypeNames::UInt16)
   {
-    if(!writeOnScaleFile(p_Impl->m_FeatureIdsU16Ptr, *imageGeom, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
+    if(!writeOnScaleFile(p_Impl->m_FeatureIdsU16Ptr, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
     {
       return;
     }
   }
   else if(p_Impl->m_Type == SIMPL::TypeNames::UInt32)
   {
-    if(!writeOnScaleFile(p_Impl->m_FeatureIdsU32Ptr, *imageGeom, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
+    if(!writeOnScaleFile(p_Impl->m_FeatureIdsU32Ptr, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
     {
       return;
     }
   }
   else if(p_Impl->m_Type == SIMPL::TypeNames::UInt64)
   {
-    if(!writeOnScaleFile(p_Impl->m_FeatureIdsU64Ptr, *imageGeom, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
+    if(!writeOnScaleFile(p_Impl->m_FeatureIdsU64Ptr, *phaseNames, m_OutputPath, m_OutputFilePrefix, m_NumKeypoints, this))
     {
       return;
     }

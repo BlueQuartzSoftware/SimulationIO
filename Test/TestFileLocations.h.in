@@ -1,5 +1,4 @@
-#ifndef _@PROJECT_NAME@FileLocation_h_
-#define _@PROJECT_NAME@FileLocation_h_
+#pragma once
 
 #include <QtCore/QString>
 
@@ -13,18 +12,16 @@
  *
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  */
 
-
 namespace UnitTest
 {
-
-  const QString DataDir("@DREAM3D_DATA_DIR@");
-  const QString TestTempDir("@TEST_TEMP_DIR@");
-  const QString DREAM3DProjDir("@DREAM3DProj_SOURCE_DIR@");
+  inline const QString DataDir("@DREAM3D_DATA_DIR@");
+  inline const QString TestTempDir("@TEST_TEMP_DIR@");
+  inline const QString DREAM3DProjDir("@DREAM3DProj_SOURCE_DIR@");
 
   namespace Export3dSolidMeshTest
   {
-    const QString TestFile1("@TEST_TEMP_DIR@/TestFile1.txt");
-    const QString TestFile2("@TEST_TEMP_DIR@/TestFile2.txt");
+    inline const QString TestFile1("@TEST_TEMP_DIR@/TestFile1.txt");
+    inline const QString TestFile2("@TEST_TEMP_DIR@/TestFile2.txt");
   }
 @FILTER_NAMESPACE@
 }
@@ -33,8 +30,8 @@ namespace UnitTest
 {
   namespace ImportFEADataTest
   {
-   const QString TestFile1("@TEST_TEMP_DIR@/TestFile1.txt");
-   const QString TestFile2("@TEST_TEMP_DIR@/TestFile2.txt");
+   inline const QString TestFile1("@TEST_TEMP_DIR@/TestFile1.txt");
+   inline const QString TestFile2("@TEST_TEMP_DIR@/TestFile2.txt");
   }
 }
 
@@ -42,20 +39,16 @@ namespace UnitTest
 {
   namespace ExportLAMMPSFileTest
   {
-   const QString TestFile1("@TEST_TEMP_DIR@/TestFile1.txt");
-   const QString TestFile2("@TEST_TEMP_DIR@/TestFile2.txt");
+   inline const QString TestFile1("@TEST_TEMP_DIR@/TestFile1.txt");
+   inline const QString TestFile2("@TEST_TEMP_DIR@/TestFile2.txt");
   }
 }
-
 
 namespace UnitTest
 {
   namespace ExportDAMASKFilesTest
   {
-   const QString TestFile1("@TEST_TEMP_DIR@/TestFile1.txt");
-   const QString TestFile2("@TEST_TEMP_DIR@/TestFile2.txt");
+   inline const QString TestFile1("@TEST_TEMP_DIR@/TestFile1.txt");
+   inline const QString TestFile2("@TEST_TEMP_DIR@/TestFile2.txt");
   }
 }
-
-
-#endif

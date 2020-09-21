@@ -253,7 +253,7 @@ void ExportDAMASKFiles::execute()
       {
         if(entriesPerLine != 0)
         {
-          if((entriesPerLine % 10) != 0) // 10 per line
+          if((entriesPerLine % dims[0]) != 0) // dims[0] per line
           {
             fprintf(geomf, " ");
           }
@@ -278,7 +278,7 @@ void ExportDAMASKFiles::execute()
     {
       if(entriesPerLine != 0)
       {
-        if((entriesPerLine % 10) != 0) // 10 per line
+        if((entriesPerLine % dims[0]) != 0) // dims[0] per line
         {
           fprintf(geomf, " ");
         }

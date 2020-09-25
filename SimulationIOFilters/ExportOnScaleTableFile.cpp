@@ -190,13 +190,13 @@ Eigen::Matrix3f determineRotationMatrix(const std::array<size_t, 3>& dims)
     {
       // Swap x and y
       std::swap(_dims[0], _dims[1]);
-      rotationMatrices.emplace_back(createRotationMatrix(SIMPLib::Constants::k_PiOver2, Axis::Z));
+      rotationMatrices.emplace_back(createRotationMatrix(SIMPLib::Constants::k_PiOver2D, Axis::Z));
     }
     else
     {
       // Swap x and z
       std::swap(_dims[0], _dims[2]);
-      rotationMatrices.emplace_back(createRotationMatrix(SIMPLib::Constants::k_PiOver2, Axis::Y));
+      rotationMatrices.emplace_back(createRotationMatrix(SIMPLib::Constants::k_PiOver2D, Axis::Y));
     }
   }
 
@@ -206,7 +206,7 @@ Eigen::Matrix3f determineRotationMatrix(const std::array<size_t, 3>& dims)
   {
     // Swap y and z
     std::swap(_dims[1], _dims[2]);
-    rotationMatrices.emplace_back(createRotationMatrix(SIMPLib::Constants::k_PiOver2, Axis::X));
+    rotationMatrices.emplace_back(createRotationMatrix(SIMPLib::Constants::k_PiOver2D, Axis::X));
   }
 
   Eigen::Matrix3f identity = Eigen::Matrix3f::Identity();

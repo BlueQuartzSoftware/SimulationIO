@@ -208,9 +208,9 @@ bool AbaqusFileWriter::write(const ImageGeom& imageGeom, const DataArray<int32_t
       if(featureIdsData[i] == grainId)
       {
         phaseId[grainId - 1] = cellPhasesData[i];
-        orient[(grainId - 1) * 3] = cellEulerAnglesData[i * 3] * 180.0 * SIMPLib::Constants::k_1OverPi;
-        orient[(grainId - 1) * 3 + 1] = cellEulerAnglesData[i * 3 + 1] * 180.0 * SIMPLib::Constants::k_1OverPi;
-        orient[(grainId - 1) * 3 + 2] = cellEulerAnglesData[i * 3 + 2] * 180.0 * SIMPLib::Constants::k_1OverPi;
+        orient[(grainId - 1) * 3] = cellEulerAnglesData[i * 3] * 180.0 * SIMPLib::Constants::k_1OverPiD;
+        orient[(grainId - 1) * 3 + 1] = cellEulerAnglesData[i * 3 + 1] * 180.0 * SIMPLib::Constants::k_1OverPiD;
+        orient[(grainId - 1) * 3 + 2] = cellEulerAnglesData[i * 3 + 2] * 180.0 * SIMPLib::Constants::k_1OverPiD;
       }
     }
   }

@@ -314,8 +314,8 @@ void ExportDAMASKFiles::execute()
     for(int32_t i = 0; i < totalPoints; i++)
     {
       fprintf(matf, "[point%d]\n", i + 1);
-      fprintf(matf, "(gauss) phi1 %.3f   Phi %.3f    phi2 %.3f   scatter 0.0   fraction 1.0 \n", m_CellEulerAngles[i * 3] * 180.0 * SIMPLib::Constants::k_1OverPi,
-              m_CellEulerAngles[i * 3 + 1] * 180.0 * SIMPLib::Constants::k_1OverPi, m_CellEulerAngles[i * 3 + 2] * 180.0 * SIMPLib::Constants::k_1OverPi);
+      fprintf(matf, "(gauss) phi1 %.3f   Phi %.3f    phi2 %.3f   scatter 0.0   fraction 1.0 \n", m_CellEulerAngles[i * 3] * 180.0 * SIMPLib::Constants::k_1OverPiD,
+              m_CellEulerAngles[i * 3 + 1] * 180.0 * SIMPLib::Constants::k_1OverPiD, m_CellEulerAngles[i * 3 + 2] * 180.0 * SIMPLib::Constants::k_1OverPiD);
     }
 
     fprintf(matf, "<microstructure>\n");
@@ -346,9 +346,9 @@ void ExportDAMASKFiles::execute()
         if(m_FeatureIds[i] == grainId)
         {
           m_phaseId[grainId - 1] = m_CellPhases[i];
-          m_orient[(grainId - 1) * 3] = m_CellEulerAngles[i * 3] * 180.0 * SIMPLib::Constants::k_1OverPi;
-          m_orient[(grainId - 1) * 3 + 1] = m_CellEulerAngles[i * 3 + 1] * 180.0 * SIMPLib::Constants::k_1OverPi;
-          m_orient[(grainId - 1) * 3 + 2] = m_CellEulerAngles[i * 3 + 2] * 180.0 * SIMPLib::Constants::k_1OverPi;
+          m_orient[(grainId - 1) * 3] = m_CellEulerAngles[i * 3] * 180.0 * SIMPLib::Constants::k_1OverPiD;
+          m_orient[(grainId - 1) * 3 + 1] = m_CellEulerAngles[i * 3 + 1] * 180.0 * SIMPLib::Constants::k_1OverPiD;
+          m_orient[(grainId - 1) * 3 + 2] = m_CellEulerAngles[i * 3 + 2] * 180.0 * SIMPLib::Constants::k_1OverPiD;
         }
       }
       grainId++;

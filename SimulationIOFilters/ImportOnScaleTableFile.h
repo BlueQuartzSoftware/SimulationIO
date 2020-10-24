@@ -46,8 +46,8 @@
 #include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
-#include "SimulationIO/SimulationIODLLExport.h"
 #include "SimulationIO/SimulationIOConstants.h"
+#include "SimulationIO/SimulationIODLLExport.h"
 
 // our PIMPL private class
 class ImportOnScaleTableFilePrivate;
@@ -64,7 +64,7 @@ class SimulationIO_EXPORT ImportOnScaleTableFile : public AbstractFilter
   PYB11_FILTER()
   PYB11_SHARED_POINTERS(ImportOnScaleTableFile)
   PYB11_FILTER_NEW_MACRO(ImportOnScaleTableFile)
-  
+
   PYB11_PROPERTY(DataArrayPath VolumeDataContainerName READ getVolumeDataContainerName WRITE setVolumeDataContainerName)
   PYB11_PROPERTY(QString CellAttributeMatrixName READ getCellAttributeMatrixName WRITE setCellAttributeMatrixName)
   PYB11_PROPERTY(QString PhaseAttributeMatrixName READ getPhaseAttributeMatrixName WRITE setPhaseAttributeMatrixName)

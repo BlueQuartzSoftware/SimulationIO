@@ -33,9 +33,9 @@
 
 #pragma once
 
-#include <QtCore/QString>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
+#include <QtCore/QString>
 #include <QtCore/QTextStream>
 
 #include "SIMPLib/Common/SIMPLArray.hpp"

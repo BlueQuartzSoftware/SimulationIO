@@ -4,12 +4,14 @@
 
 #include "ExportDAMASKFiles.h"
 
-#include <QtCore/QTextStream>
 #include <QtCore/QDir>
+#include <QtCore/QTextStream>
 
 #include "SIMPLib/Common/Constants.h"
 
 #include "SIMPLib/Common/Constants.h"
+#include "SIMPLib/DataContainers/DataContainer.h"
+#include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/ChoiceFilterParameter.h"
@@ -29,8 +31,6 @@
 #include "SIMPLib/Math/GeometryMath.h"
 #include "SIMPLib/Math/SIMPLibMath.h"
 #include "SIMPLib/Utilities/FileSystemPathHelper.h"
-#include "SIMPLib/DataContainers/DataContainerArray.h"
-#include "SIMPLib/DataContainers/DataContainer.h"
 
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"

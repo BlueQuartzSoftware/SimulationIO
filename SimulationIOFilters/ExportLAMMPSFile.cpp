@@ -36,6 +36,8 @@
 
 #include <QtCore/QTextStream>
 
+#include "SIMPLib/DataContainers/DataContainer.h"
+#include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/DataArraySelectionFilterParameter.h"
 #include "SIMPLib/FilterParameters/DataContainerSelectionFilterParameter.h"
@@ -46,8 +48,6 @@
 #include "SIMPLib/Geometry/VertexGeom.h"
 #include "SIMPLib/Utilities/FileSystemPathHelper.h"
 #include "SIMPLib/Utilities/SIMPLibEndian.h"
-#include "SIMPLib/DataContainers/DataContainerArray.h"
-#include "SIMPLib/DataContainers/DataContainer.h"
 
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"

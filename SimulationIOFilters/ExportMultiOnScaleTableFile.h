@@ -35,9 +35,9 @@
 
 #include <memory>
 
+#include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Common/SIMPLArray.hpp"
 #include "SIMPLib/Filtering/AbstractFilter.h"
-#include "SIMPLib/SIMPLib.h"
 
 #include "SimulationIO/SimulationIODLLExport.h"
 

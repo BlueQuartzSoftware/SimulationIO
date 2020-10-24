@@ -14,10 +14,10 @@
 
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Common/Constants.h"
+#include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/FilterParameters/FloatVec3FilterParameter.h"
 #include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
-#include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/Geometry/IGeometry.h"
 
 #include "SimulationIO/SimulationIOPlugin.h"

@@ -433,7 +433,7 @@ AbstractFilter::Pointer ImportDelamData::newFilterInstance(bool copyFilterParame
 
 // -----------------------------------------------------------------------------
 QString ImportDelamData::getCompiledLibraryName() const
-{ 
+{
   return SimulationIOConstants::SimulationIOBaseName;
 }
 
@@ -448,7 +448,7 @@ QString ImportDelamData::getFilterVersion() const
 {
   QString version;
   QTextStream vStream(&version);
-  vStream <<  SimulationIO::Version::Major() << "." << SimulationIO::Version::Minor() << "." << SimulationIO::Version::Patch();
+  vStream << SimulationIO::Version::Major() << "." << SimulationIO::Version::Minor() << "." << SimulationIO::Version::Patch();
   return version;
 }
 
@@ -460,8 +460,8 @@ QString ImportDelamData::getGroupName() const
 
 // -----------------------------------------------------------------------------
 QString ImportDelamData::getSubGroupName() const
-{ 
-  return "SimulationIO"; 
+{
+  return "SimulationIO";
 }
 
 // -----------------------------------------------------------------------------

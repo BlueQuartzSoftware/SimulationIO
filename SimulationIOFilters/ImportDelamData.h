@@ -60,7 +60,6 @@ class SimulationIO_EXPORT ImportDelamData : public AbstractFilter
   // clang-format on
 
 public:
-
   using Self = ImportDelamData;
   using Pointer = std::shared_ptr<Self>;
   using ConstPointer = std::shared_ptr<const Self>;
@@ -251,7 +250,6 @@ private:
 public:
   ImportDelamData(const ImportDelamData&) = delete;            // Copy Constructor Not Implemented
   ImportDelamData& operator=(const ImportDelamData&) = delete; // Copy Assignment Not Implemented
-  ImportDelamData(ImportDelamData &&) = delete;                // Move Constructor Not Implemented
+  ImportDelamData(ImportDelamData&&) = delete;                 // Move Constructor Not Implemented
   ImportDelamData& operator=(ImportDelamData&&) = delete;      // Move Assignment Not Implemented
 };
-

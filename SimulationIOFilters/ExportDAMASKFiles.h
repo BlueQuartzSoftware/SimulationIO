@@ -11,6 +11,7 @@
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/CoreFilters/FileWriter.h"
+#include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/DataArrays/IDataArray.h"
 #include "SIMPLib/DataArrays/StringDataArray.h"
 #include "SIMPLib/DataContainers/DataContainer.h"
@@ -19,7 +20,6 @@
 #include "SIMPLib/FilterParameters/IntVec3FilterParameter.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/Geometry/MeshStructs.h"
-#include "SIMPLib/DataArrays/DataArray.hpp"
 
 #include "SimulationIO/SimulationIOPlugin.h"
 

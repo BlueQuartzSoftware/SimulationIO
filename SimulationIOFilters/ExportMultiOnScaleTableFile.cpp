@@ -49,8 +49,8 @@
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"
 
-#include "SimulationIO/SimulationIOFilters/Utility/OnScaleTableFileWriter.h"
 #include "SimulationIO/SimulationIOFilters/ExportOnScaleTableFile.h"
+#include "SimulationIO/SimulationIOFilters/Utility/OnScaleTableFileWriter.h"
 
 struct ExportMultiOnScaleTableFile::Impl
 {

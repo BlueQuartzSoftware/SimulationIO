@@ -35,10 +35,10 @@
 
 #include <memory>
 
-#include "SIMPLib/Common/SIMPLArray.hpp"
-#include "SIMPLib/Filtering/AbstractFilter.h"
 #include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Common/Constants.h"
+#include "SIMPLib/Common/SIMPLArray.hpp"
+#include "SIMPLib/Filtering/AbstractFilter.h"
 
 #include "SimulationIO/SimulationIODLLExport.h"
 

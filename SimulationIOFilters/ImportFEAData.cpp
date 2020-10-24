@@ -12,8 +12,11 @@
 
 #include <QtCore/QDebug>
 
+#include "SIMPLib/SIMPLibVersion.h"
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/Common/TemplateHelpers.h"
+#include "SIMPLib/DataContainers/DataContainer.h"
+#include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/DataContainers/DataContainerBundle.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
@@ -36,10 +39,7 @@
 #include "SIMPLib/Geometry/TetrahedralGeom.h"
 #include "SIMPLib/Geometry/TriangleGeom.h"
 #include "SIMPLib/Geometry/VertexGeom.h"
-#include "SIMPLib/SIMPLibVersion.h"
 #include "SIMPLib/Utilities/TimeUtilities.h"
-#include "SIMPLib/DataContainers/DataContainerArray.h"
-#include "SIMPLib/DataContainers/DataContainer.h"
 
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"

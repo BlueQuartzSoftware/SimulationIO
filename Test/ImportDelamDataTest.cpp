@@ -73,8 +73,7 @@ public:
     if(nullptr == filterFactory)
     {
       std::stringstream ss;
-      ss << "The ImportDelamDataTest Requires the use of the " << filtName.toStdString()
-         << " filter which is found in the SimulationIO Plugin";
+      ss << "The ImportDelamDataTest Requires the use of the " << filtName.toStdString() << " filter which is found in the SimulationIO Plugin";
       DREAM3D_TEST_THROW_EXCEPTION(ss.str())
     }
     return 0;
@@ -642,4 +641,3 @@ public:
     DREAM3D_REGISTER_TEST(RemoveTestFiles())
   }
 };
-

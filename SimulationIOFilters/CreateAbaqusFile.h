@@ -35,9 +35,9 @@
 
 #include <memory>
 
+#include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/FilterParameters/DynamicTableData.h"
 #include "SIMPLib/Filtering/AbstractFilter.h"
-#include "SIMPLib/SIMPLib.h"
 
 #include "SimulationIO/SimulationIODLLExport.h"
 

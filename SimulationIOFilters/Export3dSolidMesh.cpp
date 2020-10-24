@@ -9,8 +9,11 @@
 #include <QtCore/QString>
 #include <QtCore/QTextStream>
 
+#include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Common/Constants.h"
 #include "SIMPLib/Common/TemplateHelpers.h"
+#include "SIMPLib/DataContainers/DataContainer.h"
+#include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
 #include "SIMPLib/FilterParameters/BooleanFilterParameter.h"
 #include "SIMPLib/FilterParameters/ChoiceFilterParameter.h"
@@ -36,10 +39,7 @@
 #include "SIMPLib/Geometry/TriangleGeom.h"
 #include "SIMPLib/Math/GeometryMath.h"
 #include "SIMPLib/Math/SIMPLibMath.h"
-#include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Utilities/FileSystemPathHelper.h"
-#include "SIMPLib/DataContainers/DataContainerArray.h"
-#include "SIMPLib/DataContainers/DataContainer.h"
 
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"

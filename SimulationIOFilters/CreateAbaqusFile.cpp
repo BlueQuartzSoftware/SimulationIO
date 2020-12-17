@@ -269,7 +269,7 @@ void CreateAbaqusFile::execute()
     return;
   }
 
-  if(!AbaqusFileWriter::write(*imageGeom, *featureIds, *cellPhases, *cellEulerAngles, m_MatConst, m_OutputPath, m_OutputFilePrefix, m_JobName, m_NumDepvar, m_NumUserOutVar))
+  if(!AbaqusFileWriter::write(this, *imageGeom, *featureIds, *cellPhases, *cellEulerAngles, m_MatConst, m_OutputPath, m_OutputFilePrefix, m_JobName, m_NumDepvar, m_NumUserOutVar))
   {
     QString ss = QObject::tr("Error writing file at '%1'").arg(m_OutputPath);
     setErrorCondition(-10207, ss);

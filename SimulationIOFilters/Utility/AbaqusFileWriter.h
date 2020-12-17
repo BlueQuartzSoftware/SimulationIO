@@ -41,6 +41,32 @@
 
 namespace AbaqusFileWriter
 {
-bool write(const ImageGeom& imageGeom, const DataArray<int32_t>& featureIds, const DataArray<int32_t>& cellPhases, const DataArray<float>& cellEulerAngles, const DynamicTableData& matConst,
-           const QString& outputPath, const QString& filePrefix, const QString& jobName, int32_t numDepvar, int32_t numUserOutVar);
+/**
+ * @brief write
+ * @param filter
+ * @param imageGeom
+ * @param featureIds
+ * @param cellPhases
+ * @param cellEulerAngles
+ * @param matConst
+ * @param outputPath
+ * @param filePrefix
+ * @param jobName
+ * @param numDepvar
+ * @param numUserOutVar
+ * @return
+ */
+// clang-format off
+bool write(AbstractFilter* filter,
+           const ImageGeom& imageGeom,
+           const DataArray<int32_t>& featureIds,
+           const DataArray<int32_t>& cellPhases,
+           const DataArray<float>& cellEulerAngles,
+           const DynamicTableData& matConst,
+           const QString& outputPath,
+           const QString& filePrefix,
+           const QString& jobName,
+           int32_t numDepvar,
+           int32_t numUserOutVar);
+//clang-format on
 }

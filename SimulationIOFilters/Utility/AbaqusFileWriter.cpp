@@ -33,6 +33,8 @@
 
 #include "AbaqusFileWriter.h"
 
+#include <iomanip>
+
 #include <QtCore/QDir>
 #include <QtCore/QTextStream>
 

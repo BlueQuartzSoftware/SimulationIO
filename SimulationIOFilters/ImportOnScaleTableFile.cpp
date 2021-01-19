@@ -43,6 +43,7 @@
 #include <QtCore/QTextStream>
 
 #include "SIMPLib/Common/Constants.h"
+#include "SIMPLib/Common/QtBackwardCompatibilityMacro.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/DataContainers/DataContainer.h"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
@@ -414,7 +415,7 @@ int32_t ImportOnScaleTableFile::readHeader(QFile& fileStream)
     if(line.startsWith("xcrd"))
     {
       line = line.trimmed();
-      tokens = line.split(" ", QString::SkipEmptyParts);
+      tokens = line.split(" ", QSTRING_SKIP_EMPTY_PARTS);
       nx = tokens[1].toULongLong(&ok);
       d_ptr->m_CoordDataExists[0] = true;
       xValues = FloatArrayType::CreateArray(nx, ::k_XBounds, true);
@@ -429,7 +430,7 @@ int32_t ImportOnScaleTableFile::readHeader(QFile& fileStream)
     else if(line.startsWith("ycrd"))
     {
       line = line.trimmed();
-      tokens = line.split(" ", QString::SkipEmptyParts);
+      tokens = line.split(" ", QSTRING_SKIP_EMPTY_PARTS);
       ny = tokens[1].toULongLong(&ok);
       d_ptr->m_CoordDataExists[1] = true;
       yValues = FloatArrayType::CreateArray(ny, ::k_YBounds, true);
@@ -444,7 +445,7 @@ int32_t ImportOnScaleTableFile::readHeader(QFile& fileStream)
     else if(line.startsWith("zcrd"))
     {
       line = line.trimmed();
-      tokens = line.split(" ", QString::SkipEmptyParts);
+      tokens = line.split(" ", QSTRING_SKIP_EMPTY_PARTS);
       nz = tokens[1].toULongLong(&ok);
       d_ptr->m_CoordDataExists[2] = true;
       zValues = FloatArrayType::CreateArray(nz, ::k_ZBounds, true);
@@ -459,7 +460,7 @@ int32_t ImportOnScaleTableFile::readHeader(QFile& fileStream)
     else if(line.startsWith("name"))
     {
       line = line.trimmed();
-      QStringList tokens = line.split(" ", QString::SkipEmptyParts);
+      QStringList tokens = line.split(" ", QSTRING_SKIP_EMPTY_PARTS);
       size_t numNames = tokens[1].toULongLong(&ok);
       names.resize(numNames);
       OnScaleTableFileUtils::parseValues(fileStream, names);
@@ -564,7 +565,7 @@ int32_t ImportOnScaleTableFile::readFile(QFile& fileStream)
       QString ss = QObject::tr("Reading Names");
       notifyStatusMessage(ss);
       line = line.trimmed();
-      QStringList tokens = line.split(" ", QString::SkipEmptyParts);
+      QStringList tokens = line.split(" ", QSTRING_SKIP_EMPTY_PARTS);
       size_t numNames = tokens[1].toULongLong(&ok);
       names.resize(numNames);
       OnScaleTableFileUtils::parseValues(fileStream, names);

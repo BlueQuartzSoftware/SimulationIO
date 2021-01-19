@@ -4,6 +4,7 @@
 
 #include <QtCore/QFile>
 
+#include "SIMPLib/Common/QtBackwardCompatibilityMacro.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
@@ -24,7 +25,7 @@ int32_t parseValues(QFile& in, FloatArrayType& data)
   while(count < data.size())
   {
     QString line = in.readLine().trimmed();
-    QStringList tokens = line.split(" ", QString::SkipEmptyParts);
+    QStringList tokens = line.split(" ", QSTRING_SKIP_EMPTY_PARTS);
     for(const auto& token : tokens)
     {
       float value = token.toFloat(&ok);
@@ -53,7 +54,7 @@ int32_t parseValues(AbstractFilter* filter, QFile& in, Int32ArrayType& data)
   while(count < data.size())
   {
     QString line = in.readLine().trimmed();
-    QStringList tokens = line.split(" ", QString::SkipEmptyParts);
+    QStringList tokens = line.split(" ", QSTRING_SKIP_EMPTY_PARTS);
     for(const auto& token : tokens)
     {
       int32_t value = token.toInt(&ok);
@@ -87,7 +88,7 @@ void parseValues(QFile& in, std::vector<QString>& data)
   while(count < data.size())
   {
     QString line = in.readLine().trimmed();
-    QStringList tokens = line.split(" ", QString::SkipEmptyParts);
+    QStringList tokens = line.split(" ", QSTRING_SKIP_EMPTY_PARTS);
     for(const auto& token : tokens)
     {
       data[count] = token;

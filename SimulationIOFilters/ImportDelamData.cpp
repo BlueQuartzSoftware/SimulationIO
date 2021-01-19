@@ -35,6 +35,7 @@
 
 #include <QtCore/QFileInfo>
 
+#include "SIMPLib/Common/QtBackwardCompatibilityMacro.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/DataContainerCreationFilterParameter.h"
@@ -190,7 +191,7 @@ void ImportDelamData::readBvidStdOutFile()
   QString bvidLine = bvidStdOutFile.readLine();
   while(!bvidLine.isEmpty())
   {
-    QStringList tokens = bvidLine.split(' ', QString::SplitBehavior::SkipEmptyParts);
+    QStringList tokens = bvidLine.split(' ', QSTRING_SKIP_EMPTY_PARTS);
     if(tokens.size() >= 2 && tokens[1] == "0/90ply")
     {
       bool ok = false;
@@ -317,7 +318,7 @@ void ImportDelamData::readCSDGMFile()
   size_t lineNum = 1;
   while(!csdgmLine.isEmpty())
   {
-    QStringList tokens = csdgmLine.split(' ', QString::SplitBehavior::SkipEmptyParts);
+    QStringList tokens = csdgmLine.split(' ', QSTRING_SKIP_EMPTY_PARTS);
     if(tokens.size() != 4)
     {
       std::stringstream ss;

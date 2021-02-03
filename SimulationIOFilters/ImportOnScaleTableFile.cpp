@@ -360,8 +360,6 @@ void ImportOnScaleTableFile::dataCheck()
 // -----------------------------------------------------------------------------
 void ImportOnScaleTableFile::execute()
 {
-  clearErrorCode();
-  clearWarningCode();
   dataCheck();
   if(getErrorCode() < 0)
   {

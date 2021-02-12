@@ -39,15 +39,6 @@
 //
 // -----------------------------------------------------------------------------
 ExportDAMASKFiles::ExportDAMASKFiles()
-: m_DataFormat(0)
-, m_OutputPath("")
-, m_GeometryFileName("")
-, m_HomogenizationIndex(1)
-, m_FeatureIdsArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds)
-, m_CellPhasesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Phases)
-, m_CellEulerAnglesArrayPath(SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles)
-, m_CompressGeomFile(true)
-
 {
   initialize();
 }

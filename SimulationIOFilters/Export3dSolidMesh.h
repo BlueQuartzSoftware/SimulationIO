@@ -417,8 +417,8 @@ private:
   int32_t* m_FeaturePhases = nullptr;
 
   int m_MeshingPackage = {0};
-  QString m_outputPath = {};
-  QString m_PackageLocation = {};
+  QString m_outputPath = {""};
+  QString m_PackageLocation = {""};
   DataArrayPath m_SurfaceMeshFaceLabelsArrayPath = {SIMPL::Defaults::TriangleDataContainerName, SIMPL::Defaults::FaceAttributeMatrixName, SIMPL::FaceData::SurfaceMeshFaceLabels};
   DataArrayPath m_FeaturePhasesArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::Phases};
   DataArrayPath m_FeatureEulerAnglesArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellFeatureAttributeMatrixName, SIMPL::FeatureData::EulerAngles};
@@ -432,9 +432,9 @@ private:
   QString m_TetDataContainerName = {SIMPL::Defaults::TetrahedralDataContainerName};
   QString m_VertexAttributeMatrixName = {SIMPL::Defaults::VertexAttributeMatrixName};
   QString m_CellAttributeMatrixName = {SIMPL::Defaults::CellAttributeMatrixName};
-  QString m_GmshSTLFileName = {};
+  QString m_GmshSTLFileName = {""};
   int m_MeshFileFormat = {0};
-  QString m_NetgenSTLFileName = {};
+  QString m_NetgenSTLFileName = {""};
   int m_MeshSize = {0};
 
   void runPackage(const QString& file, const QString& meshFile);

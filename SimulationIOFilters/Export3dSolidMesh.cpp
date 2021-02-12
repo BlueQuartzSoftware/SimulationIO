@@ -48,10 +48,6 @@
 //
 // -----------------------------------------------------------------------------
 Export3dSolidMesh::Export3dSolidMesh()
-: m_outputPath("")
-, m_PackageLocation("")
-, m_GmshSTLFileName("")
-, m_NetgenSTLFileName("")
 {
   initialize();
 }

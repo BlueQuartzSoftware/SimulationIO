@@ -237,14 +237,14 @@ private:
   std::weak_ptr<DataArray<float>> m_CellEulerAnglesPtr;
   float* m_CellEulerAngles = nullptr;
 
-  int m_DataFormat = {};
-  QString m_OutputPath = {};
-  QString m_GeometryFileName = {};
-  int m_HomogenizationIndex = {};
-  DataArrayPath m_FeatureIdsArrayPath = {};
-  DataArrayPath m_CellPhasesArrayPath = {};
-  DataArrayPath m_CellEulerAnglesArrayPath = {};
-  bool m_CompressGeomFile = {};
+  int m_DataFormat = {0};
+  QString m_OutputPath = {""};
+  QString m_GeometryFileName = {""};
+  int m_HomogenizationIndex = {1};
+  DataArrayPath m_FeatureIdsArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::FeatureIds};
+  DataArrayPath m_CellPhasesArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::Phases};
+  DataArrayPath m_CellEulerAnglesArrayPath = {SIMPL::Defaults::ImageDataContainerName, SIMPL::Defaults::CellAttributeMatrixName, SIMPL::CellData::EulerAngles};
+  bool m_CompressGeomFile = {true};
 
 public:
   /* Rule of 5: All special member functions should be defined if any are defined.

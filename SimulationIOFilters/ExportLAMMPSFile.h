@@ -185,8 +185,8 @@ private:
   std::weak_ptr<DataArray<int32_t>> m_AtomFeatureLabelsPtr;
   int32_t* m_AtomFeatureLabels = nullptr;
 
-  QString m_LammpsFile = {};
-  DataArrayPath m_AtomFeatureLabelsPath = {};
+  QString m_LammpsFile = {""};
+  DataArrayPath m_AtomFeatureLabelsPath = {SIMPL::Defaults::VertexDataContainerName, SIMPL::Defaults::VertexAttributeMatrixName, SIMPL::VertexData::AtomFeatureLabels};
 
 public:
   ExportLAMMPSFile(const ExportLAMMPSFile&) = delete;            // Copy Constructor Not Implemented

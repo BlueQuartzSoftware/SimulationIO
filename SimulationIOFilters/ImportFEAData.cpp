@@ -51,29 +51,8 @@
 // -----------------------------------------------------------------------------
 
 ImportFEAData::ImportFEAData()
-: m_FEAPackage(0)
-, m_odbName("")
-, m_odbFilePath("")
-, m_ABQPythonCommand("")
-, m_InstanceName("PART-1-1")
-, m_Step("Step-1")
-, m_FrameNumber(1)
 //  , m_OutputVariable("S")
 // , m_ElementSet("NALL")
-, m_DEFORMInputFile("")
-, m_BSAMInputFile("")
-, m_DEFORMPointTrackInputFile("")
-, m_TimeSeriesBundleName(SIMPL::Defaults::TimeSeriesBundleName)
-, m_ImportSingleTimeStep(false)
-, m_SingleTimeStepValue(0)
-, m_SelectedTimeArrayName(SimulationIOConstants::DEFORMData::Time)
-, m_SelectedTimeStepArrayName(SimulationIOConstants::DEFORMData::Step)
-, m_SelectedPointNumArrayName(SimulationIOConstants::DEFORMData::PointNum)
-, m_SelectedXCoordArrayName(SimulationIOConstants::DEFORMData::RXCoord)
-, m_SelectedYCoordArrayName(SimulationIOConstants::DEFORMData::ZYCoord)
-, m_DataContainerName(SIMPL::Defaults::DataContainerName)
-, m_VertexAttributeMatrixName(SIMPL::Defaults::VertexAttributeMatrixName)
-, m_CellAttributeMatrixName(SIMPL::Defaults::CellAttributeMatrixName)
 {
   m_BundleMetaDataAMName = DataContainerBundle::GetMetaDataName();
 

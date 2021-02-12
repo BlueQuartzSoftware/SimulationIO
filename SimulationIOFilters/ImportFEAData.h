@@ -421,28 +421,28 @@ protected slots:
   void sendStandardOutput();
 
 private:
-  int m_FEAPackage = {};
-  QString m_odbName = {};
-  QString m_odbFilePath = {};
-  QString m_ABQPythonCommand = {};
-  QString m_InstanceName = {};
-  QString m_Step = {};
-  int m_FrameNumber = {};
-  QString m_DEFORMInputFile = {};
-  QString m_BSAMInputFile = {};
-  QString m_DEFORMPointTrackInputFile = {};
-  QString m_TimeSeriesBundleName = {};
-  bool m_ImportSingleTimeStep = {};
-  int m_SingleTimeStepValue = {};
-  QString m_SelectedTimeArrayName = {};
-  QString m_SelectedTimeStepArrayName = {};
-  QString m_SelectedPointNumArrayName = {};
-  QString m_SelectedXCoordArrayName = {};
-  QString m_SelectedYCoordArrayName = {};
+  int m_FEAPackage = {0};
+  QString m_odbName = {""};
+  QString m_odbFilePath = {""};
+  QString m_ABQPythonCommand = {""};
+  QString m_InstanceName = {"PART-1-1"};
+  QString m_Step = {"Step-1"};
+  int m_FrameNumber = {1};
+  QString m_DEFORMInputFile = {""};
+  QString m_BSAMInputFile = {""};
+  QString m_DEFORMPointTrackInputFile = {""};
+  QString m_TimeSeriesBundleName = {SIMPL::Defaults::TimeSeriesBundleName};
+  bool m_ImportSingleTimeStep = {false};
+  int m_SingleTimeStepValue = {0};
+  QString m_SelectedTimeArrayName = {SimulationIOConstants::DEFORMData::Time};
+  QString m_SelectedTimeStepArrayName = {SimulationIOConstants::DEFORMData::Step};
+  QString m_SelectedPointNumArrayName = {SimulationIOConstants::DEFORMData::PointNum};
+  QString m_SelectedXCoordArrayName = {SimulationIOConstants::DEFORMData::RXCoord};
+  QString m_SelectedYCoordArrayName = {SimulationIOConstants::DEFORMData::ZYCoord};
   QStringList m_DataArrayList = {};
-  QString m_DataContainerName = {};
-  QString m_VertexAttributeMatrixName = {};
-  QString m_CellAttributeMatrixName = {};
+  QString m_DataContainerName = {SIMPL::Defaults::DataContainerName};
+  QString m_VertexAttributeMatrixName = {SIMPL::Defaults::VertexAttributeMatrixName};
+  QString m_CellAttributeMatrixName = {SIMPL::Defaults::CellAttributeMatrixName};
 
   /**
    * @brief writeABQpyscr

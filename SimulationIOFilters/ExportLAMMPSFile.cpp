@@ -55,11 +55,7 @@
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-ExportLAMMPSFile::ExportLAMMPSFile()
-: m_LammpsFile("")
-, m_AtomFeatureLabelsPath(SIMPL::Defaults::VertexDataContainerName, SIMPL::Defaults::VertexAttributeMatrixName, SIMPL::VertexData::AtomFeatureLabels)
-{
-}
+ExportLAMMPSFile::ExportLAMMPSFile() = default;
 
 // -----------------------------------------------------------------------------
 //

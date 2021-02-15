@@ -197,23 +197,23 @@ QDateTime ImportOnScaleTableFile::getLastRead() const
 void ImportOnScaleTableFile::setupFilterParameters()
 {
   FilterParameterVectorType parameters;
-  parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", InputFile, FilterParameter::Parameter, ImportOnScaleTableFile, "*.flxtbl"));
-  parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Fallback Origin", Origin, FilterParameter::Parameter, ImportOnScaleTableFile));
-  parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Fallback Spacing", Spacing, FilterParameter::Parameter, ImportOnScaleTableFile));
+  parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", InputFile, FilterParameter::Category::Parameter, ImportOnScaleTableFile, "*.flxtbl"));
+  parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Fallback Origin", Origin, FilterParameter::Category::Parameter, ImportOnScaleTableFile));
+  parameters.push_back(SIMPL_NEW_FLOAT_VEC3_FP("Fallback Spacing", Spacing, FilterParameter::Category::Parameter, ImportOnScaleTableFile));
 
-  PreflightUpdatedValueFilterParameter::Pointer param = SIMPL_NEW_PREFLIGHTUPDATEDVALUE_FP("Rect Grid Geom Info.", RectGridGeometryDesc, FilterParameter::Parameter, ImportOnScaleTableFile);
+  PreflightUpdatedValueFilterParameter::Pointer param = SIMPL_NEW_PREFLIGHTUPDATEDVALUE_FP("Rect Grid Geom Info.", RectGridGeometryDesc, FilterParameter::Category::Parameter, ImportOnScaleTableFile);
   param->setReadOnly(true);
   parameters.push_back(param);
 
-  parameters.push_back(SIMPL_NEW_DC_CREATION_FP("Data Container", VolumeDataContainerName, FilterParameter::CreatedArray, ImportOnScaleTableFile));
-  parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::CreatedArray));
-  parameters.push_back(SIMPL_NEW_AM_WITH_LINKED_DC_FP("Cell Attribute Matrix", CellAttributeMatrixName, VolumeDataContainerName, FilterParameter::CreatedArray, ImportOnScaleTableFile));
+  parameters.push_back(SIMPL_NEW_DC_CREATION_FP("Data Container", VolumeDataContainerName, FilterParameter::Category::CreatedArray, ImportOnScaleTableFile));
+  parameters.push_back(SeparatorFilterParameter::Create("Cell Data", FilterParameter::Category::CreatedArray));
+  parameters.push_back(SIMPL_NEW_AM_WITH_LINKED_DC_FP("Cell Attribute Matrix", CellAttributeMatrixName, VolumeDataContainerName, FilterParameter::Category::CreatedArray, ImportOnScaleTableFile));
   parameters.push_back(
-      SIMPL_NEW_DA_WITH_LINKED_AM_FP("Cell Feature Ids", FeatureIdsArrayName, VolumeDataContainerName, CellAttributeMatrixName, FilterParameter::CreatedArray, ImportOnScaleTableFile));
-  parameters.push_back(SeparatorFilterParameter::New("Material Data", FilterParameter::CreatedArray));
-  parameters.push_back(SIMPL_NEW_AM_WITH_LINKED_DC_FP("Phase Attribute Matrix", PhaseAttributeMatrixName, VolumeDataContainerName, FilterParameter::CreatedArray, ImportOnScaleTableFile));
+      SIMPL_NEW_DA_WITH_LINKED_AM_FP("Cell Feature Ids", FeatureIdsArrayName, VolumeDataContainerName, CellAttributeMatrixName, FilterParameter::Category::CreatedArray, ImportOnScaleTableFile));
+  parameters.push_back(SeparatorFilterParameter::Create("Material Data", FilterParameter::Category::CreatedArray));
+  parameters.push_back(SIMPL_NEW_AM_WITH_LINKED_DC_FP("Phase Attribute Matrix", PhaseAttributeMatrixName, VolumeDataContainerName, FilterParameter::Category::CreatedArray, ImportOnScaleTableFile));
   parameters.push_back(
-      SIMPL_NEW_DA_WITH_LINKED_AM_FP("Material Names", MaterialNameArrayName, VolumeDataContainerName, PhaseAttributeMatrixName, FilterParameter::CreatedArray, ImportOnScaleTableFile));
+      SIMPL_NEW_DA_WITH_LINKED_AM_FP("Material Names", MaterialNameArrayName, VolumeDataContainerName, PhaseAttributeMatrixName, FilterParameter::Category::CreatedArray, ImportOnScaleTableFile));
 
   setFilterParameters(parameters);
 }

@@ -98,20 +98,20 @@ void ExportMultiOnScaleTableFile::setupFilterParameters()
 {
   FilterParameterVectorType parameters;
 
-  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Parameter, ExportMultiOnScaleTableFile, "*", "*"));
-  parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Prefix", DataContainerPrefix, FilterParameter::Parameter, ExportMultiOnScaleTableFile));
-  parameters.push_back(SIMPL_NEW_STRING_FP("Matrix Name", MatrixName, FilterParameter::Parameter, ExportMultiOnScaleTableFile));
-  parameters.push_back(SIMPL_NEW_STRING_FP("Array Name", ArrayName, FilterParameter::Parameter, ExportMultiOnScaleTableFile));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Category::Parameter, ExportMultiOnScaleTableFile, "*", "*"));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Prefix", DataContainerPrefix, FilterParameter::Category::Parameter, ExportMultiOnScaleTableFile));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Matrix Name", MatrixName, FilterParameter::Category::Parameter, ExportMultiOnScaleTableFile));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Array Name", ArrayName, FilterParameter::Category::Parameter, ExportMultiOnScaleTableFile));
 
-  parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Keypoints", NumKeypoints, FilterParameter::Parameter, ExportMultiOnScaleTableFile));
-  parameters.push_back(SeparatorFilterParameter::New("Ensemble Data", FilterParameter::RequiredArray));
+  parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Keypoints", NumKeypoints, FilterParameter::Category::Parameter, ExportMultiOnScaleTableFile));
+  parameters.push_back(SeparatorFilterParameter::Create("Ensemble Data", FilterParameter::Category::RequiredArray));
 
   parameters.push_back(SIMPL_NEW_PREFLIGHTUPDATEDVALUE_FP("Selected Arrays", SelectedArrays, FilterParameter::Category::Parameter, ExportMultiOnScaleTableFile));
 
   {
     DataArraySelectionFilterParameter::RequirementType req =
         DataArraySelectionFilterParameter::CreateRequirement(SIMPL::Defaults::AnyPrimitive, 1, AttributeMatrix::Type::CellEnsemble, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phase Names", PhaseNamesArrayPath, FilterParameter::RequiredArray, ExportMultiOnScaleTableFile, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phase Names", PhaseNamesArrayPath, FilterParameter::Category::RequiredArray, ExportMultiOnScaleTableFile, req));
   }
 
   setFilterParameters(parameters);

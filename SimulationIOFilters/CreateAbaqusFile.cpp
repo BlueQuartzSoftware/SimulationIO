@@ -104,12 +104,12 @@ void CreateAbaqusFile::setupFilterParameters()
 {
   FilterParameterVectorType parameters;
 
-  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Parameter, CreateAbaqusFile, "*", "*"));
-  parameters.push_back(SIMPL_NEW_STRING_FP("Output File Prefix", OutputFilePrefix, FilterParameter::Parameter, CreateAbaqusFile));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Category::Parameter, CreateAbaqusFile, "*", "*"));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Output File Prefix", OutputFilePrefix, FilterParameter::Category::Parameter, CreateAbaqusFile));
 
-  parameters.push_back(SIMPL_NEW_STRING_FP("Job Name", JobName, FilterParameter::Parameter, CreateAbaqusFile));
-  parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Solution Dependent State Variables", NumDepvar, FilterParameter::Parameter, CreateAbaqusFile));
-  parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of User Output Variables", NumUserOutVar, FilterParameter::Parameter, CreateAbaqusFile));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Job Name", JobName, FilterParameter::Category::Parameter, CreateAbaqusFile));
+  parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of Solution Dependent State Variables", NumDepvar, FilterParameter::Category::Parameter, CreateAbaqusFile));
+  parameters.push_back(SIMPL_NEW_INTEGER_FP("Number of User Output Variables", NumUserOutVar, FilterParameter::Category::Parameter, CreateAbaqusFile));
 
   // Table - Dynamic rows and fixed columns
   {
@@ -119,22 +119,22 @@ void CreateAbaqusFile::setupFilterParameters()
     m_MatConst.setColHeaders(cHeaders);
     m_MatConst.setTableData(defaultTable);
     m_MatConst.setDynamicRows(true);
-    parameters.push_back(SIMPL_NEW_DYN_TABLE_FP("Material Constants", MatConst, FilterParameter::Parameter, CreateAbaqusFile));
+    parameters.push_back(SIMPL_NEW_DYN_TABLE_FP("Material Constants", MatConst, FilterParameter::Category::Parameter, CreateAbaqusFile));
   }
 
-  parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::RequiredArray));
+  parameters.push_back(SeparatorFilterParameter::Create("Cell Data", FilterParameter::Category::RequiredArray));
 
   {
     DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", AbqFeatureIdsArrayPath, FilterParameter::RequiredArray, CreateAbaqusFile, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", AbqFeatureIdsArrayPath, FilterParameter::Category::RequiredArray, CreateAbaqusFile, req));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", CellEulerAnglesArrayPath, FilterParameter::RequiredArray, CreateAbaqusFile, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", CellEulerAnglesArrayPath, FilterParameter::Category::RequiredArray, CreateAbaqusFile, req));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phases", CellPhasesArrayPath, FilterParameter::RequiredArray, CreateAbaqusFile, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phases", CellPhasesArrayPath, FilterParameter::Category::RequiredArray, CreateAbaqusFile, req));
   }
 
   setFilterParameters(parameters);

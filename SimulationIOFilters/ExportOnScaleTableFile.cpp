@@ -399,25 +399,25 @@ void ExportOnScaleTableFile::setupFilterParameters()
 {
   FilterParameterVectorType parameters;
 
-  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Parameter, ExportOnScaleTableFile, "*", "*"));
-  parameters.push_back(SIMPL_NEW_STRING_FP("Output File Prefix", OutputFilePrefix, FilterParameter::Parameter, ExportOnScaleTableFile));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Category::Parameter, ExportOnScaleTableFile, "*", "*"));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Output File Prefix", OutputFilePrefix, FilterParameter::Category::Parameter, ExportOnScaleTableFile));
 
-  parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Keypoints", NumKeypoints, FilterParameter::Parameter, ExportOnScaleTableFile));
-  parameters.push_back(SeparatorFilterParameter::New("Ensemble Data", FilterParameter::RequiredArray));
+  parameters.push_back(SIMPL_NEW_INT_VEC3_FP("Number of Keypoints", NumKeypoints, FilterParameter::Category::Parameter, ExportOnScaleTableFile));
+  parameters.push_back(SeparatorFilterParameter::Create("Ensemble Data", FilterParameter::Category::RequiredArray));
 
   {
     DataArraySelectionFilterParameter::RequirementType req =
         DataArraySelectionFilterParameter::CreateRequirement(SIMPL::Defaults::AnyPrimitive, 1, AttributeMatrix::Type::CellEnsemble, IGeometry::Type::Any);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phase Names", PhaseNamesArrayPath, FilterParameter::RequiredArray, ExportOnScaleTableFile, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phase Names", PhaseNamesArrayPath, FilterParameter::Category::RequiredArray, ExportOnScaleTableFile, req));
   }
 
-  parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::RequiredArray));
+  parameters.push_back(SeparatorFilterParameter::Create("Cell Data", FilterParameter::Category::RequiredArray));
 
   {
     QVector<QString> types{SIMPL::TypeNames::Int8,  SIMPL::TypeNames::Int16,  SIMPL::TypeNames::Int32,  SIMPL::TypeNames::Int64,
                            SIMPL::TypeNames::UInt8, SIMPL::TypeNames::UInt16, SIMPL::TypeNames::UInt32, SIMPL::TypeNames::UInt64};
     DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(types, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Any);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", PzflexFeatureIdsArrayPath, FilterParameter::RequiredArray, ExportOnScaleTableFile, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", PzflexFeatureIdsArrayPath, FilterParameter::Category::RequiredArray, ExportOnScaleTableFile, req));
   }
 
   setFilterParameters(parameters);

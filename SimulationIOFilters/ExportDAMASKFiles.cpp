@@ -86,29 +86,29 @@ void ExportDAMASKFiles::setupFilterParameters()
     QStringList linkedProps = {"CompressGeomFile"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
-    parameter->setCategory(FilterParameter::Parameter);
+    parameter->setCategory(FilterParameter::Category::Parameter);
     parameters.push_back(parameter);
   }
 
-  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Parameter, ExportDAMASKFiles, "*", "*"));
-  parameters.push_back(SIMPL_NEW_STRING_FP("Geometry File Name", GeometryFileName, FilterParameter::Parameter, ExportDAMASKFiles));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Category::Parameter, ExportDAMASKFiles, "*", "*"));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Geometry File Name", GeometryFileName, FilterParameter::Category::Parameter, ExportDAMASKFiles));
 
-  parameters.push_back(SIMPL_NEW_INTEGER_FP("Homogenization Index", HomogenizationIndex, FilterParameter::Parameter, ExportDAMASKFiles));
+  parameters.push_back(SIMPL_NEW_INTEGER_FP("Homogenization Index", HomogenizationIndex, FilterParameter::Category::Parameter, ExportDAMASKFiles));
 
-  parameters.push_back(SIMPL_NEW_BOOL_FP("Compress Geom File", CompressGeomFile, FilterParameter::Parameter, ExportDAMASKFiles, 0));
+  parameters.push_back(SIMPL_NEW_BOOL_FP("Compress Geom File", CompressGeomFile, FilterParameter::Category::Parameter, ExportDAMASKFiles, 0));
 
-  parameters.push_back(SeparatorFilterParameter::New("Cell Data", FilterParameter::RequiredArray));
+  parameters.push_back(SeparatorFilterParameter::Create("Cell Data", FilterParameter::Category::RequiredArray));
   {
     DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", FeatureIdsArrayPath, FilterParameter::RequiredArray, ExportDAMASKFiles, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Ids", FeatureIdsArrayPath, FilterParameter::Category::RequiredArray, ExportDAMASKFiles, req));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", CellEulerAnglesArrayPath, FilterParameter::RequiredArray, ExportDAMASKFiles, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", CellEulerAnglesArrayPath, FilterParameter::Category::RequiredArray, ExportDAMASKFiles, req));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Cell, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phases", CellPhasesArrayPath, FilterParameter::RequiredArray, ExportDAMASKFiles, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phases", CellPhasesArrayPath, FilterParameter::Category::RequiredArray, ExportDAMASKFiles, req));
   }
 
   setFilterParameters(parameters);

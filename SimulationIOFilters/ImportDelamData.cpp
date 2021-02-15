@@ -76,13 +76,13 @@ void ImportDelamData::setupFilterParameters()
 {
   FilterParameterVectorType parameters;
 
-  parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("CSDGM File", CSDGMFile, FilterParameter::Parameter, ImportDelamData, "*.txt"));
-  parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Bvid StdOut File", BvidStdOutFile, FilterParameter::Parameter, ImportDelamData, "*.txt"));
-  parameters.push_back(SIMPL_NEW_FLOAT_FP("Interface Thickness", InterfaceThickness, FilterParameter::Parameter, ImportDelamData));
+  parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("CSDGM File", CSDGMFile, FilterParameter::Category::Parameter, ImportDelamData, "*.txt"));
+  parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Bvid StdOut File", BvidStdOutFile, FilterParameter::Category::Parameter, ImportDelamData, "*.txt"));
+  parameters.push_back(SIMPL_NEW_FLOAT_FP("Interface Thickness", InterfaceThickness, FilterParameter::Category::Parameter, ImportDelamData));
 
-  parameters.push_back(SIMPL_NEW_DC_CREATION_FP("Data Container", DataContainerPath, FilterParameter::CreatedArray, ImportDelamData));
-  parameters.push_back(SIMPL_NEW_STRING_FP("Cell Attribute Matrix", CellAttributeMatrixName, FilterParameter::CreatedArray, ImportDelamData));
-  parameters.push_back(SIMPL_NEW_STRING_FP("Data Array", DataArrayName, FilterParameter::CreatedArray, ImportDelamData));
+  parameters.push_back(SIMPL_NEW_DC_CREATION_FP("Data Container", DataContainerPath, FilterParameter::Category::CreatedArray, ImportDelamData));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Cell Attribute Matrix", CellAttributeMatrixName, FilterParameter::Category::CreatedArray, ImportDelamData));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Data Array", DataArrayName, FilterParameter::Category::CreatedArray, ImportDelamData));
 
   setFilterParameters(parameters);
 }

@@ -73,11 +73,11 @@ void ExportLAMMPSFile::setupFilterParameters()
 {
   FilterParameterVectorType parameters;
 
-  parameters.push_back(SIMPL_NEW_OUTPUT_FILE_FP("LAMMPS File", LammpsFile, FilterParameter::Parameter, ExportLAMMPSFile));
+  parameters.push_back(SIMPL_NEW_OUTPUT_FILE_FP("LAMMPS File", LammpsFile, FilterParameter::Category::Parameter, ExportLAMMPSFile));
 
   {
     DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::Vertex, IGeometry::Type::Vertex);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Atom Feature Labels", AtomFeatureLabelsPath, FilterParameter::RequiredArray, ExportLAMMPSFile, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Atom Feature Labels", AtomFeatureLabelsPath, FilterParameter::Category::RequiredArray, ExportLAMMPSFile, req));
   }
 
   setFilterParameters(parameters);

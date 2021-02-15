@@ -167,41 +167,41 @@ void ImportFEAData::setupFilterParameters()
                                "DEFORMInputFile", "BSAMInputFile", "DEFORMPointTrackInputFile", "ImportSingleTimeStep", "SingleTimeStepValue", "TimeSeriesBundleName"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
-    parameter->setCategory(FilterParameter::Parameter);
+    parameter->setCategory(FilterParameter::Category::Parameter);
     parameters.push_back(parameter);
   }
   {
-    parameters.push_back(SIMPL_NEW_STRING_FP("odb Name", odbName, FilterParameter::Parameter, ImportFEAData, 0));
-    parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("odb File Path", odbFilePath, FilterParameter::Parameter, ImportFEAData, "*", "*", 0));
-    parameters.push_back(SIMPL_NEW_STRING_FP("ABAQUS Python Command", ABQPythonCommand, FilterParameter::Parameter, ImportFEAData, 0));
-    parameters.push_back(SIMPL_NEW_STRING_FP("Instance Name", InstanceName, FilterParameter::Parameter, ImportFEAData, 0));
-    parameters.push_back(SIMPL_NEW_STRING_FP("Step", Step, FilterParameter::Parameter, ImportFEAData, 0));
-    parameters.push_back(SIMPL_NEW_INTEGER_FP("Frame Number", FrameNumber, FilterParameter::Parameter, ImportFEAData, 0));
+    parameters.push_back(SIMPL_NEW_STRING_FP("odb Name", odbName, FilterParameter::Category::Parameter, ImportFEAData, 0));
+    parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("odb File Path", odbFilePath, FilterParameter::Category::Parameter, ImportFEAData, "*", "*", 0));
+    parameters.push_back(SIMPL_NEW_STRING_FP("ABAQUS Python Command", ABQPythonCommand, FilterParameter::Category::Parameter, ImportFEAData, 0));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Instance Name", InstanceName, FilterParameter::Category::Parameter, ImportFEAData, 0));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Step", Step, FilterParameter::Category::Parameter, ImportFEAData, 0));
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("Frame Number", FrameNumber, FilterParameter::Category::Parameter, ImportFEAData, 0));
   }
 
   {
-    parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", BSAMInputFile, FilterParameter::Parameter, ImportFEAData, "", "*.DAT", 1));
+    parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", BSAMInputFile, FilterParameter::Category::Parameter, ImportFEAData, "", "*.DAT", 1));
   }
 
   {
-    parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", DEFORMInputFile, FilterParameter::Parameter, ImportFEAData, "", "*.DAT", 2));
+    parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", DEFORMInputFile, FilterParameter::Category::Parameter, ImportFEAData, "", "*.DAT", 2));
   }
 
   {
-    parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", DEFORMPointTrackInputFile, FilterParameter::Parameter, ImportFEAData, "", "*.RST", 3));
+    parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", DEFORMPointTrackInputFile, FilterParameter::Category::Parameter, ImportFEAData, "", "*.RST", 3));
 
     QStringList linkedProps("SingleTimeStepValue");
-    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Read Single Time Step", ImportSingleTimeStep, FilterParameter::Parameter, ImportFEAData, linkedProps, 3));
+    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Read Single Time Step", ImportSingleTimeStep, FilterParameter::Category::Parameter, ImportFEAData, linkedProps, 3));
     linkedProps.clear();
-    parameters.push_back(SIMPL_NEW_INTEGER_FP("Time Step", SingleTimeStepValue, FilterParameter::Parameter, ImportFEAData, 3));
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("Time Step", SingleTimeStepValue, FilterParameter::Category::Parameter, ImportFEAData, 3));
 
-    parameters.push_back(SeparatorFilterParameter::New("", FilterParameter::CreatedArray));
-    parameters.push_back(SIMPL_NEW_STRING_FP("Time Series Bundle Name", TimeSeriesBundleName, FilterParameter::CreatedArray, ImportFEAData, 3));
+    parameters.push_back(SeparatorFilterParameter::Create("", FilterParameter::Category::CreatedArray));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Time Series Bundle Name", TimeSeriesBundleName, FilterParameter::Category::CreatedArray, ImportFEAData, 3));
   }
 
-  parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Name", DataContainerName, FilterParameter::CreatedArray, ImportFEAData));
-  parameters.push_back(SIMPL_NEW_STRING_FP("Vertex Attribute Matrix Name", VertexAttributeMatrixName, FilterParameter::CreatedArray, ImportFEAData));
-  parameters.push_back(SIMPL_NEW_STRING_FP("Cell Attribute Matrix Name", CellAttributeMatrixName, FilterParameter::CreatedArray, ImportFEAData));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Name", DataContainerName, FilterParameter::Category::CreatedArray, ImportFEAData));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Vertex Attribute Matrix Name", VertexAttributeMatrixName, FilterParameter::Category::CreatedArray, ImportFEAData));
+  parameters.push_back(SIMPL_NEW_STRING_FP("Cell Attribute Matrix Name", CellAttributeMatrixName, FilterParameter::Category::CreatedArray, ImportFEAData));
 
   setFilterParameters(parameters);
 }

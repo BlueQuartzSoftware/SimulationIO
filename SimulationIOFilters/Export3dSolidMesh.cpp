@@ -108,43 +108,43 @@ void Export3dSolidMesh::setupFilterParameters()
                                "MeshFileFormat"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
-    parameter->setCategory(FilterParameter::Parameter);
+    parameter->setCategory(FilterParameter::Category::Parameter);
     parameters.push_back(parameter);
     linkedProps.clear();
   }
 
-  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Path", outputPath, FilterParameter::Parameter, Export3dSolidMesh, "*", "*"));
-  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Package Location", PackageLocation, FilterParameter::Parameter, Export3dSolidMesh, "*", "*"));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Path", outputPath, FilterParameter::Category::Parameter, Export3dSolidMesh, "*", "*"));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Package Location", PackageLocation, FilterParameter::Category::Parameter, Export3dSolidMesh, "*", "*"));
 
   {
-    parameters.push_back(SIMPL_NEW_STRING_FP("STL File Prefix", NetgenSTLFileName, FilterParameter::Parameter, Export3dSolidMesh, 1));
+    parameters.push_back(SIMPL_NEW_STRING_FP("STL File Prefix", NetgenSTLFileName, FilterParameter::Category::Parameter, Export3dSolidMesh, 1));
   }
 
   {
-    parameters.push_back(SIMPL_NEW_STRING_FP("STL File Prefix", GmshSTLFileName, FilterParameter::Parameter, Export3dSolidMesh, 2));
+    parameters.push_back(SIMPL_NEW_STRING_FP("STL File Prefix", GmshSTLFileName, FilterParameter::Category::Parameter, Export3dSolidMesh, 2));
   }
 
-  parameters.push_back(SeparatorFilterParameter::New("Face Data", FilterParameter::RequiredArray));
+  parameters.push_back(SeparatorFilterParameter::Create("Face Data", FilterParameter::Category::RequiredArray));
   {
     DataArraySelectionFilterParameter::RequirementType req = DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 2, AttributeMatrix::Type::Face, IGeometry::Type::Triangle);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Face Labels", SurfaceMeshFaceLabelsArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Face Labels", SurfaceMeshFaceLabelsArrayPath, FilterParameter::Category::RequiredArray, Export3dSolidMesh, req, 0));
   }
 
-  parameters.push_back(SeparatorFilterParameter::New("Feature Data", FilterParameter::RequiredArray));
+  parameters.push_back(SeparatorFilterParameter::Create("Feature Data", FilterParameter::Category::RequiredArray));
   {
     DataArraySelectionFilterParameter::RequirementType req =
         DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", FeatureEulerAnglesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Euler Angles", FeatureEulerAnglesArrayPath, FilterParameter::Category::RequiredArray, Export3dSolidMesh, req));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req =
         DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Int32, 1, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phases", FeaturePhasesArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Phases", FeaturePhasesArrayPath, FilterParameter::Category::RequiredArray, Export3dSolidMesh, req, 0));
   }
   {
     DataArraySelectionFilterParameter::RequirementType req =
         DataArraySelectionFilterParameter::CreateRequirement(SIMPL::TypeNames::Float, 3, AttributeMatrix::Type::CellFeature, IGeometry::Type::Image);
-    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Centroids", FeatureCentroidArrayPath, FilterParameter::RequiredArray, Export3dSolidMesh, req, 0));
+    parameters.push_back(SIMPL_NEW_DA_SELECTION_FP("Feature Centroids", FeatureCentroidArrayPath, FilterParameter::Category::RequiredArray, Export3dSolidMesh, req, 0));
   }
 
   {
@@ -159,18 +159,18 @@ void Export3dSolidMesh::setupFilterParameters()
     choices.push_back("inp");
     parameter->setChoices(choices);
     parameter->setGroupIndex(2);
-    parameter->setCategory(FilterParameter::Parameter);
+    parameter->setCategory(FilterParameter::Category::Parameter);
     parameters.push_back(parameter);
   }
 
-  parameters.push_back(SeparatorFilterParameter::New("Mesh Quality Options", FilterParameter::Parameter));
+  parameters.push_back(SeparatorFilterParameter::Create("Mesh Quality Options", FilterParameter::Category::Parameter));
   {
     QStringList linkedProps = {"MaxRadiusEdgeRatio", "MinDihedralAngle"};
-    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Refine Mesh (q)", RefineMesh, FilterParameter::Parameter, Export3dSolidMesh, linkedProps, 0));
+    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Refine Mesh (q)", RefineMesh, FilterParameter::Category::Parameter, Export3dSolidMesh, linkedProps, 0));
     linkedProps.clear();
-    parameters.push_back(SIMPL_NEW_FLOAT_FP("Maximum Radius-Edge Ratio", MaxRadiusEdgeRatio, FilterParameter::Parameter, Export3dSolidMesh, 0));
-    parameters.push_back(SIMPL_NEW_FLOAT_FP("Minimum Dihedral Angle", MinDihedralAngle, FilterParameter::Parameter, Export3dSolidMesh, 0));
-    parameters.push_back(SIMPL_NEW_INTEGER_FP("Optimization Level (O)", OptimizationLevel, FilterParameter::Parameter, Export3dSolidMesh, 0));
+    parameters.push_back(SIMPL_NEW_FLOAT_FP("Maximum Radius-Edge Ratio", MaxRadiusEdgeRatio, FilterParameter::Category::Parameter, Export3dSolidMesh, 0));
+    parameters.push_back(SIMPL_NEW_FLOAT_FP("Minimum Dihedral Angle", MinDihedralAngle, FilterParameter::Category::Parameter, Export3dSolidMesh, 0));
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("Optimization Level (O)", OptimizationLevel, FilterParameter::Category::Parameter, Export3dSolidMesh, 0));
   }
   {
     ChoiceFilterParameter::Pointer parameter = ChoiceFilterParameter::New();
@@ -187,31 +187,31 @@ void Export3dSolidMesh::setupFilterParameters()
     choices.push_back("very fine");
     parameter->setChoices(choices);
     parameter->setGroupIndex(1);
-    parameter->setCategory(FilterParameter::Parameter);
+    parameter->setCategory(FilterParameter::Category::Parameter);
     parameters.push_back(parameter);
   }
 
   {
-    parameters.push_back(SeparatorFilterParameter::New("Topology Options", FilterParameter::Parameter));
+    parameters.push_back(SeparatorFilterParameter::Create("Topology Options", FilterParameter::Category::Parameter));
     QStringList linkedProps = {"MaxTetrahedraVolume"};
-    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Limit Tetrahedra Volume (a)", LimitTetrahedraVolume, FilterParameter::Parameter, Export3dSolidMesh, linkedProps, 0));
+    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Limit Tetrahedra Volume (a)", LimitTetrahedraVolume, FilterParameter::Category::Parameter, Export3dSolidMesh, linkedProps, 0));
     linkedProps.clear();
-    parameters.push_back(SIMPL_NEW_FLOAT_FP("Maximum Tetrahedron Volume", MaxTetrahedraVolume, FilterParameter::Parameter, Export3dSolidMesh, 0));
+    parameters.push_back(SIMPL_NEW_FLOAT_FP("Maximum Tetrahedron Volume", MaxTetrahedraVolume, FilterParameter::Category::Parameter, Export3dSolidMesh, 0));
   }
 
   {
-    parameters.push_back(SeparatorFilterParameter::New("Holes in the Mesh", FilterParameter::Parameter));
+    parameters.push_back(SeparatorFilterParameter::Create("Holes in the Mesh", FilterParameter::Category::Parameter));
     QStringList linkedProps = {"PhaseID"};
-    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Include Holes Using PhaseID", IncludeHolesUsingPhaseID, FilterParameter::Parameter, Export3dSolidMesh, linkedProps, 0));
+    parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Include Holes Using PhaseID", IncludeHolesUsingPhaseID, FilterParameter::Category::Parameter, Export3dSolidMesh, linkedProps, 0));
     linkedProps.clear();
-    parameters.push_back(SIMPL_NEW_INTEGER_FP("PhaseID", PhaseID, FilterParameter::Parameter, Export3dSolidMesh, 0));
+    parameters.push_back(SIMPL_NEW_INTEGER_FP("PhaseID", PhaseID, FilterParameter::Category::Parameter, Export3dSolidMesh, 0));
   }
 
   {
-    parameters.push_back(SeparatorFilterParameter::New("", FilterParameter::CreatedArray));
-    parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Name", TetDataContainerName, FilterParameter::CreatedArray, Export3dSolidMesh, 0));
-    parameters.push_back(SIMPL_NEW_STRING_FP("Vertex Attribute Matrix Name", VertexAttributeMatrixName, FilterParameter::CreatedArray, Export3dSolidMesh, 0));
-    parameters.push_back(SIMPL_NEW_STRING_FP("Cell Attribute Matrix Name", CellAttributeMatrixName, FilterParameter::CreatedArray, Export3dSolidMesh, 0));
+    parameters.push_back(SeparatorFilterParameter::Create("", FilterParameter::Category::CreatedArray));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Name", TetDataContainerName, FilterParameter::Category::CreatedArray, Export3dSolidMesh, 0));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Vertex Attribute Matrix Name", VertexAttributeMatrixName, FilterParameter::Category::CreatedArray, Export3dSolidMesh, 0));
+    parameters.push_back(SIMPL_NEW_STRING_FP("Cell Attribute Matrix Name", CellAttributeMatrixName, FilterParameter::Category::CreatedArray, Export3dSolidMesh, 0));
   }
 
   setFilterParameters(parameters);

@@ -70,11 +70,11 @@ void ExportDAMASKFiles::setupFilterParameters()
     parameter->setPropertyName("DataFormat");
     parameter->setSetterCallback(SIMPL_BIND_SETTER(ExportDAMASKFiles, this, DataFormat));
     parameter->setGetterCallback(SIMPL_BIND_GETTER(ExportDAMASKFiles, this, DataFormat));
-    QVector<QString> choices;
+    std::vector<QString> choices;
     choices.push_back("pointwise");
     choices.push_back("grainwise");
     parameter->setChoices(choices);
-    QStringList linkedProps = {"CompressGeomFile"};
+    std::vector<QString> linkedProps = {"CompressGeomFile"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Category::Parameter);

@@ -79,29 +79,29 @@ void Export3dSolidMesh::setupFilterParameters()
     parameter->setPropertyName("MeshingPackage");
     parameter->setSetterCallback(SIMPL_BIND_SETTER(Export3dSolidMesh, this, MeshingPackage));
     parameter->setGetterCallback(SIMPL_BIND_GETTER(Export3dSolidMesh, this, MeshingPackage));
-    QVector<QString> choices;
+    std::vector<QString> choices;
     choices.push_back("TetGen");
     choices.push_back("Netgen");
     choices.push_back("Gmsh");
     parameter->setChoices(choices);
-    QStringList linkedProps = {"SurfaceMeshFaceLabelsArrayPath",
-                               "FeaturePhasesArrayPath",
-                               "FeatureCentroidArrayPath",
-                               "RefineMesh",
-                               "MaxRadiusEdgeRatio",
-                               "MinDihedralAngle",
-                               "OptimizationLevel",
-                               "LimitTetrahedraVolume",
-                               "MaxTetrahedraVolume",
-                               "IncludeHolesUsingPhaseID",
-                               "PhaseID",
-                               "TetDataContainerName",
-                               "VertexAttributeMatrixName",
-                               "CellAttributeMatrixName",
-                               "GmshSTLFileName",
-                               "NetgenSTLFileName",
-                               "MeshSize",
-                               "MeshFileFormat"};
+    std::vector<QString> linkedProps = {"SurfaceMeshFaceLabelsArrayPath",
+                                        "FeaturePhasesArrayPath",
+                                        "FeatureCentroidArrayPath",
+                                        "RefineMesh",
+                                        "MaxRadiusEdgeRatio",
+                                        "MinDihedralAngle",
+                                        "OptimizationLevel",
+                                        "LimitTetrahedraVolume",
+                                        "MaxTetrahedraVolume",
+                                        "IncludeHolesUsingPhaseID",
+                                        "PhaseID",
+                                        "TetDataContainerName",
+                                        "VertexAttributeMatrixName",
+                                        "CellAttributeMatrixName",
+                                        "GmshSTLFileName",
+                                        "NetgenSTLFileName",
+                                        "MeshSize",
+                                        "MeshFileFormat"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Category::Parameter);
@@ -150,7 +150,7 @@ void Export3dSolidMesh::setupFilterParameters()
     parameter->setSetterCallback(SIMPL_BIND_SETTER(Export3dSolidMesh, this, MeshFileFormat));
     parameter->setGetterCallback(SIMPL_BIND_GETTER(Export3dSolidMesh, this, MeshFileFormat));
 
-    QVector<QString> choices;
+    std::vector<QString> choices;
     choices.push_back("msh");
     choices.push_back("inp");
     parameter->setChoices(choices);
@@ -161,7 +161,7 @@ void Export3dSolidMesh::setupFilterParameters()
 
   parameters.push_back(SeparatorFilterParameter::Create("Mesh Quality Options", FilterParameter::Category::Parameter));
   {
-    QStringList linkedProps = {"MaxRadiusEdgeRatio", "MinDihedralAngle"};
+    std::vector<QString> linkedProps = {"MaxRadiusEdgeRatio", "MinDihedralAngle"};
     parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Refine Mesh (q)", RefineMesh, FilterParameter::Category::Parameter, Export3dSolidMesh, linkedProps, 0));
     linkedProps.clear();
     parameters.push_back(SIMPL_NEW_FLOAT_FP("Maximum Radius-Edge Ratio", MaxRadiusEdgeRatio, FilterParameter::Category::Parameter, Export3dSolidMesh, 0));
@@ -175,7 +175,7 @@ void Export3dSolidMesh::setupFilterParameters()
     parameter->setSetterCallback(SIMPL_BIND_SETTER(Export3dSolidMesh, this, MeshSize));
     parameter->setGetterCallback(SIMPL_BIND_GETTER(Export3dSolidMesh, this, MeshSize));
 
-    QVector<QString> choices;
+    std::vector<QString> choices;
     choices.push_back("very coarse");
     choices.push_back("coarse");
     choices.push_back("moderate");
@@ -189,7 +189,7 @@ void Export3dSolidMesh::setupFilterParameters()
 
   {
     parameters.push_back(SeparatorFilterParameter::Create("Topology Options", FilterParameter::Category::Parameter));
-    QStringList linkedProps = {"MaxTetrahedraVolume"};
+    std::vector<QString> linkedProps = {"MaxTetrahedraVolume"};
     parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Limit Tetrahedra Volume (a)", LimitTetrahedraVolume, FilterParameter::Category::Parameter, Export3dSolidMesh, linkedProps, 0));
     linkedProps.clear();
     parameters.push_back(SIMPL_NEW_FLOAT_FP("Maximum Tetrahedron Volume", MaxTetrahedraVolume, FilterParameter::Category::Parameter, Export3dSolidMesh, 0));
@@ -197,7 +197,7 @@ void Export3dSolidMesh::setupFilterParameters()
 
   {
     parameters.push_back(SeparatorFilterParameter::Create("Holes in the Mesh", FilterParameter::Category::Parameter));
-    QStringList linkedProps = {"PhaseID"};
+    std::vector<QString> linkedProps = {"PhaseID"};
     parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Include Holes Using PhaseID", IncludeHolesUsingPhaseID, FilterParameter::Category::Parameter, Export3dSolidMesh, linkedProps, 0));
     linkedProps.clear();
     parameters.push_back(SIMPL_NEW_INTEGER_FP("PhaseID", PhaseID, FilterParameter::Category::Parameter, Export3dSolidMesh, 0));

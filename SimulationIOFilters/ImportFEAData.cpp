@@ -134,16 +134,16 @@ void ImportFEAData::setupFilterParameters()
     parameter->setPropertyName("FEAPackage");
     parameter->setSetterCallback(SIMPL_BIND_SETTER(ImportFEAData, this, FEAPackage));
     parameter->setGetterCallback(SIMPL_BIND_GETTER(ImportFEAData, this, FEAPackage));
-    QVector<QString> choices;
+    std::vector<QString> choices;
     choices.push_back("ABAQUS");
     choices.push_back("BSAM");
     choices.push_back("DEFORM");
     choices.push_back("DEFORM_POINT_TRACK");
     parameter->setChoices(choices);
-    QStringList linkedProps = {"odbName", "odbFilePath", "ABQPythonCommand", "InstanceName", "Step", "FrameNumber",
-                               //	       "OutputVariable",
-                               //   "ElementSet",
-                               "DEFORMInputFile", "BSAMInputFile", "DEFORMPointTrackInputFile", "ImportSingleTimeStep", "SingleTimeStepValue", "TimeSeriesBundleName"};
+    std::vector<QString> linkedProps = {"odbName", "odbFilePath", "ABQPythonCommand", "InstanceName", "Step", "FrameNumber",
+                                        //	       "OutputVariable",
+                                        //   "ElementSet",
+                                        "DEFORMInputFile", "BSAMInputFile", "DEFORMPointTrackInputFile", "ImportSingleTimeStep", "SingleTimeStepValue", "TimeSeriesBundleName"};
     parameter->setLinkedProperties(linkedProps);
     parameter->setEditable(false);
     parameter->setCategory(FilterParameter::Category::Parameter);
@@ -169,7 +169,7 @@ void ImportFEAData::setupFilterParameters()
   {
     parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", DEFORMPointTrackInputFile, FilterParameter::Category::Parameter, ImportFEAData, "", "*.RST", 3));
 
-    QStringList linkedProps("SingleTimeStepValue");
+    std::vector<QString> linkedProps = {"SingleTimeStepValue"};
     parameters.push_back(SIMPL_NEW_LINKED_BOOL_FP("Read Single Time Step", ImportSingleTimeStep, FilterParameter::Category::Parameter, ImportFEAData, linkedProps, 3));
     linkedProps.clear();
     parameters.push_back(SIMPL_NEW_INTEGER_FP("Time Step", SingleTimeStepValue, FilterParameter::Category::Parameter, ImportFEAData, 3));

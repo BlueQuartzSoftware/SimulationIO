@@ -414,7 +414,7 @@ protected:
   QVector<QByteArray> tokenizeNodeBlock(QFile& reader);
   void parseDataTokens(QVector<QByteArray>& tokens, qint32 nodeIdx);
 
-protected slots:
+protected Q_SLOTS:
   void processHasFinished(int exitCode, QProcess::ExitStatus exitStatus);
   void processHasErroredOut(QProcess::ProcessError error);
   void sendErrorOutput();

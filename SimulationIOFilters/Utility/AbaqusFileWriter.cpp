@@ -183,7 +183,7 @@ bool AbaqusFileWriter::write(AbstractFilter* filter, const ImageGeom& imageGeom,
         int32_t value8 = index + nnode_x + nnode_x * nnode_y;
 
         ss << std::fixed << std::setprecision(3) << eindex + 1 << ", " << value1 << ", " << value2 << ", " << value3 << ", " << value4 << ", " << value5 << ", " << value6 << ", " << value7 << ", "
-           << value8;
+           << value8 << "\n";
       }
     }
     elemsStream << QString::fromStdString(ss.str());

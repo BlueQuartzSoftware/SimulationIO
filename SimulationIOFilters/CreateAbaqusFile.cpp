@@ -104,7 +104,7 @@ void CreateAbaqusFile::setupFilterParameters()
 {
   FilterParameterVectorType parameters;
 
-  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Category::Parameter, CreateAbaqusFile, "*", "*"));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Category::Parameter, CreateAbaqusFile));
   parameters.push_back(SIMPL_NEW_STRING_FP("Output File Prefix", OutputFilePrefix, FilterParameter::Category::Parameter, CreateAbaqusFile));
 
   parameters.push_back(SIMPL_NEW_STRING_FP("Job Name", JobName, FilterParameter::Category::Parameter, CreateAbaqusFile));

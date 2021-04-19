@@ -151,7 +151,7 @@ void ImportFEAData::setupFilterParameters()
   }
   {
     parameters.push_back(SIMPL_NEW_STRING_FP("odb Name", odbName, FilterParameter::Category::Parameter, ImportFEAData, 0));
-    parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("odb File Path", odbFilePath, FilterParameter::Category::Parameter, ImportFEAData, "*", "*", 0));
+    parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("odb File Path", odbFilePath, FilterParameter::Category::Parameter, ImportFEAData, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("ABAQUS Python Command", ABQPythonCommand, FilterParameter::Category::Parameter, ImportFEAData, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Instance Name", InstanceName, FilterParameter::Category::Parameter, ImportFEAData, 0));
     parameters.push_back(SIMPL_NEW_STRING_FP("Step", Step, FilterParameter::Category::Parameter, ImportFEAData, 0));

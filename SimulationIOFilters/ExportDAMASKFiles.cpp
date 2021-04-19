@@ -81,7 +81,7 @@ void ExportDAMASKFiles::setupFilterParameters()
     parameters.push_back(parameter);
   }
 
-  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Category::Parameter, ExportDAMASKFiles, "*", "*"));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Category::Parameter, ExportDAMASKFiles));
   parameters.push_back(SIMPL_NEW_STRING_FP("Geometry File Name", GeometryFileName, FilterParameter::Category::Parameter, ExportDAMASKFiles));
 
   parameters.push_back(SIMPL_NEW_INTEGER_FP("Homogenization Index", HomogenizationIndex, FilterParameter::Category::Parameter, ExportDAMASKFiles));

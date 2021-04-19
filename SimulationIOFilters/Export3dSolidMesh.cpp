@@ -109,8 +109,8 @@ void Export3dSolidMesh::setupFilterParameters()
     linkedProps.clear();
   }
 
-  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Path", outputPath, FilterParameter::Category::Parameter, Export3dSolidMesh, "*", "*"));
-  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Package Location", PackageLocation, FilterParameter::Category::Parameter, Export3dSolidMesh, "*", "*"));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Path", outputPath, FilterParameter::Category::Parameter, Export3dSolidMesh));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Package Location", PackageLocation, FilterParameter::Category::Parameter, Export3dSolidMesh));
 
   {
     parameters.push_back(SIMPL_NEW_STRING_FP("STL File Prefix", NetgenSTLFileName, FilterParameter::Category::Parameter, Export3dSolidMesh, 1));

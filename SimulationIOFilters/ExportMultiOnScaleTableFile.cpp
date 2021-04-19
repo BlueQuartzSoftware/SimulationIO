@@ -98,7 +98,7 @@ void ExportMultiOnScaleTableFile::setupFilterParameters()
 {
   FilterParameterVectorType parameters;
 
-  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Category::Parameter, ExportMultiOnScaleTableFile, "*", "*"));
+  parameters.push_back(SIMPL_NEW_OUTPUT_PATH_FP("Output Path ", OutputPath, FilterParameter::Category::Parameter, ExportMultiOnScaleTableFile));
   parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Prefix", DataContainerPrefix, FilterParameter::Category::Parameter, ExportMultiOnScaleTableFile));
   parameters.push_back(SIMPL_NEW_STRING_FP("Matrix Name", MatrixName, FilterParameter::Category::Parameter, ExportMultiOnScaleTableFile));
   parameters.push_back(SIMPL_NEW_STRING_FP("Array Name", ArrayName, FilterParameter::Category::Parameter, ExportMultiOnScaleTableFile));

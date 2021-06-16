@@ -81,14 +81,14 @@ int rotateData(DataContainerArray::Pointer dca, const Eigen::Matrix3f& rotationM
   IFilterFactory::Pointer filterFactory = fm->getFactoryFromClassName(filtName);
   if(filterFactory == nullptr)
   {
-    return false;
+    return 0;
   }
 
   AbstractFilter::Pointer filter = filterFactory->create();
 
   if(filter == nullptr)
   {
-    return false;
+    return 0;
   }
 
   filter->setDataContainerArray(dca);
@@ -100,19 +100,19 @@ int rotateData(DataContainerArray::Pointer dca, const Eigen::Matrix3f& rotationM
   value.setValue(1);
   if(!filter->setProperty("RotationRepresentationChoice", value))
   {
-    return false;
+    return 0;
   }
 
   value.setValue(table);
   if(!filter->setProperty("RotationTable", value))
   {
-    return false;
+    return 0;
   }
 
   value.setValue(cellMatrixPath);
   if(!filter->setProperty("CellAttributeMatrixPath", value))
   {
-    return false;
+    return 0;
   }
 
   filter->execute();

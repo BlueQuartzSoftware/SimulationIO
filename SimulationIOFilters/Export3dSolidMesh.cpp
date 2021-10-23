@@ -618,7 +618,9 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
 	  }
 	
 	program += "tetgen";
-	
+#ifdef Q_OS_WIN
+    program += ".exe";
+#endif
 	arguments << switches << file;
 
 	break;
@@ -651,7 +653,9 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
 	  }
 	
 	program += "netgen";
-	
+#ifdef Q_OS_WIN
+    program += ".exe";
+#endif	
 	QString switchMeshFile;
 
 	switchMeshFile = "-meshfile=";
@@ -680,6 +684,9 @@ void Export3dSolidMesh::runPackage(const QString& file, const QString& meshFile)
 	
 	switches = "-3";
 	program += "gmsh";
+#ifdef Q_OS_WIN
+    program += ".exe";
+#endif
 	arguments << file << switches<<switch1<<switch2;
 
 	break;

@@ -1383,13 +1383,18 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
   QString word("");
 
   // Read until you get to the vertex block
-  while(word.compare("RZ") != 0)
+  while(word.compare("RZ") != 0 && inStream.error() == QFileDevice::NoError)
   {
     buf = inStream.readLine();
     buf = buf.trimmed();
     buf = buf.simplified();
     tokens = buf.split(' ');
     word = tokens.at(0);
+  }
+  if(inStream.error() != QFileDevice::NoError)
+  {
+    setErrorCondition(-123456789, "DEFORM Dat file did not have RZ Section");
+    return;
   }
 
   // Set the number of vertices and then create vertices array and resize vertex attr mat.
@@ -1478,8 +1483,23 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
       return;
     }
     QString dataArrayName = tokens.at(0);
-    size_t count = tokens.at(2).toULongLong(&ok);
+    if(dataArrayName == "LOCTMP")
+    {
+      for(int skipLine = 0; skipLine < 10; skipLine++)
+      {
+        buf = inStream.readLine();
+      }
+      return;
+    }
 
+    size_t count = tokens.at(2).toULongLong(&ok);
+    if(count == 0)
+    {
+      status = "";
+      ss << "Found Data Group '" << dataArrayName << "' without any entries. Skipping";
+      notifyStatusMessage(status);
+      continue;
+    }
     if(count != numVerts && count != numCells)
     {
       QString msg = QString("Reading %1 Data from DEFORM data file, data array does not have a number of entries (%2) equal to the number of vertices (%3) or cells (%4)")
@@ -1487,14 +1507,17 @@ void ImportFEAData::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix
                         .arg(count)
                         .arg(numVerts)
                         .arg(numCells);
-      setErrorCondition(-96000, msg);
-      return;
+      setWarningCondition(-96000, msg);
+      continue;
     }
     if(inStream.atEnd())
     {
       return;
     }
 
+    status = "";
+    ss << "Found Data Group '" << dataArrayName << "' with " << count << " entries";
+    notifyStatusMessage(status);
     // Read a Data set
     FloatArrayType::Pointer data = FloatArrayType::NullPointer();
     for(size_t i = 0; i < count; i++)

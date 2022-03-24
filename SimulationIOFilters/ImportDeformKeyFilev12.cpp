@@ -4,8 +4,11 @@
 
 #include "ImportDeformKeyFilev12.h"
 
+
+
 #include <fstream>
 
+#include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/DataContainers/DataContainer.h"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
@@ -17,8 +20,6 @@
 #include "SimulationIO/SimulationIOVersion.h"
 
 #define READ_DEF_PT_TRACKING_TIME_INDEX "Time Index"
-
-namespace fs = std::filesystem;
 
 namespace
 {

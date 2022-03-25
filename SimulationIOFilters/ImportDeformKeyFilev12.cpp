@@ -67,16 +67,16 @@ void ImportDeformKeyFilev12::dataCheck()
   clearWarningCode();
   setCancel(false);
 
+  if(m_DEFORMInputFile.toStdString().empty())
+  {
+    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
+    setErrorCondition(-1, ss);
+  }
+
   if(!fs::exists(m_DEFORMInputFile.toStdString()))
   {
     QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMInputFile());
     setErrorCondition(-388, ss);
-  }
-
-  if(fs::is_empty(m_DEFORMInputFile.toStdString()))
-  {
-    QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
-    setErrorCondition(-1, ss);
   }
 
   // Create the output Data Container

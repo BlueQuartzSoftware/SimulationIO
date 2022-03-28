@@ -8,6 +8,7 @@
 #include "SIMPLib/Filtering/AbstractFilter.h"
 
 #include "SimulationIO/SimulationIODLLExport.h"
+#include "SimulationIO/SimulationIOFilters/Algorithms/ImportDeformKeyFilev12.h"
 
 class AttributeMatrix;
 class DataContainer;

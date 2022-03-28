@@ -11,16 +11,46 @@
 #include "SIMPLib/FilterParameters/StringFilterParameter.h"
 
 #include "SimulationIO/SimulationIOConstants.h"
-#include "SimulationIO/SimulationIOFilters/Algorithms/ImportDeformKeyFilev12.h"
 #include "SimulationIO/SimulationIOVersion.h"
 
 namespace fs = std::filesystem;
+
+enum class DataArrayType : uint8_t
+{
+  VERTEX,
+  CELL
+};
+
+struct DataArrayMetadata
+{
+  std::string name;
+  size_t tupleCount;
+  size_t componentCount;
+  DataArrayType type;
+};
+
+struct FileCache
+{
+  std::string inputFile;
+  std::vector<DataArrayMetadata> dataArrays;
+  size_t vertexAttrMatTupleCount;
+  size_t cellAttrMatTupleCount;
+  fs::file_time_type timeStamp;
+
+  void flush()
+  {
+    inputFile.clear();
+    dataArrays.clear();
+    timeStamp = fs::file_time_type();
+  }
+};
 
 namespace
 {
 const std::string k_CompleteStr = "DEFORM Key File: Import Complete";
 const std::string k_CanceledStr = "DEFORM Key File: Import Canceled";
 const std::string k_IncompleteWithErrorsStr = "DEFORM Key File: Import Incomplete With Errors";
+FileCache Cache;
 } // namespace
 
 // -----------------------------------------------------------------------------
@@ -66,16 +96,25 @@ void ImportDeformKeyFilev12Filter::dataCheck()
   {
     QString ss = QObject::tr("The input file must be set for property %1").arg("InputFile");
     setErrorCondition(-1, ss);
+    return;
   }
 
   if(!fs::exists(m_DEFORMInputFile.toStdString()))
   {
     QString ss = QObject::tr("The input file does not exist: '%1'").arg(getDEFORMInputFile());
     setErrorCondition(-388, ss);
+    return;
+  }
+
+  if(fs::path(m_DEFORMInputFile.toStdString()).extension() != ".key")
+  {
+    QString ss = QObject::tr("The input file is not a valid DEFORM key file.");
+    setErrorCondition(-389, ss);
+    return;
   }
 
   // Create the output Data Container
-  DataContainer::Pointer m = getDataContainerArray()->createNonPrereqDataContainer(this, getDataContainerName());
+  DataContainer::Pointer dc = getDataContainerArray()->createNonPrereqDataContainer(this, getDataContainerName());
   if(getErrorCode() < 0)
   {
     return;
@@ -83,15 +122,80 @@ void ImportDeformKeyFilev12Filter::dataCheck()
 
   // Create our output Vertex and Cell Matrix objects
   std::vector<size_t> tDims(1, 0);
-  m->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
+  AttributeMatrix::Pointer vertexAttrMat = dc->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
   if(getErrorCode() < 0)
   {
     return;
   }
-  m->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
+  AttributeMatrix::Pointer cellAttrMat = dc->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
   if(getErrorCode() < 0)
   {
     return;
+  }
+
+  SimulationIO::ImportDeformKeyFilev12InputValues inputValues;
+  inputValues.deformInputFile = getDEFORMInputFile().toStdString();
+  inputValues.dataContainerName = getDataContainerName().toStdString();
+  inputValues.vertexAttributeMatrixName = getVertexAttributeMatrixName().toStdString();
+  inputValues.cellAttributeMatrixName = getCellAttributeMatrixName().toStdString();
+
+  // Read from the file if we are executing, the input file has changed, or the input file's time stamp is out of date.
+  // Otherwise, read from the cache
+  if(!getInPreflight() || getDEFORMInputFile().toStdString() != Cache.inputFile || Cache.timeStamp < fs::last_write_time(getDEFORMInputFile().toStdString()))
+  {
+    // Read the file
+    SimulationIO::ImportDeformKeyFilev12 algorithm(&inputValues, this);
+    algorithm.readDEFORMFile(dc.get(), vertexAttrMat.get(), cellAttrMat.get(), !getInPreflight());
+
+    // Cache the results
+    std::vector<DataArrayMetadata> dataArrays;
+
+    Cache.vertexAttrMatTupleCount = vertexAttrMat->getNumberOfTuples();
+    Cache.cellAttrMatTupleCount = cellAttrMat->getNumberOfTuples();
+
+    for(const auto& vertexArray : *vertexAttrMat)
+    {
+      dataArrays.push_back({vertexArray->getName().toStdString(), vertexArray->getNumberOfTuples(), static_cast<size_t>(vertexArray->getNumberOfComponents()), DataArrayType::VERTEX});
+    }
+    for(const auto& cellArray : *cellAttrMat)
+    {
+      dataArrays.push_back({cellArray->getName().toStdString(), cellArray->getNumberOfTuples(), static_cast<size_t>(cellArray->getNumberOfComponents()), DataArrayType::CELL});
+    }
+
+    Cache.inputFile = getDEFORMInputFile().toStdString();
+    Cache.dataArrays = dataArrays;
+    Cache.timeStamp = fs::last_write_time(getDEFORMInputFile().toStdString());
+  }
+  else
+  {
+    // Read from the cache
+    setDEFORMInputFile(QString::fromStdString(Cache.inputFile));
+
+    std::vector<size_t> tDims(1, Cache.vertexAttrMatTupleCount);
+    vertexAttrMat->resizeAttributeArrays(tDims);
+
+    tDims[0] = Cache.cellAttrMatTupleCount;
+    cellAttrMat->resizeAttributeArrays(tDims);
+
+    for(const DataArrayMetadata& daMetadata : Cache.dataArrays)
+    {
+      std::vector<size_t> cDims(1, static_cast<size_t>(daMetadata.componentCount));
+      FloatArrayType::Pointer data = FloatArrayType::CreateArray(daMetadata.tupleCount, cDims, QString::fromStdString(daMetadata.name), false);
+
+      if(daMetadata.type == DataArrayType::VERTEX)
+      {
+        vertexAttrMat->insertOrAssign(data);
+      }
+      else if(daMetadata.type == DataArrayType::CELL)
+      {
+        cellAttrMat->insertOrAssign(data);
+      }
+      else
+      {
+        QString msg = QString("Unable to determine the type for cached data array \"%1\".  The type must be either vertex or cell.").arg(QString::fromStdString(daMetadata.name));
+        setErrorCondition(-2020, msg);
+      }
+    }
   }
 }
 
@@ -102,22 +206,6 @@ void ImportDeformKeyFilev12Filter::execute()
   clearWarningCode();
 
   dataCheck();
-  if(getErrorCode() < 0)
-  {
-    return;
-  }
-
-  DataContainer::Pointer m = getDataContainerArray()->getDataContainer(getDataContainerName());
-  AttributeMatrix::Pointer vertexAttrMat = m->getAttributeMatrix(getVertexAttributeMatrixName());
-  AttributeMatrix::Pointer cellAttrMat = m->getAttributeMatrix(getCellAttributeMatrixName());
-
-  SimulationIO::ImportDeformKeyFilev12InputValues inputValues;
-  inputValues.deformInputFile = getDEFORMInputFile().toStdString();
-  inputValues.dataContainerName = getDataContainerName().toStdString();
-  inputValues.vertexAttributeMatrixName = getVertexAttributeMatrixName().toStdString();
-  inputValues.cellAttributeMatrixName = getCellAttributeMatrixName().toStdString();
-
-  SimulationIO::ImportDeformKeyFilev12(*getDataContainerArray(), &inputValues, this)();
 
   if(getErrorCode() > 0)
   {

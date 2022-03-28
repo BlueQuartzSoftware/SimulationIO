@@ -1,5 +1,7 @@
 #include "ImportDeformKeyFilev12.h"
 
+#include <QtCore/QDateTime>
+
 #include <fstream>
 
 #include "SIMPLib/DataContainers/DataContainerArray.h"
@@ -9,10 +11,23 @@
 
 using namespace SimulationIO;
 
+namespace
+{
+const std::vector<std::string> k_FileTitle = {"DEFORM-2D", "KEYWORD", "FILE", "(Qt)"};
+const std::vector<std::string> k_ProcessDefinition = {"Process", "Definition"};
+const std::vector<std::string> k_StoppingAndStepControls = {"Stopping", "&", "Step", "Controls"};
+const std::vector<std::string> k_IterationControls = {"Iteration", "Controls"};
+const std::vector<std::string> k_ProcessingConditions = {"Processing", "Conditions"};
+const std::vector<std::string> k_UserDefinedVariables = {"User", "Defined", "Variables"};
+const std::vector<std::string> k_PropertyDataOfMaterial = {"Property", "Data", "of", "Material"};
+const std::vector<std::string> k_InterMaterialData = {"Inter-Material", "Data"};
+const std::vector<std::string> k_InterObjectData = {"Inter-Object", "Data"};
+const std::vector<std::string> k_DataForObject = {"Data", "for", "Object", "#"};
+} // namespace
+
 // -----------------------------------------------------------------------------
-ImportDeformKeyFilev12::ImportDeformKeyFilev12(DataContainerArray& dataStructure, ImportDeformKeyFilev12InputValues* inputValues, ImportDeformKeyFilev12Filter* filter)
-: m_DataStructure(dataStructure)
-, m_InputValues(inputValues)
+ImportDeformKeyFilev12::ImportDeformKeyFilev12(ImportDeformKeyFilev12InputValues* inputValues, ImportDeformKeyFilev12Filter* filter)
+: m_InputValues(inputValues)
 , m_Filter(filter)
 {
 }
@@ -21,17 +36,7 @@ ImportDeformKeyFilev12::ImportDeformKeyFilev12(DataContainerArray& dataStructure
 ImportDeformKeyFilev12::~ImportDeformKeyFilev12() noexcept = default;
 
 // -----------------------------------------------------------------------------
-void ImportDeformKeyFilev12::operator()()
-{
-  DataContainer::Pointer dc = m_DataStructure.getDataContainer(QString::fromStdString(m_InputValues->dataContainerName));
-  AttributeMatrix::Pointer vertexAttrMat = dc->getAttributeMatrix(QString::fromStdString(m_InputValues->vertexAttributeMatrixName));
-  AttributeMatrix::Pointer cellAttrMat = dc->getAttributeMatrix(QString::fromStdString(m_InputValues->cellAttributeMatrixName));
-
-  return scanDEFORMFile(dc.get(), vertexAttrMat.get(), cellAttrMat.get());
-}
-
-// -----------------------------------------------------------------------------
-void ImportDeformKeyFilev12::scanDEFORMFile(DataContainer* dataContainer, AttributeMatrix* vertexAttributeMatrix, AttributeMatrix* cellAttributeMatrix)
+void ImportDeformKeyFilev12::readDEFORMFile(DataContainer* dataContainer, AttributeMatrix* vertexAttributeMatrix, AttributeMatrix* cellAttributeMatrix, bool allocate)
 {
   std::ifstream inStream(m_InputValues->deformInputFile);
   size_t lineCount = 0;
@@ -50,20 +55,214 @@ void ImportDeformKeyFilev12::scanDEFORMFile(DataContainer* dataContainer, Attrib
       return;
     }
 
-    tokens = getNextLineTokens(inStream);
-    lineCount++;
+    tokens = getNextLineTokens(inStream, lineCount);
 
-    if(tokens.empty())
+    if(tokens.size() <= 1)
     {
+      // This is either an empty line or a singular star comment
       continue;
     }
 
-    word = tokens.at(0);
+    // Erase the star
+    tokens.erase(tokens.begin());
 
-    if(word == "RZ")
+    if(tokens == k_ProcessDefinition)
+    {
+      // Skip the comment line that ends the header
+      getNextLineTokens(inStream, lineCount);
+
+      // Read "Process Definition" section
+      readProcessDefinition(inStream, lineCount);
+      continue;
+    }
+    else if(tokens == k_StoppingAndStepControls)
+    {
+      // Skip the comment line that ends the header
+      getNextLineTokens(inStream, lineCount);
+
+      // Read "Stopping & Step Controls" section
+      readStoppingAndStepControls(inStream, lineCount);
+      continue;
+    }
+    else if(tokens == k_IterationControls)
+    {
+      // Skip the comment line that ends the header
+      getNextLineTokens(inStream, lineCount);
+
+      // Read "Iteration Controls" section
+      readIterationControls(inStream, lineCount);
+      continue;
+    }
+    else if(tokens == k_ProcessingConditions)
+    {
+      // Skip the comment line that ends the header
+      getNextLineTokens(inStream, lineCount);
+
+      // Read "Processing Conditions" section
+      readProcessingConditions(inStream, lineCount);
+      continue;
+    }
+    else if(tokens == k_UserDefinedVariables)
+    {
+      // Skip the comment line that ends the header
+      getNextLineTokens(inStream, lineCount);
+
+      // Read "User Defined Variables" section
+      readUserDefinedVariables(inStream, lineCount);
+      continue;
+    }
+    else if(tokens == k_InterMaterialData)
+    {
+      // Skip the comment line that ends the header
+      getNextLineTokens(inStream, lineCount);
+
+      // Read "Inter-Material Data" section
+      readInterMaterialData(inStream, lineCount);
+      continue;
+    }
+    else if(tokens == k_InterObjectData)
+    {
+      // Skip the comment line that ends the header
+      getNextLineTokens(inStream, lineCount);
+
+      // Read "Inter-Object Data" section
+      readInterObjectData(inStream, lineCount);
+      continue;
+    }
+    else if(tokens.size() == 5)
+    {
+      std::vector<std::string> tmp = tokens;
+      tmp.erase(tmp.begin() + 1);
+      if(tmp == k_FileTitle)
+      {
+        // File title.  Continue...
+        continue;
+      }
+
+      tmp = tokens;
+      tmp.pop_back();
+
+      if(tmp == k_PropertyDataOfMaterial)
+      {
+        // Skip the comment line that ends the header
+        getNextLineTokens(inStream, lineCount);
+
+        // Read "Property Data of Material" section
+        readPropertyDataOfMaterial(inStream, lineCount);
+        continue;
+      }
+      else if(tmp == k_DataForObject)
+      {
+        // Skip the comment line that ends the header
+        getNextLineTokens(inStream, lineCount);
+
+        // Read "Data For Object" section
+        readDataForObject(inStream, lineCount, dataContainer, vertexAttributeMatrix, cellAttributeMatrix, allocate);
+
+        if(m_Filter != nullptr && m_Filter->getErrorCode() < 0)
+        {
+          return;
+        }
+
+        continue;
+      }
+    }
+
+    // Unrecognized section
+    QString msg = QString("Warning at line %1: Unrecognized section \"%2\"").arg(QString::number(lineCount), QString::fromStdString(SIMPL::StringUtilities::join(tokens, ' ')));
+    tryNotifyWarningMessage(-2010, msg);
+  }
+}
+
+// -----------------------------------------------------------------------------
+void ImportDeformKeyFilev12::readProcessDefinition(std::ifstream& inStream, size_t& lineCount)
+{
+  // We currently don't care about the "Process Definition" section...
+  findNextSection(inStream, lineCount);
+}
+
+// -----------------------------------------------------------------------------
+void ImportDeformKeyFilev12::readStoppingAndStepControls(std::ifstream& inStream, size_t& lineCount)
+{
+  // We currently don't care about the "Stopping & Step Controls" section...
+  findNextSection(inStream, lineCount);
+}
+
+// -----------------------------------------------------------------------------
+void ImportDeformKeyFilev12::readIterationControls(std::ifstream& inStream, size_t& lineCount)
+{
+  // We currently don't care about the "Iteration Controls" section...
+  findNextSection(inStream, lineCount);
+}
+
+// -----------------------------------------------------------------------------
+void ImportDeformKeyFilev12::readProcessingConditions(std::ifstream& inStream, size_t& lineCount)
+{
+  // We currently don't care about the "Processing Conditions" section...
+  findNextSection(inStream, lineCount);
+}
+
+// -----------------------------------------------------------------------------
+void ImportDeformKeyFilev12::readUserDefinedVariables(std::ifstream& inStream, size_t& lineCount)
+{
+  // We currently don't care about the "User Defined Variables" section...
+  findNextSection(inStream, lineCount);
+}
+
+// -----------------------------------------------------------------------------
+void ImportDeformKeyFilev12::readPropertyDataOfMaterial(std::ifstream& inStream, size_t& lineCount)
+{
+  // We currently don't care about the "Property Data of Material" section...
+  findNextSection(inStream, lineCount);
+}
+
+// -----------------------------------------------------------------------------
+void ImportDeformKeyFilev12::readInterMaterialData(std::ifstream& inStream, size_t& lineCount)
+{
+  // We currently don't care about the "Inter-Material Data" section...
+  findNextSection(inStream, lineCount);
+}
+
+// -----------------------------------------------------------------------------
+void ImportDeformKeyFilev12::readInterObjectData(std::ifstream& inStream, size_t& lineCount)
+{
+  // We currently don't care about the "Inter-Object Data" section...
+  findNextSection(inStream, lineCount);
+}
+
+// -----------------------------------------------------------------------------
+void ImportDeformKeyFilev12::readDataForObject(std::ifstream& inStream, size_t& lineCount, DataContainer* dataContainer, AttributeMatrix* vertexAttributeMatrix, AttributeMatrix* cellAttributeMatrix,
+                                               bool allocate)
+{
+  SharedVertexList::Pointer vertexPtr = SharedVertexList::NullPointer();
+  QuadGeom::Pointer quadGeomPtr = QuadGeom::NullPointer();
+
+  while(inStream.peek() != EOF)
+  {
+    if(shouldCancel())
+    {
+      return;
+    }
+
+    std::vector<std::string> tokens = getNextLineTokens(inStream, lineCount);
+
+    if(tokens.empty())
+    {
+      // This is an empty line
+      continue;
+    }
+
+    std::string word = tokens.at(0);
+
+    if(tokens.size() == 1 && word == "*")
+    {
+      // We are at the next header, so we are done with this section
+      return;
+    }
+    else if(word == "RZ")
     {
       size_t numVerts = parse_ull(tokens.at(2), lineCount);
-      if(m_Filter->getErrorCode() < 0)
+      if(m_Filter != nullptr && m_Filter->getErrorCode() < 0)
       {
         return;
       }
@@ -73,24 +272,19 @@ void ImportDeformKeyFilev12::scanDEFORMFile(DataContainer* dataContainer, Attrib
     else if(word == "ELMCON")
     {
       size_t numCells = parse_ull(tokens.at(2), lineCount);
-      if(m_Filter->getErrorCode() < 0)
+      if(m_Filter != nullptr && m_Filter->getErrorCode() < 0)
       {
         return;
       }
 
       quadGeomPtr = readQuadGeometry(inStream, lineCount, cellAttributeMatrix, vertexPtr, dataContainer, numCells);
     }
-    else if(word == "*")
-    {
-      // This is a comment
-      continue;
-    }
     else if(tokens.size() >= 3 && (vertexPtr != SharedVertexList::NullPointer() || quadGeomPtr != QuadGeom::NullPointer()))
     {
       // This is most likely the beginning of a data array
       std::string dataArrayName = tokens.at(0);
       size_t tupleCount = parse_ull(tokens.at(2), lineCount);
-      if(m_Filter->getErrorCode() < 0)
+      if(m_Filter != nullptr && m_Filter->getErrorCode() < 0)
       {
         return;
       }
@@ -100,18 +294,31 @@ void ImportDeformKeyFilev12::scanDEFORMFile(DataContainer* dataContainer, Attrib
         QString statusMsg = QString("Reading Vertex Data: %1").arg(QString::fromStdString(dataArrayName));
         tryNotifyStatusMessage(statusMsg);
 
-        readDataArray(inStream, lineCount, vertexAttributeMatrix, dataArrayName, tupleCount);
+        readDataArray(inStream, lineCount, vertexAttributeMatrix, dataArrayName, tupleCount, allocate);
       }
       else if(quadGeomPtr != QuadGeom::NullPointer() && tupleCount == quadGeomPtr->getNumberOfQuads())
       {
         QString statusMsg = QString("Reading Cell Data: %1").arg(QString::fromStdString(dataArrayName));
         tryNotifyStatusMessage(statusMsg);
 
-        readDataArray(inStream, lineCount, cellAttributeMatrix, dataArrayName, tupleCount);
+        readDataArray(inStream, lineCount, cellAttributeMatrix, dataArrayName, tupleCount, allocate);
       }
     }
+    else
+    {
+      continue;
+    }
+  }
+}
 
-    if(m_Filter->getErrorCode() < 0)
+// -----------------------------------------------------------------------------
+void ImportDeformKeyFilev12::findNextSection(std::ifstream& inStream, size_t& lineCount)
+{
+  std::vector<std::string> tokens;
+  while(inStream.peek() != EOF)
+  {
+    tokens = getNextLineTokens(inStream, lineCount);
+    if(!tokens.empty() && tokens.at(0) == "*")
     {
       return;
     }
@@ -141,8 +348,7 @@ SharedVertexList::Pointer ImportDeformKeyFilev12::readVertexCoordinates(std::ifs
       return SharedVertexList::NullPointer();
     }
 
-    tokens = getNextLineTokens(inStream);
-    lineCount++;
+    tokens = getNextLineTokens(inStream, lineCount);
 
     try
     {
@@ -196,8 +402,7 @@ QuadGeom::Pointer ImportDeformKeyFilev12::readQuadGeometry(std::ifstream& inStre
       return QuadGeom::NullPointer();
     }
 
-    tokens = getNextLineTokens(inStream);
-    lineCount++;
+    tokens = getNextLineTokens(inStream, lineCount);
 
     // Subtract one from the node number because DEFORM starts at node 1 and we start at node 0
     try
@@ -249,7 +454,7 @@ QuadGeom::Pointer ImportDeformKeyFilev12::readQuadGeometry(std::ifstream& inStre
 }
 
 // -----------------------------------------------------------------------------
-void ImportDeformKeyFilev12::readDataArray(std::ifstream& inStream, size_t& lineCount, AttributeMatrix* attrMat, const std::string& dataArrayName, size_t arrayTupleSize)
+void ImportDeformKeyFilev12::readDataArray(std::ifstream& inStream, size_t& lineCount, AttributeMatrix* attrMat, const std::string& dataArrayName, size_t arrayTupleSize, bool allocate)
 {
   FloatArrayType::Pointer data = FloatArrayType::NullPointer();
   for(size_t i = 0; i < arrayTupleSize; i++)
@@ -259,37 +464,39 @@ void ImportDeformKeyFilev12::readDataArray(std::ifstream& inStream, size_t& line
       return;
     }
 
-    std::vector<std::string> tokens = getNextLineTokens(inStream);
-    lineCount++;
+    std::vector<std::string> tokens = getNextLineTokens(inStream, lineCount);
 
     if(i == 0)
     {
       int32_t numComp = tokens.size() - 1;
       std::vector<size_t> cDims(1, static_cast<size_t>(numComp));
-      data = FloatArrayType::CreateArray(arrayTupleSize, cDims, QString::fromStdString(dataArrayName), true);
+      data = FloatArrayType::CreateArray(arrayTupleSize, cDims, QString::fromStdString(dataArrayName), allocate);
       attrMat->insertOrAssign(data);
     }
 
-    for(int32_t c = 0; c < data->getNumberOfComponents(); c++)
+    if(allocate)
     {
-      float value = 0.0f;
-      try
+      for(int32_t c = 0; c < data->getNumberOfComponents(); c++)
       {
-        value = std::stof(tokens[c + 1]);
-      } catch(const std::exception& e)
-      {
-        QString msg = QString("Error at line %1: Unable to convert data array %2's string value \"%3\" to float.  Threw standard exception with text: \"%4\"")
-                          .arg(QString::number(lineCount), data->getName(), QString::fromStdString(tokens[c + 1]), e.what());
-        tryNotifyErrorMessage(-2008, msg);
-        return;
+        float value = 0.0f;
+        try
+        {
+          value = std::stof(tokens[c + 1]);
+        } catch(const std::exception& e)
+        {
+          QString msg = QString("Error at line %1: Unable to convert data array %2's string value \"%3\" to float.  Threw standard exception with text: \"%4\"")
+                            .arg(QString::number(lineCount), data->getName(), QString::fromStdString(tokens[c + 1]), e.what());
+          tryNotifyErrorMessage(-2008, msg);
+          return;
+        }
+        data->setComponent(i, c, value);
       }
-      data->setComponent(i, c, value);
     }
   }
 }
 
 // -----------------------------------------------------------------------------
-std::vector<std::string> ImportDeformKeyFilev12::getNextLineTokens(std::ifstream& inStream)
+std::vector<std::string> ImportDeformKeyFilev12::getNextLineTokens(std::ifstream& inStream, size_t& lineCount)
 {
   std::vector<std::string> tokens; /* vector to store the split data */
   std::string buf;
@@ -297,6 +504,7 @@ std::vector<std::string> ImportDeformKeyFilev12::getNextLineTokens(std::ifstream
   buf = SIMPL::StringUtilities::trimmed(buf);
   buf = SIMPL::StringUtilities::simplified(buf);
   tokens = SIMPL::StringUtilities::split(buf, ' ');
+  lineCount++;
 
   return tokens;
 }
@@ -320,24 +528,6 @@ size_t ImportDeformKeyFilev12::parse_ull(const std::string& token, size_t lineCo
 }
 
 // -----------------------------------------------------------------------------
-size_t ImportDeformKeyFilev12::parseTotalQuads(const std::vector<std::string>& tokens, size_t lineCount)
-{
-  size_t numCells = 0;
-  try
-  {
-    numCells = std::stoull(tokens.at(2));
-  } catch(const std::exception& e)
-  {
-    QString msg = QString("Error at line %1: Unable to convert total quads string value \"%2\" to unsigned long long.  Threw standard exception with text: \"%3\"")
-                      .arg(QString::number(lineCount), QString::fromStdString(tokens.at(2)), e.what());
-    tryNotifyErrorMessage(-2003, msg);
-    return 0;
-  }
-
-  return numCells;
-}
-
-// -----------------------------------------------------------------------------
 void ImportDeformKeyFilev12::tryNotifyErrorMessage(int code, const QString& messageText)
 {
   if(m_Filter == nullptr)
@@ -346,6 +536,17 @@ void ImportDeformKeyFilev12::tryNotifyErrorMessage(int code, const QString& mess
   }
 
   m_Filter->setErrorCondition(code, messageText);
+}
+
+// -----------------------------------------------------------------------------
+void ImportDeformKeyFilev12::tryNotifyWarningMessage(int code, const QString& messageText)
+{
+  if(m_Filter == nullptr)
+  {
+    return;
+  }
+
+  m_Filter->setWarningCondition(code, messageText);
 }
 
 // -----------------------------------------------------------------------------

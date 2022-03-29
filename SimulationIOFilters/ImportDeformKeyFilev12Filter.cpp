@@ -45,16 +45,38 @@ struct FileCache
   }
 };
 
+/**
+ * @brief The ImportDeformKeyFilev12Private class is a private implementation of the ImportDeformKeyFilev12Filter class
+ */
+class ImportDeformKeyFilev12Private
+{
+  Q_DISABLE_COPY(ImportDeformKeyFilev12Private)
+  Q_DECLARE_PUBLIC(ImportDeformKeyFilev12Filter)
+  ImportDeformKeyFilev12Filter* const q_ptr;
+  ImportDeformKeyFilev12Private(ImportDeformKeyFilev12Filter* ptr);
+
+  FileCache m_Cache;
+};
+
+// -----------------------------------------------------------------------------
+ImportDeformKeyFilev12Private::ImportDeformKeyFilev12Private(ImportDeformKeyFilev12Filter* ptr)
+: q_ptr(ptr)
+, m_Cache(FileCache())
+{
+}
+
 namespace
 {
 const std::string k_CompleteStr = "DEFORM Key File: Import Complete";
 const std::string k_CanceledStr = "DEFORM Key File: Import Canceled";
 const std::string k_IncompleteWithErrorsStr = "DEFORM Key File: Import Incomplete With Errors";
-FileCache Cache;
 } // namespace
 
 // -----------------------------------------------------------------------------
-ImportDeformKeyFilev12Filter::ImportDeformKeyFilev12Filter() = default;
+ImportDeformKeyFilev12Filter::ImportDeformKeyFilev12Filter()
+: d_ptr(new ImportDeformKeyFilev12Private(this))
+{
+}
 
 // -----------------------------------------------------------------------------
 ImportDeformKeyFilev12Filter::~ImportDeformKeyFilev12Filter() = default;
@@ -120,7 +142,7 @@ void ImportDeformKeyFilev12Filter::dataCheck()
     return;
   }
 
-  // Create our output Vertex and Cell Matrix objects
+  // Create our output Vertex and Cell Matrix objects.  These are initially set to a size of 0 tuples, but will be updated after the Deform file is read.
   std::vector<size_t> tDims(1, 0);
   AttributeMatrix::Pointer vertexAttrMat = dc->createNonPrereqAttributeMatrix(this, getVertexAttributeMatrixName(), tDims, AttributeMatrix::Type::Vertex);
   if(getErrorCode() < 0)
@@ -141,17 +163,17 @@ void ImportDeformKeyFilev12Filter::dataCheck()
 
   // Read from the file if we are executing, the input file has changed, or the input file's time stamp is out of date.
   // Otherwise, read from the cache
-  if(!getInPreflight() || getDEFORMInputFile().toStdString() != Cache.inputFile || Cache.timeStamp < fs::last_write_time(getDEFORMInputFile().toStdString()))
+  if(!getInPreflight() || getDEFORMInputFile().toStdString() != d_ptr->m_Cache.inputFile || d_ptr->m_Cache.timeStamp < fs::last_write_time(getDEFORMInputFile().toStdString()))
   {
-    // Read the file
+    // Read from the file
     SimulationIO::ImportDeformKeyFilev12 algorithm(&inputValues, this);
     algorithm.readDEFORMFile(dc.get(), vertexAttrMat.get(), cellAttrMat.get(), !getInPreflight());
 
     // Cache the results
     std::vector<DataArrayMetadata> dataArrays;
 
-    Cache.vertexAttrMatTupleCount = vertexAttrMat->getNumberOfTuples();
-    Cache.cellAttrMatTupleCount = cellAttrMat->getNumberOfTuples();
+    d_ptr->m_Cache.vertexAttrMatTupleCount = vertexAttrMat->getNumberOfTuples();
+    d_ptr->m_Cache.cellAttrMatTupleCount = cellAttrMat->getNumberOfTuples();
 
     for(const auto& vertexArray : *vertexAttrMat)
     {
@@ -162,22 +184,22 @@ void ImportDeformKeyFilev12Filter::dataCheck()
       dataArrays.push_back({cellArray->getName().toStdString(), cellArray->getNumberOfTuples(), static_cast<size_t>(cellArray->getNumberOfComponents()), DataArrayType::CELL});
     }
 
-    Cache.inputFile = getDEFORMInputFile().toStdString();
-    Cache.dataArrays = dataArrays;
-    Cache.timeStamp = fs::last_write_time(getDEFORMInputFile().toStdString());
+    d_ptr->m_Cache.inputFile = getDEFORMInputFile().toStdString();
+    d_ptr->m_Cache.dataArrays = dataArrays;
+    d_ptr->m_Cache.timeStamp = fs::last_write_time(getDEFORMInputFile().toStdString());
   }
   else
   {
     // Read from the cache
-    setDEFORMInputFile(QString::fromStdString(Cache.inputFile));
+    setDEFORMInputFile(QString::fromStdString(d_ptr->m_Cache.inputFile));
 
-    std::vector<size_t> tDims(1, Cache.vertexAttrMatTupleCount);
+    std::vector<size_t> tDims(1, d_ptr->m_Cache.vertexAttrMatTupleCount);
     vertexAttrMat->resizeAttributeArrays(tDims);
 
-    tDims[0] = Cache.cellAttrMatTupleCount;
+    tDims[0] = d_ptr->m_Cache.cellAttrMatTupleCount;
     cellAttrMat->resizeAttributeArrays(tDims);
 
-    for(const DataArrayMetadata& daMetadata : Cache.dataArrays)
+    for(const DataArrayMetadata& daMetadata : d_ptr->m_Cache.dataArrays)
     {
       std::vector<size_t> cDims(1, static_cast<size_t>(daMetadata.componentCount));
       FloatArrayType::Pointer data = FloatArrayType::CreateArray(daMetadata.tupleCount, cDims, QString::fromStdString(daMetadata.name), false);

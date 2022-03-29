@@ -13,6 +13,9 @@
 class AttributeMatrix;
 class DataContainer;
 
+// our PIMPL private class
+class ImportDeformKeyFilev12Private;
+
 /**
  * @brief The ImportDeformKeyFilev12Filter class. See [Filter documentation](@ref ImportDeformKeyFilev12Filter) for details.
  */
@@ -170,6 +173,8 @@ private:
   QString m_DataContainerName = {SIMPL::Defaults::DataContainerName};
   QString m_VertexAttributeMatrixName = {SIMPL::Defaults::VertexAttributeMatrixName};
   QString m_CellAttributeMatrixName = {SIMPL::Defaults::CellAttributeMatrixName};
+
+  QScopedPointer<ImportDeformKeyFilev12Private> const d_ptr;
 
 public:
   ImportDeformKeyFilev12Filter(const ImportDeformKeyFilev12Filter&) = delete;            // Copy Constructor Not Implemented

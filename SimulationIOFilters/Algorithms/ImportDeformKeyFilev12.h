@@ -54,13 +54,12 @@ private:
   void readInterObjectData(std::ifstream& inStream, size_t& lineCount);
   void readDataForObject(std::ifstream& inStream, size_t& lineCount, DataContainer* dataContainer, AttributeMatrix* vertexAttributeMatrix, AttributeMatrix* cellAttributeMatrix, bool allocate);
 
-  void findNextSection(std::ifstream& inStream, size_t& lineCount);
-
   SharedVertexList::Pointer readVertexCoordinates(std::ifstream& inStream, size_t& lineCount, AttributeMatrix* vertexAttrMat, size_t numVerts);
   QuadGeom::Pointer readQuadGeometry(std::ifstream& inStream, size_t& lineCount, AttributeMatrix* cellAttrMat, SharedVertexList::Pointer vertexPtr, DataContainer* dataContainer, size_t numCells);
   void readDataArray(std::ifstream& inStream, size_t& lineCount, AttributeMatrix* attrMat, const std::string& dataArrayName, size_t arrayTupleSize, bool allocate);
 
   std::vector<std::string> getNextLineTokens(std::ifstream& inStream, size_t& lineCount);
+  void findNextSection(std::ifstream& inStream, size_t& lineCount);
   size_t parse_ull(const std::string& token, size_t lineCount);
 
   void tryNotifyErrorMessage(int code, const QString& messageText);

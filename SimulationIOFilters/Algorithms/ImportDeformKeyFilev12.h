@@ -16,6 +16,7 @@ struct SimulationIO_EXPORT ImportDeformKeyFilev12InputValues
   std::string dataContainerName;
   std::string vertexAttributeMatrixName;
   std::string cellAttributeMatrixName;
+  bool verboseOutput;
 };
 
 /**
@@ -57,6 +58,7 @@ private:
   SharedVertexList::Pointer readVertexCoordinates(std::ifstream& inStream, size_t& lineCount, AttributeMatrix* vertexAttrMat, size_t numVerts);
   QuadGeom::Pointer readQuadGeometry(std::ifstream& inStream, size_t& lineCount, AttributeMatrix* cellAttrMat, SharedVertexList::Pointer vertexPtr, DataContainer* dataContainer, size_t numCells);
   void readDataArray(std::ifstream& inStream, size_t& lineCount, AttributeMatrix* attrMat, const std::string& dataArrayName, size_t arrayTupleSize, bool allocate);
+  void setTuple(size_t tuple, FloatArrayType* data, const std::vector<std::string>& tokens, size_t lineCount);
 
   std::vector<std::string> getNextLineTokens(std::ifstream& inStream, size_t& lineCount);
   void findNextSection(std::ifstream& inStream, size_t& lineCount);

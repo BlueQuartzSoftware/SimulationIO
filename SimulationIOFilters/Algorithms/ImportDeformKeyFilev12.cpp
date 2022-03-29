@@ -13,6 +13,9 @@ using namespace SimulationIO;
 
 namespace
 {
+const std::string k_CellTitle = "ELMCON";
+const std::string k_VertexTitle = "RZ";
+const std::string k_Star = "*";
 const std::vector<std::string> k_FileTitle = {"DEFORM-2D", "KEYWORD", "FILE", "(Qt)"};
 const std::vector<std::string> k_ProcessDefinition = {"Process", "Definition"};
 const std::vector<std::string> k_StoppingAndStepControls = {"Stopping", "&", "Step", "Controls"};
@@ -254,12 +257,12 @@ void ImportDeformKeyFilev12::readDataForObject(std::ifstream& inStream, size_t& 
 
     std::string word = tokens.at(0);
 
-    if(tokens.size() == 1 && word == "*")
+    if(tokens.size() == 1 && word == k_Star)
     {
       // We are at the next header, so we are done with this section
       return;
     }
-    else if(word == "RZ")
+    else if(word == k_VertexTitle)
     {
       size_t numVerts = parse_ull(tokens.at(2), lineCount);
       if(m_Filter != nullptr && m_Filter->getErrorCode() < 0)
@@ -269,7 +272,7 @@ void ImportDeformKeyFilev12::readDataForObject(std::ifstream& inStream, size_t& 
 
       vertexPtr = readVertexCoordinates(inStream, lineCount, vertexAttributeMatrix, numVerts);
     }
-    else if(word == "ELMCON")
+    else if(word == k_CellTitle)
     {
       size_t numCells = parse_ull(tokens.at(2), lineCount);
       if(m_Filter != nullptr && m_Filter->getErrorCode() < 0)
@@ -303,6 +306,35 @@ void ImportDeformKeyFilev12::readDataForObject(std::ifstream& inStream, size_t& 
 
         readDataArray(inStream, lineCount, cellAttributeMatrix, dataArrayName, tupleCount, allocate);
       }
+      else if(m_InputValues->verboseOutput)
+      {
+        // If verbose, dump the word, number of tuples, and some warning saying that it doesn't have the right number of tuples
+        // for either vertex or cell arrays.
+
+        // This data is not able to be read.  Display a status message that explains why, based on what information we have available.
+        if(vertexPtr == SharedVertexList::NullPointer() && quadGeomPtr != QuadGeom::NullPointer())
+        {
+          QString msg =
+              QString(
+                  "Unable to read data: %1.  Its tuple size (%2) doesn't match the correct number of tuples to be a cell array (%3), and the vertex tuple count has not been read yet.  Skipping...")
+                  .arg(QString::fromStdString(dataArrayName), QString::number(tupleCount), QString::number(quadGeomPtr->getNumberOfQuads()));
+          tryNotifyStatusMessage(msg);
+        }
+        else if(vertexPtr != SharedVertexList::NullPointer() && quadGeomPtr == QuadGeom::NullPointer())
+        {
+          QString msg =
+              QString(
+                  "Unable to read data: %1.  Its tuple size (%2) doesn't match the correct number of tuples to be a vertex array (%3), and the cell tuple count has not been read yet.  Skipping...")
+                  .arg(QString::fromStdString(dataArrayName), QString::number(tupleCount), QString::number(vertexPtr->getNumberOfTuples()));
+          tryNotifyStatusMessage(msg);
+        }
+        else
+        {
+          QString msg = QString("Unable to read data: %1.  Its tuple size (%2) doesn't match the correct number of tuples to be either a vertex array (%3) or cell array (%4).  Skipping...")
+                            .arg(QString::fromStdString(dataArrayName), QString::number(tupleCount), QString::number(vertexPtr->getNumberOfTuples()), QString::number(quadGeomPtr->getNumberOfQuads()));
+          tryNotifyStatusMessage(msg);
+        }
+      }
     }
     else
     {
@@ -318,7 +350,7 @@ void ImportDeformKeyFilev12::findNextSection(std::ifstream& inStream, size_t& li
   while(inStream.peek() != EOF)
   {
     tokens = getNextLineTokens(inStream, lineCount);
-    if(!tokens.empty() && tokens.at(0) == "*")
+    if(!tokens.empty() && tokens.at(0) == k_Star)
     {
       return;
     }
@@ -456,42 +488,60 @@ QuadGeom::Pointer ImportDeformKeyFilev12::readQuadGeometry(std::ifstream& inStre
 // -----------------------------------------------------------------------------
 void ImportDeformKeyFilev12::readDataArray(std::ifstream& inStream, size_t& lineCount, AttributeMatrix* attrMat, const std::string& dataArrayName, size_t arrayTupleSize, bool allocate)
 {
-  FloatArrayType::Pointer data = FloatArrayType::NullPointer();
-  for(size_t i = 0; i < arrayTupleSize; i++)
+  if(arrayTupleSize <= 0)
+  {
+    return;
+  }
+
+  // Create the data array using the first line of data to determine the component count
+  std::vector<std::string> tokens = getNextLineTokens(inStream, lineCount);
+  FloatArrayType::Pointer data = FloatArrayType::CreateArray(arrayTupleSize, std::vector<size_t>{tokens.size() - 1}, QString::fromStdString(dataArrayName), allocate);
+  attrMat->insertOrAssign(data);
+  if(allocate)
+  {
+    setTuple(0, data.get(), tokens, lineCount);
+  }
+
+  // Read the rest of the data array
+  std::string line;
+  for(size_t i = 1; i < arrayTupleSize; i++)
   {
     if(shouldCancel())
     {
       return;
     }
 
-    std::vector<std::string> tokens = getNextLineTokens(inStream, lineCount);
-
-    if(i == 0)
-    {
-      int32_t numComp = tokens.size() - 1;
-      std::vector<size_t> cDims(1, static_cast<size_t>(numComp));
-      data = FloatArrayType::CreateArray(arrayTupleSize, cDims, QString::fromStdString(dataArrayName), allocate);
-      attrMat->insertOrAssign(data);
-    }
+    std::getline(inStream, line);
+    lineCount++;
 
     if(allocate)
     {
-      for(int32_t c = 0; c < data->getNumberOfComponents(); c++)
-      {
-        float value = 0.0f;
-        try
-        {
-          value = std::stof(tokens[c + 1]);
-        } catch(const std::exception& e)
-        {
-          QString msg = QString("Error at line %1: Unable to convert data array %2's string value \"%3\" to float.  Threw standard exception with text: \"%4\"")
-                            .arg(QString::number(lineCount), data->getName(), QString::fromStdString(tokens[c + 1]), e.what());
-          tryNotifyErrorMessage(-2008, msg);
-          return;
-        }
-        data->setComponent(i, c, value);
-      }
+      line = SIMPL::StringUtilities::trimmed(line);
+      line = SIMPL::StringUtilities::simplified(line);
+      tokens = SIMPL::StringUtilities::split(line, ' ');
+
+      setTuple(i, data.get(), tokens, lineCount);
     }
+  }
+}
+
+// -----------------------------------------------------------------------------
+void ImportDeformKeyFilev12::setTuple(size_t tuple, FloatArrayType* data, const std::vector<std::string>& tokens, size_t lineCount)
+{
+  for(int32_t c = 0; c < data->getNumberOfComponents(); c++)
+  {
+    float value = 0.0f;
+    try
+    {
+      value = std::stof(tokens[c + 1]);
+    } catch(const std::exception& e)
+    {
+      QString msg = QString("Error at line %1: Unable to convert data array %2's string value \"%3\" to float.  Threw standard exception with text: \"%4\"")
+                        .arg(QString::number(lineCount), data->getName(), QString::fromStdString(tokens[c + 1]), e.what());
+      tryNotifyErrorMessage(-2008, msg);
+      return;
+    }
+    data->setComponent(tuple, c, value);
   }
 }
 

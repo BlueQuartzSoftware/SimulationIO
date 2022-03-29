@@ -1,6 +1,32 @@
-/*
- * Your License or Copyright can go here
- */
+/* ============================================================================
+ * Copyright (c) 2022-2022 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 #pragma once
 
@@ -32,6 +58,7 @@ class SimulationIO_EXPORT ImportDeformKeyFilev12Filter : public AbstractFilter
   PYB11_PROPERTY(QString DataContainerName READ getDataContainerName WRITE setDataContainerName)
   PYB11_PROPERTY(QString VertexAttributeMatrixName READ getVertexAttributeMatrixName WRITE setVertexAttributeMatrixName)
   PYB11_PROPERTY(QString CellAttributeMatrixName READ getCellAttributeMatrixName WRITE setCellAttributeMatrixName)
+  PYB11_PROPERTY(bool VerboseOutput READ getVerboseOutput WRITE setVerboseOutput)
   PYB11_END_BINDINGS()
   // End Python bindings declarations
 
@@ -99,6 +126,17 @@ public:
    */
   QString getCellAttributeMatrixName() const;
   Q_PROPERTY(QString CellAttributeMatrixName READ getCellAttributeMatrixName WRITE setCellAttributeMatrixName)
+
+  /**
+   * @brief Setter property for VerboseOutput
+   */
+  void setVerboseOutput(bool value);
+  /**
+   * @brief Getter property for VerboseOutput
+   * @return Value of VerboseOutput
+   */
+  bool getVerboseOutput() const;
+  Q_PROPERTY(bool VerboseOutput READ getVerboseOutput WRITE setVerboseOutput)
 
   /**
    * @brief getCompiledLibraryName Reimplemented from @see AbstractFilter class
@@ -173,6 +211,7 @@ private:
   QString m_DataContainerName = {SIMPL::Defaults::DataContainerName};
   QString m_VertexAttributeMatrixName = {SIMPL::Defaults::VertexAttributeMatrixName};
   QString m_CellAttributeMatrixName = {SIMPL::Defaults::CellAttributeMatrixName};
+  bool m_VerboseOutput = false;
 
   QScopedPointer<ImportDeformKeyFilev12Private> const d_ptr;
 

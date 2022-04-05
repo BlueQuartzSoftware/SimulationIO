@@ -30,6 +30,7 @@
 
 #include "ImportDeformKeyFilev12Filter.h"
 
+#include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/DataContainers/DataContainer.h"
 #include "SIMPLib/DataContainers/DataContainerArray.h"
 #include "SIMPLib/FilterParameters/AbstractFilterParametersReader.h"
@@ -39,8 +40,6 @@
 
 #include "SimulationIO/SimulationIOConstants.h"
 #include "SimulationIO/SimulationIOVersion.h"
-
-namespace fs = std::filesystem;
 
 enum class DataArrayType : uint8_t
 {

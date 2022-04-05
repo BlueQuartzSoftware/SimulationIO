@@ -19,7 +19,7 @@ SIMPL_START_FILTER_GROUP(
 set(_PublicFilters
   Export3dSolidMesh
   ImportFEAData
-  ImportDeformKeyFilev12
+  ImportDeformKeyFilev12Filter
   ExportLAMMPSFile
   ExportDAMASKFiles
   ExportOnScaleTableFile
@@ -59,6 +59,18 @@ foreach(f ${_PrivateFilters} )
                         ${${PLUGIN_NAME}_SOURCE_DIR}/Documentation/${_filterGroupName}/${f}.md FALSE)
 endforeach()
 
+#---------
+# List your filter algorithms here
+set(_Algorithms
+ImportDeformKeyFilev12
+)
+
+#-------------
+# These are files that need to be compiled but are NOT filters
+foreach(f ${_Algorithms} )
+  ADD_SIMPL_SUPPORT_HEADER_SUBDIR(${${PLUGIN_NAME}_SOURCE_DIR} ${_filterGroupName} ${f}.h Algorithms)
+  ADD_SIMPL_SUPPORT_HEADER_SUBDIR(${${PLUGIN_NAME}_SOURCE_DIR} ${_filterGroupName} ${f}.cpp Algorithms)
+endforeach()
 
 
 #---------------------

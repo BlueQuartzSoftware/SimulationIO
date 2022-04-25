@@ -208,7 +208,7 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
     */
     void preflight() override;
 
-  signals:
+  Q_SIGNALS:
     /**
      * @brief updateFilterParameters Emitted when the Filter requests all the latest Filter parameters
      * be pushed from a user-facing control (such as a widget)
@@ -251,7 +251,7 @@ class SimulationIO_EXPORT ImportFEAData : public AbstractFilter
     QVector<QByteArray> tokenizeNodeBlock(QFile& reader);
     void parseDataTokens(QVector<QByteArray>& tokens, qint32 nodeIdx);
 
-  protected slots:
+  protected Q_SLOTS:
       void processHasFinished(int exitCode, QProcess::ExitStatus exitStatus);
       void processHasErroredOut(QProcess::ProcessError error);
       void sendErrorOutput();

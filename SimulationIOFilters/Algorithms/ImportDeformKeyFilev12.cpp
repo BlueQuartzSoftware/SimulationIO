@@ -246,12 +246,27 @@ void ImportDeformKeyFilev12::readDataForObject(std::ifstream& inStream, size_t& 
     {
       return;
     }
-
-    std::vector<std::string> tokens = getNextLineTokens(inStream, lineCount);
+    bool isWord = false;
+    std::vector<std::string> tokens;
+    // Read the line. This line _Should_ be the start of "section" of data.
+    {
+      std::string buf;
+      std::getline(inStream, buf);
+      isWord = (buf[0] > 64 /*@ character */ && buf[0] < 91);
+      buf = SIMPL::StringUtilities::trimmed(buf);
+      buf = SIMPL::StringUtilities::simplified(buf);
+      tokens = SIMPL::StringUtilities::split(buf, ' ');
+      lineCount++;
+    }
+    // std::vector<std::string> tokens = getNextLineTokens(inStream, lineCount);
 
     if(tokens.empty())
     {
       // This is an empty line
+      continue;
+    }
+    if(!isWord)
+    {
       continue;
     }
 
@@ -262,7 +277,7 @@ void ImportDeformKeyFilev12::readDataForObject(std::ifstream& inStream, size_t& 
       // We are at the next header, so we are done with this section
       return;
     }
-    else if(word == k_VertexTitle)
+    if(word == k_VertexTitle)
     {
       size_t numVerts = parse_ull(tokens.at(2), lineCount);
       if(m_Filter != nullptr && m_Filter->getErrorCode() < 0)
@@ -488,39 +503,122 @@ QuadGeom::Pointer ImportDeformKeyFilev12::readQuadGeometry(std::ifstream& inStre
 // -----------------------------------------------------------------------------
 void ImportDeformKeyFilev12::readDataArray(std::ifstream& inStream, size_t& lineCount, AttributeMatrix* attrMat, const std::string& dataArrayName, size_t arrayTupleSize, bool allocate)
 {
-  if(arrayTupleSize <= 0)
+  if(arrayTupleSize == 0)
   {
     return;
   }
-
-  // Create the data array using the first line of data to determine the component count
-  std::vector<std::string> tokens = getNextLineTokens(inStream, lineCount);
-  FloatArrayType::Pointer data = FloatArrayType::CreateArray(arrayTupleSize, std::vector<size_t>{tokens.size() - 1}, QString::fromStdString(dataArrayName), allocate);
-  attrMat->insertOrAssign(data);
-  if(allocate)
+  size_t componentCount = 0;
+  FloatArrayType::Pointer data = FloatArrayType::NullPointer();
+  int32_t tupleLineCount = 1;
+  // We are here because the calling function *should* have determined correctly (hopefully) that we are now reading a
+  // section of data. We are going to make the assumption this is correct and go from here. What is *not* figured out
+  // at this point is how many components are in each tuple. That is what this next scoped section is going to figure out.
+  // We are going to read the very fist line, strip off the index value that appears (at least it seems that way from the
+  // file) in the first 8 chars of the line. (The file is written by FORTRAN so I'm hoping that they used fixed width
+  // fields when writing the data otherwise this whole section is based on a very bad assumption). We then tokenize the
+  // values and read the next line. IFF there are NON SPACE characters in the first 8 bytes of this second line that was
+  // read then we now know that all of the components are on a single line. We count the tokens and use that as the number
+  // of components, otherwise we add these tokens to the last set of tokens and read another line. This continues until
+  // we find a line that DOES have a NON SPACE character in the first 8 bytes of the line.
   {
-    setTuple(0, data.get(), tokens, lineCount);
-  }
-
-  // Read the rest of the data array
-  std::string line;
-  for(size_t i = 1; i < arrayTupleSize; i++)
-  {
-    if(shouldCancel())
-    {
-      return;
-    }
+    std::vector<std::string> tokens;
+    std::string line;
 
     std::getline(inStream, line);
     lineCount++;
-
-    if(allocate)
+    // First Scan the first 8 characters to see if there are any non-space characters
+    for(size_t i = 0; i < 8; i++)
+    {
+      if(line[i] != ' ')
+      {
+        line[i] = ' ';
+      }
+    }
+    // We have replaced all of the first 8 chars with spaces, so now tokenize and save the tokens
     {
       line = SIMPL::StringUtilities::trimmed(line);
       line = SIMPL::StringUtilities::simplified(line);
-      tokens = SIMPL::StringUtilities::split(line, ' ');
+      std::vector<std::string> tempTokens = SIMPL::StringUtilities::split(line, ' ');
+      tokens.insert(tokens.end(), tempTokens.begin(), tempTokens.end());
+    }
 
-      setTuple(i, data.get(), tokens, lineCount);
+    // Now look to subsequent lines to see if the data continues
+    bool keepGoing = true;
+    while(keepGoing)
+    {
+      auto currentFilePos = inStream.tellg();
+      // Read the next line
+      std::getline(inStream, line);
+      lineCount++;
+      // Figure out if there is anything in the first 8 chars
+      for(size_t i = 0; i < 8; i++)
+      {
+        if(line[i] != ' ')
+        {
+          inStream.seekg(currentFilePos); // Roll back the inStream to just before we read this line.
+          keepGoing = false;
+          break;
+        }
+      }
+      // If there is NOTHING in the first 8 chars, then tokenize
+      if(keepGoing)
+      {
+        tupleLineCount++;
+        // We have replaced all of the first 8 chars with spaces, so now tokenize and save the tokens
+        line = SIMPL::StringUtilities::trimmed(line);
+        line = SIMPL::StringUtilities::simplified(line);
+        std::vector<std::string> tempTokens = SIMPL::StringUtilities::split(line, ' ');
+        tokens.insert(tokens.end(), tempTokens.begin(), tempTokens.end());
+      }
+    }
+    componentCount = tokens.size();
+
+    // Create the data array using the first line of data to determine the component count
+    data = FloatArrayType::CreateArray(arrayTupleSize, {componentCount}, QString::fromStdString(dataArrayName), allocate);
+    attrMat->insertOrAssign(data);
+
+    if(allocate)
+    {
+      setTuple(0, data.get(), tokens, lineCount);
+    }
+  }
+
+  // Just read and skip since this is probably a preflight or we are just reading throug the file to find the interesting data
+  if(!allocate)
+  {
+    std::string line;
+    size_t totalLinesToRead = (arrayTupleSize - 1) * tupleLineCount;
+    for(size_t i = 0; i < totalLinesToRead; i++)
+    {
+      std::getline(inStream, line);
+      lineCount++;
+    }
+  }
+  else
+  {
+    // Read each tuple's data starting at the second tuple
+    for(size_t tupleIndex = 1; tupleIndex < arrayTupleSize; tupleIndex++)
+    {
+      if(shouldCancel())
+      {
+        return;
+      }
+      std::vector<std::string> tokens;
+
+      // Read the data in groups of each tuple to build up the tokens
+      for(int32_t compLine = 0; compLine < tupleLineCount; compLine++)
+      {
+        // Now read the line
+        std::string compLineData;
+        std::getline(inStream, compLineData);
+        lineCount++;
+        size_t offset = (compLine == 0 ? 1 : 0);
+        compLineData = SIMPL::StringUtilities::trimmed(compLineData);
+        compLineData = SIMPL::StringUtilities::simplified(compLineData);
+        auto subTokens = SIMPL::StringUtilities::split(compLineData, ' ');
+        tokens.insert(tokens.end(), subTokens.begin() + offset, subTokens.end());
+      }
+      setTuple(tupleIndex, data.get(), tokens, lineCount);
     }
   }
 }
@@ -533,7 +631,7 @@ void ImportDeformKeyFilev12::setTuple(size_t tuple, FloatArrayType* data, const 
     float value = 0.0f;
     try
     {
-      value = std::stof(tokens[c + 1]);
+      value = std::stof(tokens[c]);
     } catch(const std::exception& e)
     {
       QString msg = QString("Error at line %1: Unable to convert data array %2's string value \"%3\" to float.  Threw standard exception with text: \"%4\"")

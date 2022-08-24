@@ -251,6 +251,13 @@ void Export3dSolidMesh::dataCheck()
   {
   case 0: // TetGen
   {
+    QFileInfo fi(m_PackageLocation);
+    if(!fi.exists())
+    {
+      setErrorCondition(56, "TetGen Executable Package Location does not exist on the file system.");
+      return;
+    }
+
     if(getRefineMesh())
     {
       if(getMaxRadiusEdgeRatio() <= 0)
@@ -340,7 +347,16 @@ void Export3dSolidMesh::dataCheck()
     break;
   }
 
-  case 1: {
+  case 1: // NetGen
+  {
+
+    QFileInfo fi(m_PackageLocation);
+    if(!fi.exists())
+    {
+      setErrorCondition(56, "NetGen Executable Package Location does not exist on the file system.");
+      return;
+    }
+
     QVector<DataArrayPath> dataArrayPaths;
     std::vector<size_t> cDims(1, 1);
     cDims[0] = 3;
@@ -356,7 +372,14 @@ void Export3dSolidMesh::dataCheck()
 
     break;
   }
-  case 2: {
+  case 2: // Gmsh
+  {
+    QFileInfo fi(m_PackageLocation);
+    if(!fi.exists())
+    {
+      setErrorCondition(56, "GMSH Executable Package Location does not exist on the file system.");
+      return;
+    }
     QVector<DataArrayPath> dataArrayPaths;
     std::vector<size_t> cDims(1, 1);
     cDims[0] = 3;

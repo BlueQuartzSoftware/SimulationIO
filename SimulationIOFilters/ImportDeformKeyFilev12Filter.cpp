@@ -112,7 +112,7 @@ void ImportDeformKeyFilev12Filter::setupFilterParameters()
 {
   FilterParameterVectorType parameters;
 
-  parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", DEFORMInputFile, FilterParameter::Category::Parameter, ImportDeformKeyFilev12Filter, "", "*.DAT", 2));
+  parameters.push_back(SIMPL_NEW_INPUT_FILE_FP("Input File", DEFORMInputFile, FilterParameter::Category::Parameter, ImportDeformKeyFilev12Filter, "", "*.DAT", {2}));
   parameters.push_back(SIMPL_NEW_BOOL_FP("Verbose Output", VerboseOutput, FilterParameter::Category::Parameter, ImportDeformKeyFilev12Filter));
 
   parameters.push_back(SIMPL_NEW_STRING_FP("Data Container Name", DataContainerName, FilterParameter::Category::CreatedArray, ImportDeformKeyFilev12Filter));

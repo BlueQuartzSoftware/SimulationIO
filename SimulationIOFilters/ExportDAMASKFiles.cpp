@@ -86,7 +86,7 @@ void ExportDAMASKFiles::setupFilterParameters()
 
   parameters.push_back(SIMPL_NEW_INTEGER_FP("Homogenization Index", HomogenizationIndex, FilterParameter::Category::Parameter, ExportDAMASKFiles));
 
-  parameters.push_back(SIMPL_NEW_BOOL_FP("Compress Geom File", CompressGeomFile, FilterParameter::Category::Parameter, ExportDAMASKFiles, 0));
+  parameters.push_back(SIMPL_NEW_BOOL_FP("Compress Geom File", CompressGeomFile, FilterParameter::Category::Parameter, ExportDAMASKFiles, {0}));
 
   parameters.push_back(SeparatorFilterParameter::Create("Cell Data", FilterParameter::Category::RequiredArray));
   {

@@ -41,9 +41,14 @@ public:
 
   void readDEFORMFile(DataContainer* dataContainer, AttributeMatrix* vertexAttributeMatrix, AttributeMatrix* cellAttributeMatrix, bool allocate = true);
 
+  std::vector<std::string> getUserDefinedVariables() const;
+
+
 private:
   const ImportDeformKeyFilev12InputValues* m_InputValues = nullptr;
   ImportDeformKeyFilev12Filter* m_Filter = nullptr;
+  std::vector<std::string> m_UserDefinedVariables;
+  std::vector<FloatArrayType::Pointer> m_UserDefinedArrays;
 
   void readProcessDefinition(std::ifstream& inStream, size_t& lineCount);
   void readStoppingAndStepControls(std::ifstream& inStream, size_t& lineCount);
@@ -59,7 +64,7 @@ private:
   QuadGeom::Pointer readQuadGeometry(std::ifstream& inStream, size_t& lineCount, AttributeMatrix* cellAttrMat, SharedVertexList::Pointer vertexPtr, DataContainer* dataContainer, size_t numCells);
   void readDataArray(std::ifstream& inStream, size_t& lineCount, AttributeMatrix* attrMat, const std::string& dataArrayName, size_t arrayTupleSize, bool allocate);
   void setTuple(size_t tuple, FloatArrayType* data, const std::vector<std::string>& tokens, size_t lineCount);
-
+  void setUSRNODTuple(size_t tuple, const std::vector<std::string>& tokens, size_t lineCount);
   std::vector<std::string> getNextLineTokens(std::ifstream& inStream, size_t& lineCount);
   void findNextSection(std::ifstream& inStream, size_t& lineCount);
   size_t parse_ull(const std::string& token, size_t lineCount);

@@ -195,6 +195,7 @@ void ImportDeformKeyFilev12Filter::dataCheck()
     // Read from the file
     SimulationIO::ImportDeformKeyFilev12 algorithm(&inputValues, this);
     algorithm.readDEFORMFile(dc.get(), vertexAttrMat.get(), cellAttrMat.get(), !getInPreflight());
+    auto userDefinedValues = algorithm.getUserDefinedVariables();
 
     // Cache the results
     std::vector<DataArrayMetadata> dataArrays;
@@ -204,7 +205,17 @@ void ImportDeformKeyFilev12Filter::dataCheck()
 
     for(const auto& vertexArray : *vertexAttrMat)
     {
-      dataArrays.push_back({vertexArray->getName().toStdString(), vertexArray->getNumberOfTuples(), static_cast<size_t>(vertexArray->getNumberOfComponents()), DataArrayType::VERTEX});
+      if(vertexArray->getName() == "USRNOD")
+      {
+        for(const auto& userDefinedValue : userDefinedValues)
+        {
+          dataArrays.push_back({userDefinedValue, vertexArray->getNumberOfTuples(), static_cast<size_t>(vertexArray->getNumberOfComponents()), DataArrayType::VERTEX});
+        }
+      }
+      else
+      {
+        dataArrays.push_back({vertexArray->getName().toStdString(), vertexArray->getNumberOfTuples(), static_cast<size_t>(vertexArray->getNumberOfComponents()), DataArrayType::VERTEX});
+      }
     }
     for(const auto& cellArray : *cellAttrMat)
     {

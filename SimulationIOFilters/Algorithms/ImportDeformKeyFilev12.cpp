@@ -206,10 +206,33 @@ void ImportDeformKeyFilev12::readProcessingConditions(std::ifstream& inStream, s
 }
 
 // -----------------------------------------------------------------------------
+std::vector<std::string> ImportDeformKeyFilev12::getUserDefinedVariables() const
+{
+  return m_UserDefinedVariables;
+}
+
+// -----------------------------------------------------------------------------
 void ImportDeformKeyFilev12::readUserDefinedVariables(std::ifstream& inStream, size_t& lineCount)
 {
   // We currently don't care about the "User Defined Variables" section...
-  findNextSection(inStream, lineCount);
+  std::string buf;
+  std::getline(inStream, buf);
+  buf = SIMPL::StringUtilities::trimmed(buf);
+  buf = SIMPL::StringUtilities::simplified(buf);
+  auto tokens = SIMPL::StringUtilities::split(buf, ' ');
+  lineCount++;
+
+  size_t numVars = parse_ull(tokens.at(2), lineCount);
+  m_UserDefinedVariables.resize(12);
+  for(size_t i = 0; i < numVars; i++)
+  {
+    std::getline(inStream, buf);
+    buf = SIMPL::StringUtilities::trimmed(buf);
+    lineCount++;
+    std::string cleanedString = SIMPL::StringUtilities::replace(buf, "/", "|");
+    m_UserDefinedVariables[i] = cleanedString;
+  }
+  // findNextSection(inStream, lineCount);
 }
 
 // -----------------------------------------------------------------------------
@@ -574,12 +597,32 @@ void ImportDeformKeyFilev12::readDataArray(std::ifstream& inStream, size_t& line
     componentCount = tokens.size();
 
     // Create the data array using the first line of data to determine the component count
-    data = FloatArrayType::CreateArray(arrayTupleSize, {componentCount}, QString::fromStdString(dataArrayName), allocate);
-    attrMat->insertOrAssign(data);
+    if(dataArrayName == "USRNOD")
+    {
+      m_UserDefinedArrays.clear();
+      for(const auto& userDefinedVariable : m_UserDefinedVariables)
+      {
+        data = FloatArrayType::CreateArray(arrayTupleSize, {1}, QString::fromStdString(userDefinedVariable), allocate);
+        attrMat->insertOrAssign(data);
+        m_UserDefinedArrays.push_back(data);
+      }
+    }
+    else
+    {
+      data = FloatArrayType::CreateArray(arrayTupleSize, {componentCount}, QString::fromStdString(dataArrayName), allocate);
+      attrMat->insertOrAssign(data);
+    }
 
     if(allocate)
     {
-      setTuple(0, data.get(), tokens, lineCount);
+      if(dataArrayName == "USRNOD")
+      {
+        setUSRNODTuple(0, tokens, lineCount);
+      }
+      else
+      {
+        setTuple(0, data.get(), tokens, lineCount);
+      }
     }
   }
 
@@ -618,8 +661,36 @@ void ImportDeformKeyFilev12::readDataArray(std::ifstream& inStream, size_t& line
         auto subTokens = SIMPL::StringUtilities::split(compLineData, ' ');
         tokens.insert(tokens.end(), subTokens.begin() + offset, subTokens.end());
       }
-      setTuple(tupleIndex, data.get(), tokens, lineCount);
+
+      if(dataArrayName == "USRNOD")
+      {
+        setUSRNODTuple(tupleIndex, tokens, lineCount);
+      }
+      else
+      {
+        setTuple(tupleIndex, data.get(), tokens, lineCount);
+      }
     }
+  }
+}
+
+// -----------------------------------------------------------------------------
+void ImportDeformKeyFilev12::setUSRNODTuple(size_t tuple, const std::vector<std::string>& tokens, size_t lineCount)
+{
+  for(int32_t c = 0; c < m_UserDefinedVariables.size(); c++)
+  {
+    float value = 0.0f;
+    try
+    {
+      value = std::stof(tokens[c]);
+    } catch(const std::exception& e)
+    {
+      QString msg = QString("Error at line %1: Unable to convert data array %2's string value \"%3\" to float.  Threw standard exception with text: \"%4\"")
+                        .arg(QString::number(lineCount), QString::fromStdString(m_UserDefinedVariables[c]), QString::fromStdString(tokens[c + 1]), e.what());
+      tryNotifyErrorMessage(-2008, msg);
+      return;
+    }
+    m_UserDefinedArrays[c]->setTuple(tuple, &value);
   }
 }
 

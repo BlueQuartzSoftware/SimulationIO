@@ -175,11 +175,15 @@ void ImportDeformKeyFilev12Filter::dataCheck()
   {
     return;
   }
-  AttributeMatrix::Pointer cellAttrMat = dc->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Cell);
+  AttributeMatrix::Pointer cellAttrMat = dc->createNonPrereqAttributeMatrix(this, getCellAttributeMatrixName(), tDims, AttributeMatrix::Type::Face);
   if(getErrorCode() < 0)
   {
     return;
   }
+
+  SharedVertexList::Pointer sharedVertList = QuadGeom::CreateSharedVertexList(0);
+  QuadGeom::Pointer quadGeom = QuadGeom::CreateGeometry(0, sharedVertList, SIMPL::Geometry::QuadGeometry, !getInPreflight());
+  dc->setGeometry(quadGeom);
 
   SimulationIO::ImportDeformKeyFilev12InputValues inputValues;
   inputValues.deformInputFile = getDEFORMInputFile().toStdString();

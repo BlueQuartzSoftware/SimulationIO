@@ -78,7 +78,7 @@ void ImportDeformKeyFilev12::readDEFORMFile(DataContainer* dataContainer, Attrib
       readProcessDefinition(inStream, lineCount);
       continue;
     }
-    else if(tokens == k_StoppingAndStepControls)
+    if(tokens == k_StoppingAndStepControls)
     {
       // Skip the comment line that ends the header
       getNextLineTokens(inStream, lineCount);
@@ -87,7 +87,7 @@ void ImportDeformKeyFilev12::readDEFORMFile(DataContainer* dataContainer, Attrib
       readStoppingAndStepControls(inStream, lineCount);
       continue;
     }
-    else if(tokens == k_IterationControls)
+    if(tokens == k_IterationControls)
     {
       // Skip the comment line that ends the header
       getNextLineTokens(inStream, lineCount);
@@ -96,7 +96,7 @@ void ImportDeformKeyFilev12::readDEFORMFile(DataContainer* dataContainer, Attrib
       readIterationControls(inStream, lineCount);
       continue;
     }
-    else if(tokens == k_ProcessingConditions)
+    if(tokens == k_ProcessingConditions)
     {
       // Skip the comment line that ends the header
       getNextLineTokens(inStream, lineCount);
@@ -105,7 +105,7 @@ void ImportDeformKeyFilev12::readDEFORMFile(DataContainer* dataContainer, Attrib
       readProcessingConditions(inStream, lineCount);
       continue;
     }
-    else if(tokens == k_UserDefinedVariables)
+    if(tokens == k_UserDefinedVariables)
     {
       // Skip the comment line that ends the header
       getNextLineTokens(inStream, lineCount);
@@ -114,7 +114,7 @@ void ImportDeformKeyFilev12::readDEFORMFile(DataContainer* dataContainer, Attrib
       readUserDefinedVariables(inStream, lineCount);
       continue;
     }
-    else if(tokens == k_InterMaterialData)
+    if(tokens == k_InterMaterialData)
     {
       // Skip the comment line that ends the header
       getNextLineTokens(inStream, lineCount);
@@ -123,7 +123,7 @@ void ImportDeformKeyFilev12::readDEFORMFile(DataContainer* dataContainer, Attrib
       readInterMaterialData(inStream, lineCount);
       continue;
     }
-    else if(tokens == k_InterObjectData)
+    if(tokens == k_InterObjectData)
     {
       // Skip the comment line that ends the header
       getNextLineTokens(inStream, lineCount);
@@ -132,7 +132,7 @@ void ImportDeformKeyFilev12::readDEFORMFile(DataContainer* dataContainer, Attrib
       readInterObjectData(inStream, lineCount);
       continue;
     }
-    else if(tokens.size() == 5)
+    if(tokens.size() == 5)
     {
       std::vector<std::string> tmp = tokens;
       tmp.erase(tmp.begin() + 1);
@@ -154,7 +154,7 @@ void ImportDeformKeyFilev12::readDEFORMFile(DataContainer* dataContainer, Attrib
         readPropertyDataOfMaterial(inStream, lineCount);
         continue;
       }
-      else if(tmp == k_DataForObject)
+      if(tmp == k_DataForObject)
       {
         // Skip the comment line that ends the header
         getNextLineTokens(inStream, lineCount);
@@ -221,7 +221,11 @@ void ImportDeformKeyFilev12::readUserDefinedVariables(std::ifstream& inStream, s
   buf = SIMPL::StringUtilities::simplified(buf);
   auto tokens = SIMPL::StringUtilities::split(buf, ' ');
   lineCount++;
-
+  if(tokens.size() != 3)
+  {
+    findNextSection(inStream, lineCount);
+    return;
+  }
   size_t numVars = parse_ull(tokens.at(2), lineCount);
   m_UserDefinedVariables.resize(12);
   for(size_t i = 0; i < numVars; i++)

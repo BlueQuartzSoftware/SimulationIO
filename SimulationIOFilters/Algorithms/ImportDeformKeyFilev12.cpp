@@ -41,7 +41,7 @@ ImportDeformKeyFilev12::~ImportDeformKeyFilev12() noexcept = default;
 // -----------------------------------------------------------------------------
 void ImportDeformKeyFilev12::readDEFORMFile(DataContainer* dataContainer, AttributeMatrix* vertexAttributeMatrix, AttributeMatrix* cellAttributeMatrix, bool allocate)
 {
-  std::ifstream inStream(m_InputValues->deformInputFile);
+  std::ifstream inStream(m_InputValues->deformInputFile, std::ios_base::binary);
   size_t lineCount = 0;
 
   std::string word;
